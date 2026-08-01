@@ -90,6 +90,7 @@ type AcceptedAuthoredBoxGeometryV2 = Extract<
   VNextTextBlockAuthoredBoxGeometryResultV2,
   { status: "accepted" }
 >
+type FingerprintFactory = (canonicalFacts: string) => string
 
 const policyFacts = {
   policyVersion: 1 as const,
@@ -109,8 +110,108 @@ VNextTextBlockPersistentLayoutLineTreePolicyV1 = Object.freeze({
   ),
 })
 
+function defaultFingerprint(canonicalFacts: string): string {
+  return createVNextCompactFingerprint(canonicalFacts)
+}
+
+function fingerprintWith(
+  factory: FingerprintFactory,
+  value: unknown,
+): string {
+  return factory(stringifyVNextCanonicalJson(value))
+}
+
 function fingerprint(value: unknown): string {
-  return createVNextCompactFingerprint(stringifyVNextCanonicalJson(value))
+  return fingerprintWith(defaultFingerprint, value)
+}
+
+export function recomposeVNextTextBlockSourceMappingFingerprintInternalV1(
+  facts: Omit<VNextTextBlockPersistentLayoutSourceMappingV1, "fingerprint">,
+  factory: FingerprintFactory,
+): string {
+  return fingerprintWith(factory, {
+    contractVersion: 1,
+    ...facts,
+  })
+}
+
+export function recomposeVNextTextBlockLineFragmentLineageInternalV1(
+  fragmentKind: VNextTextBlockSpatialFragmentV2["kind"],
+  sourceSpans: readonly {
+    readonly lineageId: string
+    readonly localStartRenderedUtf16: number
+    readonly localEndRenderedUtf16: number
+  }[],
+  factory: FingerprintFactory,
+): string {
+  return fingerprintWith(factory, {
+    kind: fragmentKind,
+    mappings: sourceSpans,
+  })
+}
+
+export function recomposeVNextTextBlockLineInternalsIdentityInternalV1(
+  input: {
+    readonly sourceMappings:
+      readonly VNextTextBlockPersistentLayoutSourceMappingV1[]
+    readonly heightLayoutUnit: number
+    readonly baselineOffsetLayoutUnit: number
+    readonly fragments:
+      readonly VNextTextBlockPersistentLayoutLineFragmentInternalsV1[]
+  },
+  factory: FingerprintFactory,
+): {
+  readonly lineageId: string
+  readonly fingerprint: string
+} {
+  const lineageId = fingerprintWith(factory, {
+    sourceRanges: input.sourceMappings.map((mapping) => ({
+      lineageId: mapping.lineageId,
+      localStartRenderedUtf16: mapping.localStartRenderedUtf16,
+      localEndRenderedUtf16: mapping.localEndRenderedUtf16,
+      boundaryFingerprint: mapping.boundaryFingerprint,
+    })),
+    fragmentLineages: input.fragments.map((fragment) => fragment.lineageId),
+  })
+  const facts = {
+    lineageId,
+    heightLayoutUnit: input.heightLayoutUnit,
+    baselineOffsetLayoutUnit: input.baselineOffsetLayoutUnit,
+    fragments: input.fragments,
+  }
+  return {
+    lineageId,
+    fingerprint: fingerprintWith(factory, {
+      contractVersion: 1,
+      ...facts,
+    }),
+  }
+}
+
+export function recomposeVNextTextBlockContentLocalGeometryFingerprintInternalV1(
+  facts: Omit<
+    VNextTextBlockPersistentLayoutContentLocalGeometryV1,
+    "fingerprint"
+  >,
+  factory: FingerprintFactory,
+): string {
+  return fingerprintWith(factory, {
+    contractVersion: 1,
+    ...facts,
+  })
+}
+
+export function recomposeVNextTextBlockAuthoredBoxGeometryFingerprintInternalV1(
+  facts: Omit<
+    VNextTextBlockPersistentLayoutAuthoredBoxGeometryV1,
+    "fingerprint"
+  >,
+  factory: FingerprintFactory,
+): string {
+  return fingerprintWith(factory, {
+    contractVersion: 1,
+    ...facts,
+  })
 }
 
 function deepFreeze<T>(value: T): T {
@@ -425,10 +526,11 @@ function sourceMapping(
   }
   return {
     ...facts,
-    fingerprint: fingerprint({
-      contractVersion: 1,
-      ...facts,
-    }),
+    fingerprint:
+      recomposeVNextTextBlockSourceMappingFingerprintInternalV1(
+        facts,
+        defaultFingerprint,
+      ),
   }
 }
 
@@ -469,10 +571,11 @@ function fragmentLineageId(
     readonly localEndRenderedUtf16: number
   }[],
 ): string {
-  return fingerprint({
-    kind: fragmentKind,
-    mappings: sourceSpans,
-  })
+  return recomposeVNextTextBlockLineFragmentLineageInternalV1(
+    fragmentKind,
+    sourceSpans,
+    defaultFingerprint,
+  )
 }
 
 function lineInternalsFragment(
@@ -525,26 +628,18 @@ function lineInternals(
     if (projected == null) return null
     fragments.push(projected)
   }
-  const facts = {
-    lineageId: fingerprint({
-      sourceRanges: mappings.map((mapping) => ({
-        lineageId: mapping.lineageId,
-        localStartRenderedUtf16: mapping.localStartRenderedUtf16,
-        localEndRenderedUtf16: mapping.localEndRenderedUtf16,
-        boundaryFingerprint: mapping.boundaryFingerprint,
-      })),
-      fragmentLineages: fragments.map((fragment) => fragment.lineageId),
-    }),
+  const identity = recomposeVNextTextBlockLineInternalsIdentityInternalV1({
+    sourceMappings: mappings,
     heightLayoutUnit: line.heightLayoutUnit,
     baselineOffsetLayoutUnit: line.baselineOffsetLayoutUnit,
     fragments,
-  }
+  }, defaultFingerprint)
   return {
-    ...facts,
-    fingerprint: fingerprint({
-      contractVersion: 1,
-      ...facts,
-    }),
+    lineageId: identity.lineageId,
+    heightLayoutUnit: line.heightLayoutUnit,
+    baselineOffsetLayoutUnit: line.baselineOffsetLayoutUnit,
+    fragments,
+    fingerprint: identity.fingerprint,
   }
 }
 
@@ -596,10 +691,11 @@ function contentLocalGeometry(
   }
   return {
     ...facts,
-    fingerprint: fingerprint({
-      contractVersion: 1,
-      ...facts,
-    }),
+    fingerprint:
+      recomposeVNextTextBlockContentLocalGeometryFingerprintInternalV1(
+        facts,
+        defaultFingerprint,
+      ),
   }
 }
 
@@ -644,10 +740,11 @@ function authoredBoxGeometry(
   }
   return {
     ...facts,
-    fingerprint: fingerprint({
-      contractVersion: 1,
-      ...facts,
-    }),
+    fingerprint:
+      recomposeVNextTextBlockAuthoredBoxGeometryFingerprintInternalV1(
+        facts,
+        defaultFingerprint,
+      ),
   }
 }
 

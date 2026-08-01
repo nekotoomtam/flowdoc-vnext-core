@@ -275,6 +275,112 @@ function expectDefaultNodeFingerprintParity(
 }
 
 describe("Phase 5B Persistent Scene V2", () => {
+  it("recomposes text/image fragment and chunk identities without merging conflicting paint", () => {
+    const factory = createVNextCompactFingerprint
+    for (const options of [
+      {
+        content: "text-image-text-break" as const,
+        fit: "contain" as const,
+      },
+      {
+        content: "text-image-text-break" as const,
+        fit: "cover" as const,
+        crop: { x: 0, y: 0, width: 0.5, height: 1 },
+      },
+    ]) {
+      const built = completeScene(options)
+      const sourceItems = new Map<string, string>()
+      const visitSource = (
+        node: typeof built.sourceState.root,
+      ): void => {
+        if (node.nodeKind === "leaf") {
+          for (const item of node.items) {
+            sourceItems.set(item.lineageId, item.paintFingerprint)
+          }
+          return
+        }
+        for (const child of node.children) visitSource(child)
+      }
+      visitSource(built.sourceState.root)
+
+      for (let ordinal = 0; ordinal < built.scene.summary.chunkCount; ordinal += 1) {
+        const found = lookupVNextTextBlockPersistentSceneChunkInternalV2({
+          scene: built.scene,
+          chunkOrdinal: ordinal,
+        })
+        if (found.status !== "found") throw new Error("parity chunk missing")
+        const chunk = found.leaf.chunk
+        for (const fragment of chunk.fragments) {
+          const { fingerprint: _fingerprint, ...facts } = fragment
+          expect(
+            sceneInternals
+              .recomposeVNextTextBlockSceneFragmentIdentityInternalV2(
+                facts,
+                factory,
+              ),
+          ).toEqual({
+            paintFingerprint: fragment.paintFingerprint,
+            fingerprint: fragment.fingerprint,
+          })
+        }
+        const {
+          fingerprint: _chunkFingerprint,
+          paintFingerprint: _chunkPaintFingerprint,
+          ...chunkFacts
+        } = chunk
+        expect(
+          sceneInternals.recomposeVNextTextBlockSceneChunkIdentityInternalV2(
+            chunkFacts,
+            chunk.sourceMapping.map((mapping) => {
+              const paintFingerprint = sourceItems.get(mapping.lineageId)
+              if (paintFingerprint == null) {
+                throw new Error("mapped source paint missing")
+              }
+              return paintFingerprint
+            }),
+            factory,
+          ),
+        ).toEqual({
+          paintFingerprint: chunk.paintFingerprint,
+          fingerprint: chunk.fingerprint,
+        })
+      }
+    }
+
+    const textScene = completeScene({ content: "text-image-text" })
+    const found = lookupVNextTextBlockPersistentSceneChunkInternalV2({
+      scene: textScene.scene,
+      chunkOrdinal: 0,
+    })
+    if (found.status !== "found") throw new Error("text chunk missing")
+    const textFragment = found.leaf.chunk.fragments.find(
+      (fragment) => fragment.kind === "text",
+    )
+    if (textFragment?.kind !== "text" || textFragment.paintRuns.length === 0) {
+      throw new Error("text paint fragment missing")
+    }
+    const firstRun = textFragment.paintRuns[0]!
+    const conflictingRun = {
+      ...firstRun,
+      textColor: `${firstRun.textColor}-conflict`,
+      paintFingerprint: createVNextCompactFingerprint(
+        stringifyVNextCanonicalJson({
+          textColor: `${firstRun.textColor}-conflict`,
+          textDecoration: firstRun.textDecoration,
+          strikethrough: firstRun.strikethrough,
+          authoredTextColor: firstRun.authoredTextColor,
+        }),
+      ),
+    }
+    expect(
+      sceneInternals.recomposeVNextTextBlockSceneFragmentIdentityInternalV2({
+        ...textFragment,
+        sourceSpans: [firstRun.sourceSpan, firstRun.sourceSpan],
+        paintRuns: [firstRun, conflictingRun],
+      }, factory),
+    ).toBeNull()
+  })
+
   it("projects exact clone-safe renderer chunks without absolute positions", () => {
     const built = completeScene({
       content: "text-image-text-break",

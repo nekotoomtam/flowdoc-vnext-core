@@ -288,6 +288,68 @@ function defaultFingerprint(canonicalFacts: string): string {
   return createVNextCompactFingerprint(canonicalFacts)
 }
 
+export function canonicalVNextTextBlockTextPaintFactsInternalV1(
+  input: {
+    readonly textColor: string
+    readonly textDecoration: "none" | "underline"
+    readonly strikethrough: boolean
+    readonly authoredTextColor: string | null
+  },
+  factory: FingerprintFactory,
+): {
+  readonly facts: typeof input
+  readonly fingerprint: string
+} {
+  const facts = {
+    textColor: input.textColor,
+    textDecoration: input.textDecoration,
+    strikethrough: input.strikethrough,
+    authoredTextColor: input.authoredTextColor,
+  }
+  return {
+    facts,
+    fingerprint: fingerprintWith(factory, facts),
+  }
+}
+
+export function canonicalVNextTextBlockImagePaintFactsInternalV1(
+  input: {
+    readonly assetId: string
+    readonly authoredFrame: Pick<ImageFrameV4Target, "fit" | "crop">
+  },
+  factory: FingerprintFactory,
+): {
+  readonly facts: {
+    readonly assetId: string
+    readonly fit: ImageFrameV4Target["fit"]
+    readonly crop: ImageFrameV4Target["crop"] | null
+  }
+  readonly fingerprint: string
+} {
+  const facts = {
+    assetId: input.assetId,
+    fit: input.authoredFrame.fit,
+    crop: input.authoredFrame.crop ?? null,
+  }
+  return {
+    facts,
+    fingerprint: fingerprintWith(factory, facts),
+  }
+}
+
+export function canonicalVNextTextBlockHardBreakPaintFactsInternalV1(
+  factory: FingerprintFactory,
+): {
+  readonly facts: { readonly paint: "none" }
+  readonly fingerprint: string
+} {
+  const facts = { paint: "none" as const }
+  return {
+    facts,
+    fingerprint: fingerprintWith(factory, facts),
+  }
+}
+
 function indexSourceItems(
   root: VNextTextBlockUnifiedLayoutSourceNodeV1,
 ): SourceItemIndex | null {
@@ -740,12 +802,12 @@ function textSourceItem(
     inlineId: atom.inlineId,
     sourceKind: atom.kind,
   }
-  const paintFacts = {
+  const paint = canonicalVNextTextBlockTextPaintFactsInternalV1({
     textColor: style.textColor,
     textDecoration: style.textDecoration,
     strikethrough: style.strikethrough,
     authoredTextColor: style.authoredLocalStyle?.textColor ?? null,
-  }
+  }, factory)
   const layoutDependencyFacts = {
     fontFamilyKey: style.fontFamilyKey,
     fontFaceId: style.fontFaceId,
@@ -762,7 +824,7 @@ function textSourceItem(
     contentFingerprint: fingerprintWith(factory, contentFacts),
     sourceFingerprint: fingerprintWith(factory, sourceFacts),
     provenanceFingerprint: fingerprintWith(factory, provenanceFacts),
-    paintFingerprint: fingerprintWith(factory, paintFacts),
+    paintFingerprint: paint.fingerprint,
     layoutDependencyFingerprint: fingerprintWith(
       factory,
       layoutDependencyFacts,
@@ -824,9 +886,8 @@ function hardBreakSourceItem(
     textBlockId: initialFlow.textBlockId,
     inlineId: atom.inlineId,
   })
-  const paintFingerprint = fingerprintWith(factory, {
-    paint: "none",
-  })
+  const paintFingerprint =
+    canonicalVNextTextBlockHardBreakPaintFactsInternalV1(factory).fingerprint
   const layoutDependencyFingerprint = fingerprintWith(factory, {
     mandatoryBreak: true,
   })
@@ -895,11 +956,10 @@ function imageSourceItem(
     textBlockId: initialFlow.textBlockId,
     inlineId: atom.inlineId,
   })
-  const paintFingerprint = fingerprintWith(factory, {
+  const paintFingerprint = canonicalVNextTextBlockImagePaintFactsInternalV1({
     assetId: atom.assetId,
-    fit: atom.frame.fit,
-    crop: atom.frame.crop ?? null,
-  })
+    authoredFrame: atom.frame,
+  }, factory).fingerprint
   const layoutDependencyFingerprint = fingerprintWith(factory, {
     widthLayoutUnit: width.layoutUnit,
     heightLayoutUnit: height.layoutUnit,
@@ -1775,11 +1835,10 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
     const itemFacts = {
       ...unchangedItemFacts,
       authoredFrame,
-      paintFingerprint: fingerprintWith(prepared.fingerprintFactory, {
+      paintFingerprint: canonicalVNextTextBlockImagePaintFactsInternalV1({
         assetId: indexed.item.assetId,
-        fit: input.nextFit,
-        crop: input.nextCrop,
-      }),
+        authoredFrame,
+      }, prepared.fingerprintFactory).fingerprint,
     }
     const nextItem: VNextTextBlockUnifiedLayoutSourceItemV1 = deepFreeze({
       ...itemFacts,

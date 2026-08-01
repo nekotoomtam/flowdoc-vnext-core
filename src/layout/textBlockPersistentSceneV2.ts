@@ -191,6 +191,126 @@ function fingerprintWith(
   return factory(stringifyVNextCanonicalJson(value))
 }
 
+type SceneFragmentFactsInternalV2 =
+  | Omit<
+      Extract<
+        VNextTextBlockPersistentSceneFragmentV2,
+        { readonly kind: "text" }
+      >,
+      "fingerprint"
+    >
+  | Omit<
+      Extract<
+        VNextTextBlockPersistentSceneFragmentV2,
+        { readonly kind: "inline-image" }
+      >,
+      "fingerprint"
+    >
+
+export function recomposeVNextTextBlockSceneFragmentIdentityInternalV2(
+  input: SceneFragmentFactsInternalV2,
+  factory: FingerprintFactory,
+): {
+  readonly paintFingerprint: string
+  readonly fingerprint: string
+} | null {
+  if (input.kind === "text") {
+    if (input.sourceSpans.length !== input.paintRuns.length) return null
+    const paintByLineage = new Map<string, string>()
+    for (let index = 0; index < input.sourceSpans.length; index += 1) {
+      const span = input.sourceSpans[index]!
+      const run = input.paintRuns[index]!
+      if (
+        run.sourceSpan.lineageId !== span.lineageId
+        || run.sourceSpan.localStartRenderedUtf16
+          !== span.localStartRenderedUtf16
+        || run.sourceSpan.localEndRenderedUtf16
+          !== span.localEndRenderedUtf16
+      ) return null
+      const retainedPaint = paintByLineage.get(span.lineageId)
+      if (
+        retainedPaint != null
+        && retainedPaint !== run.paintFingerprint
+      ) return null
+      paintByLineage.set(span.lineageId, run.paintFingerprint)
+    }
+    const paintFingerprint = fingerprintWith(factory, {
+      paintRuns: input.paintRuns.map((paint) => paint.paintFingerprint),
+    })
+    const facts = {
+      kind: input.kind,
+      lineageId: input.lineageId,
+      sourceSpans: input.sourceSpans,
+      paintRuns: input.paintRuns,
+      paintFingerprint,
+    }
+    return {
+      paintFingerprint,
+      fingerprint: fingerprintWith(factory, {
+        contractVersion: 2,
+        ...facts,
+      }),
+    }
+  }
+  if (input.sourceSpans.length !== 1) return null
+  const facts = {
+    kind: input.kind,
+    lineageId: input.lineageId,
+    sourceSpans: input.sourceSpans,
+    assetId: input.assetId,
+    authoredFrame: input.authoredFrame,
+    paintFingerprint: input.paintFingerprint,
+  }
+  return {
+    paintFingerprint: input.paintFingerprint,
+    fingerprint: fingerprintWith(factory, {
+      contractVersion: 2,
+      ...facts,
+    }),
+  }
+}
+
+export function recomposeVNextTextBlockSceneChunkIdentityInternalV2(
+  input: Omit<
+    VNextTextBlockPersistentSceneChunkV2,
+    "paintFingerprint" | "fingerprint"
+  >,
+  sourcePaintFingerprints: readonly string[],
+  factory: FingerprintFactory,
+): {
+  readonly paintFingerprint: string
+  readonly fingerprint: string
+} | null {
+  if (sourcePaintFingerprints.length !== input.sourceMapping.length) return null
+  const paintFingerprint = fingerprintWith(factory, {
+    sourcePaint: sourcePaintFingerprints,
+    fragmentPaint: input.fragments.map(
+      (fragment) => fragment.paintFingerprint,
+    ),
+  })
+  const facts = {
+    lineLineageId: input.lineLineageId,
+    sourceMapping: input.sourceMapping,
+    lineInternals: input.lineInternals,
+    contentLocalGeometry: input.contentLocalGeometry,
+    authoredBoxGeometry: input.authoredBoxGeometry,
+    fragments: input.fragments,
+    lineInternalsFingerprint: input.lineInternalsFingerprint,
+    sourceFingerprint: input.sourceFingerprint,
+    provenanceFingerprint: input.provenanceFingerprint,
+    paintFingerprint,
+    boundarySpatialContextFingerprint:
+      input.boundarySpatialContextFingerprint,
+  }
+  return {
+    paintFingerprint,
+    fingerprint: fingerprintWith(factory, {
+      contractVersion: 2,
+      ...facts,
+    }),
+  }
+}
+
 type VNextTextBlockPersistentSceneHotPathEventForTestV2 =
   | {
       readonly kind:
@@ -639,12 +759,13 @@ function sceneFragment(
         paintRuns: exactPaintRuns.map((paint) => paint.paintFingerprint),
       }),
     }
+    const identity =
+      recomposeVNextTextBlockSceneFragmentIdentityInternalV2(facts, factory)
+    if (identity == null) return null
     return {
       ...facts,
-      fingerprint: fingerprintWith(factory, {
-        contractVersion: 2,
-        ...facts,
-      }),
+      paintFingerprint: identity.paintFingerprint,
+      fingerprint: identity.fingerprint,
     }
   }
   if (items.length !== 1 || items[0]?.kind !== "inline-image") return null
@@ -657,12 +778,13 @@ function sceneFragment(
     authoredFrame: structuredClone(item.authoredFrame),
     paintFingerprint: item.paintFingerprint,
   }
+  const identity =
+    recomposeVNextTextBlockSceneFragmentIdentityInternalV2(facts, factory)
+  if (identity == null) return null
   return {
     ...facts,
-    fingerprint: fingerprintWith(factory, {
-      contractVersion: 2,
-      ...facts,
-    }),
+    paintFingerprint: identity.paintFingerprint,
+    fingerprint: identity.fingerprint,
   }
 }
 
@@ -692,10 +814,7 @@ function chunkFromLineLeaf(
         !== leaf.line.sourceMapping[index]!.provenanceFingerprint
     )
   ) return null
-  const paintFingerprint = fingerprintWith(factory, {
-    sourcePaint: mappedItems.map((item) => item!.paintFingerprint),
-    fragmentPaint: fragments.map((fragment) => fragment.paintFingerprint),
-  })
+  const sourcePaint = mappedItems.map((item) => item!.paintFingerprint)
   const facts = {
     lineLineageId: leaf.line.lineageId,
     sourceMapping: leaf.line.sourceMapping,
@@ -707,20 +826,23 @@ function chunkFromLineLeaf(
       leaf.line.lineInternals.fingerprint,
     sourceFingerprint: leaf.line.sourceFingerprint,
     provenanceFingerprint: leaf.line.provenanceFingerprint,
-    paintFingerprint,
     boundarySpatialContextFingerprint:
       leaf.line.boundarySpatialContextFingerprint,
   }
+  const identity = recomposeVNextTextBlockSceneChunkIdentityInternalV2(
+    facts,
+    sourcePaint,
+    factory,
+  )
+  if (identity == null) return null
   const chunk = {
     ...facts,
-    fingerprint: fingerprintWith(factory, {
-      contractVersion: 2,
-      ...facts,
-    }),
+    paintFingerprint: identity.paintFingerprint,
+    fingerprint: identity.fingerprint,
   }
   sourcePaintFingerprintsByChunk.set(
     chunk,
-    Object.freeze(mappedItems.map((item) => item!.paintFingerprint)),
+    Object.freeze(sourcePaint),
   )
   return chunk
 }
@@ -782,12 +904,18 @@ function imagePaintChunkFromPrevious(
       authoredFrame,
       paintFingerprint: input.changedItem.paintFingerprint,
     }
+    const identity =
+      recomposeVNextTextBlockSceneFragmentIdentityInternalV2(
+        facts,
+        input.factory,
+      )
+    if (identity == null) {
+      throw new Error("image fragment canonical identity blocked")
+    }
     return Object.freeze({
       ...facts,
-      fingerprint: fingerprintWith(input.factory, {
-        contractVersion: 2,
-        ...facts,
-      }),
+      paintFingerprint: identity.paintFingerprint,
+      fingerprint: identity.fingerprint,
     })
   })
   if (changedFragmentCount !== 1) return null
@@ -796,12 +924,6 @@ function imagePaintChunkFromPrevious(
   nextSourcePaint[changedMappingIndex] = input.changedItem.paintFingerprint
   const frozenSourcePaint = Object.freeze(nextSourcePaint)
   const frozenFragments = Object.freeze(fragments)
-  const paintFingerprint = fingerprintWith(input.factory, {
-    sourcePaint: frozenSourcePaint,
-    fragmentPaint: frozenFragments.map(
-      (fragment) => fragment.paintFingerprint,
-    ),
-  })
   const facts = {
     lineLineageId: input.previousChunk.lineLineageId,
     sourceMapping: input.previousChunk.sourceMapping,
@@ -813,16 +935,19 @@ function imagePaintChunkFromPrevious(
       input.previousChunk.lineInternalsFingerprint,
     sourceFingerprint: input.previousChunk.sourceFingerprint,
     provenanceFingerprint: input.previousChunk.provenanceFingerprint,
-    paintFingerprint,
     boundarySpatialContextFingerprint:
       input.previousChunk.boundarySpatialContextFingerprint,
   }
+  const identity = recomposeVNextTextBlockSceneChunkIdentityInternalV2(
+    facts,
+    frozenSourcePaint,
+    input.factory,
+  )
+  if (identity == null) return null
   const chunk = Object.freeze({
     ...facts,
-    fingerprint: fingerprintWith(input.factory, {
-      contractVersion: 2,
-      ...facts,
-    }),
+    paintFingerprint: identity.paintFingerprint,
+    fingerprint: identity.fingerprint,
   })
   sourcePaintFingerprintsByChunk.set(chunk, frozenSourcePaint)
   return chunk

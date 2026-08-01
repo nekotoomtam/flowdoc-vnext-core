@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { createVNextCompactFingerprint } from "../src/fingerprint/compactFingerprint.js"
 import * as sourceStateInternals from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
 import * as transitionEvidenceInternals from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
@@ -221,6 +222,85 @@ function postBindingSourceTestBoundaries() {
 }
 
 describe("Phase 5B transition-native source state", () => {
+  it("recomposes canonical text, image, and hard-break paint facts exactly", () => {
+    const built = sourceState(acceptedInlineImageEvidenceFixture({
+      content: "text-image-text-break",
+      fit: "cover",
+      crop: { x: 0, y: 0, width: 0.5, height: 1 },
+    }))
+    const items = built.sourceState.root.nodeKind === "leaf"
+      ? built.sourceState.root.items
+      : built.sourceState.root.children.flatMap((child) =>
+          child.nodeKind === "leaf" ? child.items : [])
+    const factory = createVNextCompactFingerprint
+
+    for (const item of items) {
+      if (item.kind === "hard-break") {
+        expect(
+          sourceStateInternals
+            .canonicalVNextTextBlockHardBreakPaintFactsInternalV1(factory),
+        ).toEqual({
+          facts: { paint: "none" },
+          fingerprint: item.paintFingerprint,
+        })
+      } else if (item.kind === "inline-image") {
+        expect(
+          sourceStateInternals
+            .canonicalVNextTextBlockImagePaintFactsInternalV1({
+              assetId: item.assetId,
+              authoredFrame: item.authoredFrame,
+            }, factory),
+        ).toEqual({
+          facts: {
+            assetId: item.assetId,
+            fit: item.authoredFrame.fit,
+            crop: item.authoredFrame.crop ?? null,
+          },
+          fingerprint: item.paintFingerprint,
+        })
+      } else {
+        expect(
+          sourceStateInternals
+            .canonicalVNextTextBlockTextPaintFactsInternalV1({
+              textColor: item.style.textColor,
+              textDecoration: item.style.textDecoration,
+              strikethrough: item.style.strikethrough,
+              authoredTextColor:
+                item.style.authoredLocalStyle?.textColor ?? null,
+            }, factory),
+        ).toEqual({
+          facts: {
+            textColor: item.style.textColor,
+            textDecoration: item.style.textDecoration,
+            strikethrough: item.style.strikethrough,
+            authoredTextColor:
+              item.style.authoredLocalStyle?.textColor ?? null,
+          },
+          fingerprint: item.paintFingerprint,
+        })
+      }
+    }
+
+    const collision =
+      createVNextTextBlockUnifiedLayoutSourceStateWithForcedCollisionForTestInternalV1(
+        acceptedInlineImageEvidenceFixture({ content: "image-only" }),
+      )
+    if (collision.status !== "prepared") throw new Error("collision source blocked")
+    if (collision.sourceState.root.nodeKind !== "leaf") {
+      throw new Error("collision source root not leaf")
+    }
+    const collisionImage = collision.sourceState.root.items[0]
+    if (collisionImage?.kind !== "inline-image") {
+      throw new Error("collision image missing")
+    }
+    expect(
+      sourceStateInternals.canonicalVNextTextBlockImagePaintFactsInternalV1({
+        assetId: collisionImage.assetId,
+        authoredFrame: collisionImage.authoredFrame,
+      }, () => collisionImage.paintFingerprint).fingerprint,
+    ).toBe(collisionImage.paintFingerprint)
+  })
+
   it("retains exact prepared source height outside canonical identity", () => {
     const leaf = sourceState(acceptedInlineImageEvidenceFixture({
       content: "image-only",

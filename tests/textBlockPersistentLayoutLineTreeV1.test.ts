@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { createVNextCompactFingerprint } from "../src/fingerprint/compactFingerprint.js"
 import * as lineTreeInternals from "../src/layout/textBlockPersistentLayoutLineTreeV1.js"
 import * as transitionEvidenceInternals from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
@@ -187,6 +188,107 @@ function lineVisitTestBoundaries() {
 }
 
 describe("Phase 5B persistent layout line tree", () => {
+  it("recomposes every mapping, fragment, line, and geometry identity exactly", () => {
+    const built = completeTree({
+      content: "text-image-text-break",
+      width: { value: 84, unit: "pt" },
+    })
+    const factory = createVNextCompactFingerprint
+    for (let ordinal = 0; ordinal < built.tree.summary.lineCount; ordinal += 1) {
+      const found = lookupVNextTextBlockPersistentLayoutLineInternalV1({
+        lineTree: built.tree,
+        lineOrdinal: ordinal,
+      })
+      if (found.status !== "found") throw new Error("parity line missing")
+      const line = found.leaf.line
+      for (const mapping of line.sourceMapping) {
+        const { fingerprint: _fingerprint, ...facts } = mapping
+        expect(
+          lineTreeInternals
+            .recomposeVNextTextBlockSourceMappingFingerprintInternalV1(
+              facts,
+              factory,
+            ),
+        ).toBe(mapping.fingerprint)
+      }
+      for (const fragment of line.lineInternals.fragments) {
+        expect(
+          lineTreeInternals
+            .recomposeVNextTextBlockLineFragmentLineageInternalV1(
+              fragment.kind,
+              fragment.sourceSpans,
+              factory,
+            ),
+        ).toBe(fragment.lineageId)
+      }
+      const {
+        lineageId: _lineageId,
+        fingerprint: _lineInternalsFingerprint,
+        ...lineInternalsFacts
+      } = line.lineInternals
+      expect(
+        lineTreeInternals.recomposeVNextTextBlockLineInternalsIdentityInternalV1({
+          sourceMappings: line.sourceMapping,
+          ...lineInternalsFacts,
+        }, factory),
+      ).toEqual({
+        lineageId: line.lineInternals.lineageId,
+        fingerprint: line.lineInternals.fingerprint,
+      })
+      const { fingerprint: _contentFingerprint, ...contentFacts } =
+        line.contentLocalGeometry
+      expect(
+        lineTreeInternals
+          .recomposeVNextTextBlockContentLocalGeometryFingerprintInternalV1(
+            contentFacts,
+            factory,
+          ),
+      ).toBe(line.contentLocalGeometry.fingerprint)
+      const { fingerprint: _authoredFingerprint, ...authoredFacts } =
+        line.authoredBoxGeometry
+      expect(
+        lineTreeInternals
+          .recomposeVNextTextBlockAuthoredBoxGeometryFingerprintInternalV1(
+            authoredFacts,
+            factory,
+          ),
+      ).toBe(line.authoredBoxGeometry.fingerprint)
+    }
+
+    const splitRepeatedSpans = [
+      {
+        lineageId: "text:split",
+        localStartRenderedUtf16: 0,
+        localEndRenderedUtf16: 1,
+      },
+      {
+        lineageId: "text:split",
+        localStartRenderedUtf16: 1,
+        localEndRenderedUtf16: 2,
+      },
+    ] as const
+    const splitIdentity =
+      lineTreeInternals.recomposeVNextTextBlockLineFragmentLineageInternalV1(
+        "text",
+        splitRepeatedSpans,
+        factory,
+      )
+    expect(splitIdentity).toBe(
+      lineTreeInternals.recomposeVNextTextBlockLineFragmentLineageInternalV1(
+        "text",
+        splitRepeatedSpans,
+        factory,
+      ),
+    )
+    expect(splitIdentity).not.toBe(
+      lineTreeInternals.recomposeVNextTextBlockLineFragmentLineageInternalV1(
+        "text",
+        [...splitRepeatedSpans].reverse(),
+        factory,
+      ),
+    )
+  })
+
   it("projects one leaf per complete line with separated immutable facts", () => {
     const built = completeTree({
       content: "text-image-text-break",
