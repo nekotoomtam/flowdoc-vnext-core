@@ -381,7 +381,7 @@ function legacyInactive(
 /*
  * The constants below are the checked-in result of the 5B-1 fixture
  * calibration manifest. No elapsed-time value participates in the policy.
- * The retained V1 row is staged compatibility only; V2 keeps payload bytes
+ * The retained V1 row is staged compatibility only; V3 keeps payload bytes
  * observational and outside execution work.
  */
 const policy5b1V1Stages = Object.freeze([

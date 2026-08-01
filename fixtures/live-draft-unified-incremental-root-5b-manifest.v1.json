@@ -376,14 +376,20 @@
     }
   ],
   "capabilities": {
+    "trueNoOpIncrementalTransition": true,
+    "imagePaintIncrementalTransition": true,
     "emptyBlockIncrementalTransition": false,
     "exclusionIncrementalTransition": false,
+    "textStyleIncrementalTransition": false,
     "semanticOnlyIncrementalTransition": false,
+    "authoredBoxIncrementalTransition": false,
+    "fixedHeightOverflowPolicy": false,
     "alternateRegisteredTreeHistoryNormalization": false,
     "workerSessionProtocol": false,
     "editorApply": false,
     "backendPersistence": false,
-    "productionActivation": false
+    "productionActivation": false,
+    "rootV1SceneV1Retirement": false
   },
   "invariants": {
     "completeNextInputTraversalCount": 0,
@@ -394,6 +400,9 @@
     "wallClockExecutionPathSelection": false,
     "partialCandidateMayEnterFallback": false,
     "callerMaySelectWorkPolicy": false,
+    "payloadSizeMaySelectExecutionPath": false,
+    "completeOracleOnProductionHotPath": false,
+    "lifetimeProofLimitedToObjectGraphRetention": true,
     "stagedEditorApply": false,
     "mayPublishLayout": false,
     "productionBinding": false
@@ -403,9 +412,14 @@
     "persistentSceneV2Authority": "Core",
     "dirtyRange": "Core",
     "affectedLinesAndBands": "Core",
-    "reconvergenceAndReuse": "Core",
+    "structuralReuseProof": "Core",
+    "textLayoutReconvergence": "inactive",
     "fallbackSelection": "Core",
     "producerEvidenceResponse": "producer-within-Core-bounded-request",
+    "payloadSizing": "observational-only",
+    "lifetimeProof": "object-graph-retention-only",
+    "completeOracle": "QA-only",
+    "rootV1SceneV1": "frozen-compatibility-and-QA-reference",
     "editorApply": "out-of-scope",
     "backendPersistence": "out-of-scope"
   }

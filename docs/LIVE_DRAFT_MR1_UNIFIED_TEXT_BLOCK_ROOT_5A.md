@@ -208,7 +208,16 @@ incremental scene delivery or transfer a layout authority to a renderer.
 
 ## Next Checkpoint
 
-Phase 5B: Unified Incremental Transition is the next possible checkpoint. It
-must be separately designed, reviewed, and explicitly authorized. Phase 5A
-does not authorize Phase 5B, a Worker session, Editor/Backend work,
-fixed-height behavior, asset lifecycle policy, publication, or production.
+Phase 5B-1 is now implemented as a separately designed and authorized
+Core-only successor checkpoint. Its active lane is limited to Root V2 true
+no-op and inline-image paint transition with exact whole-subtree structural
+reuse. The active work policy is `5b-1-v3` with fingerprint
+`sha256:896f2163367070bd1f1e6fa0d9b34c0f47e371e6256cc9c15bd27e898c185982`;
+fixture calibration revision is `3`. See
+`docs/LIVE_DRAFT_MR1_UNIFIED_INCREMENTAL_ROOT_5B.md`.
+
+This successor does not retroactively broaden Phase 5A. Phase 5B-2 and 5B-3,
+text/style and authored-box incremental transition, fixed-height/overflow,
+Worker sessions, Editor/Backend work, publication, production, and Root
+V1/Scene V1 retirement remain inactive pending separate review and explicit
+authorization.

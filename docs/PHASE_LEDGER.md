@@ -12940,15 +12940,15 @@ Task 7 adds the reviewed public boundary, handoff, and final gate.
 
 ## Phase 5B-1 Unified Incremental Root Transition Foundation
 
-Status: implemented at the corrected Core-only 5B-1 independent review stop.
+Status: implemented and closed at the Core-only 5B-1 final user-review stop.
 Phase 5B-2, Phase 5B-3, Phase 5C, Editor/Backend integration, publication,
 production activation, and Root V1/Scene V1 retirement remain NO-GO.
 
 - Added active Root V2 true-no-op and inline-image paint-fact transition
   behavior. True no-op returns the exact previous Root/Scene wrappers. Paint
-  retains the exact previous line-tree object and selects one exact whole-tree
-  subtree with zero line-tree wrapper allocation/traversal. This is exact
-  structural reuse, never reconvergence. Evidence:
+  keeps the exact previous line-tree dependency and selects one exact
+  whole-tree subtree with zero line-tree wrapper allocation or complete
+  traversal. This is exact structural reuse, never reconvergence. Evidence:
   `attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(...)` in
   `src/layout/textBlockUnifiedLayoutTransitionV1.ts` and
   `tests/textBlockUnifiedLayoutTransitionFoundationV1.test.ts`.
@@ -12962,66 +12962,61 @@ production activation, and Root V1/Scene V1 retirement remain NO-GO.
   `tests/textBlockPersistentSceneV2.test.ts`,
   `tests/textBlockUnifiedLayoutRootV2.test.ts`, and
   `tests/textBlockUnifiedLayoutFallbackV1.test.ts`.
-- Final-review hardening adds a work-free line-tree semantic fingerprint so
-  Scene and Root semantic identity remain work-free transitively while exact
-  composite authority still binds the work-bearing line tree. Accepted no-op
-  and paint paths use shallow exact WeakMap authority, freeze only new
-  wrappers/nodes, and perform no retained-graph canonical rehash.
-- Source paint resolves one exact current item and reuses its private authority
-  through source and Scene path-copy. Exact prior-chunk paint authority avoids
-  neighbor lookups, including unchanged hard-break paint. A 32-transition
-  chain proves one index lookup and zero historical Scene probes per
-  transition; exact builder-owned fragment tokens replace ancestor node-set
-  scans. The existing `source-flow/source-items = 1` row remains factual, so
-  policy `5b-1-v2` and calibration revision `2` are unchanged.
+- Source, line, Scene, and delivery owner helpers recompute only task-specific
+  facts they own and remain private. Operation-owned counters cover source and
+  line-tree lookup/path-copy, Scene lookup/path-copy, and delivery lookup/cover
+  visits without retained-graph canonical rehash.
 - Locked runtime contracts at Root V2 `2`, Persistent Scene V2 `2`,
-  Transition V1 `1`, and Scene Delivery V2 `2`; active policy is `5b-1-v2`,
-  while fixture calibration revision is independently `2`. Changing only an
-  in-memory calibration clone from `2` to `3` leaves exact Root semantic and
-  composite fingerprints unchanged, and calibration is absent from Root/Scene.
-- Locked exactly six deterministic execution rows: source items `1/4/1:1`,
-  structural selected-subtree nodes `1/4/1:1`, copied Scene nodes
-  `2/16/1:1`, replacement chunks `1/4/1:1`, delivery operations
-  `4/16/1:1`, and retain-cover nodes `16/64/1:1`. Payload byte estimates exist
-  only under observations, never execution units, threshold rows, fallback
-  reasons, or selectors. The manifest counters and payload observations are
-  compared with deterministic transition results in
-  `tests/liveDraftMr1UnifiedIncrementalRoot5b.test.ts`.
+  Transition V1 `1`, and Scene Delivery V2 `2`. Active public policy is
+  `5b-1-v3` with fingerprint
+  `sha256:896f2163367070bd1f1e6fa0d9b34c0f47e371e6256cc9c15bd27e898c185982`;
+  fixture calibration revision is independently `3`.
+- The V3 policy has 21 ordered rows: 13 locked and eight inactive. Locked rows
+  cover four source-flow units, two structural-reuse-proof units, four Scene
+  units, and three delivery-plan units. Inactive 5B-2/5B-3 rows remain flow
+  atoms/tree, spatial nodes/bands, recomputed lines/proof nodes, and
+  reprojected lines/visited fragments. Payload bytes remain observational and
+  wall clock remains outside execution selection.
 - Canonical retain covers are scoped to the exact registered Scene tree,
-  tree-policy fingerprint, and half-open ordinal range. Exact 8/9/17/33-chunk
-  coverage plus reordered, nonmaximal, cloned, foreign, policy-drifted, and
-  payload-observation-drifted blocks are in
-  `tests/textBlockSceneDeliveryV2.test.ts`.
-- Fallback creation now consumes one exact Core-minted attempt and recomputes
-  the matching active-policy limit/work row. Public delivery validation parses
-  nested cloneable data descriptor-safely before reads or canonicalization.
-  Genuine forced-collision Scenes with equal digests are rejected across
-  delivery and Root authority. Authored-box changes block at the inactive 5B-3
-  geometry stage with no cover, fallback, or incremental child work.
-- Public exports retain the reviewed V2 policy, contracts, orchestration
+  versioned tree policy, half-open ordinal range, and stored left-to-right
+  ordering. Alternate registered tree-history normalization remains inactive.
+- Fallback consumes one exact Core-minted attempt bound to evaluator/proof
+  authority and the matching active-policy limit/work row. Partial incremental
+  candidates cannot enter complete fallback. Bootstrap and fallback share one
+  private complete Root V2 construction kernel.
+- Detached complete delivery is descriptor-parsed and recomposed inside-out
+  for locally owned mapping, line, geometry, paint, Scene, summary, payload
+  observation, and delivery facts. Accessor/prototype/symbol/cycle/unsafe
+  number/unknown-field, parent-child inconsistency, and genuine forced
+  fingerprint collision cases are rejected without promoting opaque upstream
+  facts to process-local authority.
+- Public exports retain the reviewed V3 policy, contracts, orchestration
   boundaries, and inspectors. Superseded/test-only policy, collision,
-  alternate-payload, candidate/selector, registry, classifier, complete-kernel,
-  and fallback-observer internals remain private under the package-boundary
+  owner-helper, candidate/selector, registry, classifier, complete-kernel, and
+  observer internals remain private under the package-boundary
   test in `tests/liveDraftMr1UnifiedIncrementalRoot5b.test.ts`.
+- Incremental, independently supplied complete-fallback, and QA-only complete
+  oracle lanes produce equal normalized renderer chunks/summary for the active
+  paint case. Their `incrementalCandidateWork`, `completeFallbackWork`, and
+  `completeOracleWork` ledgers stay separate; Root composite fingerprints are
+  not misused as cross-provenance equality.
 - The deterministic lifetime test proves object-graph reachability/retention
   only. It does not claim garbage-collection timing, product-scale memory,
   Worker-handle lifetime, transfer behavior, or memory reclamation.
 - The empty row is structural calibration with no transition; the 128-line
-  exclusion row is an inactive reference with no transition. Empty,
-  exclusion, semantic-only, alternate registered history, Worker session,
-  Editor apply, Backend persistence, publication, and production capabilities
-  remain false/inactive. Editor and Backend repositories are unchanged.
+  exclusion row is an inactive reference with no transition. Empty, exclusion,
+  text/style, semantic-only, authored-box, fixed-height, alternate registered
+  history, Worker session, Editor apply, Backend persistence, production, and
+  Root V1/Scene V1 retirement capabilities remain false/inactive. Editor and
+  Backend repositories are unchanged.
 - Evidence:
   `docs/LIVE_DRAFT_MR1_UNIFIED_INCREMENTAL_ROOT_5B.md`,
   `fixtures/live-draft-unified-incremental-root-5b-manifest.v1.json`,
-  `tests/liveDraftMr1UnifiedIncrementalRoot5b.test.ts`, and the ten focused
+  `tests/liveDraftMr1UnifiedIncrementalRoot5b.test.ts`, and the focused
   corrective subsystem tests.
-- TDD handoff RED ran 1 file / 9 tests with 2 failed and 7 passed for the
-  actually missing runtime/calibration metadata and fixture observations;
-  inherited V2 public-policy facts already passed. Handoff GREEN passed
-  1 file / 9 tests.
-- The complete corrected focused gate passed 11 files / 88 tests.
-  `npm run type-check` and `git diff --check` passed. The complete
-  `npm run check` passed TypeScript and 452 test files / 2,458 tests.
-- Next: independent review of the corrected 5B-1 checkpoint. Do not start
-  Phase 5B-2 without explicit authorization.
+- Final focused gate passed 12 files / 142 tests plus type-check. Full
+  `npm run check` passed type-check and 453 test files / 2,512 tests; diff
+  hygiene passed. Final scoped review found no open Critical or Important
+  finding after correcting V3 documentation drift.
+- Next: user review of the closed 5B-1 checkpoint. Do not start Phase 5B-2
+  without explicit authorization.

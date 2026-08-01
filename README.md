@@ -170,24 +170,30 @@ The package must remain runnable without any parent editor checkout.
   reuse, not reconvergence. Persistent Scene separates semantic from payload
   observation identity, Root separates semantic from composite authority, and
   bootstrap/fallback use one private complete construction kernel. The active
-  `5b-1-v2` policy has six deterministic execution rows; payload bytes remain
-  observations only. Final-review hardening uses shallow exact WeakMap
-  authority on retained hot paths, one exact source-item resolution reused
-  through paint path-copy, work-free semantic identity through line tree,
-  Scene, and Root, exact fallback-attempt authority, descriptor-safe nested
-  delivery validation, and real forced-collision rejection. Authored-box
-  execution remains blocked at the inactive 5B-3 geometry stage. The
-  deterministic lifetime gate proves object-graph reachability/retention only,
-  not product-scale memory or reclamation.
-  Empty, exclusion, semantic-only, alternate-history, Worker-session, Editor
-  apply, Backend persistence, publication, and production capabilities remain
-  inactive. Evidence:
+  `5b-1-v3` policy has 21 ordered rows—13 locked and eight inactive—with exact
+  fingerprint `sha256:896f2163367070bd1f1e6fa0d9b34c0f47e371e6256cc9c15bd27e898c185982`;
+  fixture calibration revision is independently `3`. Payload bytes remain
+  observation-only and cannot select execution. Final hardening makes source,
+  line, Scene, and delivery visits operation-owned; fallback consumes only
+  exact proof/evaluator authority; and complete bootstrap/fallback share one
+  private construction kernel. Detached complete delivery is parsed
+  descriptor-safely and recomposes locally provable mapping, line, geometry,
+  paint, fragment, chunk, summary, payload-observation, and delivery identities
+  without granting process-local Root/Scene authority. Incremental,
+  independently supplied complete-fallback, and complete-oracle lanes match in
+  normalized renderer chunks/summary while keeping three work ledgers separate.
+  Authored-box execution remains blocked at inactive 5B-3 geometry. Lifetime
+  proof is limited to object-graph retention; empty calibration executes no
+  transition and the 128-line exclusion row is inactive. Text/style,
+  semantic-only, authored-box, fixed-height, exclusion, empty-block,
+  alternate-history, Worker, Editor, Backend, production, and V1 retirement
+  remain inactive. Evidence:
   `docs/LIVE_DRAFT_MR1_UNIFIED_INCREMENTAL_ROOT_5B.md`,
   `fixtures/live-draft-unified-incremental-root-5b-manifest.v1.json`, and
-  `tests/liveDraftMr1UnifiedIncrementalRoot5b.test.ts`. The corrected focused
-  gate passed 11 files / 88 tests; the complete Core gate passed 452 files /
-  2,458 tests plus type-check. Phase 5B-2 remains stopped pending explicit
-  review authorization.
+  `tests/liveDraftMr1UnifiedIncrementalRoot5b.test.ts`. The final focused gate
+  passed 12 files / 142 tests; the complete Core gate passed 453 files / 2,512
+  tests plus type-check. Phase 5B-2 remains stopped pending explicit review and
+  authorization.
 - Phase 281 closes the cross-repo Structure Authoring v4 transport slice
   through backend revision/idempotency and editor stale-apply gates. It keeps
   WYSIWYG input, production storage, columns/table split, mixed layout,

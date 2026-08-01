@@ -6,6 +6,11 @@ import {
   createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutFallbackV1.js"
 import {
+  bindVNextTextBlockUnifiedLayoutChangeInternalV1,
+  evaluateNextVNextTextBlockStageVisitInternalV1,
+  setVNextTextBlockPostBindingLimitOverrideForTestInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
+import {
   evaluateVNextTextBlockStageWorkLimitInternalV1,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
@@ -155,10 +160,15 @@ function manifestPayloadLocationViolations(
 
   const withoutFixtureObservations = structuredClone(value) as unknown as {
     readonly fixtures: Array<Record<string, unknown>>
+    readonly invariants: Record<string, unknown>
+    readonly ownershipMap: Record<string, unknown>
   }
   for (const fixture of withoutFixtureObservations.fixtures) {
     delete fixture.observations
   }
+  delete withoutFixtureObservations.invariants
+    .payloadSizeMaySelectExecutionPath
+  delete withoutFixtureObservations.ownershipMap.payloadSizing
   if (/payload/iu.test(JSON.stringify(withoutFixtureObservations))) {
     violations.push("outside-fixture-observations")
   }
@@ -412,14 +422,33 @@ describe("Phase 5B-1 public foundation gate", () => {
       },
     })
     expect(manifest.capabilities).toEqual({
+      trueNoOpIncrementalTransition: true,
+      imagePaintIncrementalTransition: true,
       emptyBlockIncrementalTransition: false,
       exclusionIncrementalTransition: false,
+      textStyleIncrementalTransition: false,
       semanticOnlyIncrementalTransition: false,
+      authoredBoxIncrementalTransition: false,
+      fixedHeightOverflowPolicy: false,
       alternateRegisteredTreeHistoryNormalization: false,
       workerSessionProtocol: false,
       editorApply: false,
       backendPersistence: false,
       productionActivation: false,
+      rootV1SceneV1Retirement: false,
+    })
+    expect(manifest.invariants).toMatchObject({
+      payloadSizeMaySelectExecutionPath: false,
+      completeOracleOnProductionHotPath: false,
+      lifetimeProofLimitedToObjectGraphRetention: true,
+    })
+    expect(manifest.ownershipMap).toMatchObject({
+      structuralReuseProof: "Core",
+      textLayoutReconvergence: "inactive",
+      payloadSizing: "observational-only",
+      lifetimeProof: "object-graph-retention-only",
+      completeOracle: "QA-only",
+      rootV1SceneV1: "frozen-compatibility-and-QA-reference",
     })
     for (const fixture of manifest.fixtures) {
       expect(Object.keys(fixture.observations), fixture.fixtureId).toEqual([
@@ -532,6 +561,131 @@ describe("Phase 5B-1 public foundation gate", () => {
       structuredClone(rootResult.persistentScene),
     )).toMatchObject({ status: "invalid", code: "scene-authority-mismatch" })
   })
+
+  it("matches incremental, complete-fallback, and complete-oracle renderer facts with separate ledgers", () => {
+    const previous = publicCore.createVNextTextBlockUnifiedLayoutRootV2(
+      unifiedLayoutRootBuildInputFixtureV2({
+        content: "text-image-text-break",
+        fit: "contain",
+      }),
+    )
+    if (previous.status !== "accepted") throw new Error("previous Root blocked")
+    const change = imagePaintUnifiedLayoutChange5b(previous.root, {
+      fit: "cover",
+      crop: { x: 0, y: 0, width: 0.5, height: 1 },
+    })
+    const incremental =
+      publicCore.attemptVNextTextBlockUnifiedLayoutRootTransitionV1({
+        previousRoot: previous.root,
+        change,
+      })
+    if (incremental.status !== "accepted-incremental") {
+      throw new Error(`incremental blocked: ${JSON.stringify(incremental.issues)}`)
+    }
+
+    const bound = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
+      previousRoot: previous.root,
+      change,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
+    })
+    if (bound.status !== "accepted") throw new Error("fallback bind blocked")
+    setVNextTextBlockPostBindingLimitOverrideForTestInternalV1({
+      stage: "structural-reuse-proof",
+      unit: "line-tree-lookup-nodes",
+      effectiveLimit: 0,
+    })
+    let evaluated: ReturnType<
+      typeof evaluateNextVNextTextBlockStageVisitInternalV1
+    >
+    try {
+      evaluated = evaluateNextVNextTextBlockStageVisitInternalV1({
+        validatedChange: bound.validatedChange,
+        stage: "structural-reuse-proof",
+        unit: "line-tree-lookup-nodes",
+        completedWork: 0,
+        completedCandidateWork: bound.incrementalCandidateWork,
+      })
+    } finally {
+      setVNextTextBlockPostBindingLimitOverrideForTestInternalV1(null)
+    }
+    if (evaluated.status !== "limit-exceeded") {
+      throw new Error("fallback evaluator authority missing")
+    }
+    const request = createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+      attempt: evaluated.evaluatorAuthority,
+    })
+    if (request.status !== "fallback-required") {
+      throw new Error("fallback request blocked")
+    }
+    const nextOptions = {
+      content: "text-image-text-break" as const,
+      fit: "cover" as const,
+      crop: { x: 0, y: 0, width: 0.5, height: 1 },
+    }
+    const fallback = publicCore.completeVNextTextBlockUnifiedLayoutRootFallbackV1({
+      request: request.fallbackRequest,
+      completeMaterial: unifiedLayoutRootBuildInputFixtureV2(nextOptions),
+    })
+    if (fallback.status !== "accepted-complete-fallback") {
+      throw new Error(`complete fallback blocked: ${JSON.stringify(fallback.issues)}`)
+    }
+    const oracle = publicCore.createVNextTextBlockUnifiedLayoutRootV2(
+      unifiedLayoutRootBuildInputFixtureV2(nextOptions),
+    )
+    if (oracle.status !== "accepted") throw new Error("complete oracle blocked")
+
+    const rendererFacts = (root: typeof previous.root) => {
+      const delivery =
+        publicCore.createVNextTextBlockUnifiedLayoutCompleteSceneDeliveryV2({
+          root,
+        })
+      if (delivery.status !== "accepted") throw new Error("renderer delivery blocked")
+      return {
+        normalized: {
+          chunks: delivery.delivery.chunks,
+          summary: delivery.delivery.summary,
+        },
+        completeDeliveryWork: delivery.delivery.work,
+      }
+    }
+    const incrementalRenderer = rendererFacts(incremental.root)
+    const fallbackRenderer = rendererFacts(fallback.root)
+    const oracleRenderer = rendererFacts(oracle.root)
+    expect(incrementalRenderer.normalized).toEqual(oracleRenderer.normalized)
+    expect(fallbackRenderer.normalized).toEqual(oracleRenderer.normalized)
+    expect(incremental.root.fingerprint).not.toBe(fallback.root.fingerprint)
+    expect(fallback.root.fingerprint).not.toBe(oracle.root.fingerprint)
+
+    const ledgers = {
+      incrementalCandidateWork: incremental.incrementalCandidateWork,
+      completeFallbackWork: fallback.completeFallbackWork,
+      completeOracleWork: {
+        root: oracle.completeBuildWork,
+        delivery: oracleRenderer.completeDeliveryWork,
+      },
+    }
+    expect(Object.keys(ledgers)).toEqual([
+      "incrementalCandidateWork",
+      "completeFallbackWork",
+      "completeOracleWork",
+    ])
+    expect(ledgers.incrementalCandidateWork.completeNextInputTraversalCount)
+      .toBe(0)
+    expect(ledgers.completeFallbackWork).toMatchObject({
+      completeRootV2BuildCount: 1,
+      completeSceneV2BuildCount: 1,
+      completeDeliveryCount: 0,
+    })
+    expect(ledgers.completeOracleWork.delivery.completeDeliveryCount).toBe(1)
+
+    const noOp = publicCore.attemptVNextTextBlockUnifiedLayoutRootTransitionV1({
+      previousRoot: previous.root,
+      change: noOpUnifiedLayoutChange5b(previous.root),
+    })
+    if (noOp.status !== "accepted-no-op") throw new Error("no-op blocked")
+    expect(rendererFacts(noOp.root).normalized)
+      .toEqual(rendererFacts(previous.root).normalized)
+  }, 120_000)
 
   it("matches the deterministic manifest counters and calibration formula", () => {
     expect(manifest).toMatchObject({
