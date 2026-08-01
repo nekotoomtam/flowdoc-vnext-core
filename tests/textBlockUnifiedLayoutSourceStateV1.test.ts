@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import * as sourceStateInternals from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
 import {
   acceptVNextTextBlockFlowEvidenceV2,
   createVNextTextBlockInitialFlowV1,
@@ -135,7 +136,117 @@ function sourceState(
   return result
 }
 
+function preparedSourceEnvelopeFacts(value: unknown): unknown {
+  const inspect = (sourceStateInternals as unknown as {
+    readonly inspectVNextTextBlockPreparedSourceEnvelopeFactsInternalV1?:
+      (sourceState: unknown) => unknown
+  }).inspectVNextTextBlockPreparedSourceEnvelopeFactsInternalV1
+  return inspect?.(value) ?? null
+}
+
 describe("Phase 5B transition-native source state", () => {
+  it("retains exact prepared source height outside canonical identity", () => {
+    const leaf = sourceState(acceptedInlineImageEvidenceFixture({
+      content: "image-only",
+    }))
+    const repeatedSource = repeatedUnifiedLayoutRootSourceFixtureV1({
+      lineCount: 65,
+      includeImages: true,
+    })
+    const multiHeight = sourceState({
+      initialFlow: repeatedSource.initialFlow,
+      evidence: repeatedSource.evidence,
+    })
+    const leafStateBefore = JSON.stringify(leaf.sourceState)
+    const multiStateBefore = JSON.stringify(multiHeight.sourceState)
+    const leafStateKeys = Reflect.ownKeys(leaf.sourceState)
+    const leafRootFingerprint = leaf.sourceState.root.fingerprint
+    const multiRootFingerprint = multiHeight.sourceState.root.fingerprint
+
+    const leafFacts = preparedSourceEnvelopeFacts(leaf.sourceState)
+    const multiFacts = preparedSourceEnvelopeFacts(multiHeight.sourceState)
+
+    expect(leafFacts).toEqual({
+      sourceItemCount: 1,
+      treeHeight: 1,
+      maximumLeafOccupancy: 8,
+      deliberateItemResolutionCount: 1,
+    })
+    expect(multiFacts).toEqual({
+      sourceItemCount: multiHeight.sourceState.summary.itemCount,
+      treeHeight: 3,
+      maximumLeafOccupancy: 8,
+      deliberateItemResolutionCount: 1,
+    })
+    expect(Object.isFrozen(leafFacts)).toBe(true)
+    expect(Object.isFrozen(multiFacts)).toBe(true)
+    expect(JSON.stringify(leaf.sourceState)).toBe(leafStateBefore)
+    expect(JSON.stringify(multiHeight.sourceState)).toBe(multiStateBefore)
+    expect(Reflect.ownKeys(leaf.sourceState)).toEqual(leafStateKeys)
+    expect(leaf.sourceState.root.fingerprint).toBe(leafRootFingerprint)
+    expect(multiHeight.sourceState.root.fingerprint).toBe(multiRootFingerprint)
+    expect(Object.hasOwn(leaf.sourceState, "treeHeight")).toBe(false)
+    expect(Object.hasOwn(leaf.sourceState.summary, "treeHeight")).toBe(false)
+  })
+
+  it("rejects detached height and retains exact height through paint path-copy", () => {
+    const built = sourceState(acceptedInlineImageEvidenceFixture({
+      content: "image-only",
+      fit: "contain",
+    }))
+    const detached = structuredClone(built.sourceState) as unknown as {
+      readonly root: { height: number }
+    }
+    detached.root.height = 99
+    expect(preparedSourceEnvelopeFacts(detached)).toBeNull()
+
+    const item =
+      deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1({
+        sourceState: built.sourceState,
+        inlineId: "image-1",
+        expectedImageSourceFingerprint:
+          built.sourceState.root.nodeKind === "leaf"
+            ? built.sourceState.root.items[0]!.sourceFingerprint
+            : "unreachable",
+        expectedImageDependencyFingerprint:
+          built.sourceState.root.nodeKind === "leaf"
+            ? built.sourceState.root.items[0]!.layoutDependencyFingerprint
+            : "unreachable",
+        nextFit: "cover",
+        nextCrop: { x: 0, y: 0, width: 0.5, height: 1 },
+      })
+    if (item.status !== "accepted") {
+      throw new Error("prepared-height paint fixture blocked")
+    }
+    const successor =
+      createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionInternalV1({
+        previousSourceState: built.sourceState,
+        sourceItemAuthority: item.sourceItemAuthority,
+        inlineId: "image-1",
+        expectedImageSourceFingerprint:
+          built.sourceState.root.nodeKind === "leaf"
+            ? built.sourceState.root.items[0]!.sourceFingerprint
+            : "unreachable",
+        expectedImageDependencyFingerprint:
+          built.sourceState.root.nodeKind === "leaf"
+            ? built.sourceState.root.items[0]!.layoutDependencyFingerprint
+            : "unreachable",
+        nextFit: "cover",
+        nextCrop: { x: 0, y: 0, width: 0.5, height: 1 },
+      })
+    if (successor.status !== "prepared") {
+      throw new Error("prepared-height paint successor blocked")
+    }
+    expect(preparedSourceEnvelopeFacts(successor.sourceState)).toEqual({
+      sourceItemCount: 1,
+      treeHeight: 1,
+      maximumLeafOccupancy: 8,
+      deliberateItemResolutionCount: 1,
+    })
+    expect(preparedSourceEnvelopeFacts(structuredClone(successor.sourceState)))
+      .toBeNull()
+  })
+
   it("changes paint authority without changing layout-only flow authority", () => {
     const contain = sourceState(acceptedInlineImageEvidenceFixture({
       content: "image-only",

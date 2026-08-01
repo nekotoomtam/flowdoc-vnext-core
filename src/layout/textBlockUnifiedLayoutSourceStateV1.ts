@@ -60,6 +60,13 @@ interface SourceItemIndex {
   }>
 }
 
+export interface VNextTextBlockPreparedSourceEnvelopeFactsInternalV1 {
+  readonly sourceItemCount: number
+  readonly treeHeight: number
+  readonly maximumLeafOccupancy: 8
+  readonly deliberateItemResolutionCount: 1
+}
+
 const policyFacts = {
   policyVersion: 1 as const,
   maximumLeafItems: 8 as const,
@@ -85,6 +92,7 @@ VNextTextBlockUnifiedLayoutSourceStateV1,
   readonly canonicalFacts: string
   readonly fingerprintFactory: FingerprintFactory
   readonly itemIndex: SourceItemIndex
+  readonly treeHeight: number
 }
 >()
 const statesByEvidence = new WeakMap<
@@ -993,6 +1001,7 @@ function buildComplete(
       canonicalFacts,
       fingerprintFactory: factory,
       itemIndex,
+      treeHeight: sourceState.root.height + 1,
     })
     const evidenceStates = statesByEvidence.get(evidence) ?? new WeakSet()
     evidenceStates.add(sourceState)
@@ -1037,6 +1046,19 @@ export function createVNextTextBlockUnifiedLayoutSourceStateWithForcedCollisionF
   },
 ): VNextTextBlockUnifiedLayoutSourceStateBuildResultV1 {
   return buildComplete(input, forcedCollisionFingerprint)
+}
+
+export function inspectVNextTextBlockPreparedSourceEnvelopeFactsInternalV1(
+  sourceState: VNextTextBlockUnifiedLayoutSourceStateV1,
+): VNextTextBlockPreparedSourceEnvelopeFactsInternalV1 | null {
+  const prepared = preparedStates.get(sourceState)
+  if (prepared == null) return null
+  return Object.freeze({
+    sourceItemCount: sourceState.summary.itemCount,
+    treeHeight: prepared.treeHeight,
+    maximumLeafOccupancy: 8 as const,
+    deliberateItemResolutionCount: 1 as const,
+  })
 }
 
 export function hasVNextTextBlockUnifiedLayoutSourceStatePreparedBindingInternalV1(
@@ -1396,6 +1418,7 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
       canonicalFacts,
       fingerprintFactory: prepared.fingerprintFactory,
       itemIndex: prepared.itemIndex,
+      treeHeight: prepared.treeHeight,
     })
     const nextStates =
       imagePaintNextStates.get(input.previousSourceState) ?? new WeakSet()

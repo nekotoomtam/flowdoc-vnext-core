@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import * as publicCore from "../src/index.js"
+import * as sourceStateInternals from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
 import { createVNextCompactFingerprint } from "../src/fingerprint/compactFingerprint.js"
 import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
 import {
@@ -154,6 +155,30 @@ function policyLimitedAt(
 }
 
 describe("Phase 5B-1 Root V2 adversarial gate", () => {
+  it("does not treat visible Source Tree height as prepared envelope authority", () => {
+    const result = publicCore.createVNextTextBlockUnifiedLayoutRootV2(
+      unifiedLayoutRootBuildInputFixtureV2(),
+    )
+    if (result.status !== "accepted") throw new Error("Root V2 fixture blocked")
+    const inspect = (sourceStateInternals as unknown as {
+      readonly inspectVNextTextBlockPreparedSourceEnvelopeFactsInternalV1?:
+        (sourceState: unknown) => unknown
+    }).inspectVNextTextBlockPreparedSourceEnvelopeFactsInternalV1
+    const detached = structuredClone(result.root.sourceState) as unknown as {
+      readonly root: { height: number }
+    }
+    detached.root.height = result.root.sourceState.root.height
+
+    expect(inspect?.(result.root.sourceState) ?? null).toMatchObject({
+      sourceItemCount: result.root.sourceState.summary.itemCount,
+      treeHeight: result.root.sourceState.root.height + 1,
+    })
+    expect(inspect?.(detached) ?? null).toBeNull()
+    expect(
+      "inspectVNextTextBlockPreparedSourceEnvelopeFactsInternalV1" in publicCore,
+    ).toBe(false)
+  })
+
   it("blocks mutable, accessor, symbol, class, proxy, foreign, and production inputs", () => {
     const exact = unifiedLayoutRootBuildInputFixtureV2()
     let accessorReadCount = 0
