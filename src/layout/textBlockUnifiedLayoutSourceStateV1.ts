@@ -35,6 +35,10 @@ import {
 import {
   authorizeVNextTextBlockUnifiedLayoutRootGraphChildRegistrationInternalV2,
 } from "./textBlockUnifiedLayoutRootAuthorityInternalsV2.js"
+import type {
+  VNextTextBlockIncrementalCandidateWorkV1,
+  VNextTextBlockValidatedChangeV1,
+} from "./textBlockUnifiedLayoutTransitionContractV1.js"
 
 type FingerprintFactory = (canonicalFacts: string) => string
 
@@ -139,6 +143,60 @@ let sourceIndexLookupObserverForTest:
 
 export interface VNextTextBlockPreBindingSourceVisitGuardInternalV1 {
   readonly __preBindingSourceVisitGuardOpaque: never
+}
+
+export interface VNextTextBlockPostBindingSourceVisitGuardInternalV1 {
+  readonly __postBindingSourceVisitGuardOpaque: never
+}
+
+type PostBindingSourceUnitInternalV1 =
+  | "source-path-copy-nodes"
+  | "source-leaf-items"
+
+type PostBindingSourceVisitEvaluationInternalV1 =
+  | { readonly status: "accepted"; readonly attemptedWork: number }
+  | {
+      readonly status: "limit-exceeded" | "invariant-blocked"
+      readonly attemptedWork: number
+      readonly effectiveLimit: number
+      readonly evaluatorAuthority?: object
+    }
+
+interface PostBindingSourceVisitGuardRecordInternalV1 {
+  readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly validatedChange: VNextTextBlockValidatedChangeV1
+  readonly evaluate: (
+    unit: PostBindingSourceUnitInternalV1,
+    completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1,
+  ) => PostBindingSourceVisitEvaluationInternalV1
+}
+
+const postBindingSourceVisitGuards = new WeakMap<
+  VNextTextBlockPostBindingSourceVisitGuardInternalV1,
+  PostBindingSourceVisitGuardRecordInternalV1
+>()
+
+let postBindingSourceOperationObserverForTest:
+  | ((observation: {
+      readonly unit: PostBindingSourceUnitInternalV1
+      readonly completedWork: number
+    }) => void)
+  | null = null
+
+export function registerVNextTextBlockPostBindingSourceVisitGuardInternalV1(
+  input: PostBindingSourceVisitGuardRecordInternalV1,
+): VNextTextBlockPostBindingSourceVisitGuardInternalV1 {
+  const guard = Object.freeze(
+    {},
+  ) as VNextTextBlockPostBindingSourceVisitGuardInternalV1
+  postBindingSourceVisitGuards.set(guard, Object.freeze({ ...input }))
+  return guard
+}
+
+export function setVNextTextBlockPostBindingSourceOperationObserverForTestInternalV1(
+  observer: typeof postBindingSourceOperationObserverForTest,
+): void {
+  postBindingSourceOperationObserverForTest = observer
 }
 
 export type VNextTextBlockPreBindingSourceVisitEvaluationInternalV1 =
@@ -1449,6 +1507,113 @@ export function inspectVNextTextBlockUnifiedLayoutSourceStateV1(
       }
 }
 
+function withPostBindingSourceWorkInternalV1(
+  base: VNextTextBlockIncrementalCandidateWorkV1,
+  unit: PostBindingSourceUnitInternalV1,
+  count: number,
+): VNextTextBlockIncrementalCandidateWorkV1 {
+  const flow = unit === "source-path-copy-nodes"
+    ? { ...base.flow, copiedSourcePathNodeCount: count }
+    : { ...base.flow, visitedChangedSourceLeafItemCount: count }
+  return deepFreeze({
+    ...base,
+    flow,
+    stageWork: base.stageWork.map((row) =>
+      row.stage === "source-flow" && row.unit === unit
+        ? { ...row, count }
+        : row
+    ),
+  })
+}
+
+function takePostBindingSourceVisitGuardInternalV1(input: {
+  readonly previousSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly validatedChange?: VNextTextBlockValidatedChangeV1
+  readonly completedCandidateWork?: VNextTextBlockIncrementalCandidateWorkV1
+  readonly stageVisitGuard?: VNextTextBlockPostBindingSourceVisitGuardInternalV1
+}):
+  | {
+      readonly status: "unbounded-v2"
+      readonly record: null
+      readonly completedCandidateWork: null
+    }
+  | {
+      readonly status: "accepted-v3"
+      readonly record: PostBindingSourceVisitGuardRecordInternalV1
+      readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+    }
+  | { readonly status: "invariant-blocked" } {
+  const supplied = [
+    input.validatedChange,
+    input.completedCandidateWork,
+    input.stageVisitGuard,
+  ].filter((value) => value != null).length
+  if (supplied === 0) {
+    return {
+      status: "unbounded-v2",
+      record: null,
+      completedCandidateWork: null,
+    }
+  }
+  if (
+    supplied !== 3
+    || input.validatedChange == null
+    || input.completedCandidateWork == null
+    || input.stageVisitGuard == null
+  ) return { status: "invariant-blocked" }
+  const record = postBindingSourceVisitGuards.get(input.stageVisitGuard)
+  if (
+    record == null
+    || record.sourceState !== input.previousSourceState
+    || record.validatedChange !== input.validatedChange
+  ) return { status: "invariant-blocked" }
+  postBindingSourceVisitGuards.delete(input.stageVisitGuard)
+  return {
+    status: "accepted-v3",
+    record,
+    completedCandidateWork: input.completedCandidateWork,
+  }
+}
+
+function evaluatePostBindingSourceOperationInternalV1(input: {
+  readonly record: PostBindingSourceVisitGuardRecordInternalV1
+  readonly unit: PostBindingSourceUnitInternalV1
+  readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+}):
+  | {
+      readonly status: "accepted"
+      readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+    }
+  | {
+      readonly status: "invariant-blocked"
+      readonly attemptedWork: number
+      readonly effectiveLimit: number
+      readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+    } {
+  const evaluation = input.record.evaluate(
+    input.unit,
+    input.completedCandidateWork,
+  )
+  if (evaluation.status !== "accepted") {
+    return {
+      status: "invariant-blocked",
+      attemptedWork: evaluation.attemptedWork,
+      effectiveLimit: evaluation.effectiveLimit,
+      completedCandidateWork: input.completedCandidateWork,
+    }
+  }
+  const completedCandidateWork = withPostBindingSourceWorkInternalV1(
+    input.completedCandidateWork,
+    input.unit,
+    evaluation.attemptedWork,
+  )
+  postBindingSourceOperationObserverForTest?.({
+    unit: input.unit,
+    completedWork: evaluation.attemptedWork,
+  })
+  return { status: "accepted", completedCandidateWork }
+}
+
 export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionInternalV1(
   input: {
     readonly previousSourceState:
@@ -1459,6 +1624,10 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
     readonly expectedImageDependencyFingerprint: string
     readonly nextFit: ImageFrameV4Target["fit"]
     readonly nextCrop: NonNullable<ImageFrameV4Target["crop"]> | null
+    readonly validatedChange?: VNextTextBlockValidatedChangeV1
+    readonly completedCandidateWork?: VNextTextBlockIncrementalCandidateWorkV1
+    readonly stageVisitGuard?:
+      VNextTextBlockPostBindingSourceVisitGuardInternalV1
   },
 ):
   | {
@@ -1472,6 +1641,7 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
       readonly reusedNodeCount: number
       readonly completeSuffixTraversalCount: 0
       readonly issues: readonly []
+      readonly completedCandidateWork?: VNextTextBlockIncrementalCandidateWorkV1
     }
   | {
       readonly status: "prepared"
@@ -1484,6 +1654,7 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
       readonly reusedNodeCount: number
       readonly completeSuffixTraversalCount: 0
       readonly issues: readonly []
+      readonly completedCandidateWork?: VNextTextBlockIncrementalCandidateWorkV1
     }
   | {
       readonly status: "blocked"
@@ -1499,7 +1670,35 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
         readonly code: "source-state-authority-mismatch"
         readonly message: string
       }]
+    }
+  | {
+      readonly status: "invariant-blocked"
+      readonly sourceState: null
+      readonly sourceItemAuthority: null
+      readonly visitedSummaryNodeCount: 0
+      readonly copiedSourcePathNodeCount: number
+      readonly visitedChangedSourceLeafItemCount: number
+      readonly createdNodeCount: 0
+      readonly reusedNodeCount: 0
+      readonly completeSuffixTraversalCount: 0
+      readonly completedCandidateWork?: VNextTextBlockIncrementalCandidateWorkV1
+      readonly issues: readonly []
     } {
+  const bounded = takePostBindingSourceVisitGuardInternalV1(input)
+  if (bounded.status === "invariant-blocked") {
+    return {
+      status: "invariant-blocked",
+      sourceState: null,
+      sourceItemAuthority: null,
+      visitedSummaryNodeCount: 0,
+      copiedSourcePathNodeCount: 0,
+      visitedChangedSourceLeafItemCount: 0,
+      createdNodeCount: 0,
+      reusedNodeCount: 0,
+      completeSuffixTraversalCount: 0,
+      issues: Object.freeze([]) as readonly [],
+    }
+  }
   const prepared = preparedStates.get(input.previousSourceState)
   const sourceItemAuthority =
     imagePaintSourceItemAuthorities.get(input.sourceItemAuthority)
@@ -1550,6 +1749,9 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
       reusedNodeCount: input.previousSourceState.summary.nodeCount,
       completeSuffixTraversalCount: 0,
       issues: Object.freeze([]) as readonly [],
+      ...(bounded.completedCandidateWork == null ? {} : {
+        completedCandidateWork: bounded.completedCandidateWork,
+      }),
     }
   }
   try {
@@ -1586,18 +1788,98 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
         ...itemFacts,
       }),
     })
+    let completedCandidateWork = bounded.completedCandidateWork
+    const nextLeafItems: VNextTextBlockUnifiedLayoutSourceItemV1[] = []
+    let completedLeafItemCount = 0
+    for (
+      let itemIndex = 0;
+      itemIndex < indexed.leaf.items.length;
+      itemIndex += 1
+    ) {
+      if (bounded.status === "accepted-v3") {
+        const evaluation = evaluatePostBindingSourceOperationInternalV1({
+          record: bounded.record,
+          unit: "source-leaf-items",
+          completedCandidateWork: completedCandidateWork!,
+        })
+        if (evaluation.status !== "accepted") {
+          return {
+            status: "invariant-blocked",
+            sourceState: null,
+            sourceItemAuthority: null,
+            visitedSummaryNodeCount: 0,
+            copiedSourcePathNodeCount: 0,
+            visitedChangedSourceLeafItemCount: completedLeafItemCount,
+            createdNodeCount: 0,
+            reusedNodeCount: 0,
+            completeSuffixTraversalCount: 0,
+            completedCandidateWork: evaluation.completedCandidateWork,
+            issues: Object.freeze([]) as readonly [],
+          }
+        }
+        completedCandidateWork = evaluation.completedCandidateWork
+      }
+      const item = indexed.leaf.items[itemIndex]!
+      nextLeafItems.push(itemIndex === indexed.itemIndex ? nextItem : item)
+      completedLeafItemCount += 1
+    }
+    if (bounded.status === "accepted-v3") {
+      const evaluation = evaluatePostBindingSourceOperationInternalV1({
+        record: bounded.record,
+        unit: "source-path-copy-nodes",
+        completedCandidateWork: completedCandidateWork!,
+      })
+      if (evaluation.status !== "accepted") {
+        return {
+          status: "invariant-blocked",
+          sourceState: null,
+          sourceItemAuthority: null,
+          visitedSummaryNodeCount: 0,
+          copiedSourcePathNodeCount: 0,
+          visitedChangedSourceLeafItemCount: completedLeafItemCount,
+          createdNodeCount: 0,
+          reusedNodeCount: 0,
+          completeSuffixTraversalCount: 0,
+          completedCandidateWork: evaluation.completedCandidateWork,
+          issues: Object.freeze([]) as readonly [],
+        }
+      }
+      completedCandidateWork = evaluation.completedCandidateWork
+    }
     const nextLeaf = deepFreeze(leaf(
-      indexed.leaf.items.map((item, itemIndex) =>
-        itemIndex === indexed.itemIndex ? nextItem : item
-      ),
+      nextLeafItems,
       prepared.fingerprintFactory,
     ))
     let nextPathNode: VNextTextBlockUnifiedLayoutSourceNodeV1 = nextLeaf
+    let completedPathCopyCount = 1
     for (
       let ancestorIndex = indexed.ancestors.length - 1;
       ancestorIndex >= 0;
       ancestorIndex -= 1
     ) {
+      if (bounded.status === "accepted-v3") {
+        const evaluation = evaluatePostBindingSourceOperationInternalV1({
+          record: bounded.record,
+          unit: "source-path-copy-nodes",
+          completedCandidateWork: completedCandidateWork!,
+        })
+        if (evaluation.status !== "accepted") {
+          return {
+            status: "invariant-blocked",
+            sourceState: null,
+            sourceItemAuthority: null,
+            visitedSummaryNodeCount: 0,
+            copiedSourcePathNodeCount: completedPathCopyCount,
+            visitedChangedSourceLeafItemCount: completedLeafItemCount,
+            createdNodeCount: 0,
+            reusedNodeCount: 0,
+            completeSuffixTraversalCount: 0,
+            completedCandidateWork: evaluation.completedCandidateWork,
+            issues: Object.freeze([]) as readonly [],
+          }
+        }
+        completedCandidateWork = evaluation.completedCandidateWork
+      }
       const ancestor = indexed.ancestors[ancestorIndex]!
       const pendingCopied = branch(
         ancestor.branch.children.map((child, childIndex) =>
@@ -1609,6 +1891,7 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
       Object.freeze(pendingCopied.children)
       const copied = Object.freeze(pendingCopied)
       nextPathNode = copied
+      completedPathCopyCount += 1
     }
     const createdNodeCount = indexed.ancestors.length + 1
     const work = {
@@ -1689,6 +1972,7 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
       reusedNodeCount: work.reusedNodeCount,
       completeSuffixTraversalCount: 0 as const,
       issues: Object.freeze([]) as readonly [],
+      ...(completedCandidateWork == null ? {} : { completedCandidateWork }),
     })
   } catch {
     return {

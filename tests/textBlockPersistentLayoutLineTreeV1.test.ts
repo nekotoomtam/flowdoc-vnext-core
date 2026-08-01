@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest"
+import * as lineTreeInternals from "../src/layout/textBlockPersistentLayoutLineTreeV1.js"
+import * as transitionEvidenceInternals from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
   createVNextTextBlockUnifiedLayoutRootV1,
 } from "../src/layout/textBlockUnifiedLayoutRootV1.js"
@@ -11,6 +13,15 @@ import {
 import {
   createVNextTextBlockUnifiedSpatialStateCompleteInternalV1,
 } from "../src/layout/textBlockUnifiedSpatialStateV1.js"
+import {
+  createVNextTextBlockUnifiedLayoutRootCompleteInternalV2,
+} from "../src/layout/textBlockUnifiedLayoutRootV2.js"
+import {
+  bindVNextTextBlockUnifiedLayoutChangeInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
+import {
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+} from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import {
   createVNextTextBlockLineDispositionCoverInternalV1,
   createVNextTextBlockPersistentLayoutLineTreeCompleteInternalV1,
@@ -32,6 +43,12 @@ import {
   acceptedUnifiedLayoutRootFixtureV1,
   repeatedUnifiedLayoutRootSourceFixtureV1,
 } from "./helpers/textBlockUnifiedLayoutRootV1.js"
+import {
+  imagePaintUnifiedLayoutChange5b,
+} from "./helpers/textBlockUnifiedIncremental5b.js"
+import {
+  unifiedLayoutRootBuildInputFixtureV2,
+} from "./helpers/textBlockUnifiedLayoutRootV2.js"
 
 const owner = `sha256:${"a".repeat(64)}`
 
@@ -127,6 +144,46 @@ function repeatedTree(lineCount: number) {
   })
   if (accepted.status !== "accepted") throw new Error("repeated root blocked")
   return lineTreeFromAcceptedRoot(accepted, [])
+}
+
+function v3LineCoverFixture() {
+  const previous = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+    unifiedLayoutRootBuildInputFixtureV2({
+      content: "text-image-text-break",
+      fit: "contain",
+    }),
+    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+  )
+  if (previous.status !== "accepted") throw new Error("V3 Root blocked")
+  const change = imagePaintUnifiedLayoutChange5b(previous.root, {
+    fit: "cover",
+    crop: { x: 0, y: 0, width: 0.5, height: 1 },
+  })
+  const bound = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
+    previousRoot: previous.root,
+    change,
+    workPolicy:
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+  })
+  if (bound.status !== "accepted") throw new Error("V3 change did not bind")
+  return { previousRoot: previous.root, bound }
+}
+
+function lineVisitTestBoundaries() {
+  const evidence = transitionEvidenceInternals as unknown as {
+    readonly setVNextTextBlockPostBindingLimitOverrideForTestInternalV1?:
+      (value: unknown) => void
+  }
+  const lines = lineTreeInternals as unknown as {
+    readonly setVNextTextBlockLineCoverOperationObserverForTestInternalV1?:
+      (observer: ((value: unknown) => void) | null) => void
+  }
+  return {
+    setLimit:
+      evidence.setVNextTextBlockPostBindingLimitOverrideForTestInternalV1,
+    setObserver:
+      lines.setVNextTextBlockLineCoverOperationObserverForTestInternalV1,
+  }
 }
 
 describe("Phase 5B persistent layout line tree", () => {
@@ -226,6 +283,119 @@ describe("Phase 5B persistent layout line tree", () => {
       reusedNodeCount: 0,
       completeSuffixTraversalCount: 0,
     })
+  })
+
+  it("checks V3 line lookup and selected-subtree work before each operation", () => {
+    const boundaries = lineVisitTestBoundaries()
+    expect(boundaries.setLimit).toBeTypeOf("function")
+    expect(boundaries.setObserver).toBeTypeOf("function")
+    if (boundaries.setLimit == null || boundaries.setObserver == null) return
+    const createBounded =
+      createVNextTextBlockLineDispositionCoverInternalV1 as unknown as (
+        input: unknown,
+        context: unknown,
+      ) => unknown
+    for (const row of [
+      {
+        unit: "line-tree-lookup-nodes" as const,
+        limits: [
+          { effectiveLimit: 3, status: "accepted" },
+          { effectiveLimit: 2, status: "accepted" },
+          { effectiveLimit: 1, status: "limit-exceeded" },
+        ],
+        rejectedEvents: [
+          { unit: "line-tree-lookup-nodes", completedWork: 1 },
+          { unit: "selected-exact-subtree-nodes", completedWork: 1 },
+        ],
+        rejectedWork: {
+          visitedPreviousLineTreeNodeCount: 0,
+          visitedNextLineTreeNodeCount: 1,
+          selectedSubtreeNodeCount: 1,
+        },
+      },
+      {
+        unit: "selected-exact-subtree-nodes" as const,
+        limits: [
+          { effectiveLimit: 2, status: "accepted" },
+          { effectiveLimit: 1, status: "accepted" },
+          { effectiveLimit: 0, status: "limit-exceeded" },
+        ],
+        rejectedEvents: [
+          { unit: "line-tree-lookup-nodes", completedWork: 1 },
+        ],
+        rejectedWork: {
+          visitedPreviousLineTreeNodeCount: 0,
+          visitedNextLineTreeNodeCount: 1,
+          selectedSubtreeNodeCount: 0,
+        },
+      },
+    ]) {
+      for (const threshold of row.limits) {
+        const fixture = v3LineCoverFixture()
+        const lineCount = fixture.previousRoot.lineTree.summary.lineCount
+        const events: unknown[] = []
+        boundaries.setLimit({
+          stage: "structural-reuse-proof",
+          unit: row.unit,
+          effectiveLimit: threshold.effectiveLimit,
+        })
+        boundaries.setObserver((value) => events.push(value))
+        try {
+          const result = createBounded({
+            previousTree: fixture.previousRoot.lineTree,
+            nextTree: fixture.previousRoot.lineTree,
+            segments: [noOpSegment(lineCount)],
+          }, {
+            validatedChange: fixture.bound.validatedChange,
+            completedCandidateWork:
+              fixture.bound.incrementalCandidateWork,
+          })
+          expect(result).toMatchObject({ status: threshold.status })
+          if (threshold.status === "accepted") {
+            expect(result).toMatchObject({
+              work: {
+                visitedPreviousLineTreeNodeCount: 1,
+                visitedNextLineTreeNodeCount: 1,
+                selectedSubtreeNodeCount: 1,
+              },
+              completedCandidateWork: {
+                structuralReuseProof: {
+                  visitedLineTreeNodeCount: 2,
+                  selectedExactSubtreeNodeCount: 1,
+                },
+              },
+            })
+            expect(events).toEqual([
+              { unit: "line-tree-lookup-nodes", completedWork: 1 },
+              { unit: "selected-exact-subtree-nodes", completedWork: 1 },
+              { unit: "line-tree-lookup-nodes", completedWork: 2 },
+            ])
+          } else {
+            expect(result).toMatchObject({
+              status: "limit-exceeded",
+              cover: null,
+              work: row.rejectedWork,
+              attemptedWork: threshold.effectiveLimit + 1,
+              effectiveLimit: threshold.effectiveLimit,
+              completedCandidateWork: {
+                structuralReuseProof: {
+                  visitedLineTreeNodeCount:
+                    row.rejectedWork.visitedPreviousLineTreeNodeCount
+                    + row.rejectedWork.visitedNextLineTreeNodeCount,
+                  selectedExactSubtreeNodeCount:
+                    row.rejectedWork.selectedSubtreeNodeCount,
+                },
+              },
+            })
+            expect(result).toHaveProperty("evaluatorAuthority")
+            expect(events).toEqual(row.rejectedEvents)
+          }
+        } finally {
+          boundaries.setLimit(null)
+          boundaries.setObserver(null)
+        }
+      }
+    }
   })
 
   it("creates one maximal root cover for a true no-op", () => {

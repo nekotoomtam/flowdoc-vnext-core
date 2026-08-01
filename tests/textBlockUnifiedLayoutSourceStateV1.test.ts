@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import * as sourceStateInternals from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
+import * as transitionEvidenceInternals from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
   acceptVNextTextBlockFlowEvidenceV2,
   createVNextTextBlockInitialFlowV1,
@@ -23,11 +24,27 @@ import {
 import {
   createVNextTextBlockIncrementalFlowTreeCompleteInternalV1,
 } from "../src/layout/textBlockIncrementalFlowTreeV1.js"
+import {
+  createVNextTextBlockUnifiedLayoutRootCompleteInternalV2,
+} from "../src/layout/textBlockUnifiedLayoutRootV2.js"
+import {
+  bindVNextTextBlockUnifiedLayoutChangeInternalV1,
+  getVNextTextBlockValidatedImagePaintSourceItemAuthorityInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
+import {
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+} from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import { acceptedInlineImageEvidenceFixture } from "./helpers/textBlockInlineImageFlowV2.js"
 import { listImageGeometryBuildInputFixture } from "./helpers/textBlockInitialFlowV1.js"
 import {
   repeatedUnifiedLayoutRootSourceFixtureV1,
 } from "./helpers/textBlockUnifiedLayoutRootV1.js"
+import {
+  imagePaintUnifiedLayoutChange5b,
+} from "./helpers/textBlockUnifiedIncremental5b.js"
+import {
+  unifiedLayoutRootBuildInputFixtureV2,
+} from "./helpers/textBlockUnifiedLayoutRootV2.js"
 
 function shapingRun(
   atom: Extract<VNextTextBlockInitialFlowV1["atoms"][number], {
@@ -142,6 +159,65 @@ function preparedSourceEnvelopeFacts(value: unknown): unknown {
       (sourceState: unknown) => unknown
   }).inspectVNextTextBlockPreparedSourceEnvelopeFactsInternalV1
   return inspect?.(value) ?? null
+}
+
+function v3SourceTransitionFixture() {
+  const previous = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+    unifiedLayoutRootBuildInputFixtureV2({
+      content: "text-image-text-break",
+      fit: "contain",
+    }),
+    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+  )
+  if (previous.status !== "accepted") throw new Error("V3 Root blocked")
+  const change = imagePaintUnifiedLayoutChange5b(previous.root, {
+    fit: "cover",
+    crop: { x: 0, y: 0, width: 0.5, height: 1 },
+  })
+  if (change.kind !== "image-paint-fact-change") {
+    throw new Error("V3 source fixture did not create image paint")
+  }
+  const bound = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
+    previousRoot: previous.root,
+    change,
+    workPolicy:
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+  })
+  if (bound.status !== "accepted") throw new Error("V3 change did not bind")
+  const sourceItemAuthority =
+    getVNextTextBlockValidatedImagePaintSourceItemAuthorityInternalV1(
+      bound.validatedChange,
+    )
+  const getGuard = (transitionEvidenceInternals as unknown as {
+    readonly getVNextTextBlockValidatedSourceTransitionVisitGuardInternalV1?:
+      (validatedChange: unknown) => unknown
+  }).getVNextTextBlockValidatedSourceTransitionVisitGuardInternalV1
+  const guard = getGuard?.(bound.validatedChange) ?? null
+  if (sourceItemAuthority == null) throw new Error("source item authority missing")
+  return {
+    previousRoot: previous.root,
+    change,
+    bound,
+    sourceItemAuthority,
+    guard,
+  }
+}
+
+function postBindingSourceTestBoundaries() {
+  const evidence = transitionEvidenceInternals as unknown as {
+    readonly setVNextTextBlockPostBindingLimitOverrideForTestInternalV1?:
+      (value: unknown) => void
+  }
+  const source = sourceStateInternals as unknown as {
+    readonly setVNextTextBlockPostBindingSourceOperationObserverForTestInternalV1?:
+      (observer: ((value: unknown) => void) | null) => void
+  }
+  return {
+    setLimit:
+      evidence.setVNextTextBlockPostBindingLimitOverrideForTestInternalV1,
+    setObserver:
+      source.setVNextTextBlockPostBindingSourceOperationObserverForTestInternalV1,
+  }
 }
 
 describe("Phase 5B transition-native source state", () => {
@@ -448,6 +524,106 @@ describe("Phase 5B transition-native source state", () => {
     }
     expect(probeCounts(firstSuccessor)).toEqual([1])
     expect(probeCounts(current)).toEqual([1])
+  })
+
+  it("checks V3 leaf reads and path copies before each source operation", () => {
+    const boundaries = postBindingSourceTestBoundaries()
+    expect(boundaries.setLimit).toBeTypeOf("function")
+    expect(boundaries.setObserver).toBeTypeOf("function")
+    if (boundaries.setLimit == null || boundaries.setObserver == null) return
+    const createGuardedSourceTransition = (
+      createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionInternalV1
+    ) as unknown as (input: unknown) => unknown
+    const run = (fixture: ReturnType<typeof v3SourceTransitionFixture>) =>
+      createGuardedSourceTransition({
+          previousSourceState: fixture.previousRoot.sourceState,
+          sourceItemAuthority: fixture.sourceItemAuthority,
+          inlineId: fixture.change.inlineId,
+          expectedImageSourceFingerprint:
+            fixture.change.expectedImageSourceFingerprint,
+          expectedImageDependencyFingerprint:
+            fixture.change.expectedImageDependencyFingerprint,
+          nextFit: fixture.change.nextFit,
+          nextCrop: fixture.change.nextCrop,
+          validatedChange: fixture.bound.validatedChange,
+          completedCandidateWork:
+            fixture.bound.incrementalCandidateWork,
+          stageVisitGuard: fixture.guard,
+        })
+
+    const normalEvents: unknown[] = []
+    boundaries.setObserver((value) => normalEvents.push(value))
+    try {
+      const normal = v3SourceTransitionFixture()
+      expect(normal.guard).not.toBeNull()
+      expect(run(normal)).toMatchObject({
+        status: "prepared",
+        copiedSourcePathNodeCount: 1,
+        visitedChangedSourceLeafItemCount: 4,
+        completedCandidateWork: {
+          flow: {
+            copiedSourcePathNodeCount: 1,
+            visitedChangedSourceLeafItemCount: 4,
+          },
+        },
+      })
+      expect(normalEvents).toEqual([
+        { unit: "source-leaf-items", completedWork: 1 },
+        { unit: "source-leaf-items", completedWork: 2 },
+        { unit: "source-leaf-items", completedWork: 3 },
+        { unit: "source-leaf-items", completedWork: 4 },
+        { unit: "source-path-copy-nodes", completedWork: 1 },
+      ])
+    } finally {
+      boundaries.setObserver(null)
+    }
+
+    for (const row of [
+      {
+        unit: "source-leaf-items" as const,
+        expectedEvents: [] as readonly unknown[],
+        expectedWork: {
+          copiedSourcePathNodeCount: 0,
+          visitedChangedSourceLeafItemCount: 0,
+        },
+      },
+      {
+        unit: "source-path-copy-nodes" as const,
+        expectedEvents: [
+          { unit: "source-leaf-items", completedWork: 1 },
+          { unit: "source-leaf-items", completedWork: 2 },
+          { unit: "source-leaf-items", completedWork: 3 },
+          { unit: "source-leaf-items", completedWork: 4 },
+        ],
+        expectedWork: {
+          copiedSourcePathNodeCount: 0,
+          visitedChangedSourceLeafItemCount: 4,
+        },
+      },
+    ]) {
+      const events: unknown[] = []
+      boundaries.setLimit({
+        stage: "source-flow",
+        unit: row.unit,
+        effectiveLimit: 0,
+      })
+      boundaries.setObserver((value) => events.push(value))
+      try {
+        const fixture = v3SourceTransitionFixture()
+        const result = run(fixture)
+        expect(result).toMatchObject({
+          status: "invariant-blocked",
+          sourceState: null,
+          ...row.expectedWork,
+          completedCandidateWork: { flow: row.expectedWork },
+        })
+        expect(result).not.toHaveProperty("evaluatorAuthority")
+        expect(events).toEqual(row.expectedEvents)
+      } finally {
+        boundaries.setLimit(null)
+        boundaries.setObserver(null)
+      }
+    }
   })
 
   it("reports exact image lookup, path-copy, and changed-leaf work", () => {

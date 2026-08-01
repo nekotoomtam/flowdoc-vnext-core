@@ -16,7 +16,9 @@ import {
   consumeVNextTextBlockPreBindingSourceVisitGuardInternalV1,
   deriveVNextTextBlockUnifiedLayoutImagePaintSummaryInternalV1,
   lookupVNextTextBlockUnifiedLayoutSourceItemByInlineIdInternalV1,
+  registerVNextTextBlockPostBindingSourceVisitGuardInternalV1,
   registerVNextTextBlockPreBindingSourceVisitGuardInternalV1,
+  type VNextTextBlockPostBindingSourceVisitGuardInternalV1,
   type VNextTextBlockPreBindingSourceVisitGuardInternalV1,
 } from "./textBlockUnifiedLayoutSourceStateV1.js"
 import {
@@ -601,10 +603,21 @@ const validatedChangeAuthorityRecords = new WeakMap<
   VNextTextBlockValidatedChangeAuthorityRecordInternalV1
 >()
 
+const validatedSourceTransitionVisitGuards = new WeakMap<
+  VNextTextBlockValidatedChangeV1,
+  VNextTextBlockPostBindingSourceVisitGuardInternalV1
+>()
+
 export function getVNextTextBlockValidatedChangeAuthorityRecordInternalV1(
   validatedChange: VNextTextBlockValidatedChangeV1,
 ): VNextTextBlockValidatedChangeAuthorityRecordInternalV1 | null {
   return validatedChangeAuthorityRecords.get(validatedChange) ?? null
+}
+
+export function getVNextTextBlockValidatedSourceTransitionVisitGuardInternalV1(
+  validatedChange: VNextTextBlockValidatedChangeV1,
+): VNextTextBlockPostBindingSourceVisitGuardInternalV1 | null {
+  return validatedSourceTransitionVisitGuards.get(validatedChange) ?? null
 }
 
 export interface VNextTextBlockLimitExceededAuthorityInternalV1 {
@@ -655,6 +668,29 @@ const evaluatedStageVisits = new WeakMap<
   VNextTextBlockIncrementalCandidateWorkV1,
   WeakMap<VNextTextBlockValidatedChangeV1, Set<string>>
 >()
+
+let postBindingLimitOverrideForTest:
+  | {
+      readonly stage: VNextTextBlockUnifiedLayoutStageV1
+      readonly unit: VNextTextBlockUnifiedLayoutStageUnitV1
+      readonly effectiveLimit: number
+    }
+  | null = null
+
+export function setVNextTextBlockPostBindingLimitOverrideForTestInternalV1(
+  value: typeof postBindingLimitOverrideForTest,
+): void {
+  if (
+    value != null
+    && (
+      !Number.isSafeInteger(value.effectiveLimit)
+      || value.effectiveLimit < 0
+    )
+  ) throw new TypeError("post-binding limit override is invalid")
+  postBindingLimitOverrideForTest = value == null
+    ? null
+    : Object.freeze({ ...value })
+}
 
 const SOURCE_ENVELOPE_UNITS = new Set<
   VNextTextBlockUnifiedLayoutStageUnitV1
@@ -849,7 +885,11 @@ export function evaluateNextVNextTextBlockStageVisitInternalV1(input: {
     exactValidatedChangeDelta: 1,
     attemptedWork,
   })
-  const effectiveLimit = evaluation.effectiveLimit ?? 0
+  const override = postBindingLimitOverrideForTest
+  const effectiveLimit = override?.stage === input.stage
+      && override.unit === input.unit
+    ? override.effectiveLimit
+    : evaluation.effectiveLimit ?? 0
   if (
     evaluation.status === "invalid"
     || evaluation.status === "inactive"
@@ -867,7 +907,10 @@ export function evaluateNextVNextTextBlockStageVisitInternalV1(input: {
       completedWork: input.completedWork,
     })
   ) return invariantStageVisitInternalV1(attemptedWork, effectiveLimit)
-  if (evaluation.status === "within-limit") {
+  if (
+    evaluation.status === "within-limit"
+    && attemptedWork <= effectiveLimit
+  ) {
     return Object.freeze({
       status: "accepted" as const,
       attemptedWork,
@@ -1188,6 +1231,29 @@ export function bindVNextTextBlockUnifiedLayoutChangeInternalV1(input: {
     rootSourceEnvelopeAuthority:
       consumedBindingAttempt?.rootSourceEnvelopeAuthority ?? null,
   }))
+  if (
+    input.workPolicy
+      === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+  ) {
+    validatedSourceTransitionVisitGuards.set(
+      validatedChange,
+      registerVNextTextBlockPostBindingSourceVisitGuardInternalV1({
+        sourceState: input.previousRoot.sourceState,
+        validatedChange,
+        evaluate: (unit, completedCandidateWork) =>
+          evaluateNextVNextTextBlockStageVisitInternalV1({
+            validatedChange,
+            stage: "source-flow",
+            unit,
+            completedWork: unit === "source-path-copy-nodes"
+              ? completedCandidateWork.flow.copiedSourcePathNodeCount
+              : completedCandidateWork.flow
+                  .visitedChangedSourceLeafItemCount,
+            completedCandidateWork,
+          }),
+      }),
+    )
+  }
   return Object.freeze({
     status: "accepted",
     validatedChange,

@@ -1,6 +1,9 @@
 import type {
   VNextTextBlockUnifiedLayoutSourceItemV1,
 } from "./textBlockUnifiedLayoutSourceStateContractV1.js"
+import type {
+  VNextTextBlockIncrementalCandidateWorkV1,
+} from "./textBlockUnifiedLayoutTransitionContractV1.js"
 
 export const VNEXT_TEXT_BLOCK_PERSISTENT_LAYOUT_LINE_TREE_V1_SOURCE =
   "vnext-text-block-persistent-layout-line-tree-v1" as const
@@ -415,13 +418,38 @@ export type VNextTextBlockLineDispositionCoverResultV1 =
       readonly status: "accepted"
       readonly cover: VNextTextBlockLineDispositionCoverV1
       readonly work: VNextTextBlockLineDispositionCoverWorkV1
+      readonly completedCandidateWork?:
+        VNextTextBlockIncrementalCandidateWorkV1
       readonly issues: readonly []
     }
   | {
       readonly status: "blocked"
       readonly cover: null
       readonly work: VNextTextBlockLineDispositionCoverWorkV1
+      readonly completedCandidateWork?:
+        VNextTextBlockIncrementalCandidateWorkV1
       readonly issues: readonly VNextTextBlockLineDispositionIssueV1[]
+    }
+  | {
+      readonly status: "limit-exceeded"
+      readonly cover: null
+      readonly work: VNextTextBlockLineDispositionCoverWorkV1
+      readonly attemptedWork: number
+      readonly effectiveLimit: number
+      readonly evaluatorAuthority: object
+      readonly completedCandidateWork:
+        VNextTextBlockIncrementalCandidateWorkV1
+      readonly issues: readonly []
+    }
+  | {
+      readonly status: "invariant-blocked"
+      readonly cover: null
+      readonly work: VNextTextBlockLineDispositionCoverWorkV1
+      readonly attemptedWork: number
+      readonly effectiveLimit: number
+      readonly completedCandidateWork:
+        VNextTextBlockIncrementalCandidateWorkV1
+      readonly issues: readonly []
     }
 
 export type VNextTextBlockLineDispositionCoverInspectionV1 =

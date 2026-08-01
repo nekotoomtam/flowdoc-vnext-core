@@ -74,6 +74,13 @@ import type {
 import {
   authorizeVNextTextBlockUnifiedLayoutRootGraphChildRegistrationInternalV2,
 } from "./textBlockUnifiedLayoutRootAuthorityInternalsV2.js"
+import {
+  evaluateNextVNextTextBlockStageVisitInternalV1,
+} from "./textBlockUnifiedLayoutTransitionEvidenceV1.js"
+import type {
+  VNextTextBlockIncrementalCandidateWorkV1,
+  VNextTextBlockValidatedChangeV1,
+} from "./textBlockUnifiedLayoutTransitionContractV1.js"
 
 type AcceptedSpatialLayoutV2 = Extract<
   VNextTextBlockSpatialWrappingLayoutResultV2,
@@ -1605,16 +1612,41 @@ interface SelectedNode {
 }
 
 interface SelectedNodesResult {
+  readonly status: "selected"
   readonly selected: readonly SelectedNode[]
   readonly visitedNodeCount: number
+}
+
+interface SelectedNodesLimitResult {
+  readonly status: "limit-exceeded"
+  readonly selected: readonly SelectedNode[]
+  readonly visitedNodeCount: number
+}
+
+let lineCoverOperationObserverForTest:
+  | ((observation: {
+      readonly unit:
+        | "line-tree-lookup-nodes"
+        | "selected-exact-subtree-nodes"
+      readonly completedWork: number
+    }) => void)
+  | null = null
+
+export function setVNextTextBlockLineCoverOperationObserverForTestInternalV1(
+  observer: typeof lineCoverOperationObserverForTest,
+): void {
+  lineCoverOperationObserverForTest = observer
 }
 
 function selectMaximalNodes(
   root: VNextTextBlockPersistentLayoutLineRootV1,
   range: VNextTextBlockLineOrdinalRangeV1,
-): SelectedNodesResult {
+  beforeNodeVisit?: () => boolean,
+  beforeNodeSelection?: () => boolean,
+): SelectedNodesResult | SelectedNodesLimitResult {
   if (root.nodeKind === "empty") {
     return Object.freeze({
+      status: "selected" as const,
       selected: Object.freeze([]),
       visitedNodeCount: 0,
     })
@@ -1624,25 +1656,29 @@ function selectMaximalNodes(
   const visit = (
     node: VNextTextBlockPersistentLayoutLineNodeV1,
     start: number,
-  ): void => {
+  ): boolean => {
+    if (beforeNodeVisit?.() === false) return false
     visitedNodeCount = safeAdd(visitedNodeCount, 1)
     const end = start + node.summary.lineCount
-    if (end <= range.start || start >= range.end) return
+    if (end <= range.start || start >= range.end) return true
     if (range.start <= start && end <= range.end) {
+      if (beforeNodeSelection?.() === false) return false
       selected.push({ node, start, end })
-      return
+      return true
     }
     if (node.nodeKind === "leaf") {
       throw new Error("partial leaf selection")
     }
     let childStart = start
     for (const child of node.children) {
-      visit(child, childStart)
+      if (!visit(child, childStart)) return false
       childStart += child.summary.lineCount
     }
+    return true
   }
-  visit(root, 0)
+  const completed = visit(root, 0)
   return Object.freeze({
+    status: completed ? "selected" as const : "limit-exceeded" as const,
     selected: Object.freeze(selected),
     visitedNodeCount,
   })
@@ -1747,20 +1783,62 @@ function sameSelectedIdentity(
     && previous.every((item, index) => item.node === next[index]?.node)
 }
 
+export interface VNextTextBlockLineDispositionCoverVisitContextInternalV1 {
+  readonly validatedChange: VNextTextBlockValidatedChangeV1
+  readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+}
+
+function withLineCoverVisitWorkInternalV1(input: {
+  readonly base: VNextTextBlockIncrementalCandidateWorkV1
+  readonly visitedLineTreeNodeCount: number
+  readonly selectedExactSubtreeNodeCount: number
+}): VNextTextBlockIncrementalCandidateWorkV1 {
+  return deepFreeze({
+    ...input.base,
+    structuralReuseProof: {
+      ...input.base.structuralReuseProof,
+      visitedLineTreeNodeCount: input.visitedLineTreeNodeCount,
+      selectedExactSubtreeNodeCount: input.selectedExactSubtreeNodeCount,
+    },
+    stageWork: input.base.stageWork.map((row) => {
+      if (row.stage !== "structural-reuse-proof") return row
+      if (row.unit === "line-tree-lookup-nodes") {
+        return { ...row, count: input.visitedLineTreeNodeCount }
+      }
+      if (row.unit === "selected-exact-subtree-nodes") {
+        return { ...row, count: input.selectedExactSubtreeNodeCount }
+      }
+      return row
+    }),
+  })
+}
+
 export function createVNextTextBlockLineDispositionCoverInternalV1(input: {
   readonly previousTree: VNextTextBlockPersistentLayoutLineTreeV1
   readonly nextTree: VNextTextBlockPersistentLayoutLineTreeV1
   readonly segments: readonly VNextTextBlockLineDispositionSegmentV1[]
-}): VNextTextBlockLineDispositionCoverResultV1
+}, context?: VNextTextBlockLineDispositionCoverVisitContextInternalV1):
+  VNextTextBlockLineDispositionCoverResultV1
 export function createVNextTextBlockLineDispositionCoverInternalV1(
   input: unknown,
+  context?: VNextTextBlockLineDispositionCoverVisitContextInternalV1,
 ): VNextTextBlockLineDispositionCoverResultV1
 export function createVNextTextBlockLineDispositionCoverInternalV1(
   input: unknown,
+  context?: VNextTextBlockLineDispositionCoverVisitContextInternalV1,
 ): VNextTextBlockLineDispositionCoverResultV1 {
   let visitedPreviousLineTreeNodeCount = 0
   let visitedNextLineTreeNodeCount = 0
   let selectedSubtreeNodeCount = 0
+  let completedCandidateWork = context?.completedCandidateWork ?? null
+  let visitFailure:
+    | {
+        readonly status: "limit-exceeded" | "invariant-blocked"
+        readonly attemptedWork: number
+        readonly effectiveLimit: number
+        readonly evaluatorAuthority?: object
+      }
+    | null = null
   const currentWork = (): VNextTextBlockLineDispositionCoverWorkV1 =>
     Object.freeze({
       visitedPreviousLineTreeNodeCount,
@@ -1770,8 +1848,81 @@ export function createVNextTextBlockLineDispositionCoverInternalV1(
   const blockedAfterTraversal = (
     code: VNextTextBlockLineDispositionIssueCodeV1,
     message: string,
-  ): VNextTextBlockLineDispositionCoverResultV1 =>
-    blockedCover(code, message, currentWork())
+  ): VNextTextBlockLineDispositionCoverResultV1 => {
+    const result = blockedCover(code, message, currentWork())
+    return completedCandidateWork == null
+      ? result
+      : Object.freeze({ ...result, completedCandidateWork })
+  }
+  const visitResult = (): VNextTextBlockLineDispositionCoverResultV1 => {
+    if (visitFailure == null || completedCandidateWork == null) {
+      throw new Error("line visit failure lost exact completed work")
+    }
+    return visitFailure.status === "limit-exceeded"
+      ? Object.freeze({
+          status: "limit-exceeded" as const,
+          cover: null,
+          work: currentWork(),
+          attemptedWork: visitFailure.attemptedWork,
+          effectiveLimit: visitFailure.effectiveLimit,
+          evaluatorAuthority: visitFailure.evaluatorAuthority!,
+          completedCandidateWork,
+          issues: Object.freeze([]) as readonly [],
+        })
+      : Object.freeze({
+          status: "invariant-blocked" as const,
+          cover: null,
+          work: currentWork(),
+          attemptedWork: visitFailure.attemptedWork,
+          effectiveLimit: visitFailure.effectiveLimit,
+          completedCandidateWork,
+          issues: Object.freeze([]) as readonly [],
+        })
+  }
+  const beforeVisit = (
+    unit:
+      | "line-tree-lookup-nodes"
+      | "selected-exact-subtree-nodes",
+    commit: () => void,
+  ): boolean => {
+    if (context == null) {
+      commit()
+      return true
+    }
+    if (completedCandidateWork == null) return false
+    const completedWork = unit === "line-tree-lookup-nodes"
+      ? safeAdd(
+          visitedPreviousLineTreeNodeCount,
+          visitedNextLineTreeNodeCount,
+        )
+      : selectedSubtreeNodeCount
+    const evaluation = evaluateNextVNextTextBlockStageVisitInternalV1({
+      validatedChange: context.validatedChange,
+      stage: "structural-reuse-proof",
+      unit,
+      completedWork,
+      completedCandidateWork,
+    })
+    if (evaluation.status !== "accepted") {
+      visitFailure = evaluation
+      return false
+    }
+    commit()
+    completedCandidateWork = withLineCoverVisitWorkInternalV1({
+      base: completedCandidateWork,
+      visitedLineTreeNodeCount:
+        safeAdd(
+          visitedPreviousLineTreeNodeCount,
+          visitedNextLineTreeNodeCount,
+        ),
+      selectedExactSubtreeNodeCount: selectedSubtreeNodeCount,
+    })
+    lineCoverOperationObserverForTest?.({
+      unit,
+      completedWork: evaluation.attemptedWork,
+    })
+    return true
+  }
   const exact = exactCoverInput(input)
   if (exact == null) {
     return blockedAfterTraversal(
@@ -1873,15 +2024,20 @@ export function createVNextTextBlockLineDispositionCoverInternalV1(
       const nextSelected = selectMaximalNodes(
         nextTree.root,
         segment.nextRange,
+        () => beforeVisit("line-tree-lookup-nodes", () => {
+          visitedNextLineTreeNodeCount = safeAdd(
+            visitedNextLineTreeNodeCount,
+            1,
+          )
+        }),
+        () => beforeVisit("selected-exact-subtree-nodes", () => {
+          selectedSubtreeNodeCount = safeAdd(
+            selectedSubtreeNodeCount,
+            1,
+          )
+        }),
       )
-      visitedNextLineTreeNodeCount = safeAdd(
-        visitedNextLineTreeNodeCount,
-        nextSelected.visitedNodeCount,
-      )
-      selectedSubtreeNodeCount = safeAdd(
-        selectedSubtreeNodeCount,
-        nextSelected.selected.length,
-      )
+      if (nextSelected.status === "limit-exceeded") return visitResult()
       if (segment.disposition === "E" || segment.disposition === "T") {
         const previousRange = segment.previousRange!
         if (
@@ -1895,11 +2051,16 @@ export function createVNextTextBlockLineDispositionCoverInternalV1(
         const previousSelected = selectMaximalNodes(
           previousTree.root,
           previousRange,
+          () => beforeVisit("line-tree-lookup-nodes", () => {
+            visitedPreviousLineTreeNodeCount = safeAdd(
+              visitedPreviousLineTreeNodeCount,
+              1,
+            )
+          }),
         )
-        visitedPreviousLineTreeNodeCount = safeAdd(
-          visitedPreviousLineTreeNodeCount,
-          previousSelected.visitedNodeCount,
-        )
+        if (previousSelected.status === "limit-exceeded") {
+          return visitResult()
+        }
         const previousSummary = summaryForSelected(previousSelected.selected)
         const nextSummary = summaryForSelected(nextSelected.selected)
         if (
@@ -2058,6 +2219,7 @@ export function createVNextTextBlockLineDispositionCoverInternalV1(
       status: "accepted",
       cover,
       work: currentWork(),
+      ...(completedCandidateWork == null ? {} : { completedCandidateWork }),
       issues: Object.freeze([]) as readonly [],
     })
   } catch {

@@ -14,6 +14,7 @@ import {
   createVNextTextBlockLineDispositionCoverInternalV1,
 } from "./textBlockPersistentLayoutLineTreeV1.js"
 import type {
+  VNextTextBlockLineDispositionCoverResultV1,
   VNextTextBlockLineDispositionCoverV1,
 } from "./textBlockPersistentLayoutLineContractV1.js"
 import {
@@ -42,11 +43,14 @@ import type {
   VNextTextBlockUnifiedLayoutIssueV1,
   VNextTextBlockUnifiedLayoutTransitionResultInspectionV1,
   VNextTextBlockUnifiedLayoutTransitionResultV1,
+  VNextTextBlockValidatedChangeV1,
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
 import {
   bindVNextTextBlockUnifiedLayoutChangeInternalV1,
+  consumeVNextTextBlockLimitExceededAuthorityRecordInternalV1,
   deriveVNextTextBlockExpectedTargetBindingFromRootInternalV1,
   getVNextTextBlockValidatedImagePaintSourceItemAuthorityInternalV1,
+  getVNextTextBlockValidatedSourceTransitionVisitGuardInternalV1,
 } from "./textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
   prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInternalV1,
@@ -207,17 +211,33 @@ function blockedResult(
 }
 
 interface AllExactStructuralReuseProof {
+  readonly status: "accepted"
   readonly cover: VNextTextBlockLineDispositionCoverV1
   readonly visitedLineTreeNodeCount: number
   readonly selectedExactSubtreeNodeCount: number
+  readonly completedCandidateWork:
+    VNextTextBlockIncrementalCandidateWorkV1 | null
 }
+
+type AllExactStructuralReuseResult =
+  | AllExactStructuralReuseProof
+  | Extract<
+      VNextTextBlockLineDispositionCoverResultV1,
+      { readonly status: "limit-exceeded" | "invariant-blocked" }
+    >
+  | { readonly status: "blocked" }
 
 function allExactStructuralReuseDispositions(
   root: VNextTextBlockUnifiedLayoutRootV2,
-): AllExactStructuralReuseProof | null {
+  context?: {
+    readonly validatedChange: VNextTextBlockValidatedChangeV1
+    readonly completedCandidateWork:
+      VNextTextBlockIncrementalCandidateWorkV1
+  },
+): AllExactStructuralReuseResult {
   coverCreationObserverForTest?.()
   const lineCount = root.lineTree.summary.lineCount
-  if (lineCount === 0) return null
+  if (lineCount === 0) return { status: "blocked" }
   const result = createVNextTextBlockLineDispositionCoverInternalV1({
     previousTree: root.lineTree,
     nextTree: root.lineTree,
@@ -227,20 +247,28 @@ function allExactStructuralReuseDispositions(
       nextRange: { start: 0, end: lineCount },
       constantYDeltaLayoutUnit: null,
     }],
-  })
+  }, context)
+  if (
+    result.status === "limit-exceeded"
+    || result.status === "invariant-blocked"
+  ) return result
   if (
     result.status !== "accepted"
     || result.work.selectedSubtreeNodeCount
       !== result.cover.work.selectedSubtreeCount
-  ) return null
+  ) return { status: "blocked" }
   const visitedLineTreeNodeCount =
     result.work.visitedPreviousLineTreeNodeCount
     + result.work.visitedNextLineTreeNodeCount
-  if (!Number.isSafeInteger(visitedLineTreeNodeCount)) return null
+  if (!Number.isSafeInteger(visitedLineTreeNodeCount)) {
+    return { status: "blocked" }
+  }
   return Object.freeze({
+    status: "accepted" as const,
     cover: result.cover,
     visitedLineTreeNodeCount,
     selectedExactSubtreeNodeCount: result.work.selectedSubtreeNodeCount,
+    completedCandidateWork: result.completedCandidateWork ?? null,
   })
 }
 
@@ -328,25 +356,30 @@ function paintWork(
     readonly payloadObservationFingerprint: string | null
     readonly copiedSourcePathNodeCount: number
     readonly visitedChangedSourceLeafItemCount: number
+    readonly preserveOwnedSourceAndLineWork?: boolean
     readonly attemptedRegistrationCount?: number
     readonly committedRegistrationCount?: number
   },
 ): VNextTextBlockIncrementalCandidateWorkV1 {
   return deepFreeze({
     ...base,
-    flow: {
-      ...base.flow,
-      copiedSourcePathNodeCount: input.copiedSourcePathNodeCount,
-      visitedChangedSourceLeafItemCount:
-        input.visitedChangedSourceLeafItemCount,
-    },
-    structuralReuseProof: {
-      visitedLineTreeNodeCount: input.visitedLineTreeNodeCount,
-      selectedExactSubtreeNodeCount:
-        input.dispositionCover.work.selectedSubtreeCount,
-      lineTreeWrapperAllocationCount: 0,
-      completeLineTreeTraversalCount: 0,
-    },
+    flow: input.preserveOwnedSourceAndLineWork
+      ? base.flow
+      : {
+          ...base.flow,
+          copiedSourcePathNodeCount: input.copiedSourcePathNodeCount,
+          visitedChangedSourceLeafItemCount:
+            input.visitedChangedSourceLeafItemCount,
+        },
+    structuralReuseProof: input.preserveOwnedSourceAndLineWork
+      ? base.structuralReuseProof
+      : {
+          visitedLineTreeNodeCount: input.visitedLineTreeNodeCount,
+          selectedExactSubtreeNodeCount:
+            input.dispositionCover.work.selectedSubtreeCount,
+          lineTreeWrapperAllocationCount: 0,
+          completeLineTreeTraversalCount: 0,
+        },
     scene: {
       visitedLineTreeNodeCount: input.sceneLineTreeNodeCount,
       visitedSceneTreeNodeCount: input.sceneTreeNodeCount,
@@ -369,41 +402,65 @@ function paintWork(
       committedRegistrationCount:
         input.committedRegistrationCount ?? 0,
     },
-    stageWork: composeVNextTextBlockStageWorkLedgerInternalV1({
-      policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
-      factualCounts: [
-        {
-          stage: "source-flow" as const,
-          unit: "source-items" as const,
-          count: base.flow.visitedSourceItemCount,
-        },
-        {
-          stage: "structural-reuse-proof" as const,
-          unit: "selected-exact-subtree-nodes" as const,
-          count: input.dispositionCover.work.selectedSubtreeCount,
-        },
-        {
-          stage: "scene" as const,
-          unit: "copied-scene-nodes" as const,
-          count: input.copiedSceneNodeCount,
-        },
-        {
-          stage: "scene" as const,
-          unit: "replacement-chunks" as const,
-          count: input.replacementChunkCount,
-        },
-        {
-          stage: "delivery-plan" as const,
-          unit: "delivery-operations" as const,
-          count: input.deliveryOperationCount,
-        },
-        {
-          stage: "delivery-plan" as const,
-          unit: "retain-cover-nodes" as const,
-          count: input.retainCoverNodeCount,
-        },
-      ],
-    }),
+    stageWork: input.preserveOwnedSourceAndLineWork
+      ? base.stageWork.map((row) => {
+          const count = (() => {
+            switch (`${row.stage}/${row.unit}`) {
+              case "scene/line-tree-lookup-nodes":
+                return input.sceneLineTreeNodeCount
+              case "scene/scene-tree-lookup-nodes":
+                return input.sceneTreeNodeCount
+              case "scene/copied-scene-nodes":
+                return input.copiedSceneNodeCount
+              case "scene/replacement-chunks":
+                return input.replacementChunkCount
+              case "delivery-plan/scene-tree-lookup-nodes":
+                return input.deliverySceneTreeNodeCount
+              case "delivery-plan/delivery-operations":
+                return input.deliveryOperationCount
+              case "delivery-plan/retain-cover-nodes":
+                return input.retainCoverNodeCount
+              default:
+                return row.count
+            }
+          })()
+          return count === row.count ? row : { ...row, count }
+        })
+      : composeVNextTextBlockStageWorkLedgerInternalV1({
+          policy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+          factualCounts: [
+            {
+              stage: "source-flow" as const,
+              unit: "source-items" as const,
+              count: base.flow.visitedSourceItemCount,
+            },
+            {
+              stage: "structural-reuse-proof" as const,
+              unit: "selected-exact-subtree-nodes" as const,
+              count: input.dispositionCover.work.selectedSubtreeCount,
+            },
+            {
+              stage: "scene" as const,
+              unit: "copied-scene-nodes" as const,
+              count: input.copiedSceneNodeCount,
+            },
+            {
+              stage: "scene" as const,
+              unit: "replacement-chunks" as const,
+              count: input.replacementChunkCount,
+            },
+            {
+              stage: "delivery-plan" as const,
+              unit: "delivery-operations" as const,
+              count: input.deliveryOperationCount,
+            },
+            {
+              stage: "delivery-plan" as const,
+              unit: "retain-cover-nodes" as const,
+              count: input.retainCoverNodeCount,
+            },
+          ],
+        }),
     rootWrapperAllocationCount: 1,
   })
 }
@@ -629,8 +686,82 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
     )
   }
   const structuralReuseProof =
-    allExactStructuralReuseDispositions(input.previousRoot)
-  if (structuralReuseProof == null) {
+    allExactStructuralReuseDispositions(
+      input.previousRoot,
+      input.workPolicy
+          === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+        ? {
+            validatedChange: bound.validatedChange,
+            completedCandidateWork: bound.incrementalCandidateWork,
+          }
+        : undefined,
+    )
+  if (structuralReuseProof.status === "limit-exceeded") {
+    const exactLimit =
+      consumeVNextTextBlockLimitExceededAuthorityRecordInternalV1(
+        structuralReuseProof.evaluatorAuthority,
+      )
+    if (
+      exactLimit == null
+      || exactLimit.validatedChange !== bound.validatedChange
+      || exactLimit.completedCandidateWork
+        !== structuralReuseProof.completedCandidateWork
+    ) {
+      return blockedResult(
+        structuralReuseProof.completedCandidateWork,
+        [issue(
+          "previous-root-authority-mismatch",
+          "structural-reuse-proof",
+          "evaluatorAuthority",
+          "line-cover limit did not retain its exact evaluator authority",
+        )],
+      )
+    }
+    const attempt =
+      mintVNextTextBlockUnifiedLayoutLimitFallbackAttemptInternalV1({
+        validatedChange: bound.validatedChange,
+        previousRoot: input.previousRoot,
+        change: input.change,
+        workPolicy: input.workPolicy,
+        limit: {
+          stage: exactLimit.stage,
+          unit: exactLimit.unit,
+          effectiveLimit: exactLimit.effectiveLimit,
+          attemptedWork: exactLimit.attemptedWork,
+        },
+        incrementalCandidateWork: exactLimit.completedCandidateWork,
+      })
+    if (attempt.status !== "minted") {
+      return blockedResult(attempt.incrementalCandidateWork, attempt.issues)
+    }
+    const fallback = createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+      attempt: attempt.attempt,
+    })
+    if (fallback.status !== "fallback-required") {
+      return blockedResult(
+        fallback.incrementalCandidateWork,
+        fallback.issues,
+      )
+    }
+    return registerResult(Object.freeze({
+      ...fallback,
+      stagedEditorApply: false,
+      mayPublishLayout: false,
+      productionBinding: false,
+    }))
+  }
+  if (structuralReuseProof.status === "invariant-blocked") {
+    return blockedResult(
+      structuralReuseProof.completedCandidateWork,
+      [issue(
+        "previous-root-authority-mismatch",
+        "structural-reuse-proof",
+        "stageVisit",
+        "line-cover owner rejected an invalid exact visit authority",
+      )],
+    )
+  }
+  if (structuralReuseProof.status === "blocked") {
     return blockedResult(
       bound.incrementalCandidateWork,
       [issue(
@@ -642,11 +773,13 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
     )
   }
   if (input.change.kind === "no-op") {
+    const completedWork = structuralReuseProof.completedCandidateWork
     return acceptedNoOpAfterWorkLimit(
       input.previousRoot,
       input.workPolicy,
       structuralReuseProof.cover,
-      noOpWork(bound.incrementalCandidateWork, structuralReuseProof),
+      completedWork
+        ?? noOpWork(bound.incrementalCandidateWork, structuralReuseProof),
     )
   }
   if (input.change.kind !== "image-paint-fact-change") {
@@ -667,6 +800,26 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       )],
     )
   }
+  const sourceBaseWork = structuralReuseProof.completedCandidateWork
+    ?? bound.incrementalCandidateWork
+  const sourceVisitGuard = input.workPolicy
+      === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+    ? getVNextTextBlockValidatedSourceTransitionVisitGuardInternalV1(
+        bound.validatedChange,
+      )
+    : null
+  if (
+    input.workPolicy
+      === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+    && sourceVisitGuard == null
+  ) {
+    return blockedResult(sourceBaseWork, [issue(
+      "previous-root-authority-mismatch",
+      "source-flow",
+      "stageVisitGuard",
+      "V3 source transition lost its exact post-binding visit guard",
+    )])
+  }
   const source =
     createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionInternalV1({
       previousSourceState: input.previousRoot.sourceState,
@@ -678,10 +831,26 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
         input.change.expectedImageDependencyFingerprint,
       nextFit: input.change.nextFit,
       nextCrop: input.change.nextCrop,
+      ...(sourceVisitGuard == null ? {} : {
+        validatedChange: bound.validatedChange,
+        completedCandidateWork: sourceBaseWork,
+        stageVisitGuard: sourceVisitGuard,
+      }),
     })
+  if (source.status === "invariant-blocked") {
+    return blockedResult(
+      source.completedCandidateWork ?? sourceBaseWork,
+      [issue(
+        "previous-root-authority-mismatch",
+        "source-flow",
+        "stageVisit",
+        "source owner rejected an invalid exact visit authority",
+      )],
+    )
+  }
   if (source.status === "blocked") {
     return blockedResult(
-      bound.incrementalCandidateWork,
+      sourceBaseWork,
       [issue(
         "change-target-mismatch",
         "source-flow",
@@ -691,13 +860,18 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
     )
   }
   if (source.status === "unchanged") {
+    const completedWork = source.completedCandidateWork
+      ?? structuralReuseProof.completedCandidateWork
     return acceptedNoOpAfterWorkLimit(
       input.previousRoot,
       input.workPolicy,
       structuralReuseProof.cover,
-      noOpWork(bound.incrementalCandidateWork, structuralReuseProof),
+      completedWork
+        ?? noOpWork(bound.incrementalCandidateWork, structuralReuseProof),
     )
   }
+  const sourceCompletedWork = source.completedCandidateWork
+    ?? sourceBaseWork
   const aliasesAccepted =
     bindVNextTextBlockIncrementalFlowTreeToImagePaintSourceInternalV1({
       previousSourceState: input.previousRoot.sourceState,
@@ -718,7 +892,7 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
     })
   if (!aliasesAccepted) {
     return blockedResult(
-      bound.incrementalCandidateWork,
+      sourceCompletedWork,
       [issue(
         "atomic-acceptance-failed",
         "source-flow",
@@ -735,7 +909,7 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       inlineId: input.change.inlineId,
     })
   if (scene.status !== "prepared") {
-    const attemptedWork = paintWork(bound.incrementalCandidateWork, {
+    const attemptedWork = paintWork(sourceCompletedWork, {
       dispositionCover: structuralReuseProof.cover,
       visitedLineTreeNodeCount:
         structuralReuseProof.visitedLineTreeNodeCount,
@@ -751,6 +925,8 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       copiedSourcePathNodeCount: source.copiedSourcePathNodeCount,
       visitedChangedSourceLeafItemCount:
         source.visitedChangedSourceLeafItemCount,
+      preserveOwnedSourceAndLineWork:
+        structuralReuseProof.completedCandidateWork != null,
     })
     if (scene.status === "blocked") {
       return blockedResult(
@@ -795,7 +971,7 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
     }))
   }
   const beforeRegistrationWork = paintWork(
-    bound.incrementalCandidateWork,
+    sourceCompletedWork,
     {
       dispositionCover: structuralReuseProof.cover,
       visitedLineTreeNodeCount:
@@ -815,6 +991,8 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       copiedSourcePathNodeCount: source.copiedSourcePathNodeCount,
       visitedChangedSourceLeafItemCount:
         source.visitedChangedSourceLeafItemCount,
+      preserveOwnedSourceAndLineWork:
+        structuralReuseProof.completedCandidateWork != null,
     },
   )
   const v3FinalAudit = input.workPolicy
@@ -959,7 +1137,7 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
       "registered paint transition failed post-commit delivery invariant",
     )
   }
-  const work = paintWork(bound.incrementalCandidateWork, {
+  const work = paintWork(sourceCompletedWork, {
     dispositionCover: structuralReuseProof.cover,
     visitedLineTreeNodeCount: structuralReuseProof.visitedLineTreeNodeCount,
     sceneLineTreeNodeCount: scene.visitedLineTreeNodeCount,
@@ -977,6 +1155,8 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
     copiedSourcePathNodeCount: source.copiedSourcePathNodeCount,
     visitedChangedSourceLeafItemCount:
       source.visitedChangedSourceLeafItemCount,
+    preserveOwnedSourceAndLineWork:
+      structuralReuseProof.completedCandidateWork != null,
     attemptedRegistrationCount:
       registration.attemptedRegistrationCount,
     committedRegistrationCount:
