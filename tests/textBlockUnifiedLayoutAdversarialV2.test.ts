@@ -28,10 +28,15 @@ import {
 import {
   attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionV1.js"
+import * as transitionInternals from "../src/layout/textBlockUnifiedLayoutTransitionV1.js"
+import {
+  bindVNextTextBlockUnifiedLayoutChangeInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
   evaluateVNextTextBlockStageWorkLimitInternalV1,
   type VNextTextBlockUnifiedLayoutWorkPolicyV1,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import {
   imagePaintUnifiedLayoutChange5b,
@@ -155,6 +160,59 @@ function policyLimitedAt(
 }
 
 describe("Phase 5B-1 Root V2 adversarial gate", () => {
+  it("keeps the V3 final work scan assertion-only", () => {
+    const audit = (transitionInternals as unknown as {
+      readonly auditVNextTextBlockUnifiedLayoutFinalStageWorkInternalV1?:
+        (input: unknown) => unknown
+    }).auditVNextTextBlockUnifiedLayoutFinalStageWorkInternalV1
+    expect(audit).toBeTypeOf("function")
+    if (audit == null) return
+    const previous = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+      unifiedLayoutRootBuildInputFixtureV2({
+        content: "text-image-text-break",
+        fit: "contain",
+      }),
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+    )
+    if (previous.status !== "accepted") throw new Error("V3 Root blocked")
+    const change = imagePaintUnifiedLayoutChange5b(previous.root, {
+      fit: "cover",
+      crop: { x: 0, y: 0, width: 0.5, height: 1 },
+    })
+    const bound = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
+      previousRoot: previous.root,
+      change,
+      workPolicy:
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+    })
+    if (bound.status !== "accepted") throw new Error("V3 change did not bind")
+    const work = structuredClone(
+      bound.incrementalCandidateWork,
+    ) as DeepMutable<typeof bound.incrementalCandidateWork>
+    work.scene.copiedSceneNodeCount = 3
+    const row = work.stageWork.find((candidate) =>
+      candidate.stage === "scene" && candidate.unit === "copied-scene-nodes"
+    )
+    if (row == null) throw new Error("copied Scene row missing")
+    row.count = 3
+    const result = audit({
+      previousRoot: previous.root,
+      workPolicy:
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+      completedCandidateWork: deepFreeze(work),
+    })
+    expect(result).toMatchObject({
+      status: "invariant-blocked",
+      stage: "scene",
+      unit: "copied-scene-nodes",
+      attemptedWork: 3,
+      effectiveLimit: 2,
+    })
+    expect(result).not.toHaveProperty("attempt")
+    expect(result).not.toHaveProperty("evaluatorAuthority")
+    expect(result).not.toHaveProperty("fallbackRequest")
+  })
+
   it("does not treat visible Source Tree height as prepared envelope authority", () => {
     const result = publicCore.createVNextTextBlockUnifiedLayoutRootV2(
       unifiedLayoutRootBuildInputFixtureV2(),

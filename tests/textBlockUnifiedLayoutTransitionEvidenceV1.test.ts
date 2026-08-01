@@ -19,6 +19,11 @@ import {
 import {
   validateVNextTextBlockUnifiedLayoutChangeShapeInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionChangeInternalsV1.js"
+import type {
+  VNextTextBlockIncrementalCandidateWorkV1,
+  VNextTextBlockUnifiedLayoutStageUnitV1,
+  VNextTextBlockUnifiedLayoutStageV1,
+} from "../src/layout/textBlockUnifiedLayoutTransitionContractV1.js"
 import {
   imagePaintUnifiedLayoutChange5b,
   noOpUnifiedLayoutChange5b,
@@ -67,6 +72,116 @@ function preBindingTestBoundaries() {
       source.setVNextTextBlockPreBindingSourceReadObserverForTestInternalV1,
   }
 }
+
+function postBindingTestBoundaries() {
+  const evidence = transitionEvidenceInternals as unknown as {
+    readonly evaluateNextVNextTextBlockStageVisitInternalV1?:
+      (value: unknown) => unknown
+    readonly getVNextTextBlockLimitExceededAuthorityRecordInternalV1?:
+      (value: unknown) => unknown
+    readonly consumeVNextTextBlockLimitExceededAuthorityRecordInternalV1?:
+      (value: unknown) => unknown
+  }
+  return {
+    evaluate: evidence.evaluateNextVNextTextBlockStageVisitInternalV1,
+    getRecord:
+      evidence.getVNextTextBlockLimitExceededAuthorityRecordInternalV1,
+    consume:
+      evidence.consumeVNextTextBlockLimitExceededAuthorityRecordInternalV1,
+  }
+}
+
+function deepFreezeTestValue<T>(value: T): T {
+  if (value == null || typeof value !== "object") return value
+  for (const key of Reflect.ownKeys(value)) {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key)
+    if (descriptor != null && Object.hasOwn(descriptor, "value")) {
+      deepFreezeTestValue(descriptor.value)
+    }
+  }
+  return Object.isFrozen(value) ? value : Object.freeze(value)
+}
+
+function v3BoundImagePaint() {
+  const previousRoot = v3Root()
+  const change = imagePaintUnifiedLayoutChange5b(previousRoot, {
+    fit: "cover",
+    crop: { x: 0, y: 0, width: 0.5, height: 1 },
+  })
+  const bound = bindVNextTextBlockUnifiedLayoutChangeInternalV1({
+    previousRoot,
+    change,
+    workPolicy:
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+  })
+  if (bound.status !== "accepted") throw new Error("V3 change did not bind")
+  return { previousRoot, change, bound }
+}
+
+function workWithStageCount(
+  base: VNextTextBlockIncrementalCandidateWorkV1,
+  stage: VNextTextBlockUnifiedLayoutStageV1,
+  unit: VNextTextBlockUnifiedLayoutStageUnitV1,
+  count: number,
+): VNextTextBlockIncrementalCandidateWorkV1 {
+  const work = structuredClone(base) as unknown as {
+    flow: Record<string, number>
+    scene: Record<string, number>
+    stageWork: { stage: string; unit: string; count: number }[]
+  }
+  const detailKey = `${stage}/${unit}`
+  const details: Record<string, readonly [Record<string, number>, string]> = {
+    "source-flow/source-items": [work.flow, "visitedSourceItemCount"],
+    "source-flow/source-lookup-nodes": [
+      work.flow,
+      "visitedSourceLookupNodeCount",
+    ],
+    "source-flow/source-path-copy-nodes": [
+      work.flow,
+      "copiedSourcePathNodeCount",
+    ],
+    "source-flow/source-leaf-items": [
+      work.flow,
+      "visitedChangedSourceLeafItemCount",
+    ],
+    "scene/copied-scene-nodes": [work.scene, "copiedSceneNodeCount"],
+  }
+  const detail = details[detailKey]
+  if (detail == null) throw new Error(`unsupported test detail ${detailKey}`)
+  detail[0][detail[1]] = count
+  const row = work.stageWork.find((candidate) =>
+    candidate.stage === stage && candidate.unit === unit
+  )
+  if (row == null) throw new Error(`missing test work row ${detailKey}`)
+  row.count = count
+  return deepFreezeTestValue(
+    work,
+  ) as unknown as VNextTextBlockIncrementalCandidateWorkV1
+}
+
+const CANONICAL_V3_STAGE_ROWS = [
+  "source-flow/source-items",
+  "source-flow/source-lookup-nodes",
+  "source-flow/source-path-copy-nodes",
+  "source-flow/source-leaf-items",
+  "source-flow/flow-atoms",
+  "source-flow/flow-tree-nodes",
+  "spatial-index/spatial-index-nodes",
+  "spatial-index/spatial-query-bands",
+  "structural-reuse-proof/selected-exact-subtree-nodes",
+  "structural-reuse-proof/line-tree-lookup-nodes",
+  "layout-reconvergence/recomputed-lines",
+  "layout-reconvergence/proof-nodes",
+  "geometry/reprojected-lines",
+  "geometry/visited-fragments",
+  "scene/line-tree-lookup-nodes",
+  "scene/copied-scene-nodes",
+  "scene/replacement-chunks",
+  "scene/scene-tree-lookup-nodes",
+  "delivery-plan/delivery-operations",
+  "delivery-plan/retain-cover-nodes",
+  "delivery-plan/scene-tree-lookup-nodes",
+] as const
 
 describe("Phase 5B-1 Core-derived transition evidence", () => {
   it("binds the active first, middle, and last image positions once under V3", () => {
@@ -328,6 +443,231 @@ describe("Phase 5B-1 Core-derived transition evidence", () => {
         boundaries.setNextLimit(null)
         boundaries.setReadObserver(null)
       }
+    }
+  })
+
+  it("owns exact V3 post-binding thresholds and one-shot limit authority", () => {
+    const boundary = postBindingTestBoundaries()
+    expect(boundary.evaluate).toBeTypeOf("function")
+    expect(boundary.getRecord).toBeTypeOf("function")
+    expect(boundary.consume).toBeTypeOf("function")
+    if (
+      boundary.evaluate == null
+      || boundary.getRecord == null
+      || boundary.consume == null
+    ) return
+    const { previousRoot, change, bound } = v3BoundImagePaint()
+    const within = workWithStageCount(
+      bound.incrementalCandidateWork,
+      "scene",
+      "copied-scene-nodes",
+      1,
+    )
+    expect(boundary.evaluate({
+      validatedChange: bound.validatedChange,
+      stage: "scene",
+      unit: "copied-scene-nodes",
+      completedWork: 1,
+      completedCandidateWork: within,
+    })).toEqual({ status: "accepted", attemptedWork: 2 })
+    expect(boundary.evaluate({
+      validatedChange: bound.validatedChange,
+      stage: "scene",
+      unit: "copied-scene-nodes",
+      completedWork: 1,
+      completedCandidateWork: within,
+    })).toMatchObject({ status: "invariant-blocked" })
+
+    const atLimit = workWithStageCount(
+      bound.incrementalCandidateWork,
+      "scene",
+      "copied-scene-nodes",
+      2,
+    )
+    const exceeded = boundary.evaluate({
+      validatedChange: bound.validatedChange,
+      stage: "scene",
+      unit: "copied-scene-nodes",
+      completedWork: 2,
+      completedCandidateWork: atLimit,
+    }) as {
+      readonly status?: unknown
+      readonly attemptedWork?: unknown
+      readonly effectiveLimit?: unknown
+      readonly evaluatorAuthority?: unknown
+    }
+    expect(exceeded).toMatchObject({
+      status: "limit-exceeded",
+      attemptedWork: 3,
+      effectiveLimit: 2,
+    })
+    expect(exceeded.evaluatorAuthority).not.toBeNull()
+    const record = boundary.getRecord(exceeded.evaluatorAuthority) as {
+      readonly previousRoot?: unknown
+      readonly originalChange?: unknown
+      readonly workPolicy?: unknown
+      readonly validatedChange?: unknown
+      readonly stage?: unknown
+      readonly unit?: unknown
+      readonly completedWork?: unknown
+      readonly attemptedWork?: unknown
+      readonly effectiveLimit?: unknown
+      readonly completedCandidateWork?: unknown
+      readonly canonicalStageWork?: readonly {
+        readonly stage: string
+        readonly unit: string
+      }[]
+    } | null
+    expect(record).toMatchObject({
+      previousRoot,
+      originalChange: change,
+      workPolicy:
+        VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
+      validatedChange: bound.validatedChange,
+      stage: "scene",
+      unit: "copied-scene-nodes",
+      completedWork: 2,
+      attemptedWork: 3,
+      effectiveLimit: 2,
+      completedCandidateWork: atLimit,
+    })
+    expect(record?.previousRoot).toBe(previousRoot)
+    expect(record?.originalChange).toBe(change)
+    expect(record?.validatedChange).toBe(bound.validatedChange)
+    expect(record?.completedCandidateWork).toBe(atLimit)
+    expect(record?.canonicalStageWork?.map((row) =>
+      `${row.stage}/${row.unit}`
+    )).toEqual(CANONICAL_V3_STAGE_ROWS)
+    expect(record?.canonicalStageWork).toHaveLength(21)
+    expect(boundary.getRecord(structuredClone(
+      exceeded.evaluatorAuthority,
+    ))).toBeNull()
+    expect(createVNextTextBlockUnifiedLayoutFallbackRequestInternalV1({
+      attempt: exceeded.evaluatorAuthority as never,
+    })).toMatchObject({
+      status: "blocked",
+      issues: [{ code: "fallback-request-authority-mismatch" }],
+    })
+    expect(boundary.consume(exceeded.evaluatorAuthority)).toBe(record)
+    expect(boundary.consume(exceeded.evaluatorAuthority)).toBeNull()
+    expect(boundary.getRecord(exceeded.evaluatorAuthority)).toBeNull()
+  })
+
+  it("rejects modified post-binding detail, ledger, and authority context", () => {
+    const boundary = postBindingTestBoundaries()
+    expect(boundary.evaluate).toBeTypeOf("function")
+    expect(boundary.getRecord).toBeTypeOf("function")
+    expect(boundary.consume).toBeTypeOf("function")
+    if (
+      boundary.evaluate == null
+      || boundary.getRecord == null
+      || boundary.consume == null
+    ) return
+    const { bound } = v3BoundImagePaint()
+    const atLimit = workWithStageCount(
+      bound.incrementalCandidateWork,
+      "scene",
+      "copied-scene-nodes",
+      2,
+    )
+    const mismatchedLedger = structuredClone(atLimit) as unknown as {
+      stageWork: { stage: string; unit: string; count: number }[]
+    }
+    const copiedRow = mismatchedLedger.stageWork.find((row) =>
+      row.stage === "scene" && row.unit === "copied-scene-nodes"
+    )
+    if (copiedRow == null) throw new Error("copied Scene row missing")
+    copiedRow.count = 1
+    deepFreezeTestValue(mismatchedLedger)
+    const reorderedLedger = structuredClone(atLimit) as unknown as {
+      stageWork: { stage: string; unit: string; count: number }[]
+    }
+    const first = reorderedLedger.stageWork[0]!
+    reorderedLedger.stageWork[0] = reorderedLedger.stageWork[1]!
+    reorderedLedger.stageWork[1] = first
+    deepFreezeTestValue(reorderedLedger)
+    for (const invalid of [
+      {
+        validatedChange: structuredClone(bound.validatedChange),
+        stage: "scene",
+        unit: "copied-scene-nodes",
+        completedWork: 2,
+        completedCandidateWork: atLimit,
+      },
+      {
+        validatedChange: bound.validatedChange,
+        stage: "scene",
+        unit: "copied-scene-nodes",
+        completedWork: 1,
+        completedCandidateWork: atLimit,
+      },
+      {
+        validatedChange: bound.validatedChange,
+        stage: "scene",
+        unit: "replacement-chunks",
+        completedWork: 2,
+        completedCandidateWork: atLimit,
+      },
+      {
+        validatedChange: bound.validatedChange,
+        stage: "scene",
+        unit: "copied-scene-nodes",
+        completedWork: 2,
+        completedCandidateWork: mismatchedLedger,
+      },
+      {
+        validatedChange: bound.validatedChange,
+        stage: "scene",
+        unit: "copied-scene-nodes",
+        completedWork: 2,
+        completedCandidateWork: reorderedLedger,
+      },
+      {
+        validatedChange: bound.validatedChange,
+        stage: "scene",
+        unit: "copied-scene-nodes",
+        completedWork: 2,
+        completedCandidateWork: structuredClone(atLimit),
+      },
+    ]) {
+      expect(boundary.evaluate(invalid)).toMatchObject({
+        status: "invariant-blocked",
+      })
+    }
+    expect(boundary.getRecord(Object.freeze({}))).toBeNull()
+    expect(boundary.consume(Object.freeze({}))).toBeNull()
+  })
+
+  it("keeps all exhausted V3 source rows invariant-only", () => {
+    const boundary = postBindingTestBoundaries()
+    expect(boundary.evaluate).toBeTypeOf("function")
+    if (boundary.evaluate == null) return
+    const { bound } = v3BoundImagePaint()
+    for (const row of [
+      { unit: "source-items" as const, completedWork: 4 },
+      { unit: "source-lookup-nodes" as const, completedWork: 5 },
+      { unit: "source-path-copy-nodes" as const, completedWork: 5 },
+      { unit: "source-leaf-items" as const, completedWork: 8 },
+    ]) {
+      const completedCandidateWork = workWithStageCount(
+        bound.incrementalCandidateWork,
+        "source-flow",
+        row.unit,
+        row.completedWork,
+      )
+      const result = boundary.evaluate({
+        validatedChange: bound.validatedChange,
+        stage: "source-flow",
+        unit: row.unit,
+        completedWork: row.completedWork,
+        completedCandidateWork,
+      })
+      expect(result, row.unit).toEqual({
+        status: "invariant-blocked",
+        attemptedWork: row.completedWork + 1,
+        effectiveLimit: row.completedWork,
+      })
+      expect(result).not.toHaveProperty("evaluatorAuthority")
     }
   })
 

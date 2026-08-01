@@ -27,7 +27,10 @@ import type {
   VNextTextBlockUnifiedLayoutEffectClassificationV1,
   VNextTextBlockExpectedTargetBindingV1,
   VNextTextBlockIncrementalCandidateWorkV1,
+  VNextTextBlockStageWorkCountV1,
   VNextTextBlockUnifiedLayoutIssueV1,
+  VNextTextBlockUnifiedLayoutStageUnitV1,
+  VNextTextBlockUnifiedLayoutStageV1,
   VNextTextBlockValidatedChangeResultV1,
   VNextTextBlockValidatedChangeV1,
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
@@ -44,6 +47,8 @@ import type {
 } from "./textBlockUnifiedLayoutRootContractV2.js"
 import {
   composeVNextTextBlockStageWorkLedgerInternalV1,
+  evaluateVNextTextBlockStageWorkLimitInternalV1,
+  previousVNextTextBlockStageSummaryBaseInternalV1,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
   type VNextTextBlockUnifiedLayoutWorkPolicyV1,
@@ -600,6 +605,324 @@ export function getVNextTextBlockValidatedChangeAuthorityRecordInternalV1(
   validatedChange: VNextTextBlockValidatedChangeV1,
 ): VNextTextBlockValidatedChangeAuthorityRecordInternalV1 | null {
   return validatedChangeAuthorityRecords.get(validatedChange) ?? null
+}
+
+export interface VNextTextBlockLimitExceededAuthorityInternalV1 {
+  readonly __limitExceededAuthorityOpaque: never
+}
+
+export type VNextTextBlockStageVisitAttemptInternalV1 =
+  | {
+      readonly status: "accepted"
+      readonly attemptedWork: number
+    }
+  | {
+      readonly status: "limit-exceeded"
+      readonly attemptedWork: number
+      readonly effectiveLimit: number
+      readonly evaluatorAuthority:
+        VNextTextBlockLimitExceededAuthorityInternalV1
+    }
+  | {
+      readonly status: "invariant-blocked"
+      readonly attemptedWork: number
+      readonly effectiveLimit: number
+    }
+
+export interface VNextTextBlockLimitExceededAuthorityRecordInternalV1 {
+  readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+  readonly originalChange: VNextTextBlockUnifiedLayoutChangeV1
+  readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+  readonly validatedChange: VNextTextBlockValidatedChangeV1
+  readonly validatedChangeAuthority:
+    VNextTextBlockValidatedChangeAuthorityRecordInternalV1
+  readonly stage: VNextTextBlockUnifiedLayoutStageV1
+  readonly unit: VNextTextBlockUnifiedLayoutStageUnitV1
+  readonly completedWork: number
+  readonly attemptedWork: number
+  readonly effectiveLimit: number
+  readonly completedCandidateWork:
+    VNextTextBlockIncrementalCandidateWorkV1
+  readonly canonicalStageWork: readonly VNextTextBlockStageWorkCountV1[]
+}
+
+const limitExceededAuthorityRecords = new WeakMap<
+  VNextTextBlockLimitExceededAuthorityInternalV1,
+  VNextTextBlockLimitExceededAuthorityRecordInternalV1
+>()
+
+const evaluatedStageVisits = new WeakMap<
+  VNextTextBlockIncrementalCandidateWorkV1,
+  WeakMap<VNextTextBlockValidatedChangeV1, Set<string>>
+>()
+
+const SOURCE_ENVELOPE_UNITS = new Set<
+  VNextTextBlockUnifiedLayoutStageUnitV1
+>([
+  "source-items",
+  "source-lookup-nodes",
+  "source-path-copy-nodes",
+  "source-leaf-items",
+])
+
+function candidateDetailedWorkCountInternalV1(
+  work: VNextTextBlockIncrementalCandidateWorkV1,
+  stage: VNextTextBlockUnifiedLayoutStageV1,
+  unit: VNextTextBlockUnifiedLayoutStageUnitV1,
+): number | null {
+  switch (`${stage}/${unit}`) {
+    case "source-flow/source-items":
+      return work.flow.visitedSourceItemCount
+    case "source-flow/source-lookup-nodes":
+      return work.flow.visitedSourceLookupNodeCount
+    case "source-flow/source-path-copy-nodes":
+      return work.flow.copiedSourcePathNodeCount
+    case "source-flow/source-leaf-items":
+      return work.flow.visitedChangedSourceLeafItemCount
+    case "source-flow/flow-atoms":
+      return work.flow.visitedFlowAtomCount
+    case "source-flow/flow-tree-nodes":
+      return work.flow.visitedFlowTreeNodeCount
+    case "spatial-index/spatial-index-nodes":
+      return work.spatial.visitedSpatialIndexNodeCount
+    case "spatial-index/spatial-query-bands":
+      return work.spatial.spatialQueryBandCount
+    case "structural-reuse-proof/selected-exact-subtree-nodes":
+      return work.structuralReuseProof.selectedExactSubtreeNodeCount
+    case "structural-reuse-proof/line-tree-lookup-nodes":
+      return work.structuralReuseProof.visitedLineTreeNodeCount
+    case "layout-reconvergence/recomputed-lines":
+      return work.layout.recomputedLineCount
+    case "layout-reconvergence/proof-nodes":
+      return work.layout.proofNodeCount
+    case "geometry/reprojected-lines":
+      return work.geometry.reprojectedLineCount
+    case "geometry/visited-fragments":
+      return work.geometry.visitedFragmentCount
+    case "scene/line-tree-lookup-nodes":
+      return work.scene.visitedLineTreeNodeCount
+    case "scene/copied-scene-nodes":
+      return work.scene.copiedSceneNodeCount
+    case "scene/replacement-chunks":
+      return work.scene.replacementChunkCount
+    case "scene/scene-tree-lookup-nodes":
+      return work.scene.visitedSceneTreeNodeCount
+    case "delivery-plan/delivery-operations":
+      return work.deliveryPlan.deliveryOperationCount
+    case "delivery-plan/retain-cover-nodes":
+      return work.deliveryPlan.retainCoverNodeCount
+    case "delivery-plan/scene-tree-lookup-nodes":
+      return work.deliveryPlan.visitedSceneTreeNodeCount
+    default:
+      return null
+  }
+}
+
+function candidateWorkIsDeeplyFrozenInternalV1(
+  work: VNextTextBlockIncrementalCandidateWorkV1,
+): boolean {
+  return [
+    work,
+    work.evidence,
+    work.flow,
+    work.spatial,
+    work.structuralReuseProof,
+    work.layout,
+    work.geometry,
+    work.scene,
+    work.deliveryPlan,
+    work.observations,
+    work.atomicAcceptance,
+    work.stageWork,
+    ...work.stageWork,
+  ].every((value) => Object.isFrozen(value))
+}
+
+function hasCanonicalV3StageWorkInternalV1(
+  work: VNextTextBlockIncrementalCandidateWorkV1,
+): boolean {
+  try {
+    const policy =
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+    if (
+      !candidateWorkIsDeeplyFrozenInternalV1(work)
+      || work.source !== "vnext-text-block-incremental-candidate-work-v1"
+      || work.contractVersion !== 1
+      || work.stageWork.length !== policy.stages.length
+    ) return false
+    for (let index = 0; index < policy.stages.length; index += 1) {
+      const expected = policy.stages[index]!
+      const actual = work.stageWork[index]
+      if (
+        actual == null
+        || actual.stage !== expected.stage
+        || actual.unit !== expected.unit
+        || !Number.isSafeInteger(actual.count)
+        || actual.count < 0
+        || candidateDetailedWorkCountInternalV1(
+          work,
+          actual.stage,
+          actual.unit,
+        ) !== actual.count
+      ) return false
+    }
+    return true
+  } catch {
+    return false
+  }
+}
+
+function stageVisitWasAlreadyEvaluatedInternalV1(input: {
+  readonly work: VNextTextBlockIncrementalCandidateWorkV1
+  readonly validatedChange: VNextTextBlockValidatedChangeV1
+  readonly stage: VNextTextBlockUnifiedLayoutStageV1
+  readonly unit: VNextTextBlockUnifiedLayoutStageUnitV1
+  readonly completedWork: number
+}): boolean {
+  let byValidatedChange = evaluatedStageVisits.get(input.work)
+  if (byValidatedChange == null) {
+    byValidatedChange = new WeakMap()
+    evaluatedStageVisits.set(input.work, byValidatedChange)
+  }
+  let keys = byValidatedChange.get(input.validatedChange)
+  if (keys == null) {
+    keys = new Set()
+    byValidatedChange.set(input.validatedChange, keys)
+  }
+  const key = `${input.stage}/${input.unit}/${input.completedWork}`
+  if (keys.has(key)) return true
+  keys.add(key)
+  return false
+}
+
+function invariantStageVisitInternalV1(
+  attemptedWork: number,
+  effectiveLimit: number,
+): VNextTextBlockStageVisitAttemptInternalV1 {
+  return Object.freeze({
+    status: "invariant-blocked" as const,
+    attemptedWork,
+    effectiveLimit,
+  })
+}
+
+export function evaluateNextVNextTextBlockStageVisitInternalV1(input: {
+  readonly validatedChange: VNextTextBlockValidatedChangeV1
+  readonly stage: VNextTextBlockUnifiedLayoutStageV1
+  readonly unit: VNextTextBlockUnifiedLayoutStageUnitV1
+  readonly completedWork: number
+  readonly completedCandidateWork:
+    VNextTextBlockIncrementalCandidateWorkV1
+}): VNextTextBlockStageVisitAttemptInternalV1 {
+  const attemptedWork = Number.isSafeInteger(input.completedWork)
+    && input.completedWork >= 0
+    && input.completedWork < Number.MAX_SAFE_INTEGER
+    ? input.completedWork + 1
+    : 1
+  const validated =
+    validatedChangeAuthorityRecords.get(input.validatedChange)
+  if (
+    validated == null
+    || validated.workPolicy
+      !== VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+    || validated.previousRoot.workPolicy !== validated.workPolicy
+    || validated.originalChange !== input.validatedChange.change
+    || validated.rootSourceEnvelopeAuthority == null
+    || !Number.isSafeInteger(input.completedWork)
+    || input.completedWork < 0
+  ) return invariantStageVisitInternalV1(attemptedWork, 0)
+  const policyRow = validated.workPolicy.stages.find((row) =>
+    row.stage === input.stage && row.unit === input.unit
+  )
+  if (policyRow == null) {
+    return invariantStageVisitInternalV1(attemptedWork, 0)
+  }
+  const evaluation = evaluateVNextTextBlockStageWorkLimitInternalV1({
+    policy: validated.workPolicy,
+    stage: input.stage,
+    unit: input.unit,
+    previousSummaryBase:
+      previousVNextTextBlockStageSummaryBaseInternalV1({
+        previousRoot: validated.previousRoot,
+        unit: input.unit,
+      }),
+    exactValidatedChangeDelta: 1,
+    attemptedWork,
+  })
+  const effectiveLimit = evaluation.effectiveLimit ?? 0
+  if (
+    evaluation.status === "invalid"
+    || evaluation.status === "inactive"
+    || !hasCanonicalV3StageWorkInternalV1(input.completedCandidateWork)
+    || candidateDetailedWorkCountInternalV1(
+      input.completedCandidateWork,
+      input.stage,
+      input.unit,
+    ) !== input.completedWork
+    || stageVisitWasAlreadyEvaluatedInternalV1({
+      work: input.completedCandidateWork,
+      validatedChange: input.validatedChange,
+      stage: input.stage,
+      unit: input.unit,
+      completedWork: input.completedWork,
+    })
+  ) return invariantStageVisitInternalV1(attemptedWork, effectiveLimit)
+  if (evaluation.status === "within-limit") {
+    return Object.freeze({
+      status: "accepted" as const,
+      attemptedWork,
+    })
+  }
+  if (
+    input.stage === "source-flow"
+    && SOURCE_ENVELOPE_UNITS.has(input.unit)
+  ) return invariantStageVisitInternalV1(attemptedWork, effectiveLimit)
+  const evaluatorAuthority = Object.freeze(
+    {},
+  ) as VNextTextBlockLimitExceededAuthorityInternalV1
+  limitExceededAuthorityRecords.set(evaluatorAuthority, Object.freeze({
+    previousRoot: validated.previousRoot,
+    originalChange: validated.originalChange,
+    workPolicy: validated.workPolicy,
+    validatedChange: input.validatedChange,
+    validatedChangeAuthority: validated,
+    stage: input.stage,
+    unit: input.unit,
+    completedWork: input.completedWork,
+    attemptedWork,
+    effectiveLimit,
+    completedCandidateWork: input.completedCandidateWork,
+    canonicalStageWork: input.completedCandidateWork.stageWork,
+  }))
+  return Object.freeze({
+    status: "limit-exceeded" as const,
+    attemptedWork,
+    effectiveLimit,
+    evaluatorAuthority,
+  })
+}
+
+export function getVNextTextBlockLimitExceededAuthorityRecordInternalV1(
+  authority: unknown,
+): VNextTextBlockLimitExceededAuthorityRecordInternalV1 | null {
+  return authority != null && typeof authority === "object"
+    ? limitExceededAuthorityRecords.get(
+        authority as VNextTextBlockLimitExceededAuthorityInternalV1,
+      ) ?? null
+    : null
+}
+
+export function consumeVNextTextBlockLimitExceededAuthorityRecordInternalV1(
+  authority: unknown,
+): VNextTextBlockLimitExceededAuthorityRecordInternalV1 | null {
+  const record = getVNextTextBlockLimitExceededAuthorityRecordInternalV1(
+    authority,
+  )
+  if (record == null) return null
+  limitExceededAuthorityRecords.delete(
+    authority as VNextTextBlockLimitExceededAuthorityInternalV1,
+  )
+  return record
 }
 
 export function getVNextTextBlockValidatedImagePaintSourceItemAuthorityInternalV1(

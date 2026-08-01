@@ -62,6 +62,7 @@ import {
   evaluateVNextTextBlockStageWorkLimitInternalV1,
   previousVNextTextBlockStageSummaryBaseInternalV1,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V2,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL,
 } from "./textBlockUnifiedLayoutWorkPolicyV1.js"
 
 function fingerprint(value: unknown): string {
@@ -489,12 +490,69 @@ function workLimitFailure(
   return null
 }
 
+export function auditVNextTextBlockUnifiedLayoutFinalStageWorkInternalV1(
+  input: {
+    readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+    readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+    readonly completedCandidateWork:
+      VNextTextBlockIncrementalCandidateWorkV1
+  },
+):
+  | { readonly status: "valid" }
+  | {
+      readonly status: "invariant-blocked"
+      readonly stage: VNextTextBlockUnifiedLayoutIssueV1["stage"]
+      readonly unit:
+        VNextTextBlockIncrementalCandidateWorkV1["stageWork"][number]["unit"]
+      readonly attemptedWork: number
+      readonly effectiveLimit: number
+    } {
+  const failure = workLimitFailure(
+    input.previousRoot,
+    input.workPolicy,
+    input.completedCandidateWork,
+  )
+  if (failure == null) return Object.freeze({ status: "valid" as const })
+  const attemptedWork = failure.kind === "limit-exceeded"
+    ? failure.attemptedWork
+    : input.completedCandidateWork.stageWork.find((row) =>
+        row.stage === failure.stage && row.unit === failure.unit
+      )?.count ?? 0
+  return Object.freeze({
+    status: "invariant-blocked" as const,
+    stage: failure.stage,
+    unit: failure.unit,
+    attemptedWork,
+    effectiveLimit: failure.kind === "limit-exceeded"
+      ? failure.effectiveLimit
+      : 0,
+  })
+}
+
 function acceptedNoOpAfterWorkLimit(
   root: VNextTextBlockUnifiedLayoutRootV2,
   workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1,
   dispositions: VNextTextBlockLineDispositionCoverV1,
   work: VNextTextBlockIncrementalCandidateWorkV1,
 ): VNextTextBlockUnifiedLayoutTransitionResultV1 {
+  if (
+    workPolicy
+      === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+  ) {
+    const audit = auditVNextTextBlockUnifiedLayoutFinalStageWorkInternalV1({
+      previousRoot: root,
+      workPolicy,
+      completedCandidateWork: work,
+    })
+    return audit.status === "valid"
+      ? acceptedNoOp(root, dispositions, work)
+      : blockedResult(work, [issue(
+          "previous-root-authority-mismatch",
+          audit.stage,
+          audit.unit,
+          "V3 final work audit found operation work not stopped by its owner",
+        )])
+  }
   const failure = workLimitFailure(root, workPolicy, work)
   if (failure == null) return acceptedNoOp(root, dispositions, work)
   const code = failure.kind === "limit-exceeded"
@@ -759,11 +817,29 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(
         source.visitedChangedSourceLeafItemCount,
     },
   )
-  const limitFailure = workLimitFailure(
-    input.previousRoot,
-    input.workPolicy,
-    beforeRegistrationWork,
-  )
+  const v3FinalAudit = input.workPolicy
+    === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3_CANDIDATE_INTERNAL
+    ? auditVNextTextBlockUnifiedLayoutFinalStageWorkInternalV1({
+        previousRoot: input.previousRoot,
+        workPolicy: input.workPolicy,
+        completedCandidateWork: beforeRegistrationWork,
+      })
+    : null
+  if (v3FinalAudit?.status === "invariant-blocked") {
+    return blockedResult(beforeRegistrationWork, [issue(
+      "previous-root-authority-mismatch",
+      v3FinalAudit.stage,
+      v3FinalAudit.unit,
+      "V3 final work audit found operation work not stopped by its owner",
+    )])
+  }
+  const limitFailure = v3FinalAudit == null
+    ? workLimitFailure(
+        input.previousRoot,
+        input.workPolicy,
+        beforeRegistrationWork,
+      )
+    : null
   if (limitFailure != null) {
     if (limitFailure.kind === "limit-exceeded") {
       const attempt =
