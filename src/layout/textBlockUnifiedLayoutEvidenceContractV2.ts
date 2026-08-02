@@ -8,6 +8,34 @@ export interface VNextTextBlockTransitionProducerLaneRangesV2 {
   readonly coverageRange: VNextTextBlockSourceRangeV1
 }
 
+export interface VNextTextBlockBoundedSourceDeltaSpanInternalV2 {
+  readonly kind:
+    | "text"
+    | "resolved-field"
+    | "generated-page-number"
+    | "hard-break"
+    | "inline-image-boundary"
+  readonly renderedText: string
+  readonly renderedUtf16Length: number
+  readonly logicalInlineId: string
+  readonly semanticFingerprint: string
+  readonly sourceFingerprint: string
+  readonly provenanceFingerprint: string
+  readonly paintFingerprint: string
+  readonly layoutDependencyFingerprint: string
+  readonly boundaryFingerprint: string
+}
+
+export interface VNextTextBlockBoundedSourceDeltaFactsInternalV2 {
+  readonly previous: readonly VNextTextBlockBoundedSourceDeltaSpanInternalV2[]
+  readonly next: readonly VNextTextBlockBoundedSourceDeltaSpanInternalV2[]
+  readonly renderedContentEqual: boolean
+  readonly semanticIdentityChanged: boolean
+  readonly paintEqual: boolean
+  readonly layoutEqual: boolean
+  readonly fingerprint: string
+}
+
 export interface VNextTextBlockTransitionProducerResolvedStyleV2 {
   readonly measurementStyleKey: string
   readonly effectiveShapingStyleKey: string

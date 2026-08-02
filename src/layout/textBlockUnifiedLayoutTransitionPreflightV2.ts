@@ -2,6 +2,8 @@ import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint
 import { stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
 import type { VNextTextBlockUnifiedLayoutChangeV1, VNextTextBlockSourceRangeV1 } from "./textBlockUnifiedLayoutChangeContractV1.js"
 import type {
+  VNextTextBlockBoundedSourceDeltaFactsInternalV2,
+  VNextTextBlockBoundedSourceDeltaSpanInternalV2,
   VNextTextBlockTransitionEvidenceRequestV2,
   VNextTextBlockTransitionProducerLaneMaterialV2,
   VNextTextBlockTransitionProducerLaneRangesV2,
@@ -11,13 +13,10 @@ import type {
 } from "./textBlockUnifiedLayoutEvidenceContractV2.js"
 import {
   bindVNextTextBlockUnifiedLayoutChangeInternalV1,
-  deriveVNextTextBlockExpectedTargetBindingFromRootInternalV1,
-  deriveVNextTextBlockUnifiedLayoutEffectClassificationInternalV1,
   evaluateNextVNextTextBlockStageVisitInternalV1,
   getVNextTextBlockLimitExceededAuthorityRecordInternalV1,
 } from "./textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
-  composeVNextTextBlockTransitionSourceSummaryInternalV1,
   createVNextTextBlockTransitionReplacementSourceItemInternalV1,
   resolveVNextTextBlockRegisteredSourceStyleInternalV1,
   resolveVNextTextBlockSupportedStyleOverlayInternalV1,
@@ -30,10 +29,8 @@ import {
 import type {
   VNextTextBlockUnifiedLayoutSourceItemV1,
   VNextTextBlockUnifiedLayoutSourceStyleV1,
-  VNextTextBlockUnifiedLayoutSourceSummaryV1,
 } from "./textBlockUnifiedLayoutSourceStateContractV1.js"
 import type {
-  VNextTextBlockExpectedTargetBindingV1,
   VNextTextBlockIncrementalCandidateWorkV1,
   VNextTextBlockUnifiedLayoutEffectClassificationV1,
   VNextTextBlockUnifiedLayoutEligibilityV1,
@@ -49,7 +46,7 @@ import {
 export interface VNextTextBlockUnifiedLayoutChangePreflightV2 {
   readonly change: VNextTextBlockUnifiedLayoutChangeV1
   readonly eligibility: VNextTextBlockUnifiedLayoutEligibilityV1
-  readonly expectedTargetBinding: VNextTextBlockExpectedTargetBindingV1
+  readonly boundedDelta: VNextTextBlockBoundedSourceDeltaFactsInternalV2
   readonly effectClassification: VNextTextBlockUnifiedLayoutEffectClassificationV1
   readonly producerEvidence: "required" | "not-required"
   readonly previousRanges: VNextTextBlockTransitionProducerLaneRangesV2
@@ -557,49 +554,174 @@ function scalarCountInRange(
   return count
 }
 
-function deriveBoundedTargetFacts(input: {
-  readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
-  readonly nextSourceSummary: VNextTextBlockUnifiedLayoutSourceSummaryV1
-}): {
-  readonly expectedTargetBinding: VNextTextBlockExpectedTargetBindingV1
-  readonly effectClassification: VNextTextBlockUnifiedLayoutEffectClassificationV1
-  readonly producerEvidence: "required" | "not-required"
-} {
-  const previousTargetBinding =
-    deriveVNextTextBlockExpectedTargetBindingFromRootInternalV1(
-      input.previousRoot,
-    )
-  const bindingFacts = {
-    semanticFingerprint: input.nextSourceSummary.semanticFingerprint,
-    renderedContentFingerprint: input.nextSourceSummary.contentFingerprint,
-    sourceFingerprint: input.nextSourceSummary.sourceFingerprint,
-    provenanceFingerprint: input.nextSourceSummary.provenanceFingerprint,
-    paintFingerprint: input.nextSourceSummary.paintFingerprint,
-    layoutDependencyFingerprint:
-      input.nextSourceSummary.layoutDependencyFingerprint,
-    authoredBoxPlanFingerprint:
-      previousTargetBinding.authoredBoxPlanFingerprint,
-    spatialEntrySetFingerprint:
-      previousTargetBinding.spatialEntrySetFingerprint,
-  }
-  const expectedTargetBinding = freeze({
-    ...bindingFacts,
-    fingerprint: fingerprint(bindingFacts),
+interface BoundedDeltaComparableInternalV2 {
+  readonly span: VNextTextBlockBoundedSourceDeltaSpanInternalV2
+  readonly semanticFacts: unknown
+  readonly paintFacts: unknown
+  readonly layoutFacts: unknown
+}
+
+function boundedDeltaComparable(
+  item: VNextTextBlockUnifiedLayoutSourceItemV1,
+  renderedText: string,
+): BoundedDeltaComparableInternalV2 {
+  const kind = item.kind === "inline-image"
+    ? "inline-image-boundary" as const
+    : item.kind
+  const span = freeze({
+    kind,
+    renderedText,
+    renderedUtf16Length: renderedText.length,
+    logicalInlineId: item.inlineId,
+    semanticFingerprint: item.semanticFingerprint,
+    sourceFingerprint: item.sourceFingerprint,
+    provenanceFingerprint: item.provenanceFingerprint,
+    paintFingerprint: item.paintFingerprint,
+    layoutDependencyFingerprint: item.layoutDependencyFingerprint,
+    boundaryFingerprint: item.boundaryFingerprint,
   })
-  const effectClassification =
-    deriveVNextTextBlockUnifiedLayoutEffectClassificationInternalV1({
-      previousTargetBinding,
-      expectedTargetBinding,
-      requiresGeometryRecomputation: false,
-    })
+  const variantSemanticFacts = item.kind === "resolved-field"
+    ? { fieldKey: item.fieldKey }
+    : item.kind === "generated-page-number"
+      ? { generatedOwnerFingerprint: item.generatedOwnerFingerprint }
+      : item.kind === "inline-image"
+        ? { assetId: item.assetId }
+        : {}
+  const style = item.kind === "text"
+    || item.kind === "resolved-field"
+    || item.kind === "generated-page-number"
+    ? item.style
+    : null
+  const paintFacts = style == null
+    ? item.kind === "inline-image"
+      ? {
+          kind,
+          assetId: item.assetId,
+          authoredFrame: item.authoredFrame,
+        }
+      : { kind }
+    : {
+        kind,
+        textColor: style.textColor,
+        textDecoration: style.textDecoration,
+        strikethrough: style.strikethrough,
+        authoredTextColor: style.authoredLocalStyle?.textColor ?? null,
+      }
+  const layoutFacts = style == null
+    ? item.kind === "inline-image"
+      ? {
+          kind,
+          authoredFrame: item.authoredFrame,
+          verticalAlign: item.verticalAlign,
+        }
+      : {
+          kind,
+          mandatoryBreak: item.kind === "hard-break",
+        }
+    : {
+        kind,
+        fontFamilyKey: style.fontFamilyKey,
+        fontFaceId: style.fontFaceId,
+        fontSizeLayoutUnit: style.fontSizeLayoutUnit,
+        fontWeight: style.fontWeight,
+        fontStyle: style.fontStyle,
+      }
   return {
-    expectedTargetBinding,
-    effectClassification,
-    producerEvidence: effectClassification.effectClass
-        === "geometry-affecting-change"
-      ? "required"
-      : "not-required",
+    span,
+    semanticFacts: {
+      kind,
+      lineageId: item.lineageId,
+      logicalInlineId: item.inlineId,
+      sourceFingerprint: item.sourceFingerprint,
+      provenanceFingerprint: item.provenanceFingerprint,
+      ...variantSemanticFacts,
+    },
+    paintFacts,
+    layoutFacts,
   }
+}
+
+function equalBoundedFacts(
+  previous: readonly BoundedDeltaComparableInternalV2[],
+  next: readonly BoundedDeltaComparableInternalV2[],
+  select: (value: BoundedDeltaComparableInternalV2) => unknown,
+): boolean {
+  if (previous.length !== next.length) return false
+  return previous.every((value, index) =>
+    stringifyVNextCanonicalJson(select(value))
+      === stringifyVNextCanonicalJson(select(next[index]!)))
+}
+
+function boundedDeltaFacts(
+  previous: readonly BoundedDeltaComparableInternalV2[],
+  next: readonly BoundedDeltaComparableInternalV2[],
+): VNextTextBlockBoundedSourceDeltaFactsInternalV2 {
+  const previousSpans = freeze(previous.map((value) => value.span))
+  const nextSpans = freeze(next.map((value) => value.span))
+  const renderedContentEqual = previousSpans.map((span) => span.renderedText).join("")
+    === nextSpans.map((span) => span.renderedText).join("")
+  const semanticIdentityChanged = !equalBoundedFacts(
+    previous,
+    next,
+    (value) => value.semanticFacts,
+  )
+  const paintEqual = equalBoundedFacts(
+    previous,
+    next,
+    (value) => value.paintFacts,
+  )
+  const layoutEqual = renderedContentEqual && equalBoundedFacts(
+    previous,
+    next,
+    (value) => value.layoutFacts,
+  )
+  const facts = {
+    previous: previousSpans,
+    next: nextSpans,
+    renderedContentEqual,
+    semanticIdentityChanged,
+    paintEqual,
+    layoutEqual,
+  }
+  return freeze({ ...facts, fingerprint: fingerprint(facts) })
+}
+
+function compatibilityBoundedDeltaFacts(
+  classification: VNextTextBlockUnifiedLayoutEffectClassificationV1,
+): VNextTextBlockBoundedSourceDeltaFactsInternalV2 {
+  const effectClass = classification.effectClass
+  const facts = {
+    previous: freeze([]) as readonly VNextTextBlockBoundedSourceDeltaSpanInternalV2[],
+    next: freeze([]) as readonly VNextTextBlockBoundedSourceDeltaSpanInternalV2[],
+    renderedContentEqual: effectClass !== "geometry-affecting-change",
+    semanticIdentityChanged: classification.semanticIdentityChanged,
+    paintEqual: effectClass !== "paint-affecting-change",
+    layoutEqual: effectClass !== "geometry-affecting-change",
+  }
+  return freeze({ ...facts, fingerprint: fingerprint(facts) })
+}
+
+function effectClassificationFromBoundedDelta(
+  boundedDelta: VNextTextBlockBoundedSourceDeltaFactsInternalV2,
+): VNextTextBlockUnifiedLayoutEffectClassificationV1 {
+  const effectClass = !boundedDelta.renderedContentEqual || !boundedDelta.layoutEqual
+    ? "geometry-affecting-change" as const
+    : !boundedDelta.paintEqual
+      ? "paint-affecting-change" as const
+      : boundedDelta.semanticIdentityChanged
+        ? "semantic-only-change" as const
+        : "true-no-op" as const
+  const facts = {
+    effectClass,
+    semanticIdentityChanged: boundedDelta.semanticIdentityChanged,
+  }
+  return freeze({
+    ...facts,
+    fingerprint: fingerprint({
+      ...facts,
+      boundedDeltaFingerprint: boundedDelta.fingerprint,
+    }),
+  })
 }
 
 /** Private Core transition owner seam. It never accepts producer output or builds a next tree. */
@@ -620,7 +742,10 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
   ].includes(validatedChange.change.kind)
   if (!requiresBoundedTextFacts) {
     const ranges = emptyRanges()
-    const preflight = freeze({ change: validatedChange.change, eligibility: validatedChange.eligibility, expectedTargetBinding: validatedChange.expectedTargetBinding, effectClassification: validatedChange.effectClassification, producerEvidence: validatedChange.producerEvidence, previousRanges: ranges, nextRanges: ranges, replacementItems: freeze([]), fingerprint: fingerprint({ changeFingerprint: validatedChange.fingerprint, ranges, effectClassification: validatedChange.effectClassification }) })
+    const boundedDelta = compatibilityBoundedDeltaFacts(
+      validatedChange.effectClassification,
+    )
+    const preflight = freeze({ change: validatedChange.change, eligibility: validatedChange.eligibility, boundedDelta, effectClassification: validatedChange.effectClassification, producerEvidence: validatedChange.producerEvidence, previousRanges: ranges, nextRanges: ranges, replacementItems: freeze([]), fingerprint: fingerprint({ changeFingerprint: validatedChange.fingerprint, ranges, boundedDelta, effectClassification: validatedChange.effectClassification }) })
     registerPreflightTuple({
       preflight,
       request: null,
@@ -840,33 +965,35 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
   if (replacementLength !== declaredReplacementLength) {
     return freeze({ status: "blocked" as const, completedCandidateWork: meter.completedCandidateWork, issues: freeze([issue("unsupported-change-value", "change", "canonical replacement length differs from the exact declared replacement")]) })
   }
-  const nextSourceSummary =
-    composeVNextTextBlockTransitionSourceSummaryInternalV1({
-      sourceState: input.previousRoot.sourceState,
-      sourceCoverage,
-      previousRange: sourceRange,
-      replacementItems,
-    })
-  if (nextSourceSummary.status !== "accepted") {
-    return freeze({
-      status: "blocked" as const,
-      completedCandidateWork: meter.completedCandidateWork,
-      issues: freeze([issue(
-        "incremental-proof-unavailable",
-        "change",
-        "bounded Source authority could not compose the canonical next summary",
-      )]),
-    })
-  }
-  const {
-    expectedTargetBinding,
-    effectClassification,
-    producerEvidence,
-  } = deriveBoundedTargetFacts({
-    previousRoot: input.previousRoot,
-    nextSourceSummary: nextSourceSummary.summary,
+  const previousDelta = sourceCoverage.fragments.flatMap((fragment) => {
+    const selectedStart = Math.max(
+      fragment.itemAbsoluteStartRenderedUtf16,
+      fragment.selectedAbsoluteStartRenderedUtf16,
+      sourceRange.startRenderedUtf16,
+    )
+    const selectedEnd = Math.min(
+      fragment.itemAbsoluteEndRenderedUtf16,
+      fragment.selectedAbsoluteEndRenderedUtf16,
+      sourceRange.endRenderedUtf16,
+    )
+    if (selectedEnd <= selectedStart) return []
+    return [boundedDeltaComparable(
+      fragment.item,
+      fragment.item.renderedText.slice(
+        selectedStart - fragment.itemAbsoluteStartRenderedUtf16,
+        selectedEnd - fragment.itemAbsoluteStartRenderedUtf16,
+      ),
+    )]
   })
-  const preflight = freeze({ change: validatedChange.change, eligibility: validatedChange.eligibility, expectedTargetBinding, effectClassification, producerEvidence, previousRanges, nextRanges, replacementItems, fingerprint: fingerprint({ changeFingerprint: validatedChange.fingerprint, previousRanges, nextRanges, expectedTargetBinding, effectClassification, producerEvidence }) })
+  const nextDelta = replacementItems.map((item) =>
+    boundedDeltaComparable(item, item.renderedText))
+  const boundedDelta = boundedDeltaFacts(previousDelta, nextDelta)
+  const effectClassification = effectClassificationFromBoundedDelta(boundedDelta)
+  const producerEvidence = effectClassification.effectClass
+      === "geometry-affecting-change"
+    ? "required" as const
+    : "not-required" as const
+  const preflight = freeze({ change: validatedChange.change, eligibility: validatedChange.eligibility, boundedDelta, effectClassification, producerEvidence, previousRanges, nextRanges, replacementItems, fingerprint: fingerprint({ changeFingerprint: validatedChange.fingerprint, previousRanges, nextRanges, boundedDelta, effectClassification, producerEvidence }) })
   if (producerEvidence === "not-required") {
     registerPreflightTuple({
       preflight,
