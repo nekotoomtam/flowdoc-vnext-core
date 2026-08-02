@@ -27,6 +27,12 @@ const reviewed5B1UnifiedRuntimeExports = [
   "inspectVNextTextBlockUnifiedLayoutTransitionResultV1",
 ] as const
 
+const reviewed5B2UnifiedRuntimeExports = [
+  "acceptVNextTextBlockUnifiedLayoutProducerFailureV2",
+  "acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2",
+  "createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV2",
+] as const
+
 const privilegedRuntimeNames = [
   "inspectVNextTextBlockUnifiedLayoutRootBindingInternalV1",
   "projectVNextTextBlockAuthoredBoxGeometryFromSpatialLayoutInternalV2",
@@ -63,10 +69,12 @@ describe("Live Draft MR1 unified TextBlock root Phase 5A public boundary", () =>
     expect(unifiedRuntimeExports).toEqual([
       ...reviewedUnifiedRuntimeExports,
       ...reviewed5B1UnifiedRuntimeExports,
+      ...reviewed5B2UnifiedRuntimeExports,
     ].sort())
     for (const name of [
       ...reviewedUnifiedRuntimeExports,
       ...reviewed5B1UnifiedRuntimeExports,
+      ...reviewed5B2UnifiedRuntimeExports,
     ]) {
       expect(name in core, name).toBe(true)
     }

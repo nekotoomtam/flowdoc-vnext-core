@@ -196,6 +196,8 @@ const reviewedPostPhase4BV2RootModulePaths = new Set([
   "./layout/textBlockSceneDeliveryV2.js",
   "./layout/textBlockUnifiedLayoutRootContractV2.js",
   "./layout/textBlockUnifiedLayoutRootV2.js",
+  "./layout/textBlockUnifiedLayoutEvidenceContractV2.js",
+  "./layout/textBlockUnifiedLayoutTransitionEvidenceV2.js",
 ])
 const isPhase4BRootModule = (modulePath: string): boolean =>
   modulePath === "./layout/textBlockInlineImageLineBoxV1.js"
