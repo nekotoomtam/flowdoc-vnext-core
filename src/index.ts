@@ -124,6 +124,27 @@ export type {
   VNextTextBlockTransitionEvidenceRequestResultV1,
   VNextTextBlockTransitionEvidenceV1,
 } from "./layout/textBlockUnifiedLayoutEvidenceContractV1.js"
+export type {
+  VNextTextBlockTransitionEvidenceAcceptanceResultV2,
+  VNextTextBlockTransitionEvidenceRequestResultV2,
+  VNextTextBlockTransitionEvidenceRequestV2,
+  VNextTextBlockTransitionEvidenceV2,
+  VNextTextBlockTransitionProducerContractsV2,
+  VNextTextBlockTransitionProducerFailureAcceptanceResultV2,
+  VNextTextBlockTransitionProducerFailureCodeV2,
+  VNextTextBlockTransitionProducerFailureV2,
+  VNextTextBlockTransitionProducerResponseV2,
+  VNextTextBlockTransitionProducerRuntimeIdentityV2,
+  VNextTextBlockTransitionSegmentationBoundaryProofV2,
+  VNextTextBlockTransitionProducerSourceMaterialV2,
+  VNextTextBlockTransitionProducerWorkV2,
+  VNextTextBlockTransitionShapingBoundaryProofV2,
+} from "./layout/textBlockUnifiedLayoutEvidenceContractV2.js"
+export {
+  acceptVNextTextBlockUnifiedLayoutProducerFailureV2,
+  acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2,
+  createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV2,
+} from "./layout/textBlockUnifiedLayoutTransitionEvidenceV2.js"
 export {
   acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV1,
   createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV1,

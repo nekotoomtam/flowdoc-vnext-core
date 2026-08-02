@@ -41,6 +41,7 @@ export interface InlineImageFlowFixtureOptions {
   mixedTextSizes?: boolean
   breakOffsets?: readonly number[]
   entries?: readonly VNextTextBlockSyntheticPositionedObjectInputV1[]
+  fontFaces?: VNextTextBlockInitialFlowV1["fontFaces"]
 }
 
 const producerEvidenceInputs = new WeakMap<VNextTextBlockFlowEvidenceV2, VNextTextBlockFlowEvidenceInputV2>()
@@ -274,6 +275,7 @@ export function acceptedInlineImageEvidenceFixture(
   const renderedText = runs.map((run) => run.renderedText).join("")
   const initial = createVNextTextBlockInitialFlowV1({
     ...buildInput,
+    fontFaces: options.fontFaces ?? buildInput.fontFaces,
     textBlock: {
       ...buildInput.textBlock,
       role: { role: "paragraph" },

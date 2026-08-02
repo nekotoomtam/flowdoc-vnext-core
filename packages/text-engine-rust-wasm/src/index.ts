@@ -29,6 +29,7 @@ export * from "./incrementalRangeExecution.js"
 export * from "./incrementalAffectedLineAssembly.js"
 export * from "./incrementalCoreExecution.js"
 export * from "./mr1FontFaces.js"
+export * from "./unifiedIncrementalEvidenceV2.js"
 
 export const FLOWDOC_TEXT_ENGINE_RUST_WASM_ADAPTER_SOURCE = "flowdoc-text-engine-rust-wasm-adapter"
 export const FLOWDOC_TEXT_ENGINE_RUST_WASM_ADAPTER_MODE = "mock-evidence-adapter-scaffold"

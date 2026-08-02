@@ -1,5 +1,10 @@
 import type { VNextTextBlockInitialFlowFontFaceV1 } from "./textBlockInitialFlowInputV1.js"
+import type { VNextTextBlockResolvedShapingRunV1 } from "./textBlockMultiRunLayoutContractV1.js"
 import type { VNextTextBlockSourceRangeV1 } from "./textBlockUnifiedLayoutChangeContractV1.js"
+import type {
+  VNextTextBlockIncrementalCandidateWorkV1,
+  VNextTextBlockUnifiedLayoutIssueV1,
+} from "./textBlockUnifiedLayoutTransitionContractV1.js"
 
 export interface VNextTextBlockTransitionProducerLaneRangesV2 {
   readonly changedSourceRange: VNextTextBlockSourceRangeV1
@@ -112,3 +117,155 @@ export interface VNextTextBlockTransitionProducerSourceMaterialV2 {
   }
   readonly fingerprint: string
 }
+
+export interface VNextTextBlockTransitionProducerRuntimeIdentityV2 {
+  readonly source: "vnext-text-block-transition-producer-runtime-v2"
+  readonly contractVersion: 2
+  readonly runtime:
+    | "node-native-mr1-range"
+    | "browser-worker-wasm-mr1-range"
+  readonly engineBuildFingerprint: string
+  readonly fontBackendFingerprint: string
+  readonly unitPolicyFingerprint: string
+  readonly fontStyleUnitDependencyFingerprint: string
+  readonly producerRuntimeRequirementFingerprint: string
+  readonly fingerprint: string
+}
+
+export interface VNextTextBlockTransitionProducerWorkV2 {
+  readonly requestedAtomCount: number
+  readonly requestedClusterCount: number
+  readonly consumedAtomCount: number
+  readonly consumedClusterCount: number
+  readonly unusedCoverageRenderedUtf16Length: number
+  readonly visitedEvidenceNodeCount: number
+  readonly completeNextInputTraversalCount: 0
+  readonly completeNextInputComparisonCount: 0
+}
+
+export interface VNextTextBlockTransitionProducerContractsV2 {
+  readonly producerSelectsDirtyRange: false
+  readonly producerSelectsLinesOrBands: false
+  readonly producerSelectsReconvergenceOrReuse: false
+  readonly producerSelectsFallback: false
+  readonly stagedEditorApply: false
+  readonly mayPublishLayout: false
+  readonly productionBinding: false
+}
+
+export interface VNextTextBlockTransitionShapingBoundaryProofV2 {
+  readonly targetRange: VNextTextBlockSourceRangeV1
+  readonly verificationRange: VNextTextBlockSourceRangeV1
+  readonly leftBoundary:
+    | "safe-first-target-glyph"
+    | "exact-style-or-block-start"
+  readonly rightBoundary:
+    | "safe-first-right-guard-glyph"
+    | "exact-style-or-block-end"
+  readonly guardGlyphCount: number
+  readonly inspectedGlyphCount: number
+  readonly fingerprint: string
+}
+
+export interface VNextTextBlockTransitionSegmentationBoundaryProofV2 {
+  readonly contextRange: VNextTextBlockSourceRangeV1
+  readonly contextBreakCount: number
+  readonly targetBreakOffsets: readonly number[]
+  readonly inspectedOffsetCount: number
+  readonly fingerprint: string
+}
+
+export interface VNextTextBlockTransitionProducerResponseV2 {
+  readonly source: "vnext-text-block-transition-producer-response-v2"
+  readonly contractVersion: 2
+  readonly requestFingerprint: string
+  readonly sourceMaterialFingerprint: string
+  readonly runtimeIdentity: VNextTextBlockTransitionProducerRuntimeIdentityV2
+  readonly nextEvidenceTargetRange: VNextTextBlockSourceRangeV1
+  readonly shapingRuns: readonly VNextTextBlockResolvedShapingRunV1[]
+  readonly breakOffsets: readonly number[]
+  readonly shapingBoundaryProofs:
+    readonly VNextTextBlockTransitionShapingBoundaryProofV2[]
+  readonly segmentationBoundaryProofs:
+    readonly VNextTextBlockTransitionSegmentationBoundaryProofV2[]
+  readonly sourceTopologyFingerprint: string
+  readonly work: VNextTextBlockTransitionProducerWorkV2
+  readonly contracts: VNextTextBlockTransitionProducerContractsV2
+  readonly fingerprint: string
+}
+
+export interface VNextTextBlockTransitionEvidenceV2 {
+  readonly source: "vnext-text-block-transition-evidence-v2"
+  readonly contractVersion: 2
+  readonly requestFingerprint: string
+  readonly sourceMaterialFingerprint: string
+  readonly previousRootFingerprint: string
+  readonly changeFingerprint: string
+  readonly runtimeIdentityFingerprint: string
+  readonly nextEvidenceTargetRange: VNextTextBlockSourceRangeV1
+  readonly shapingRuns: readonly VNextTextBlockResolvedShapingRunV1[]
+  readonly breakOffsets: readonly number[]
+  readonly shapingBoundaryProofs:
+    readonly VNextTextBlockTransitionShapingBoundaryProofV2[]
+  readonly segmentationBoundaryProofs:
+    readonly VNextTextBlockTransitionSegmentationBoundaryProofV2[]
+  readonly sourceTopologyFingerprint: string
+  readonly work: VNextTextBlockTransitionProducerWorkV2
+  readonly fingerprint: string
+}
+
+export type VNextTextBlockTransitionProducerFailureCodeV2 =
+  | "invalid-request-scoped-material"
+  | "pinned-font-unavailable"
+  | "pinned-font-mismatch"
+  | "unsafe-shaping-boundary"
+  | "segmentation-not-stable"
+  | "missing-glyph"
+  | "unsafe-runtime-arithmetic"
+  | "work-ceiling-before-visit"
+
+export interface VNextTextBlockTransitionProducerFailureV2 {
+  readonly source: "vnext-text-block-transition-producer-failure-v2"
+  readonly contractVersion: 2
+  readonly requestFingerprint: string
+  readonly sourceMaterialFingerprint: string
+  readonly runtimeIdentity: VNextTextBlockTransitionProducerRuntimeIdentityV2
+  readonly code: VNextTextBlockTransitionProducerFailureCodeV2
+  readonly completedWork: VNextTextBlockTransitionProducerWorkV2
+  readonly contracts: VNextTextBlockTransitionProducerContractsV2
+  readonly fingerprint: string
+}
+
+export type VNextTextBlockTransitionEvidenceAcceptanceResultV2 =
+  | {
+      readonly status: "accepted"
+      readonly evidence: VNextTextBlockTransitionEvidenceV2
+      readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+      readonly issues: readonly []
+    }
+  | {
+      readonly status: "blocked"
+      readonly evidence: null
+      readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+      readonly issues: readonly VNextTextBlockUnifiedLayoutIssueV1[]
+    }
+
+export type VNextTextBlockTransitionProducerFailureAcceptanceResultV2 =
+  | {
+      readonly status: "fallback-required"
+      readonly evaluatorOrProofAuthority: object
+      readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+      readonly issues: readonly []
+    }
+  | {
+      readonly status: "blocked"
+      readonly evaluatorOrProofAuthority: null
+      readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+      readonly issues: readonly VNextTextBlockUnifiedLayoutIssueV1[]
+    }
+
+export type VNextTextBlockTransitionEvidenceRequestResultV2 =
+  | { readonly status: "required"; readonly request: VNextTextBlockTransitionEvidenceRequestV2; readonly sourceMaterial: VNextTextBlockTransitionProducerSourceMaterialV2; readonly evaluatorOrProofAuthority: null; readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1; readonly issues: readonly [] }
+  | { readonly status: "not-required"; readonly request: null; readonly sourceMaterial: null; readonly evaluatorOrProofAuthority: null; readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1; readonly issues: readonly [] }
+  | { readonly status: "fallback-required"; readonly request: null; readonly sourceMaterial: null; readonly evaluatorOrProofAuthority: object; readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1; readonly issues: readonly [] }
+  | { readonly status: "blocked"; readonly request: null; readonly sourceMaterial: null; readonly evaluatorOrProofAuthority: null; readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1; readonly issues: readonly VNextTextBlockUnifiedLayoutIssueV1[] }
