@@ -152,6 +152,18 @@ export type VNextTextBlockUnifiedLayoutSourceStateWorkV1 =
       readonly reusedNodeCount: number
       readonly completeSuffixTraversalCount: 0
     }
+  | {
+      readonly constructionKind: "text-style-path-copy"
+      readonly completeBuildCount: 0
+      readonly visitedInitialFlowAtomCount: 0
+      readonly visitedSummaryNodeCount: number
+      readonly createdItemCount: number
+      readonly createdLeafCount: number
+      readonly createdNodeCount: number
+      readonly reusedItemCount: number
+      readonly reusedNodeCount: number
+      readonly completeSuffixTraversalCount: 0
+    }
 
 export interface VNextTextBlockUnifiedLayoutSourceStateV1 {
   readonly source: typeof VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_SOURCE_STATE_V1_SOURCE

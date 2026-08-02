@@ -1,6 +1,9 @@
 import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint.js"
 import { stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
 import type {
+  VNextTextBlockSourceRangeV1,
+} from "./textBlockUnifiedLayoutChangeContractV1.js"
+import type {
   ImageFrameV4Target,
 } from "../schema/documentV4ImageTarget.js"
 import type { TextRunStyleV4Target } from "../schema/documentV4Foundation.js"
@@ -41,8 +44,12 @@ import {
 } from "./textBlockUnifiedLayoutRootAuthorityInternalsV2.js"
 import type {
   VNextTextBlockIncrementalCandidateWorkV1,
+  VNextTextBlockUnifiedLayoutIssueV1,
   VNextTextBlockValidatedChangeV1,
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
+import type {
+  VNextTextBlockUnifiedLayoutRootV2,
+} from "./textBlockUnifiedLayoutRootContractV2.js"
 
 type FingerprintFactory = (canonicalFacts: string) => string
 
@@ -61,11 +68,94 @@ interface IndexedSourceItemRecord {
   readonly visitedSourceLookupNodeCount: number
 }
 
-interface SourceItemIndex {
-  readonly entries: ReadonlyMap<string, {
-    readonly itemOrdinal: number
-    readonly absoluteStartRenderedUtf16: number
-  }>
+interface SourceItemIndexEntryInternalV1 {
+  readonly kind: VNextTextBlockUnifiedLayoutSourceItemV1["kind"]
+  readonly itemOrdinal: number
+  readonly absoluteStartRenderedUtf16: number
+}
+
+type SourceItemIndex =
+  | {
+      readonly indexKind: "complete"
+      readonly entries: ReadonlyMap<
+        string,
+        readonly SourceItemIndexEntryInternalV1[]
+      >
+    }
+  | {
+      readonly indexKind: "range-delta"
+      readonly previous: SourceItemIndex
+      readonly removedItemOrdinalStart: number
+      readonly removedItemOrdinalEnd: number
+      readonly itemOrdinalDelta: number
+      readonly previousLeafEndRenderedUtf16: number
+      readonly renderedUtf16Delta: number
+      readonly localEntries: ReadonlyMap<
+        string,
+        readonly SourceItemIndexEntryInternalV1[]
+      >
+    }
+
+function sourceItemIndexEntriesInternalV1(
+  index: SourceItemIndex,
+  inlineId: string,
+  beforeVisitLayer?: () => boolean,
+): {
+  readonly entries: readonly SourceItemIndexEntryInternalV1[]
+  readonly visitedIndexLayerCount: number
+  readonly limitExceeded: boolean
+} {
+  if (beforeVisitLayer != null && !beforeVisitLayer()) {
+    return {
+      entries: Object.freeze([]),
+      visitedIndexLayerCount: 0,
+      limitExceeded: true,
+    }
+  }
+  if (index.indexKind === "complete") {
+    return {
+      entries: index.entries.get(inlineId) ?? Object.freeze([]),
+      visitedIndexLayerCount: beforeVisitLayer == null ? 0 : 1,
+      limitExceeded: false,
+    }
+  }
+  const inherited = sourceItemIndexEntriesInternalV1(
+    index.previous,
+    inlineId,
+    beforeVisitLayer,
+  )
+  if (inherited.limitExceeded) {
+    return {
+      entries: Object.freeze([]),
+      visitedIndexLayerCount: inherited.visitedIndexLayerCount + 1,
+      limitExceeded: true,
+    }
+  }
+  const transformed = inherited.entries.flatMap((entry) => {
+    if (
+      entry.itemOrdinal >= index.removedItemOrdinalStart
+      && entry.itemOrdinal < index.removedItemOrdinalEnd
+    ) return []
+    return [{
+      ...entry,
+      itemOrdinal: entry.itemOrdinal >= index.removedItemOrdinalEnd
+        ? entry.itemOrdinal + index.itemOrdinalDelta
+        : entry.itemOrdinal,
+      absoluteStartRenderedUtf16:
+        entry.absoluteStartRenderedUtf16
+          >= index.previousLeafEndRenderedUtf16
+        ? entry.absoluteStartRenderedUtf16 + index.renderedUtf16Delta
+        : entry.absoluteStartRenderedUtf16,
+    }]
+  })
+  return {
+    entries: Object.freeze([
+      ...transformed,
+      ...(index.localEntries.get(inlineId) ?? []),
+    ].sort((left, right) => left.itemOrdinal - right.itemOrdinal)),
+    visitedIndexLayerCount: inherited.visitedIndexLayerCount + 1,
+    limitExceeded: false,
+  }
 }
 
 export interface VNextTextBlockPreparedSourceEnvelopeFactsInternalV1 {
@@ -134,6 +224,90 @@ const imagePaintSourceItemAuthorities = new WeakMap<
     readonly indexed: IndexedSourceItemRecord | null
   }
 >()
+
+export interface VNextTextBlockIncrementalStructuralTargetAuthorityInternalV1 {
+  readonly __incrementalStructuralTargetAuthorityOpaque: never
+}
+
+export interface VNextTextBlockSourceLayoutDeltaAuthorityInternalV1 {
+  readonly __sourceLayoutDeltaAuthorityOpaque: never
+}
+
+export interface VNextTextBlockSourcePathCopyCandidateAuthorityInternalV1 {
+  readonly __sourcePathCopyCandidateAuthorityOpaque: never
+}
+
+export interface VNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1 {
+  readonly previousRange: VNextTextBlockSourceRangeV1
+  readonly nextItems: readonly VNextTextBlockUnifiedLayoutSourceItemV1[]
+  readonly expectedPreviousContentFingerprint: string
+  readonly expectedPreviousSourceFingerprint: string
+  readonly expectedPreviousProvenanceFingerprint: string
+  readonly fingerprint: string
+}
+
+export type VNextTextBlockSourceRangePathCopyResultInternalV1 =
+  | {
+      readonly status: "prepared"
+      readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+      readonly visitedLookupNodeCount: number
+      readonly copiedPathNodeCount: number
+      readonly visitedChangedLeafItemCount: number
+      readonly existingLineageIds: readonly string[]
+      readonly insertedLineageIds: readonly string[]
+      readonly pathCopyCandidateAuthority:
+        VNextTextBlockSourcePathCopyCandidateAuthorityInternalV1
+      readonly issues: readonly []
+    }
+  | {
+      readonly status: "blocked" | "limit-exceeded"
+      readonly sourceState: null
+      readonly issues: readonly VNextTextBlockUnifiedLayoutIssueV1[]
+    }
+
+export interface VNextTextBlockSourcePathCopyCandidateRecordInternalV1 {
+  readonly previousSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly nextSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly replacement:
+    VNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1
+  readonly visitedLookupNodeCount: number
+  readonly copiedPathNodeCount: number
+  readonly visitedChangedLeafItemCount: number
+}
+const sourceRangePathCopyCandidateAuthorities = new WeakMap<
+  object,
+  VNextTextBlockSourcePathCopyCandidateRecordInternalV1
+>()
+const sourceRangeReplacementAuthorities = new WeakMap<object, {
+  readonly previousSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+}>()
+
+export function registerVNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1(
+  input: {
+    readonly previousSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly replacement:
+      VNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1
+  },
+): boolean {
+  if (
+    !preparedStates.has(input.previousSourceState)
+    || !Object.isFrozen(input.replacement)
+    || !Object.isFrozen(input.replacement.previousRange)
+    || !Object.isFrozen(input.replacement.nextItems)
+  ) return false
+  sourceRangeReplacementAuthorities.set(input.replacement, Object.freeze({
+    previousSourceState: input.previousSourceState,
+  }))
+  return true
+}
+
+export function getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInternalV1(
+  authority: unknown,
+): VNextTextBlockSourcePathCopyCandidateRecordInternalV1 | null {
+  return authority != null && typeof authority === "object"
+    ? sourceRangePathCopyCandidateAuthorities.get(authority as object) ?? null
+    : null
+}
 
 interface RegisteredStyleSetInternalV1 {
   readonly entries: readonly {
@@ -426,6 +600,7 @@ export interface VNextTextBlockSourceIndexLookupObservationForTestV1 {
 let sourceIndexLookupObserverForTest:
   | ((observation: VNextTextBlockSourceIndexLookupObservationForTestV1) => void)
   | null = null
+let sourceReplacementItemReadObserverForTest: (() => void) | null = null
 
 export interface VNextTextBlockPreBindingSourceVisitGuardInternalV1 {
   readonly __preBindingSourceVisitGuardOpaque: never
@@ -555,6 +730,12 @@ export function setVNextTextBlockUnifiedLayoutSourceIndexLookupObserverForTestIn
   sourceIndexLookupObserverForTest = observer
 }
 
+export function setVNextTextBlockSourceReplacementItemReadObserverForTestInternalV1(
+  observer: (() => void) | null,
+): void {
+  sourceReplacementItemReadObserverForTest = observer
+}
+
 export function setVNextTextBlockPreparedSourceEnvelopeFactsForNextCompleteBuildForTestInternalV1(
   facts: VNextTextBlockPreparedSourceEnvelopeFactsInternalV1 | null,
 ): void {
@@ -640,9 +821,10 @@ function indexSourceItems(
   root: VNextTextBlockUnifiedLayoutSourceNodeV1,
 ): SourceItemIndex | null {
   const output = new Map<string, {
+    readonly kind: VNextTextBlockUnifiedLayoutSourceItemV1["kind"]
     readonly itemOrdinal: number
     readonly absoluteStartRenderedUtf16: number
-  }>()
+  }[]>()
   let itemOrdinal = 0
   const visit = (
     node: VNextTextBlockUnifiedLayoutSourceNodeV1,
@@ -652,11 +834,19 @@ function indexSourceItems(
       let itemStartRenderedUtf16 = absoluteStartRenderedUtf16
       for (let itemIndex = 0; itemIndex < node.items.length; itemIndex += 1) {
         const item = node.items[itemIndex]!
-        if (output.has(item.inlineId)) return false
-        output.set(item.inlineId, {
+        const previous = output.get(item.inlineId) ?? []
+        if (
+          previous.length > 0
+          && (
+            item.kind !== "text"
+            || previous.some((entry) => entry.kind !== "text")
+          )
+        ) return false
+        output.set(item.inlineId, [...previous, {
+          kind: item.kind,
           itemOrdinal,
           absoluteStartRenderedUtf16: itemStartRenderedUtf16,
-        })
+        }])
         itemOrdinal += 1
         itemStartRenderedUtf16 += item.renderedUtf16Length
       }
@@ -675,7 +865,7 @@ function indexSourceItems(
     return true
   }
   return visit(root, 0)
-    ? { entries: output }
+    ? { indexKind: "complete", entries: output }
     : null
 }
 
@@ -684,8 +874,11 @@ function indexedSourceItem(
   root: VNextTextBlockUnifiedLayoutSourceNodeV1,
   inlineId: string,
 ): IndexedSourceItemRecord | undefined {
-  const authority = index.entries.get(inlineId)
-  if (authority == null) {
+  // Compatibility callers do not own a visit evaluator. Never let them walk
+  // a persistent transition chain; exact guarded callers use the metered seam.
+  if (index.indexKind !== "complete") return undefined
+  const authority = sourceItemIndexEntriesInternalV1(index, inlineId)
+  if (authority.entries.length !== 1) {
     sourceIndexLookupObserverForTest?.({
       inlineId,
       indexProbeCount: 1,
@@ -693,11 +886,12 @@ function indexedSourceItem(
     })
     return undefined
   }
+  const exactAuthority = authority.entries[0]!
   const ancestors: {
     readonly branch: VNextTextBlockUnifiedLayoutSourceBranchV1
     readonly childIndex: number
   }[] = []
-  let relativeItemOrdinal = authority.itemOrdinal
+  let relativeItemOrdinal = exactAuthority.itemOrdinal
   let node = root
   while (node.nodeKind === "branch") {
     let selected:
@@ -740,7 +934,7 @@ function indexedSourceItem(
         item,
         itemIndex: relativeItemOrdinal,
         absoluteStartRenderedUtf16:
-          authority.absoluteStartRenderedUtf16,
+          exactAuthority.absoluteStartRenderedUtf16,
         leaf: node,
         ancestors,
         visitedSourceLookupNodeCount: ancestors.length + 1,
@@ -789,8 +983,44 @@ function indexedSourceItemWithPreBindingGuardInternalV1(
   inlineId: string,
   guard: VNextTextBlockPreBindingSourceVisitGuardInternalV1,
 ): GuardedIndexedSourceItemResultInternalV1 {
-  const authority = index.entries.get(inlineId)
-  if (authority == null) {
+  let completedSourceLookupNodeCount = 0
+  const indexFailure: {
+    value: Extract<
+      VNextTextBlockPreBindingSourceVisitEvaluationInternalV1,
+      { readonly status: "invariant-blocked" }
+    > | null
+  } = { value: null }
+  const authority = sourceItemIndexEntriesInternalV1(
+    index,
+    inlineId,
+    () => {
+      const evaluation = evaluatePreBindingSourceReadInternalV1({
+        guard,
+        sourceState,
+        unit: "source-lookup-nodes",
+        completedWork: completedSourceLookupNodeCount,
+      })
+      if (evaluation.status !== "accepted") {
+        indexFailure.value = evaluation
+        return false
+      }
+      completedSourceLookupNodeCount = evaluation.completedWork
+      preBindingSourceReadObserverForTest?.({
+        unit: "source-lookup-nodes",
+        completedWork: completedSourceLookupNodeCount,
+      })
+      return true
+    },
+  )
+  if (indexFailure.value != null) {
+    return {
+      ...indexFailure.value,
+      unit: "source-lookup-nodes",
+      completedSourceLookupNodeCount,
+      completedSourceItemCount: 0,
+    }
+  }
+  if (authority.entries.length !== 1) {
     sourceIndexLookupObserverForTest?.({
       inlineId,
       indexProbeCount: 1,
@@ -799,14 +1029,14 @@ function indexedSourceItemWithPreBindingGuardInternalV1(
     return {
       status: "completed",
       indexed: undefined,
-      completedSourceLookupNodeCount: 0,
+      completedSourceLookupNodeCount,
       completedSourceItemCount: 0,
     }
   }
+  const exactAuthority = authority.entries[0]!
   const ancestors: IndexedSourceItemRecord["ancestors"][number][] = []
-  let relativeItemOrdinal = authority.itemOrdinal
+  let relativeItemOrdinal = exactAuthority.itemOrdinal
   let node = sourceState.root
-  let completedSourceLookupNodeCount = 0
   while (true) {
     const lookupEvaluation = evaluatePreBindingSourceReadInternalV1({
       guard,
@@ -899,7 +1129,7 @@ function indexedSourceItemWithPreBindingGuardInternalV1(
           item,
           itemIndex: relativeItemOrdinal,
           absoluteStartRenderedUtf16:
-            authority.absoluteStartRenderedUtf16,
+            exactAuthority.absoluteStartRenderedUtf16,
           leaf: node,
           ancestors,
           visitedSourceLookupNodeCount: completedSourceLookupNodeCount,
@@ -1510,6 +1740,782 @@ function stateCanonicalFacts(
     mayPublishLayout: state.mayPublishLayout,
     productionBinding: state.productionBinding,
   }
+}
+
+function sourceFlowIssue(
+  code: VNextTextBlockUnifiedLayoutIssueV1["code"],
+  message: string,
+): VNextTextBlockUnifiedLayoutIssueV1 {
+  return Object.freeze({
+    code,
+    severity: "error",
+    stage: "source-flow",
+    path: "sourceState",
+    message,
+  })
+}
+
+function selectedRangeFingerprints(
+  fragments: readonly VNextTextBlockTransitionSourceCoverageFragmentInternalV1[],
+  range: VNextTextBlockSourceRangeV1,
+  factory: FingerprintFactory,
+): {
+  readonly content: string
+  readonly source: string
+  readonly provenance: string
+} {
+  const selected = fragments.flatMap((fragment) => {
+    const start = Math.max(
+      range.startRenderedUtf16,
+      fragment.itemAbsoluteStartRenderedUtf16,
+    )
+    const end = Math.min(
+      range.endRenderedUtf16,
+      fragment.itemAbsoluteEndRenderedUtf16,
+    )
+    if (end <= start) return []
+    return [{
+      renderedText: fragment.item.renderedText.slice(
+        start - fragment.itemAbsoluteStartRenderedUtf16,
+        end - fragment.itemAbsoluteStartRenderedUtf16,
+      ),
+      sourceFingerprint: fragment.item.sourceFingerprint,
+      provenanceFingerprint: fragment.item.provenanceFingerprint,
+    }]
+  })
+  return {
+    content: fingerprintWith(
+      factory,
+      selected.map(({ renderedText }) => renderedText),
+    ),
+    source: fingerprintWith(
+      factory,
+      selected.map(({ sourceFingerprint }) => sourceFingerprint),
+    ),
+    provenance: fingerprintWith(
+      factory,
+      selected.map(({ provenanceFingerprint }) => provenanceFingerprint),
+    ),
+  }
+}
+
+function retainedTextFragmentInternalV1(input: {
+  readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly item: Extract<
+    VNextTextBlockUnifiedLayoutSourceItemV1,
+    { readonly kind: "text" }
+  >
+  readonly renderedText: string
+}): VNextTextBlockUnifiedLayoutSourceItemV1 | null {
+  return createVNextTextBlockTransitionReplacementSourceItemInternalV1({
+    sourceState: input.sourceState,
+    kind: "text",
+    renderedText: input.renderedText,
+    lineageId: input.item.lineageId,
+    inlineId: input.item.inlineId,
+    sourceFingerprint: input.item.sourceFingerprint,
+    provenanceFingerprint: input.item.provenanceFingerprint,
+    style: input.item.style,
+  })
+}
+
+/**
+ * Task-4 Source-owner seam. It performs one range replacement from exact
+ * prepared Source authority and never registers the resulting Root graph.
+ */
+export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
+  input: {
+    readonly previousSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly replacement:
+      VNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1
+    readonly beforeVisit: (unit:
+      | "source-lookup-nodes"
+      | "source-path-copy-nodes"
+      | "source-leaf-items") => boolean
+  },
+): VNextTextBlockSourceRangePathCopyResultInternalV1 {
+  const prepared = preparedStates.get(input.previousSourceState)
+  const replacementAuthority = sourceRangeReplacementAuthorities.get(
+    input.replacement,
+  )
+  const range = input.replacement.previousRange
+  const blockedResult = (message: string):
+    VNextTextBlockSourceRangePathCopyResultInternalV1 => Object.freeze({
+      status: "blocked" as const,
+      sourceState: null,
+      issues: Object.freeze([
+        sourceFlowIssue("incremental-proof-unavailable", message),
+      ]),
+    })
+  const limitResult = ():
+    VNextTextBlockSourceRangePathCopyResultInternalV1 => Object.freeze({
+      status: "limit-exceeded" as const,
+      sourceState: null,
+      issues: Object.freeze([]),
+    })
+  if (
+    prepared == null
+    || replacementAuthority?.previousSourceState
+      !== input.previousSourceState
+    || !Number.isSafeInteger(range.startRenderedUtf16)
+    || !Number.isSafeInteger(range.endRenderedUtf16)
+    || range.startRenderedUtf16 < 0
+    || range.endRenderedUtf16 < range.startRenderedUtf16
+    || range.endRenderedUtf16
+      > input.previousSourceState.summary.renderedUtf16Length
+  ) return blockedResult("range path copy requires exact safe Source authority")
+
+  let visitedLookupNodeCount = 0
+  let copiedPathNodeCount = 0
+  let visitedChangedLeafItemCount = 0
+  const reserveSourceLeafItemVisit = (): boolean => {
+    if (!input.beforeVisit("source-leaf-items")) return false
+    visitedChangedLeafItemCount += 1
+    return true
+  }
+  const lookupVisitedNodes = new WeakSet<
+    VNextTextBlockUnifiedLayoutSourceNodeV1
+  >()
+  const ancestors: {
+    readonly branch: VNextTextBlockUnifiedLayoutSourceBranchV1
+    readonly childIndex: number
+    endChildIndex: number
+  }[] = []
+  let node = input.previousSourceState.root
+  let nodeStartRenderedUtf16 = 0
+  let nodeStartItemOrdinal = 0
+  while (true) {
+    if (!input.beforeVisit("source-lookup-nodes")) return limitResult()
+    visitedLookupNodeCount += 1
+    lookupVisitedNodes.add(node)
+    if (node.nodeKind === "leaf") break
+    let selectedIndex = -1
+    let childStart = nodeStartRenderedUtf16
+    let childItemOrdinal = nodeStartItemOrdinal
+    for (let index = 0; index < node.children.length; index += 1) {
+      const child = node.children[index]!
+      const childEnd = childStart + child.summary.renderedUtf16Length
+      const containsStart = range.startRenderedUtf16 < childEnd
+        || (
+          range.startRenderedUtf16 === childEnd
+          && range.startRenderedUtf16
+            === input.previousSourceState.summary.renderedUtf16Length
+        )
+      if (containsStart) {
+        selectedIndex = index
+        break
+      }
+      childStart = childEnd
+      childItemOrdinal += child.summary.itemCount
+    }
+    if (selectedIndex < 0) return blockedResult("source range has no exact boundary leaf")
+    const child = node.children[selectedIndex]!
+    ancestors.push({
+      branch: node,
+      childIndex: selectedIndex,
+      endChildIndex: selectedIndex,
+    })
+    node = child
+    nodeStartRenderedUtf16 = childStart
+    nodeStartItemOrdinal = childItemOrdinal
+  }
+  const affectedLeaves: VNextTextBlockUnifiedLayoutSourceLeafV1[] = [node]
+  const affectedItems: VNextTextBlockUnifiedLayoutSourceItemV1[] = []
+  const affectedNodes = new WeakSet<VNextTextBlockUnifiedLayoutSourceNodeV1>()
+  const rebalancedDonorNodes = new WeakSet<
+    VNextTextBlockUnifiedLayoutSourceNodeV1
+  >()
+  let affectedNodeCount = ancestors.length + 1
+  let leafEndRenderedUtf16 = nodeStartRenderedUtf16
+    + node.summary.renderedUtf16Length
+  if (range.endRenderedUtf16 > leafEndRenderedUtf16) {
+    affectedLeaves.length = 0
+    affectedNodeCount = 0
+    const collect = (
+      current: VNextTextBlockUnifiedLayoutSourceNodeV1,
+      currentStartRenderedUtf16: number,
+    ): boolean => {
+      const currentEndRenderedUtf16 = currentStartRenderedUtf16
+        + current.summary.renderedUtf16Length
+      if (
+        currentEndRenderedUtf16 <= nodeStartRenderedUtf16
+        || currentStartRenderedUtf16 >= range.endRenderedUtf16
+      ) return true
+      if (!lookupVisitedNodes.has(current)) {
+        if (!input.beforeVisit("source-lookup-nodes")) return false
+        visitedLookupNodeCount += 1
+        lookupVisitedNodes.add(current)
+      }
+      affectedNodes.add(current)
+      affectedNodeCount += 1
+      if (current.nodeKind === "leaf") {
+        affectedLeaves.push(current)
+        leafEndRenderedUtf16 = currentEndRenderedUtf16
+        return true
+      }
+      let childStart = currentStartRenderedUtf16
+      for (const child of current.children) {
+        if (!collect(child, childStart)) return false
+        childStart += child.summary.renderedUtf16Length
+      }
+      return true
+    }
+    if (!collect(input.previousSourceState.root, 0)) return limitResult()
+    if (
+      affectedLeaves.length < 2
+      || range.endRenderedUtf16 > leafEndRenderedUtf16
+    ) return blockedResult("multi-leaf source range lacks exact bounded coverage")
+  }
+
+  // A node visit authorizes topology only. Authorize every bounded affected
+  // item slot separately before reading the item object from the leaf.
+  for (const affectedLeaf of affectedLeaves) {
+    for (
+      let itemIndex = 0;
+      itemIndex < affectedLeaf.summary.itemCount;
+      itemIndex += 1
+    ) {
+      if (!reserveSourceLeafItemVisit()) return limitResult()
+      const item = affectedLeaf.items[itemIndex]
+      if (item == null) {
+        return blockedResult("affected Source leaf summary is inconsistent")
+      }
+      affectedItems.push(item)
+    }
+  }
+
+  const fragments: VNextTextBlockTransitionSourceCoverageFragmentInternalV1[] = []
+  let itemStart = nodeStartRenderedUtf16
+  for (const item of affectedItems) {
+    const itemEnd = itemStart + item.renderedUtf16Length
+    const selectedStart = Math.max(itemStart, range.startRenderedUtf16)
+    const selectedEnd = Math.min(itemEnd, range.endRenderedUtf16)
+    if (selectedEnd > selectedStart) {
+      fragments.push({
+        item,
+        itemAbsoluteStartRenderedUtf16: itemStart,
+        itemAbsoluteEndRenderedUtf16: itemEnd,
+        selectedAbsoluteStartRenderedUtf16: selectedStart,
+        selectedAbsoluteEndRenderedUtf16: selectedEnd,
+      })
+    }
+    itemStart = itemEnd
+  }
+  const previousFingerprints = selectedRangeFingerprints(
+    fragments,
+    range,
+    prepared.fingerprintFactory,
+  )
+  if (
+    previousFingerprints.content
+      !== input.replacement.expectedPreviousContentFingerprint
+    || previousFingerprints.source
+      !== input.replacement.expectedPreviousSourceFingerprint
+    || previousFingerprints.provenance
+      !== input.replacement.expectedPreviousProvenanceFingerprint
+  ) return blockedResult("source range fingerprints do not match exact preflight facts")
+
+  const nextLeafItems: VNextTextBlockUnifiedLayoutSourceItemV1[] = []
+  const removedItems: VNextTextBlockUnifiedLayoutSourceItemV1[] = []
+  const createdItems: VNextTextBlockUnifiedLayoutSourceItemV1[] = []
+  // Each accepted affected-item read also owns one eventual output-slot
+  // composition. Only net-new output slots need an additional visit. This
+  // keeps the work unit factual without charging the same bounded slot twice.
+  let retainedAuthorizedItemSlotCount = affectedItems.length
+  const reserveFinalItemSlot = (): boolean => {
+    if (retainedAuthorizedItemSlotCount > 0) {
+      retainedAuthorizedItemSlotCount -= 1
+      return true
+    }
+    return reserveSourceLeafItemVisit()
+  }
+  let invalidReplacementItem = false
+  const emitItem = (
+    item: VNextTextBlockUnifiedLayoutSourceItemV1,
+    created: boolean,
+  ): boolean => {
+    if (!reserveFinalItemSlot()) return false
+    if (!Object.isFrozen(item)) {
+      invalidReplacementItem = true
+      return false
+    }
+    nextLeafItems.push(item)
+    if (created) createdItems.push(item)
+    return true
+  }
+  const emitItems = (
+    items: readonly VNextTextBlockUnifiedLayoutSourceItemV1[],
+    created: boolean,
+  ): boolean => {
+    for (let itemIndex = 0; itemIndex < items.length; itemIndex += 1) {
+      if (!reserveFinalItemSlot()) return false
+      sourceReplacementItemReadObserverForTest?.()
+      const item = items[itemIndex]
+      if (item == null || !Object.isFrozen(item)) {
+        invalidReplacementItem = true
+        return false
+      }
+      nextLeafItems.push(item)
+      if (created) createdItems.push(item)
+    }
+    return true
+  }
+  const emitFailure = (): VNextTextBlockSourceRangePathCopyResultInternalV1 =>
+    invalidReplacementItem
+      ? blockedResult("replacement items require exact frozen authority")
+      : limitResult()
+  let emittedReplacement = false
+  itemStart = nodeStartRenderedUtf16
+  for (const item of affectedItems) {
+    const itemEnd = itemStart + item.renderedUtf16Length
+    if (itemEnd <= range.startRenderedUtf16) {
+      if (!emitItem(item, false)) return emitFailure()
+      itemStart = itemEnd
+      continue
+    }
+    if (itemStart >= range.endRenderedUtf16) {
+      if (!emittedReplacement) {
+        if (!emitItems(input.replacement.nextItems, true)) return emitFailure()
+        emittedReplacement = true
+      }
+      if (!emitItem(item, false)) return emitFailure()
+      itemStart = itemEnd
+      continue
+    }
+    removedItems.push(item)
+    if (range.startRenderedUtf16 > itemStart) {
+      if (item.kind !== "text") {
+        return blockedResult("atomic Source items cannot be split")
+      }
+      if (!reserveFinalItemSlot()) return emitFailure()
+      const prefix = retainedTextFragmentInternalV1({
+        sourceState: input.previousSourceState,
+        item,
+        renderedText: item.renderedText.slice(
+          0,
+          range.startRenderedUtf16 - itemStart,
+        ),
+      })
+      if (prefix == null) return blockedResult("text prefix could not be retained")
+      nextLeafItems.push(prefix)
+      createdItems.push(prefix)
+    }
+    if (!emittedReplacement) {
+      if (!emitItems(input.replacement.nextItems, true)) return emitFailure()
+      emittedReplacement = true
+    }
+    if (range.endRenderedUtf16 < itemEnd) {
+      if (item.kind !== "text") {
+        return blockedResult("atomic Source items cannot be split")
+      }
+      if (!reserveFinalItemSlot()) return emitFailure()
+      const suffix = retainedTextFragmentInternalV1({
+        sourceState: input.previousSourceState,
+        item,
+        renderedText: item.renderedText.slice(
+          range.endRenderedUtf16 - itemStart,
+        ),
+      })
+      if (suffix == null) return blockedResult("text suffix could not be retained")
+      nextLeafItems.push(suffix)
+      createdItems.push(suffix)
+    }
+    itemStart = itemEnd
+  }
+  if (!emittedReplacement) {
+    if (!emitItems(input.replacement.nextItems, true)) return emitFailure()
+  }
+  if (
+    nextLeafItems.length === 0
+    && affectedItems.length === input.previousSourceState.summary.itemCount
+  ) {
+    return blockedResult("empty complete Source remains outside active capability")
+  }
+  let replacementNodes: readonly VNextTextBlockUnifiedLayoutSourceNodeV1[] = []
+  const nextLeaves: VNextTextBlockUnifiedLayoutSourceNodeV1[] = []
+  for (const group of canonicalGroups(nextLeafItems, 8)) {
+    if (!input.beforeVisit("source-path-copy-nodes")) return limitResult()
+    copiedPathNodeCount += 1
+    nextLeaves.push(deepFreeze(leaf(group, prepared.fingerprintFactory)))
+  }
+  replacementNodes = nextLeaves
+  if (affectedLeaves.length > 1) {
+    let emittedReplacement = false
+    let recursiveRebuildBlocked = false
+    const rewrite = (
+      current: VNextTextBlockUnifiedLayoutSourceNodeV1,
+    ): readonly VNextTextBlockUnifiedLayoutSourceNodeV1[] | null => {
+      if (!affectedNodes.has(current)) return [current]
+      if (current.nodeKind === "leaf") {
+        if (!emittedReplacement) {
+          emittedReplacement = true
+          return nextLeaves
+        }
+        return []
+      }
+      const children: VNextTextBlockUnifiedLayoutSourceNodeV1[] = []
+      for (const child of current.children) {
+        const rewritten = rewrite(child)
+        if (rewritten == null) return null
+        children.push(...rewritten)
+      }
+      if (children.length === 0) return []
+      if (children.length === 1) return children
+      while (children.some((child) => child.height !== children[0]!.height)) {
+        const maximumHeight = Math.max(...children.map((child) => child.height))
+        const underflowIndex = children.findIndex(
+          (child) => child.height < maximumHeight,
+        )
+        const underflow = children[underflowIndex]
+        if (
+          underflow == null
+          || underflow.height !== maximumHeight - 1
+        ) {
+          recursiveRebuildBlocked = true
+          return null
+        }
+        const left = children[underflowIndex - 1]
+        const right = children[underflowIndex + 1]
+        let donor:
+          | {
+              readonly side: "left" | "right"
+              readonly node: VNextTextBlockUnifiedLayoutSourceNodeV1
+            }
+          | null = null
+        if (left != null) {
+          if (!input.beforeVisit("source-lookup-nodes")) return null
+          visitedLookupNodeCount += 1
+          if (left.height === maximumHeight) {
+            donor = { side: "left", node: left }
+          }
+        }
+        if (donor == null && right != null) {
+          if (!input.beforeVisit("source-lookup-nodes")) return null
+          visitedLookupNodeCount += 1
+          if (right.height === maximumHeight) {
+            donor = { side: "right", node: right }
+          }
+        }
+        if (donor == null) {
+          recursiveRebuildBlocked = true
+          return null
+        }
+        if (!rebalancedDonorNodes.has(donor.node)) {
+          rebalancedDonorNodes.add(donor.node)
+          affectedNodeCount += 1
+        }
+        if (donor.node.nodeKind !== "branch") {
+          recursiveRebuildBlocked = true
+          return null
+        }
+        const mayBorrow = donor.node.children.length > 2
+        if (mayBorrow) {
+          const donorChildren = donor.side === "left"
+            ? donor.node.children.slice(0, -1)
+            : donor.node.children.slice(1)
+          const borrowed = donor.side === "left"
+            ? donor.node.children.at(-1)!
+            : donor.node.children[0]!
+          const repairedChildren = donor.side === "left"
+            ? [borrowed, underflow]
+            : [underflow, borrowed]
+          if (!input.beforeVisit("source-path-copy-nodes")) return null
+          copiedPathNodeCount += 1
+          const repairedDonor = deepFreeze(branch(
+            donorChildren,
+            prepared.fingerprintFactory,
+          ))
+          if (!input.beforeVisit("source-path-copy-nodes")) return null
+          copiedPathNodeCount += 1
+          const repairedUnderflow = deepFreeze(branch(
+            repairedChildren,
+            prepared.fingerprintFactory,
+          ))
+          if (donor.side === "left") {
+            children.splice(
+              underflowIndex - 1,
+              2,
+              repairedDonor,
+              repairedUnderflow,
+            )
+          } else {
+            children.splice(
+              underflowIndex,
+              2,
+              repairedUnderflow,
+              repairedDonor,
+            )
+          }
+        } else {
+          const mergedChildren = donor.side === "left"
+            ? [...donor.node.children, underflow]
+            : [underflow, ...donor.node.children]
+          if (!input.beforeVisit("source-path-copy-nodes")) return null
+          copiedPathNodeCount += 1
+          const merged = deepFreeze(branch(
+            mergedChildren,
+            prepared.fingerprintFactory,
+          ))
+          children.splice(
+            donor.side === "left" ? underflowIndex - 1 : underflowIndex,
+            2,
+            merged,
+          )
+        }
+      }
+      const output: VNextTextBlockUnifiedLayoutSourceNodeV1[] = []
+      for (const group of canonicalGroups(children, 8)) {
+        if (group.length === 1) {
+          output.push(group[0]!)
+          continue
+        }
+        if (!input.beforeVisit("source-path-copy-nodes")) return null
+        copiedPathNodeCount += 1
+        output.push(deepFreeze(branch(group, prepared.fingerprintFactory)))
+      }
+      return output
+    }
+    const rewritten = rewrite(input.previousSourceState.root)
+    if (rewritten == null) {
+      return recursiveRebuildBlocked
+        ? blockedResult("source branch underflow requires exact neighbor rebalance")
+        : limitResult()
+    }
+    replacementNodes = rewritten
+  } else {
+    for (let ancestorIndex = ancestors.length - 1; ancestorIndex >= 0; ancestorIndex -= 1) {
+      const ancestor = ancestors[ancestorIndex]!
+      const children = [
+        ...ancestor.branch.children.slice(0, ancestor.childIndex),
+        ...replacementNodes,
+        ...ancestor.branch.children.slice(ancestor.endChildIndex + 1),
+      ]
+      const nextLevel: VNextTextBlockUnifiedLayoutSourceNodeV1[] = []
+      for (const group of canonicalGroups(children, 8)) {
+        if (group.length === 1) {
+          nextLevel.push(group[0]!)
+          continue
+        }
+        if (!input.beforeVisit("source-path-copy-nodes")) return limitResult()
+        copiedPathNodeCount += 1
+        nextLevel.push(deepFreeze(branch(group, prepared.fingerprintFactory)))
+      }
+      replacementNodes = nextLevel
+    }
+  }
+  while (replacementNodes.length > 1) {
+    const nextLevel: VNextTextBlockUnifiedLayoutSourceNodeV1[] = []
+    for (const group of canonicalGroups(replacementNodes, 8)) {
+      if (group.length === 1) {
+        nextLevel.push(group[0]!)
+        continue
+      }
+      if (!input.beforeVisit("source-path-copy-nodes")) return limitResult()
+      copiedPathNodeCount += 1
+      nextLevel.push(deepFreeze(branch(group, prepared.fingerprintFactory)))
+    }
+    replacementNodes = nextLevel
+  }
+  const nextRoot = replacementNodes[0]
+  if (nextRoot == null) return blockedResult("source path copy produced no root")
+
+  const removedInlineIds = new Set(removedItems.map((item) => item.inlineId))
+  const inheritedEntriesByCreatedInlineId = new Map<
+    string,
+    readonly SourceItemIndexEntryInternalV1[]
+  >()
+  for (const item of createdItems) {
+    if (
+      removedInlineIds.has(item.inlineId)
+      || inheritedEntriesByCreatedInlineId.has(item.inlineId)
+    ) continue
+    const inheritedLookup = sourceItemIndexEntriesInternalV1(
+      prepared.itemIndex,
+      item.inlineId,
+      () => {
+        if (!input.beforeVisit("source-lookup-nodes")) return false
+        visitedLookupNodeCount += 1
+        return true
+      },
+    )
+    if (inheritedLookup.limitExceeded) return limitResult()
+    inheritedEntriesByCreatedInlineId.set(
+      item.inlineId,
+      inheritedLookup.entries,
+    )
+  }
+
+  const createdNodeCount = copiedPathNodeCount
+  const reusedNodeCount = Math.max(
+    0,
+    input.previousSourceState.summary.nodeCount
+      - Math.min(input.previousSourceState.summary.nodeCount, affectedNodeCount),
+  )
+  const work = deepFreeze({
+    constructionKind: "text-style-path-copy" as const,
+    completeBuildCount: 0 as const,
+    visitedInitialFlowAtomCount: 0 as const,
+    visitedSummaryNodeCount: visitedLookupNodeCount,
+    createdItemCount: createdItems.length,
+    createdLeafCount: nextLeaves.length,
+    createdNodeCount,
+    reusedItemCount:
+      input.previousSourceState.summary.itemCount - removedItems.length,
+    reusedNodeCount,
+    completeSuffixTraversalCount: 0 as const,
+  })
+  const facts = {
+    source: input.previousSourceState.source,
+    contractVersion: input.previousSourceState.contractVersion,
+    documentId: input.previousSourceState.documentId,
+    sectionId: input.previousSourceState.sectionId,
+    textBlockId: input.previousSourceState.textBlockId,
+    instanceRevision: input.previousSourceState.instanceRevision,
+    initialFlowFingerprint: input.previousSourceState.initialFlowFingerprint,
+    flowEvidenceFingerprint: input.previousSourceState.flowEvidenceFingerprint,
+    authoredBoxPlan: input.previousSourceState.authoredBoxPlan,
+    producerRequirements: input.previousSourceState.producerRequirements,
+    policy: input.previousSourceState.policy,
+    root: nextRoot,
+    summary: nextRoot.summary,
+    work,
+    contracts: input.previousSourceState.contracts,
+    mayPublishLayout: false as const,
+    productionBinding: false as const,
+  }
+  const canonicalFacts = stringifyVNextCanonicalJson(stateCanonicalFacts({
+    ...facts,
+    fingerprint: "",
+  }))
+  const sourceState = Object.freeze({
+    ...facts,
+    fingerprint: prepared.fingerprintFactory(canonicalFacts),
+  })
+  const removedItemOrdinalStart = nodeStartItemOrdinal
+  const removedItemOrdinalEnd = nodeStartItemOrdinal + affectedItems.length
+  const localEntries = new Map<
+    string,
+    SourceItemIndexEntryInternalV1[]
+  >()
+  let localStartRenderedUtf16 = nodeStartRenderedUtf16
+  for (let index = 0; index < nextLeafItems.length; index += 1) {
+    const item = nextLeafItems[index]!
+    const inherited = inheritedEntriesByCreatedInlineId.get(item.inlineId)
+      ?? Object.freeze([])
+    const inheritedOutsideReplacement = inherited.filter((entry) =>
+        entry.itemOrdinal < removedItemOrdinalStart
+        || entry.itemOrdinal >= removedItemOrdinalEnd
+      )
+    if (
+      inheritedOutsideReplacement.length > 0
+      && (
+        item.kind !== "text"
+        || inheritedOutsideReplacement.some((entry) => entry.kind !== "text")
+      )
+    ) return blockedResult("atomic Source inline authority must remain unique")
+    const entries = localEntries.get(item.inlineId) ?? []
+    if (
+      entries.length > 0
+      && (
+        item.kind !== "text"
+        || entries.some((entry) => entry.kind !== "text")
+      )
+    ) return blockedResult("atomic Source inline authority must remain unique")
+    entries.push({
+      kind: item.kind,
+      itemOrdinal: nodeStartItemOrdinal + index,
+      absoluteStartRenderedUtf16: localStartRenderedUtf16,
+    })
+    localEntries.set(item.inlineId, entries)
+    localStartRenderedUtf16 += item.renderedUtf16Length
+  }
+  const itemIndex: SourceItemIndex = Object.freeze({
+    indexKind: "range-delta" as const,
+    previous: prepared.itemIndex,
+    removedItemOrdinalStart,
+    removedItemOrdinalEnd,
+    itemOrdinalDelta: nextLeafItems.length - affectedItems.length,
+    previousLeafEndRenderedUtf16: leafEndRenderedUtf16,
+    renderedUtf16Delta:
+      nextRoot.summary.renderedUtf16Length
+      - input.previousSourceState.summary.renderedUtf16Length,
+    localEntries,
+  })
+  preparedStates.set(sourceState, {
+    fingerprint: sourceState.fingerprint,
+    canonicalFacts,
+    fingerprintFactory: prepared.fingerprintFactory,
+    itemIndex,
+    sourceEnvelopeFacts: prepared.sourceEnvelopeFacts,
+  })
+
+  const previousStyles = registeredStylesBySourceState.get(
+    input.previousSourceState,
+  )
+  if (previousStyles == null) return blockedResult("previous style authority is unavailable")
+  const counts = new Map(
+    previousStyles.entries.map((entry) => [entry.style, entry.referenceCount]),
+  )
+  const adjustStyle = (
+    item: VNextTextBlockUnifiedLayoutSourceItemV1,
+    delta: 1 | -1,
+  ): boolean => {
+    if (
+      item.kind !== "text"
+      && item.kind !== "resolved-field"
+      && item.kind !== "generated-page-number"
+    ) return true
+    const next = (counts.get(item.style) ?? 0) + delta
+    if (!Number.isSafeInteger(next) || next < 0) return false
+    if (next === 0) counts.delete(item.style)
+    else counts.set(item.style, next)
+    return true
+  }
+  for (const item of removedItems) {
+    if (!adjustStyle(item, -1)) return blockedResult("style references underflowed")
+  }
+  for (const item of createdItems) {
+    if (!adjustStyle(item, 1)) return blockedResult("style references overflowed")
+  }
+  registeredStylesBySourceState.set(sourceState, Object.freeze({
+    entries: Object.freeze([...counts.entries()].map(
+      ([style, referenceCount]) => Object.freeze({ style, referenceCount }),
+    )),
+  }))
+
+  const pathCopyCandidateAuthority = Object.freeze(
+    {},
+  ) as VNextTextBlockSourcePathCopyCandidateAuthorityInternalV1
+  sourceRangePathCopyCandidateAuthorities.set(pathCopyCandidateAuthority, {
+    previousSourceState: input.previousSourceState,
+    nextSourceState: sourceState,
+    replacement: input.replacement,
+    visitedLookupNodeCount,
+    copiedPathNodeCount,
+    visitedChangedLeafItemCount,
+  })
+  const removedLineageIds = new Set(removedItems.map((item) => item.lineageId))
+  const existingLineageIds = Object.freeze([
+    ...new Set(createdItems
+      .filter((item) => removedLineageIds.has(item.lineageId))
+      .map((item) => item.lineageId)),
+  ])
+  const insertedLineageIds = Object.freeze([
+    ...new Set(createdItems
+      .filter((item) => !removedLineageIds.has(item.lineageId))
+      .map((item) => item.lineageId)),
+  ])
+  return Object.freeze({
+    status: "prepared" as const,
+    sourceState,
+    visitedLookupNodeCount,
+    copiedPathNodeCount,
+    visitedChangedLeafItemCount,
+    existingLineageIds,
+    insertedLineageIds,
+    pathCopyCandidateAuthority,
+    issues: Object.freeze([]) as readonly [],
+  })
 }
 
 function buildComplete(
@@ -2747,20 +3753,41 @@ export function visitVNextTextBlockTransitionSourceItemByInlineIdInternalV1(
   },
 ): VNextTextBlockTransitionSourceItemLookupResultInternalV1 {
   const prepared = preparedStates.get(input.sourceState)
-  const authority = prepared?.itemIndex.entries.get(input.inlineId)
-  if (prepared == null || authority == null) {
+  let visitedNodeCount = 0
+  const authority = prepared == null
+    ? null
+    : sourceItemIndexEntriesInternalV1(
+        prepared.itemIndex,
+        input.inlineId,
+        () => {
+          if (!input.beforeVisitNode()) return false
+          visitedNodeCount += 1
+          return true
+        },
+      )
+  if (authority?.limitExceeded === true) {
+    return {
+      status: "limit-exceeded",
+      item: null,
+      absoluteStartRenderedUtf16: null,
+      absoluteEndRenderedUtf16: null,
+      visitedNodeCount,
+      completeTreeTraversalCount: 0,
+    }
+  }
+  if (prepared == null || authority == null || authority.entries.length !== 1) {
     return {
       status: "not-found",
       item: null,
       absoluteStartRenderedUtf16: null,
       absoluteEndRenderedUtf16: null,
-      visitedNodeCount: 0,
+      visitedNodeCount,
       completeTreeTraversalCount: 0,
     }
   }
+  const exactAuthority = authority.entries[0]!
   let node = input.sourceState.root
-  let relativeItemOrdinal = authority.itemOrdinal
-  let visitedNodeCount = 0
+  let relativeItemOrdinal = exactAuthority.itemOrdinal
   while (true) {
     if (!input.beforeVisitNode()) {
       return {
@@ -2808,9 +3835,9 @@ export function visitVNextTextBlockTransitionSourceItemByInlineIdInternalV1(
   return {
     status: "found",
     item,
-    absoluteStartRenderedUtf16: authority.absoluteStartRenderedUtf16,
+    absoluteStartRenderedUtf16: exactAuthority.absoluteStartRenderedUtf16,
     absoluteEndRenderedUtf16:
-      authority.absoluteStartRenderedUtf16 + item.renderedUtf16Length,
+      exactAuthority.absoluteStartRenderedUtf16 + item.renderedUtf16Length,
     visitedNodeCount,
     completeTreeTraversalCount: 0,
   }

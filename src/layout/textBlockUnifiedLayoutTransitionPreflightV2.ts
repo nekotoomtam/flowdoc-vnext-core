@@ -18,10 +18,12 @@ import {
 } from "./textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
   createVNextTextBlockTransitionReplacementSourceItemInternalV1,
+  registerVNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1,
   resolveVNextTextBlockRegisteredSourceStyleInternalV1,
   resolveVNextTextBlockSupportedStyleOverlayInternalV1,
   visitVNextTextBlockTransitionSourceCoverageInternalV1,
   visitVNextTextBlockTransitionSourceItemByInlineIdInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1,
 } from "./textBlockUnifiedLayoutSourceStateV1.js"
 import {
   visitVNextTextBlockTransitionFlowCoverageInternalV1,
@@ -32,6 +34,7 @@ import type {
 } from "./textBlockUnifiedLayoutSourceStateContractV1.js"
 import type {
   VNextTextBlockIncrementalCandidateWorkV1,
+  VNextTextBlockValidatedChangeV1,
   VNextTextBlockUnifiedLayoutEffectClassificationV1,
   VNextTextBlockUnifiedLayoutEligibilityV1,
   VNextTextBlockUnifiedLayoutIssueV1,
@@ -70,9 +73,27 @@ interface RegisteredPreflightTupleInternalV2 {
   readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
   readonly change: VNextTextBlockUnifiedLayoutChangeV1
   readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+  readonly validatedChange: VNextTextBlockValidatedChangeV1
+  readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+  readonly sourceReplacement:
+    VNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1 | null
 }
 
 const preflights = new WeakMap<object, RegisteredPreflightTupleInternalV2>()
+interface RegisteredEvidenceMaterialTupleInternalV2 {
+  readonly request: VNextTextBlockTransitionEvidenceRequestV2
+  readonly sourceMaterial: VNextTextBlockTransitionProducerSourceMaterialV2
+}
+const evidenceMaterialByRoot = new WeakMap<
+  VNextTextBlockUnifiedLayoutRootV2,
+  WeakMap<
+    VNextTextBlockUnifiedLayoutChangeV1,
+    WeakMap<
+      VNextTextBlockUnifiedLayoutWorkPolicyV1,
+      RegisteredEvidenceMaterialTupleInternalV2
+    >
+  >
+>()
 const failureAuthorities = new WeakMap<object, {
   readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
   readonly change: VNextTextBlockUnifiedLayoutChangeV1
@@ -133,6 +154,10 @@ function registerPreflightTuple(input: {
   readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
   readonly change: VNextTextBlockUnifiedLayoutChangeV1
   readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+  readonly validatedChange: VNextTextBlockValidatedChangeV1
+  readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+  readonly sourceReplacement:
+    VNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1 | null
 }): void {
   preflights.set(input.preflight, Object.freeze({
     request: input.request,
@@ -140,7 +165,48 @@ function registerPreflightTuple(input: {
     previousRoot: input.previousRoot,
     change: input.change,
     workPolicy: input.workPolicy,
+    validatedChange: input.validatedChange,
+    completedCandidateWork: input.completedCandidateWork,
+    sourceReplacement: input.sourceReplacement,
   }))
+}
+
+function exactEvidenceMaterialTuple(input: {
+  readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+  readonly change: VNextTextBlockUnifiedLayoutChangeV1
+  readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+  readonly create: () => RegisteredEvidenceMaterialTupleInternalV2
+}): RegisteredEvidenceMaterialTupleInternalV2 {
+  let byChange = evidenceMaterialByRoot.get(input.previousRoot)
+  if (byChange == null) {
+    byChange = new WeakMap()
+    evidenceMaterialByRoot.set(input.previousRoot, byChange)
+  }
+  let byPolicy = byChange.get(input.change)
+  if (byPolicy == null) {
+    byPolicy = new WeakMap()
+    byChange.set(input.change, byPolicy)
+  }
+  const registered = byPolicy.get(input.workPolicy)
+  if (registered != null) return registered
+  const created = Object.freeze(input.create())
+  byPolicy.set(input.workPolicy, created)
+  return created
+}
+
+export function getVNextTextBlockUnifiedLayoutSourceStagePreflightRecordInternalV2(input: {
+  readonly preflight: unknown
+  readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+}): RegisteredPreflightTupleInternalV2 | null {
+  const record = input.preflight != null && typeof input.preflight === "object"
+    ? preflights.get(input.preflight as object)
+    : null
+  return record != null
+      && record.previousRoot === input.previousRoot
+      && record.change === (input.preflight as VNextTextBlockUnifiedLayoutChangePreflightV2).change
+      && record.workPolicy === input.previousRoot.workPolicy
+    ? record
+    : null
 }
 
 function fingerprint(value: unknown): string {
@@ -753,6 +819,9 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
       previousRoot: input.previousRoot,
       change: input.change,
       workPolicy: input.workPolicy,
+      validatedChange,
+      completedCandidateWork: bound.incrementalCandidateWork,
+      sourceReplacement: null,
     })
     return freeze({ status: "not-required" as const, preflight, request: null, sourceMaterial: null, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([]) })
   }
@@ -994,6 +1063,40 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
     ? "required" as const
     : "not-required" as const
   const preflight = freeze({ change: validatedChange.change, eligibility: validatedChange.eligibility, boundedDelta, effectClassification, producerEvidence, previousRanges, nextRanges, replacementItems, fingerprint: fingerprint({ changeFingerprint: validatedChange.fingerprint, previousRanges, nextRanges, boundedDelta, effectClassification, producerEvidence }) })
+  const sourceReplacementFacts = {
+    previousRange: previousRanges.changedSourceRange,
+    nextItemFingerprints: replacementItems.map((item) => item.fingerprint),
+    previousDeltaFingerprint: boundedDelta.fingerprint,
+    preflightFingerprint: preflight.fingerprint,
+  }
+  const sourceReplacement = freeze({
+    previousRange: previousRanges.changedSourceRange,
+    nextItems: replacementItems,
+    expectedPreviousContentFingerprint: fingerprint(
+      previousDelta.map((value) => value.span.renderedText),
+    ),
+    expectedPreviousSourceFingerprint: fingerprint(
+      previousDelta.map((value) => value.span.sourceFingerprint),
+    ),
+    expectedPreviousProvenanceFingerprint: fingerprint(
+      previousDelta.map((value) => value.span.provenanceFingerprint),
+    ),
+    fingerprint: fingerprint(sourceReplacementFacts),
+  })
+  if (!registerVNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1({
+    previousSourceState: input.previousRoot.sourceState,
+    replacement: sourceReplacement,
+  })) {
+    return freeze({
+      status: "blocked" as const,
+      completedCandidateWork: meter.completedCandidateWork,
+      issues: freeze([issue(
+        "evidence-authority-mismatch",
+        "sourceState",
+        "preflight could not register exact Source replacement authority",
+      )]),
+    })
+  }
   if (producerEvidence === "not-required") {
     registerPreflightTuple({
       preflight,
@@ -1002,6 +1105,9 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
       previousRoot: input.previousRoot,
       change: input.change,
       workPolicy: input.workPolicy,
+      validatedChange,
+      completedCandidateWork: meter.completedCandidateWork,
+      sourceReplacement,
     })
     return freeze({
       status: "not-required" as const,
@@ -1146,9 +1252,29 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
     ? freeze([nextRanges.shapeVerificationRange])
     : freeze([nextRanges.shapeVerificationRange, nextRanges.coverageRange])
   const requestFacts = { source: "vnext-text-block-transition-evidence-request-v2" as const, contractVersion: 2 as const, previousRootFingerprint: input.previousRoot.fingerprint, changeFingerprint: validatedChange.fingerprint, documentId: input.previousRoot.documentId, sectionId: input.previousRoot.sectionId, textBlockId: input.previousRoot.textBlockId, previous: previousRanges, next: nextRanges, nextSegmentationContextRanges, requiredStableSegmentationExpansionCount: nextSegmentationContextRanges.length, fontStyleUnitDependencyFingerprint: input.previousRoot.sourceState.producerRequirements.fontStyleUnitDependencyFingerprint, producerRuntimeRequirementFingerprint: input.previousRoot.sourceState.producerRequirements.producerRuntimeRequirementFingerprint, layoutUnitPolicyFingerprint: input.previousRoot.sourceState.producerRequirements.layoutUnitPolicyFingerprint, workPolicyFingerprint: input.workPolicy.fingerprint }
-  const request = freeze({ ...requestFacts, fingerprint: fingerprint(requestFacts) })
-  const materialFacts = { source: "vnext-text-block-transition-producer-source-material-v2" as const, contractVersion: 2 as const, requestFingerprint: request.fingerprint, previous, next, paragraphStyleKey, fontFaces: input.previousRoot.sourceState.producerRequirements.fontFaces, layoutUnitPolicyFingerprint: input.previousRoot.sourceState.producerRequirements.layoutUnitPolicyFingerprint, sourceTopologyFingerprint: input.previousRoot.sourceState.summary.sourceFingerprint, producerWorkCeilings: { maximumVisitedEvidenceNodeCount: responseLimit.effectiveLimit, maximumRequestedAtomCount: requestedAtomCount, maximumRequestedClusterCount: requestedClusterCount } }
-  const sourceMaterial = freeze({ ...materialFacts, fingerprint: fingerprint(materialFacts) })
+  const evidenceMaterial = exactEvidenceMaterialTuple({
+    previousRoot: input.previousRoot,
+    change: input.change,
+    workPolicy: input.workPolicy,
+    create: () => {
+      const request = freeze({
+        ...requestFacts,
+        fingerprint: fingerprint(requestFacts),
+      })
+      const materialFacts = { source: "vnext-text-block-transition-producer-source-material-v2" as const, contractVersion: 2 as const, requestFingerprint: request.fingerprint, previous, next, paragraphStyleKey, fontFaces: input.previousRoot.sourceState.producerRequirements.fontFaces, layoutUnitPolicyFingerprint: input.previousRoot.sourceState.producerRequirements.layoutUnitPolicyFingerprint, sourceTopologyFingerprint: input.previousRoot.sourceState.summary.sourceFingerprint, producerWorkCeilings: { maximumVisitedEvidenceNodeCount: responseLimit.effectiveLimit, maximumRequestedAtomCount: requestedAtomCount, maximumRequestedClusterCount: requestedClusterCount } }
+      const sourceMaterial = freeze({
+        ...materialFacts,
+        fingerprint: fingerprint(materialFacts),
+      })
+      return { request, sourceMaterial }
+    },
+  })
+  const { request, sourceMaterial } = evidenceMaterial
+  const work = registeredRequestWork(
+    meter.completedCandidateWork,
+    requestedAtomCount,
+    requestedClusterCount,
+  )
   registerPreflightTuple({
     preflight,
     request,
@@ -1156,11 +1282,9 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
     previousRoot: input.previousRoot,
     change: input.change,
     workPolicy: input.workPolicy,
+    validatedChange,
+    completedCandidateWork: work,
+    sourceReplacement,
   })
-  const work = registeredRequestWork(
-    meter.completedCandidateWork,
-    requestedAtomCount,
-    requestedClusterCount,
-  )
   return freeze({ status: "required" as const, preflight, request, sourceMaterial, completedCandidateWork: work, issues: freeze([]) })
 }

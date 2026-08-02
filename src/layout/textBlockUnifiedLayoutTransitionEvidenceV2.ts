@@ -120,6 +120,7 @@ const requests = new WeakMap<object, RequestTupleV2>()
  */
 const runtimeIdentities = new WeakSet<object>()
 const evidenceRecords = new WeakMap<object, RequestTupleV2>()
+const evidenceCompletedWorkRecords = new WeakMap<object, VNextTextBlockIncrementalCandidateWorkV1>()
 const failureAuthorities = new WeakMap<object, RequestTupleV2>()
 
 export function createVNextTextBlockTransitionProducerRuntimeIdentityInternalV2(
@@ -407,8 +408,30 @@ export function acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2(input: {
     work: typed.work,
   }
   const evidence: VNextTextBlockTransitionEvidenceV2 = freeze({ ...evidenceFacts, fingerprint: fingerprint(evidenceFacts) })
+  const acceptedWork = completedWork(tuple, typed.work)
   evidenceRecords.set(evidence, tuple)
-  return freeze({ status: "accepted" as const, evidence, completedCandidateWork: completedWork(tuple, typed.work), issues: freeze([]) })
+  evidenceCompletedWorkRecords.set(evidence, acceptedWork)
+  return freeze({ status: "accepted" as const, evidence, completedCandidateWork: acceptedWork, issues: freeze([]) })
+}
+
+export function hasVNextTextBlockUnifiedLayoutTransitionEvidenceBindingInternalV2(input: {
+  readonly evidence: unknown
+  readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+  readonly change: VNextTextBlockUnifiedLayoutChangeV1
+  readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+  readonly expectedRequest: VNextTextBlockTransitionEvidenceRequestV2
+  readonly expectedSourceMaterial:
+    VNextTextBlockTransitionProducerSourceMaterialV2
+}): input is typeof input & { readonly evidence: VNextTextBlockTransitionEvidenceV2 } {
+  const tuple = input.evidence != null && typeof input.evidence === "object"
+    ? evidenceRecords.get(input.evidence as object)
+    : null
+  return tuple != null
+    && tuple.previousRoot === input.previousRoot
+    && tuple.change === input.change
+    && tuple.request === input.expectedRequest
+    && tuple.sourceMaterial === input.expectedSourceMaterial
+    && evidenceCompletedWorkRecords.get(input.evidence as object) === input.completedCandidateWork
 }
 
 export function acceptVNextTextBlockUnifiedLayoutProducerFailureV2(input: {

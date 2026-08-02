@@ -36,7 +36,9 @@ export function acceptedUnifiedLayoutRootFixtureV1(
 export interface RepeatedUnifiedLayoutRootSourceFixtureOptionsV1 {
   lineCount: number
   includeImages: boolean
+  includeBreaks?: boolean
   spatialEntries?: readonly VNextTextBlockSyntheticPositionedObjectInputV1[]
+  fontFaces?: VNextTextBlockInitialFlowV1["fontFaces"]
 }
 
 function shapingRun(
@@ -127,18 +129,20 @@ export function repeatedUnifiedLayoutRootSourceFixtureV1(
       renderedText += "\uFFFC"
       offset += 1
     }
-    const breakId = `repeat-break-${lineIndex}`
-    children.push({ id: breakId, type: "line-break" })
-    runs.push({
-      inlineId: breakId,
-      kind: "hard-break",
-      renderStartOffset: offset,
-      renderEndOffset: offset + 1,
-      renderedText: "\n",
-    })
-    renderedText += "\n"
-    offset += 1
-    breakOffsets.push(offset)
+    if (options.includeBreaks !== false) {
+      const breakId = `repeat-break-${lineIndex}`
+      children.push({ id: breakId, type: "line-break" })
+      runs.push({
+        inlineId: breakId,
+        kind: "hard-break",
+        renderStartOffset: offset,
+        renderEndOffset: offset + 1,
+        renderedText: "\n",
+      })
+      renderedText += "\n"
+      offset += 1
+      breakOffsets.push(offset)
+    }
   }
   const textBlock: TextBlockNodeV4Target = {
     id: `text-block-repeat-${options.lineCount}-${options.includeImages ? "mixed" : "text"}`,
@@ -173,7 +177,7 @@ export function repeatedUnifiedLayoutRootSourceFixtureV1(
     declaredLineHeightLayoutUnit: base.initialFlow.declaredLineHeightLayoutUnit,
     paragraphFontFamilyKey: base.initialFlow.paragraphFontFamilyKey,
     paragraphStyle: base.initialFlow.paragraphStyle,
-    fontFaces: base.initialFlow.fontFaces,
+    fontFaces: options.fontFaces ?? base.initialFlow.fontFaces,
   })
   if (initial.status !== "classified") throw new Error(`repeated root Initial Flow blocked: ${JSON.stringify(initial.issues)}`)
   const evidenceInput: VNextTextBlockFlowEvidenceInputV2 = {
@@ -188,7 +192,12 @@ export function repeatedUnifiedLayoutRootSourceFixtureV1(
     shapingRuns: initial.flow.atoms.flatMap((atom, index) => atom.kind === "text"
       ? [shapingRun(atom, index)]
       : []),
-    breakOffsets,
+    breakOffsets: options.includeBreaks === false
+      ? [
+          0,
+          ...initial.flow.atoms.map((atom) => atom.renderEndOffset),
+        ]
+      : breakOffsets,
   }
   const accepted = acceptVNextTextBlockFlowEvidenceV2({
     initialFlow: initial.flow,
