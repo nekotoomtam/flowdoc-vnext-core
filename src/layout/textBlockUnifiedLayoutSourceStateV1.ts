@@ -379,6 +379,24 @@ export type VNextTextBlockTransitionSourceCoverageResultInternalV1 =
       readonly completeTreeTraversalCount: 0
     }
 
+export type VNextTextBlockTransitionSourceItemLookupResultInternalV1 =
+  | {
+      readonly status: "found"
+      readonly item: VNextTextBlockUnifiedLayoutSourceItemV1
+      readonly absoluteStartRenderedUtf16: number
+      readonly absoluteEndRenderedUtf16: number
+      readonly visitedNodeCount: number
+      readonly completeTreeTraversalCount: 0
+    }
+  | {
+      readonly status: "not-found" | "limit-exceeded"
+      readonly item: null
+      readonly absoluteStartRenderedUtf16: null
+      readonly absoluteEndRenderedUtf16: null
+      readonly visitedNodeCount: number
+      readonly completeTreeTraversalCount: 0
+    }
+
 export interface VNextTextBlockSourceIndexLookupObservationForTestV1 {
   readonly inlineId: string
   readonly indexProbeCount: number
@@ -2659,6 +2677,83 @@ export function resolveVNextTextBlockRegisteredSourceStyleInternalV1(input: {
   return candidates.every((candidate) => sameResolvedStyle(first, candidate))
     ? { status: "resolved", style: first }
     : { status: "ambiguous", style: null }
+}
+
+export function visitVNextTextBlockTransitionSourceItemByInlineIdInternalV1(
+  input: {
+    readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly inlineId: string
+    readonly beforeVisitNode: () => boolean
+  },
+): VNextTextBlockTransitionSourceItemLookupResultInternalV1 {
+  const prepared = preparedStates.get(input.sourceState)
+  const authority = prepared?.itemIndex.entries.get(input.inlineId)
+  if (prepared == null || authority == null) {
+    return {
+      status: "not-found",
+      item: null,
+      absoluteStartRenderedUtf16: null,
+      absoluteEndRenderedUtf16: null,
+      visitedNodeCount: 0,
+      completeTreeTraversalCount: 0,
+    }
+  }
+  let node = input.sourceState.root
+  let relativeItemOrdinal = authority.itemOrdinal
+  let visitedNodeCount = 0
+  while (true) {
+    if (!input.beforeVisitNode()) {
+      return {
+        status: "limit-exceeded",
+        item: null,
+        absoluteStartRenderedUtf16: null,
+        absoluteEndRenderedUtf16: null,
+        visitedNodeCount,
+        completeTreeTraversalCount: 0,
+      }
+    }
+    visitedNodeCount += 1
+    if (node.nodeKind === "leaf") break
+    let selected: VNextTextBlockUnifiedLayoutSourceNodeV1 | null = null
+    for (const child of node.children) {
+      if (relativeItemOrdinal < child.summary.itemCount) {
+        selected = child
+        break
+      }
+      relativeItemOrdinal -= child.summary.itemCount
+    }
+    if (selected == null) {
+      return {
+        status: "not-found",
+        item: null,
+        absoluteStartRenderedUtf16: null,
+        absoluteEndRenderedUtf16: null,
+        visitedNodeCount,
+        completeTreeTraversalCount: 0,
+      }
+    }
+    node = selected
+  }
+  const item = node.items[relativeItemOrdinal]
+  if (item == null || item.inlineId !== input.inlineId) {
+    return {
+      status: "not-found",
+      item: null,
+      absoluteStartRenderedUtf16: null,
+      absoluteEndRenderedUtf16: null,
+      visitedNodeCount,
+      completeTreeTraversalCount: 0,
+    }
+  }
+  return {
+    status: "found",
+    item,
+    absoluteStartRenderedUtf16: authority.absoluteStartRenderedUtf16,
+    absoluteEndRenderedUtf16:
+      authority.absoluteStartRenderedUtf16 + item.renderedUtf16Length,
+    visitedNodeCount,
+    completeTreeTraversalCount: 0,
+  }
 }
 
 export function visitVNextTextBlockTransitionSourceCoverageInternalV1(input: {

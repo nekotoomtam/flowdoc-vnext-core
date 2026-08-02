@@ -19,6 +19,10 @@ import {
 export interface InlineImageFlowFixtureOptions {
   documentId?: string
   text?: string
+  textClusterRanges?: readonly {
+    readonly startRenderedUtf16: number
+    readonly endRenderedUtf16: number
+  }[]
   content?:
     | "image-only"
     | "text-image-text"
@@ -286,6 +290,19 @@ export function acceptedInlineImageEvidenceFixture(
       clusters: [{ index: 0, renderStartOffset: 0, renderEndOffset: 2, advanceLayoutUnit: 6_000_000 }],
     })
   }
+  if (content === "text-only" && options.textClusterRanges != null) {
+    const atom = initial.flow.atoms[0]
+    if (atom?.kind !== "text") throw new Error("text flow fixture missing")
+    shapingRuns.splice(0, shapingRuns.length, {
+      ...shapingRun(atom, 0),
+      clusters: options.textClusterRanges.map((range, index) => ({
+        index,
+        renderStartOffset: range.startRenderedUtf16,
+        renderEndOffset: range.endRenderedUtf16,
+        advanceLayoutUnit: 6_000_000,
+      })),
+    })
+  }
   const evidenceInput: VNextTextBlockFlowEvidenceInputV2 = {
     initialFlowFingerprint: initial.flow.fingerprint,
     layoutId: "inline-image-flow-v2",
@@ -298,7 +315,18 @@ export function acceptedInlineImageEvidenceFixture(
     shapingRuns,
     breakOffsets: [
       ...(options.breakOffsets
-        ?? Array.from({ length: renderedText.length + 1 }, (_value, index) => index)),
+        ?? [...new Set([
+          0,
+          renderedText.length,
+          ...initial.flow.atoms.flatMap((atom) => [
+            atom.renderStartOffset,
+            atom.renderEndOffset,
+          ]),
+          ...shapingRuns.flatMap((run) => run.clusters.flatMap((cluster) => [
+            cluster.renderStartOffset,
+            cluster.renderEndOffset,
+          ])),
+        ])].sort((left, right) => left - right)),
     ],
   }
   void options.entries
@@ -306,7 +334,9 @@ export function acceptedInlineImageEvidenceFixture(
     initialFlow: initial.flow,
     evidenceInput,
   })
-  if (accepted.status !== "accepted") throw new Error("flow evidence fixture blocked")
+  if (accepted.status !== "accepted") {
+    throw new Error(`flow evidence fixture blocked: ${JSON.stringify(accepted.issues)}`)
+  }
   producerEvidenceInputs.set(accepted.evidence, structuredClone(evidenceInput))
   return {
     initialFlow: initial.flow,

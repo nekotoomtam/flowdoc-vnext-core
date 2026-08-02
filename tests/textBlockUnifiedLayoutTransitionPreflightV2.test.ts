@@ -13,6 +13,10 @@ import {
   noOpUnifiedLayoutChange5b,
 } from "./helpers/textBlockUnifiedIncremental5b.js"
 import {
+  getVNextTextBlockLimitExceededAuthorityRecordInternalV1,
+  setVNextTextBlockPostBindingLimitOverrideForTestInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
+import {
   visitVNextTextBlockTransitionSourceCoverageInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
 import { createVNextCompactFingerprint } from "../src/fingerprint/compactFingerprint.js"
@@ -80,6 +84,47 @@ function textRoot(text: string) {
   )
   if (built.status !== "accepted") throw new Error("text root missing")
   return built.root
+}
+
+function clusteredTextRoot(
+  text: string,
+  textClusterRanges: readonly {
+    readonly startRenderedUtf16: number
+    readonly endRenderedUtf16: number
+  }[],
+) {
+  const built = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+    unifiedLayoutRootBuildInputFixtureV2({
+      content: "text-only",
+      text,
+      textClusterRanges,
+    }),
+    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+  )
+  if (built.status !== "accepted") throw new Error("clustered root missing")
+  return built.root
+}
+
+function insertionAt(
+  root: VNextTextBlockUnifiedLayoutRootV2,
+  atRenderedUtf16: number,
+  insertedText: string,
+) {
+  const item = coveredItems(root)[0]?.item
+  if (item?.kind !== "text") throw new Error("text item missing")
+  return frozen({
+    ...changeBase(root),
+    kind: "text-insertion" as const,
+    atRenderedUtf16,
+    insertedText,
+    insertedSource: {
+      lineageId: `insert-${atRenderedUtf16}-${insertedText.length}`,
+      sourceFingerprint: `source-${atRenderedUtf16}-${insertedText.length}`,
+      provenanceFingerprint: `provenance-${atRenderedUtf16}-${insertedText.length}`,
+    },
+    measurementStyleKey: item.style.measurementStyleKey,
+    effectiveShapingStyleKey: item.style.effectiveShapingStyleKey,
+  })
 }
 
 function coveredItems(
@@ -391,5 +436,129 @@ describe("Text-block unified transition preflight V2", () => {
       renderedText: "BC",
       resolvedStyle: expect.objectContaining({ textColor: "FF0000" }),
     })
+  })
+
+  it("blocks an insertion that splits a UTF-16 surrogate pair", () => {
+    const previousRoot = textRoot("A😀B")
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      change: insertionAt(previousRoot, 2, "X"),
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    })
+
+    expect(result).toMatchObject({
+      status: "blocked",
+      issues: [expect.objectContaining({ code: "invalid-change-range" })],
+    })
+  })
+
+  it.each([
+    {
+      name: "ffi ligature",
+      text: "ffiZ",
+      clusters: [
+        { startRenderedUtf16: 0, endRenderedUtf16: 3 },
+        { startRenderedUtf16: 3, endRenderedUtf16: 4 },
+      ],
+      expectedEnd: 3,
+    },
+    {
+      name: "Thai combining sequence",
+      text: "ก้่Z",
+      clusters: [
+        { startRenderedUtf16: 0, endRenderedUtf16: 3 },
+        { startRenderedUtf16: 3, endRenderedUtf16: 4 },
+      ],
+      expectedEnd: 3,
+    },
+  ])("expands previous shape verification across a complete $name atom", ({
+    text,
+    clusters,
+    expectedEnd,
+  }) => {
+    const previousRoot = clusteredTextRoot(text, clusters)
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      change: insertionAt(previousRoot, 0, "X"),
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    })
+
+    expect(result.status).toBe("required")
+    if (result.status !== "required") return
+    expect(result.preflight.previousRanges.shapeVerificationRange)
+      .toEqual({ startRenderedUtf16: 0, endRenderedUtf16: expectedEnd })
+  })
+
+  it("accounts for every Source/Flow visit and previous/next material atom", () => {
+    const previousRoot = textRoot("ABCD")
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      change: insertionAt(previousRoot, 0, "X"),
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    })
+
+    expect(result.status).toBe("required")
+    if (result.status !== "required") return
+    const exactMaterialAtomCount = result.sourceMaterial.previous.atoms.length
+      + result.sourceMaterial.next.atoms.length
+    expect(exactMaterialAtomCount).toBe(3)
+    expect(result.completedCandidateWork.evidence).toMatchObject({
+      visitedRequestLookupNodeCount: 2,
+      materializedContextAtomCount: exactMaterialAtomCount,
+      requestedAtomCount: exactMaterialAtomCount,
+    })
+  })
+
+  it("uses next verification Unicode scalars as the conservative cluster ceiling", () => {
+    const previousRoot = textRoot("A")
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      change: insertionAt(previousRoot, 0, "😀"),
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    })
+
+    expect(result.status).toBe("required")
+    if (result.status !== "required") return
+    expect(result.preflight.nextRanges.shapeVerificationRange)
+      .toEqual({ startRenderedUtf16: 0, endRenderedUtf16: 3 })
+    expect(result.sourceMaterial.producerWorkCeilings.maximumRequestedClusterCount)
+      .toBe(2)
+    expect(result.completedCandidateWork.evidence.requestedClusterCount).toBe(2)
+  })
+
+  it("stops before an over-limit material atom and returns its registered evaluator authority", () => {
+    const previousRoot = textRoot("ABCD")
+    setVNextTextBlockPostBindingLimitOverrideForTestInternalV1({
+      stage: "evidence",
+      unit: "evidence-context-atoms",
+      effectiveLimit: 2,
+    })
+    try {
+      const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+        previousRoot,
+        change: insertionAt(previousRoot, 0, "X"),
+        workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      })
+
+      expect(result.status).toBe("fallback-required")
+      if (result.status !== "fallback-required") return
+      expect(result.completedCandidateWork.evidence.materializedContextAtomCount)
+        .toBe(2)
+      expect(getVNextTextBlockLimitExceededAuthorityRecordInternalV1(
+        result.evaluatorOrProofAuthority,
+      )).toMatchObject({
+        previousRoot,
+        originalChange: expect.any(Object),
+        workPolicy:
+          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+        stage: "evidence",
+        unit: "evidence-context-atoms",
+        completedWork: 2,
+        attemptedWork: 3,
+        effectiveLimit: 2,
+      })
+    } finally {
+      setVNextTextBlockPostBindingLimitOverrideForTestInternalV1(null)
+    }
   })
 })

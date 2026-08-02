@@ -11,12 +11,15 @@ import type {
 } from "./textBlockUnifiedLayoutEvidenceContractV2.js"
 import {
   bindVNextTextBlockUnifiedLayoutChangeInternalV1,
+  evaluateNextVNextTextBlockStageVisitInternalV1,
+  getVNextTextBlockLimitExceededAuthorityRecordInternalV1,
 } from "./textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
   createVNextTextBlockTransitionReplacementSourceItemInternalV1,
   resolveVNextTextBlockRegisteredSourceStyleInternalV1,
   resolveVNextTextBlockSupportedStyleOverlayInternalV1,
   visitVNextTextBlockTransitionSourceCoverageInternalV1,
+  visitVNextTextBlockTransitionSourceItemByInlineIdInternalV1,
 } from "./textBlockUnifiedLayoutSourceStateV1.js"
 import {
   visitVNextTextBlockTransitionFlowCoverageInternalV1,
@@ -58,6 +61,24 @@ export type VNextTextBlockTransitionPreflightResultV2 =
   | VNextTextBlockUnifiedLayoutOwnedStageFailureV1
 
 const preflights = new WeakMap<object, { readonly request: VNextTextBlockTransitionEvidenceRequestV2 | null; readonly sourceMaterial: VNextTextBlockTransitionProducerSourceMaterialV2 | null }>()
+const failureAuthorities = new WeakMap<object, {
+  readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+  readonly change: VNextTextBlockUnifiedLayoutChangeV1
+  readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+  readonly unit: "evidence-request-lookup-nodes" | "evidence-context-atoms" | "evidence-response-nodes"
+  readonly effectiveLimit: number
+}>()
+
+export function inspectVNextTextBlockTransitionPreflightFailureAuthorityInternalV2(
+  value: unknown,
+): boolean {
+  return value != null
+    && typeof value === "object"
+    && (
+      failureAuthorities.has(value as object)
+      || getVNextTextBlockLimitExceededAuthorityRecordInternalV1(value) != null
+    )
+}
 
 function fingerprint(value: unknown): string {
   return createVNextCompactFingerprint(stringifyVNextCanonicalJson(value))
@@ -98,21 +119,40 @@ function laneRanges(changed: VNextTextBlockSourceRangeV1, length: number): VNext
   return freeze({ changedSourceRange: range(start, end), evidenceTargetRange: evidence, shapeVerificationRange: shape, coverageRange: coverage })
 }
 
-function sourceRangeForChange(root: VNextTextBlockUnifiedLayoutRootV2, change: VNextTextBlockUnifiedLayoutChangeV1): VNextTextBlockSourceRangeV1 | null {
-  if (change.kind === "text-insertion") return range(change.atRenderedUtf16, change.atRenderedUtf16)
-  if (change.kind === "text-deletion" || change.kind === "text-replacement") return change.removedRange
-  if (change.kind === "supported-style-change") return change.range
-  if (change.kind === "resolved-field-rendered-value-change") {
-    const coverage = visitVNextTextBlockTransitionSourceCoverageInternalV1({
-      sourceState: root.sourceState,
-      range: range(0, root.sourceState.summary.renderedUtf16Length),
-      beforeVisitNode: () => true,
-      beforeEmitItem: () => true,
-    })
-    const field = coverage.status === "accepted" ? coverage.fragments.find((fragment) => fragment.item.kind === "resolved-field" && fragment.item.inlineId === change.inlineId && fragment.item.fieldKey === change.fieldKey) : null
-    return field == null ? null : range(field.itemAbsoluteStartRenderedUtf16, field.itemAbsoluteEndRenderedUtf16)
+function sourceRangeForChange(
+  root: VNextTextBlockUnifiedLayoutRootV2,
+  change: VNextTextBlockUnifiedLayoutChangeV1,
+  beforeVisitNode: () => boolean,
+): { readonly status: "accepted"; readonly range: VNextTextBlockSourceRangeV1 }
+  | { readonly status: "not-found" | "limit-exceeded"; readonly range: null } {
+  if (change.kind === "text-insertion") {
+    return {
+      status: "accepted",
+      range: range(change.atRenderedUtf16, change.atRenderedUtf16),
+    }
   }
-  return null
+  if (change.kind === "text-deletion" || change.kind === "text-replacement") return { status: "accepted", range: change.removedRange }
+  if (change.kind === "supported-style-change") return { status: "accepted", range: change.range }
+  if (change.kind === "resolved-field-rendered-value-change") {
+    const lookup = visitVNextTextBlockTransitionSourceItemByInlineIdInternalV1({
+      sourceState: root.sourceState,
+      inlineId: change.inlineId,
+      beforeVisitNode,
+    })
+    if (
+      lookup.status !== "found"
+      || lookup.item.kind !== "resolved-field"
+      || lookup.item.fieldKey !== change.fieldKey
+    ) return { status: lookup.status === "limit-exceeded" ? "limit-exceeded" : "not-found", range: null }
+    return {
+      status: "accepted",
+      range: range(
+        lookup.absoluteStartRenderedUtf16,
+        lookup.absoluteEndRenderedUtf16,
+      ),
+    }
+  }
+  return { status: "not-found", range: null }
 }
 
 function styleV2(style: VNextTextBlockUnifiedLayoutSourceStyleV1, paragraphStyleKey: string): VNextTextBlockTransitionProducerResolvedStyleV2 {
@@ -177,6 +217,217 @@ function evaluatedLimit(policy: VNextTextBlockUnifiedLayoutWorkPolicyV1, root: V
   return evaluateVNextTextBlockStageWorkLimitInternalV1({ policy, stage: "evidence", unit, previousSummaryBase: root.sourceState.summary.itemCount, exactValidatedChangeDelta: 1, attemptedWork: attempted })
 }
 
+interface PreflightWorkMeterInternalV2 {
+  visitedNodeCount: number
+  materializedAtomCount: number
+  failedUnit: "evidence-request-lookup-nodes" | "evidence-context-atoms" | null
+  failedEffectiveLimit: number
+  failureAuthority: object | null
+  completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+  readonly beforeVisitNode: () => boolean
+  readonly beforeMaterialAtom: () => boolean
+}
+
+function workMeter(
+  policy: VNextTextBlockUnifiedLayoutWorkPolicyV1,
+  root: VNextTextBlockUnifiedLayoutRootV2,
+  validatedChange: Parameters<
+    typeof evaluateNextVNextTextBlockStageVisitInternalV1
+  >[0]["validatedChange"],
+  baseWork: VNextTextBlockIncrementalCandidateWorkV1,
+): PreflightWorkMeterInternalV2 {
+  const before = (
+    meter: PreflightWorkMeterInternalV2,
+    unit: "evidence-request-lookup-nodes" | "evidence-context-atoms",
+  ): boolean => {
+    const completedWork = unit === "evidence-request-lookup-nodes"
+      ? meter.visitedNodeCount
+      : meter.materializedAtomCount
+    const evaluation = evaluateNextVNextTextBlockStageVisitInternalV1({
+      validatedChange,
+      stage: "evidence",
+      unit,
+      completedWork,
+      completedCandidateWork: meter.completedCandidateWork,
+    })
+    if (evaluation.status !== "accepted") {
+      meter.failedUnit = unit
+      meter.failedEffectiveLimit = evaluation.effectiveLimit
+      meter.failureAuthority = evaluation.status === "limit-exceeded"
+        ? evaluation.evaluatorAuthority
+        : null
+      return false
+    }
+    if (unit === "evidence-request-lookup-nodes") {
+      meter.visitedNodeCount = evaluation.attemptedWork
+    } else {
+      meter.materializedAtomCount = evaluation.attemptedWork
+    }
+    meter.completedCandidateWork = requestedWork(
+      meter.completedCandidateWork,
+      policy,
+      meter.visitedNodeCount,
+      meter.materializedAtomCount,
+      meter.completedCandidateWork.evidence.requestedAtomCount,
+      meter.completedCandidateWork.evidence.requestedClusterCount,
+    )
+    return true
+  }
+  const meter: PreflightWorkMeterInternalV2 = {
+    visitedNodeCount: 0,
+    materializedAtomCount: 0,
+    failedUnit: null,
+    failedEffectiveLimit: 0,
+    failureAuthority: null,
+    completedCandidateWork: baseWork,
+    beforeVisitNode: () => before(
+      meter,
+      "evidence-request-lookup-nodes",
+    ),
+    beforeMaterialAtom: () => before(meter, "evidence-context-atoms"),
+  }
+  void root
+  return meter
+}
+
+function fallback(input: {
+  readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+  readonly change: VNextTextBlockUnifiedLayoutChangeV1
+  readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+  readonly unit: "evidence-request-lookup-nodes" | "evidence-context-atoms" | "evidence-response-nodes"
+  readonly effectiveLimit: number
+  readonly work: VNextTextBlockIncrementalCandidateWorkV1
+  readonly evaluatorOrProofAuthority?: object | null
+}): VNextTextBlockUnifiedLayoutOwnedStageFailureV1 {
+  const evaluatorOrProofAuthority = input.evaluatorOrProofAuthority
+    ?? freeze({})
+  if (input.evaluatorOrProofAuthority == null) {
+    failureAuthorities.set(evaluatorOrProofAuthority, {
+      previousRoot: input.previousRoot,
+      change: input.change,
+      workPolicy: input.workPolicy,
+      unit: input.unit,
+      effectiveLimit: input.effectiveLimit,
+    })
+  }
+  return freeze({
+    status: "fallback-required" as const,
+    evaluatorOrProofAuthority,
+    completedCandidateWork: input.work,
+    issues: freeze([]),
+  })
+}
+
+function expandShapeToFlowAtoms(
+  ranges: VNextTextBlockTransitionProducerLaneRangesV2,
+  fragments: readonly {
+    readonly atomAbsoluteStartRenderedUtf16: number
+    readonly atomAbsoluteEndRenderedUtf16: number
+  }[],
+  length: number,
+): VNextTextBlockTransitionProducerLaneRangesV2 {
+  let start = ranges.shapeVerificationRange.startRenderedUtf16
+  let end = ranges.shapeVerificationRange.endRenderedUtf16
+  for (const fragment of fragments) {
+    start = Math.min(start, fragment.atomAbsoluteStartRenderedUtf16)
+    end = Math.max(end, fragment.atomAbsoluteEndRenderedUtf16)
+  }
+  const shapeVerificationRange = range(clamp(start, length), clamp(end, length))
+  const coverageRange = range(
+    Math.min(ranges.coverageRange.startRenderedUtf16, shapeVerificationRange.startRenderedUtf16),
+    Math.max(ranges.coverageRange.endRenderedUtf16, shapeVerificationRange.endRenderedUtf16),
+  )
+  return freeze({ ...ranges, shapeVerificationRange, coverageRange })
+}
+
+function mapPreviousRangeToNext(
+  previous: VNextTextBlockSourceRangeV1,
+  changed: VNextTextBlockSourceRangeV1,
+  delta: number,
+  nextLength: number,
+): VNextTextBlockSourceRangeV1 {
+  const mapStart = previous.startRenderedUtf16 <= changed.startRenderedUtf16
+    ? previous.startRenderedUtf16
+    : previous.startRenderedUtf16 >= changed.endRenderedUtf16
+      ? previous.startRenderedUtf16 + delta
+      : changed.startRenderedUtf16
+  const mapEnd = previous.endRenderedUtf16 <= changed.startRenderedUtf16
+    ? previous.endRenderedUtf16
+    : previous.endRenderedUtf16 >= changed.endRenderedUtf16
+      ? previous.endRenderedUtf16 + delta
+      : changed.startRenderedUtf16
+  return range(clamp(mapStart, nextLength), clamp(mapEnd, nextLength))
+}
+
+function deriveNextLaneRanges(
+  changed: VNextTextBlockSourceRangeV1,
+  nextLength: number,
+  previousRanges: VNextTextBlockTransitionProducerLaneRangesV2,
+  previousChanged: VNextTextBlockSourceRangeV1,
+  delta: number,
+): VNextTextBlockTransitionProducerLaneRangesV2 {
+  const initial = laneRanges(changed, nextLength)
+  const mappedShape = mapPreviousRangeToNext(
+    previousRanges.shapeVerificationRange,
+    previousChanged,
+    delta,
+    nextLength,
+  )
+  const shapeVerificationRange = range(
+    Math.min(initial.shapeVerificationRange.startRenderedUtf16, mappedShape.startRenderedUtf16),
+    Math.max(initial.shapeVerificationRange.endRenderedUtf16, mappedShape.endRenderedUtf16),
+  )
+  const mappedCoverage = mapPreviousRangeToNext(
+    previousRanges.coverageRange,
+    previousChanged,
+    delta,
+    nextLength,
+  )
+  const coverageRange = range(
+    Math.min(initial.coverageRange.startRenderedUtf16, mappedCoverage.startRenderedUtf16, shapeVerificationRange.startRenderedUtf16),
+    Math.max(initial.coverageRange.endRenderedUtf16, mappedCoverage.endRenderedUtf16, shapeVerificationRange.endRenderedUtf16),
+  )
+  return freeze({ ...initial, shapeVerificationRange, coverageRange })
+}
+
+function safeSourceBoundary(
+  fragments: readonly {
+    readonly item: VNextTextBlockUnifiedLayoutSourceItemV1
+    readonly itemAbsoluteStartRenderedUtf16: number
+    readonly itemAbsoluteEndRenderedUtf16: number
+  }[],
+  offset: number,
+): boolean {
+  const fragment = fragments.find((candidate) =>
+    offset > candidate.itemAbsoluteStartRenderedUtf16
+    && offset < candidate.itemAbsoluteEndRenderedUtf16
+  )
+  if (fragment == null) return true
+  if (fragment.item.kind !== "text") return false
+  const localOffset = offset - fragment.itemAbsoluteStartRenderedUtf16
+  const before = fragment.item.renderedText.charCodeAt(localOffset - 1)
+  const after = fragment.item.renderedText.charCodeAt(localOffset)
+  return !(before >= 0xD800 && before <= 0xDBFF
+    && after >= 0xDC00 && after <= 0xDFFF)
+}
+
+function scalarCountInRange(
+  atoms: readonly VNextTextBlockTransitionProducerSourceAtomV2[],
+  coverageStart: number,
+  target: VNextTextBlockSourceRangeV1,
+): number {
+  let count = 0
+  for (const atom of atoms) {
+    const atomStart = coverageStart + atom.relativeStartRenderedUtf16
+    const atomEnd = coverageStart + atom.relativeEndRenderedUtf16
+    const start = Math.max(atomStart, target.startRenderedUtf16)
+    const end = Math.min(atomEnd, target.endRenderedUtf16)
+    if (end <= start) continue
+    count += [...atom.renderedText.slice(start - atomStart, end - atomStart)].length
+  }
+  return count
+}
+
 /** Private Core transition owner seam. It never accepts producer output or builds a next tree. */
 export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(input: {
   readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
@@ -188,11 +439,15 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
   const { validatedChange } = bound
   const equalRenderedField = validatedChange.change.kind === "resolved-field-rendered-value-change"
     && (() => {
-      const changedRange = sourceRangeForChange(input.previousRoot, validatedChange.change)
-      if (changedRange == null) return false
+      const changedRange = sourceRangeForChange(
+        input.previousRoot,
+        validatedChange.change,
+        () => true,
+      )
+      if (changedRange.status !== "accepted") return false
       const covered = visitVNextTextBlockTransitionSourceCoverageInternalV1({
         sourceState: input.previousRoot.sourceState,
-        range: changedRange,
+        range: changedRange.range,
         beforeVisitNode: () => true,
         beforeEmitItem: () => true,
       })
@@ -218,10 +473,93 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
     preflights.set(preflight, { request: null, sourceMaterial: null })
     return freeze({ status: "not-required" as const, preflight, request: null, sourceMaterial: null, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([]) })
   }
-  const sourceRange = sourceRangeForChange(input.previousRoot, validatedChange.change)
+  const meter = workMeter(
+    input.workPolicy,
+    input.previousRoot,
+    validatedChange,
+    bound.incrementalCandidateWork,
+  )
+  const sourceLookup = sourceRangeForChange(
+    input.previousRoot,
+    validatedChange.change,
+    meter.beforeVisitNode,
+  )
   const previousLength = input.previousRoot.sourceState.summary.renderedUtf16Length
+  if (sourceLookup.status === "limit-exceeded") {
+    return fallback({
+      previousRoot: input.previousRoot,
+      change: input.change,
+      workPolicy: input.workPolicy,
+      unit: "evidence-request-lookup-nodes",
+      effectiveLimit: meter.failedEffectiveLimit,
+      work: meter.completedCandidateWork,
+      evaluatorOrProofAuthority: meter.failureAuthority,
+    })
+  }
+  const sourceRange = sourceLookup.range
   if (sourceRange == null || sourceRange.startRenderedUtf16 < 0 || sourceRange.endRenderedUtf16 < sourceRange.startRenderedUtf16 || sourceRange.endRenderedUtf16 > previousLength) {
     return freeze({ status: "blocked" as const, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([issue("invalid-change-range", "change", "preflight requires one safe bounded source range")]) })
+  }
+  const initialPreviousRanges = laneRanges(sourceRange, previousLength)
+  const initialFlowCoverage = visitVNextTextBlockTransitionFlowCoverageInternalV1({
+    flowTree: input.previousRoot.flowTree,
+    range: initialPreviousRanges.shapeVerificationRange,
+    beforeVisitNode: meter.beforeVisitNode,
+    beforeEmitAtom: () => true,
+  })
+  if (initialFlowCoverage.status !== "accepted") {
+    return fallback({
+      previousRoot: input.previousRoot,
+      change: input.change,
+      workPolicy: input.workPolicy,
+      unit: meter.failedUnit ?? "evidence-request-lookup-nodes",
+      effectiveLimit: meter.failedEffectiveLimit,
+      work: meter.completedCandidateWork,
+      evaluatorOrProofAuthority: meter.failureAuthority,
+    })
+  }
+  const previousRanges = expandShapeToFlowAtoms(
+    initialPreviousRanges,
+    initialFlowCoverage.fragments,
+    previousLength,
+  )
+  const sourceCoverage = visitVNextTextBlockTransitionSourceCoverageInternalV1({
+    sourceState: input.previousRoot.sourceState,
+    range: previousRanges.coverageRange,
+    beforeVisitNode: meter.beforeVisitNode,
+    beforeEmitItem: () => true,
+  })
+  if (sourceCoverage.status !== "accepted") {
+    return fallback({
+      previousRoot: input.previousRoot,
+      change: input.change,
+      workPolicy: input.workPolicy,
+      unit: meter.failedUnit ?? "evidence-request-lookup-nodes",
+      effectiveLimit: meter.failedEffectiveLimit,
+      work: meter.completedCandidateWork,
+      evaluatorOrProofAuthority: meter.failureAuthority,
+    })
+  }
+  if (
+    !safeSourceBoundary(sourceCoverage.fragments, sourceRange.startRenderedUtf16)
+    || !safeSourceBoundary(sourceCoverage.fragments, sourceRange.endRenderedUtf16)
+  ) {
+    return freeze({
+      status: "blocked" as const,
+      completedCandidateWork: requestedWork(
+        meter.completedCandidateWork,
+        input.workPolicy,
+        meter.visitedNodeCount,
+        meter.materializedAtomCount,
+        0,
+        0,
+      ),
+      issues: freeze([issue(
+        "invalid-change-range",
+        "change",
+        "change range must use safe UTF-16 and atomic Source boundaries",
+      )]),
+    })
   }
   let replacementItems: readonly VNextTextBlockUnifiedLayoutSourceItemV1[] = freeze([])
   if (validatedChange.change.kind === "text-insertion" || validatedChange.change.kind === "text-replacement") {
@@ -242,19 +580,11 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
     replacementItems = freeze([item])
   } else if (validatedChange.change.kind === "resolved-field-rendered-value-change") {
     const fieldChange = validatedChange.change
-    const fieldCoverage = visitVNextTextBlockTransitionSourceCoverageInternalV1({
-      sourceState: input.previousRoot.sourceState,
-      range: sourceRange,
-      beforeVisitNode: () => true,
-      beforeEmitItem: () => true,
-    })
-    const previousField = fieldCoverage.status === "accepted"
-      ? fieldCoverage.fragments.find((fragment) =>
+    const previousField = sourceCoverage.fragments.find((fragment) =>
           fragment.item.kind === "resolved-field"
           && fragment.item.inlineId === fieldChange.inlineId
           && fragment.item.fieldKey === fieldChange.fieldKey
         )?.item
-      : null
     if (previousField?.kind !== "resolved-field") return freeze({ status: "blocked" as const, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([issue("change-target-mismatch", "change", "resolved field change requires the exact previous field item")]) })
     const item = createVNextTextBlockTransitionReplacementSourceItemInternalV1({
       sourceState: input.previousRoot.sourceState,
@@ -271,17 +601,15 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
     if (item == null) return freeze({ status: "blocked" as const, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([issue("unsupported-change-value", "change", "resolved field change could not produce canonical Source facts")]) })
     replacementItems = freeze([item])
   } else if (validatedChange.change.kind === "supported-style-change") {
-    const styleCoverage = visitVNextTextBlockTransitionSourceCoverageInternalV1({
-      sourceState: input.previousRoot.sourceState,
-      range: sourceRange,
-      beforeVisitNode: () => true,
-      beforeEmitItem: () => true,
-    })
-    if (styleCoverage.status !== "accepted" || styleCoverage.fragments.length === 0) {
+    const styleFragments = sourceCoverage.fragments.filter((fragment) =>
+      fragment.selectedAbsoluteStartRenderedUtf16 < sourceRange.endRenderedUtf16
+      && fragment.selectedAbsoluteEndRenderedUtf16 > sourceRange.startRenderedUtf16
+    )
+    if (styleFragments.length === 0) {
       return freeze({ status: "blocked" as const, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([issue("change-target-mismatch", "change", "style change requires bounded text Source facts")]) })
     }
     const items: VNextTextBlockUnifiedLayoutSourceItemV1[] = []
-    for (const fragment of styleCoverage.fragments) {
+    for (const fragment of styleFragments) {
       if (fragment.item.kind !== "text") {
         return freeze({ status: "blocked" as const, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([issue("unsupported-change-value", "change", "supported style changes may cover only text Source items")]) })
       }
@@ -294,9 +622,15 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
         return freeze({ status: "blocked" as const, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([issue(resolved.status === "ambiguous" ? "style-authority-ambiguous" : "unsupported-change-value", "change", "style overlay must resolve against exact Source style and font authority")]) })
       }
       const renderedText = fragment.item.renderedText.slice(
-        fragment.selectedAbsoluteStartRenderedUtf16
+        Math.max(
+          fragment.selectedAbsoluteStartRenderedUtf16,
+          sourceRange.startRenderedUtf16,
+        )
           - fragment.itemAbsoluteStartRenderedUtf16,
-        fragment.selectedAbsoluteEndRenderedUtf16
+        Math.min(
+          fragment.selectedAbsoluteEndRenderedUtf16,
+          sourceRange.endRenderedUtf16,
+        )
           - fragment.itemAbsoluteStartRenderedUtf16,
       )
       const item = createVNextTextBlockTransitionReplacementSourceItemInternalV1({
@@ -324,28 +658,32 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
     + replacementLength
   if (!Number.isSafeInteger(nextLength) || nextLength < 1) return freeze({ status: "blocked" as const, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([issue("unsupported-change-value", "change", "preflight cannot produce an empty source topology")]) })
   const nextChanged = range(sourceRange.startRenderedUtf16, sourceRange.startRenderedUtf16 + replacementLength)
-  const previousRanges = laneRanges(sourceRange, previousLength)
-  const nextRanges = laneRanges(nextChanged, nextLength)
-  const lookupLimit = evaluatedLimit(input.workPolicy, input.previousRoot, "evidence-request-lookup-nodes", 1)
-  if (lookupLimit.status !== "within-limit") return freeze({ status: "fallback-required" as const, evaluatorOrProofAuthority: freeze({}), completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([]) })
-  let visitedNodes = 0
-  let emittedAtoms = 0
-  const sourceCoverage = visitVNextTextBlockTransitionSourceCoverageInternalV1({
-    sourceState: input.previousRoot.sourceState,
-    range: previousRanges.coverageRange,
-    beforeVisitNode: () => { visitedNodes += 1; return evaluatedLimit(input.workPolicy, input.previousRoot, "evidence-request-lookup-nodes", visitedNodes).status === "within-limit" },
-    beforeEmitItem: () => { emittedAtoms += 1; return evaluatedLimit(input.workPolicy, input.previousRoot, "evidence-context-atoms", emittedAtoms).status === "within-limit" },
-  })
-  const flowCoverage = visitVNextTextBlockTransitionFlowCoverageInternalV1({
-    flowTree: input.previousRoot.flowTree,
-    range: previousRanges.shapeVerificationRange,
-    beforeVisitNode: () => true,
-    beforeEmitAtom: () => true,
-  })
-  const work = requestedWork(bound.incrementalCandidateWork, input.workPolicy, visitedNodes, emittedAtoms, 0, flowCoverage.status === "accepted" ? flowCoverage.fragments.length : 0)
-  if (sourceCoverage.status !== "accepted" || flowCoverage.status !== "accepted") return freeze({ status: "fallback-required" as const, evaluatorOrProofAuthority: freeze({}), completedCandidateWork: work, issues: freeze([]) })
+  const delta = replacementLength
+    - (sourceRange.endRenderedUtf16 - sourceRange.startRenderedUtf16)
+  const nextRanges = deriveNextLaneRanges(
+    nextChanged,
+    nextLength,
+    previousRanges,
+    sourceRange,
+    delta,
+  )
   const paragraphStyleKey = input.previousRoot.sourceState.producerRequirements.paragraphStyle.styleKey
-  const previousAtoms = sourceCoverage.fragments.map((fragment) => atomFromItem(fragment.item, fragment.itemAbsoluteStartRenderedUtf16, fragment.selectedAbsoluteStartRenderedUtf16, fragment.selectedAbsoluteEndRenderedUtf16, fragment.selectedAbsoluteStartRenderedUtf16, previousRanges.coverageRange.startRenderedUtf16, paragraphStyleKey))
+  const previousAtoms: VNextTextBlockTransitionProducerSourceAtomV2[] = []
+  for (const fragment of sourceCoverage.fragments) {
+    if (!meter.beforeMaterialAtom()) break
+    previousAtoms.push(atomFromItem(fragment.item, fragment.itemAbsoluteStartRenderedUtf16, fragment.selectedAbsoluteStartRenderedUtf16, fragment.selectedAbsoluteEndRenderedUtf16, fragment.selectedAbsoluteStartRenderedUtf16, previousRanges.coverageRange.startRenderedUtf16, paragraphStyleKey))
+  }
+  if (meter.failedUnit != null) {
+    return fallback({
+      previousRoot: input.previousRoot,
+      change: input.change,
+      workPolicy: input.workPolicy,
+      unit: meter.failedUnit,
+      effectiveLimit: meter.failedEffectiveLimit,
+      work: meter.completedCandidateWork,
+      evaluatorOrProofAuthority: meter.failureAuthority,
+    })
+  }
   const lane = (ranges: VNextTextBlockTransitionProducerLaneRangesV2, atoms: readonly VNextTextBlockTransitionProducerSourceAtomV2[]): VNextTextBlockTransitionProducerLaneMaterialV2 => freeze({ ranges, atoms: freeze([...atoms]), fingerprint: fingerprint({ ranges, atoms }) })
   const previous = lane(previousRanges, previousAtoms)
   const nextAtoms: VNextTextBlockTransitionProducerSourceAtomV2[] = []
@@ -356,6 +694,7 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
     readonly selectedAbsoluteEnd: number
     readonly outputAbsoluteStart: number
   }): void => {
+    if (meter.failedUnit != null) return
     const outputAbsoluteEnd = inputAtom.outputAbsoluteStart
       + inputAtom.selectedAbsoluteEnd - inputAtom.selectedAbsoluteStart
     const clippedOutputStart = Math.max(
@@ -368,6 +707,7 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
     )
     if (clippedOutputEnd <= clippedOutputStart) return
     const sourceClip = clippedOutputStart - inputAtom.outputAbsoluteStart
+    if (!meter.beforeMaterialAtom()) return
     nextAtoms.push(atomFromItem(
       inputAtom.item,
       inputAtom.itemAbsoluteStart,
@@ -395,8 +735,6 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
       outputStart += item.renderedUtf16Length
     }
   }
-  const delta = replacementLength
-    - (sourceRange.endRenderedUtf16 - sourceRange.startRenderedUtf16)
   for (const fragment of sourceCoverage.fragments) {
     const start = fragment.selectedAbsoluteStartRenderedUtf16
     const end = fragment.selectedAbsoluteEndRenderedUtf16
@@ -418,16 +756,50 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
     }
   }
   emitReplacement()
+  if (meter.failedUnit != null) {
+    return fallback({
+      previousRoot: input.previousRoot,
+      change: input.change,
+      workPolicy: input.workPolicy,
+      unit: meter.failedUnit,
+      effectiveLimit: meter.failedEffectiveLimit,
+      work: meter.completedCandidateWork,
+      evaluatorOrProofAuthority: meter.failureAuthority,
+    })
+  }
   nextAtoms.sort((left, right) =>
     left.relativeStartRenderedUtf16 - right.relativeStartRenderedUtf16
   )
   const next = lane(nextRanges, nextAtoms)
+  const requestedAtomCount = previous.atoms.length + next.atoms.length
+  const requestedClusterCount = scalarCountInRange(
+    next.atoms,
+    nextRanges.coverageRange.startRenderedUtf16,
+    nextRanges.shapeVerificationRange,
+  )
+  const work = requestedWork(
+    meter.completedCandidateWork,
+    input.workPolicy,
+    meter.visitedNodeCount,
+    meter.materializedAtomCount,
+    requestedAtomCount,
+    requestedClusterCount,
+  )
   const preflight = freeze({ change: validatedChange.change, eligibility: validatedChange.eligibility, expectedTargetBinding: validatedChange.expectedTargetBinding, effectClassification, producerEvidence, previousRanges, nextRanges, replacementItems, fingerprint: fingerprint({ changeFingerprint: validatedChange.fingerprint, previousRanges, nextRanges, effectClassification }) })
   const responseLimit = evaluatedLimit(input.workPolicy, input.previousRoot, "evidence-response-nodes", 0)
-  if (responseLimit.status !== "within-limit") return freeze({ status: "fallback-required" as const, evaluatorOrProofAuthority: freeze({}), completedCandidateWork: work, issues: freeze([]) })
+  if (responseLimit.status !== "within-limit") {
+    return fallback({
+      previousRoot: input.previousRoot,
+      change: input.change,
+      workPolicy: input.workPolicy,
+      unit: "evidence-response-nodes",
+      effectiveLimit: responseLimit.effectiveLimit ?? 0,
+      work,
+    })
+  }
   const requestFacts = { source: "vnext-text-block-transition-evidence-request-v2" as const, contractVersion: 2 as const, previousRootFingerprint: input.previousRoot.fingerprint, changeFingerprint: validatedChange.fingerprint, documentId: input.previousRoot.documentId, sectionId: input.previousRoot.sectionId, textBlockId: input.previousRoot.textBlockId, previous: previousRanges, next: nextRanges, nextSegmentationContextRanges: freeze([nextRanges.shapeVerificationRange]), requiredStableSegmentationExpansionCount: 1, fontStyleUnitDependencyFingerprint: input.previousRoot.sourceState.producerRequirements.fontStyleUnitDependencyFingerprint, producerRuntimeRequirementFingerprint: input.previousRoot.sourceState.producerRequirements.producerRuntimeRequirementFingerprint, layoutUnitPolicyFingerprint: input.previousRoot.sourceState.producerRequirements.layoutUnitPolicyFingerprint, workPolicyFingerprint: input.workPolicy.fingerprint }
   const request = freeze({ ...requestFacts, fingerprint: fingerprint(requestFacts) })
-  const materialFacts = { source: "vnext-text-block-transition-producer-source-material-v2" as const, contractVersion: 2 as const, requestFingerprint: request.fingerprint, previous, next, paragraphStyleKey, fontFaces: input.previousRoot.sourceState.producerRequirements.fontFaces, layoutUnitPolicyFingerprint: input.previousRoot.sourceState.producerRequirements.layoutUnitPolicyFingerprint, sourceTopologyFingerprint: input.previousRoot.sourceState.summary.sourceFingerprint, producerWorkCeilings: { maximumVisitedEvidenceNodeCount: responseLimit.effectiveLimit, maximumRequestedAtomCount: previous.atoms.length + next.atoms.length, maximumRequestedClusterCount: flowCoverage.status === "accepted" ? flowCoverage.fragments.reduce((sum, fragment) => sum + [...fragment.atom.renderedText].length, 0) : 0 } }
+  const materialFacts = { source: "vnext-text-block-transition-producer-source-material-v2" as const, contractVersion: 2 as const, requestFingerprint: request.fingerprint, previous, next, paragraphStyleKey, fontFaces: input.previousRoot.sourceState.producerRequirements.fontFaces, layoutUnitPolicyFingerprint: input.previousRoot.sourceState.producerRequirements.layoutUnitPolicyFingerprint, sourceTopologyFingerprint: input.previousRoot.sourceState.summary.sourceFingerprint, producerWorkCeilings: { maximumVisitedEvidenceNodeCount: responseLimit.effectiveLimit, maximumRequestedAtomCount: requestedAtomCount, maximumRequestedClusterCount: requestedClusterCount } }
   const sourceMaterial = freeze({ ...materialFacts, fingerprint: fingerprint(materialFacts) })
   preflights.set(preflight, { request, sourceMaterial })
   return freeze({ status: "required" as const, preflight, request, sourceMaterial, completedCandidateWork: work, issues: freeze([]) })
