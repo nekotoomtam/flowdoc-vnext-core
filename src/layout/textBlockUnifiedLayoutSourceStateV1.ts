@@ -382,6 +382,23 @@ export type VNextTextBlockTransitionSourceCoverageResultInternalV1 =
       readonly completeTreeTraversalCount: 0
     }
 
+type AcceptedTransitionSourceCoverageInternalV1 = Extract<
+  VNextTextBlockTransitionSourceCoverageResultInternalV1,
+  { readonly status: "accepted" }
+>
+
+const transitionSourceCoverageAuthorities = new WeakMap<
+  AcceptedTransitionSourceCoverageInternalV1,
+  {
+    readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly range: {
+      readonly startRenderedUtf16: number
+      readonly endRenderedUtf16: number
+    }
+    readonly visitedNodes: ReadonlySet<VNextTextBlockUnifiedLayoutSourceNodeV1>
+  }
+>()
+
 export type VNextTextBlockTransitionSourceItemLookupResultInternalV1 =
   | {
       readonly status: "found"
@@ -1281,8 +1298,21 @@ function sourceItems(
   return items
 }
 
+type SourceSummaryItemInternalV1 = Pick<
+  VNextTextBlockUnifiedLayoutSourceItemV1,
+  | "kind"
+  | "renderedUtf16Length"
+  | "semanticFingerprint"
+  | "contentFingerprint"
+  | "sourceFingerprint"
+  | "provenanceFingerprint"
+  | "paintFingerprint"
+  | "layoutDependencyFingerprint"
+  | "boundaryFingerprint"
+>
+
 function summaryFromItems(
-  items: readonly VNextTextBlockUnifiedLayoutSourceItemV1[],
+  items: readonly SourceSummaryItemInternalV1[],
   factory: FingerprintFactory,
 ): VNextTextBlockUnifiedLayoutSourceSummaryV1 {
   let renderedUtf16Length = 0
@@ -1331,7 +1361,10 @@ function summaryFromItems(
 }
 
 function summaryFromChildren(
-  children: readonly VNextTextBlockUnifiedLayoutSourceNodeV1[],
+  children: readonly Pick<
+    VNextTextBlockUnifiedLayoutSourceNodeV1,
+    "summary"
+  >[],
   factory: FingerprintFactory,
 ): VNextTextBlockUnifiedLayoutSourceSummaryV1 {
   const counts = {
@@ -2799,6 +2832,7 @@ export function visitVNextTextBlockTransitionSourceCoverageInternalV1(input: {
     || input.range.endRenderedUtf16 > input.sourceState.summary.renderedUtf16Length
   ) return { status: "blocked", fragments: null, visitedNodeCount: 0, emittedItemCount: 0, completeTreeTraversalCount: 0 }
   const fragments: VNextTextBlockTransitionSourceCoverageFragmentInternalV1[] = []
+  const visitedNodes = new Set<VNextTextBlockUnifiedLayoutSourceNodeV1>()
   let visitedNodeCount = 0
   let emittedItemCount = 0
   let stopped = false
@@ -2808,6 +2842,7 @@ export function visitVNextTextBlockTransitionSourceCoverageInternalV1(input: {
   ): void => {
     if (stopped || input.range.endRenderedUtf16 <= start || input.range.startRenderedUtf16 >= start + node.summary.renderedUtf16Length) return
     if (!input.beforeVisitNode()) { stopped = true; return }
+    visitedNodes.add(node)
     visitedNodeCount += 1
     if (node.nodeKind === "branch") {
       let childStart = start
@@ -2837,7 +2872,544 @@ export function visitVNextTextBlockTransitionSourceCoverageInternalV1(input: {
     }
   }
   visit(input.sourceState.root, 0)
-  return stopped
-    ? { status: "limit-exceeded", fragments: null, visitedNodeCount, emittedItemCount, completeTreeTraversalCount: 0 }
-    : { status: "accepted", fragments: Object.freeze(fragments), visitedNodeCount, emittedItemCount, completeTreeTraversalCount: 0 }
+  if (stopped) {
+    return { status: "limit-exceeded", fragments: null, visitedNodeCount, emittedItemCount, completeTreeTraversalCount: 0 }
+  }
+  const result: AcceptedTransitionSourceCoverageInternalV1 = Object.freeze({
+    status: "accepted",
+    fragments: Object.freeze(fragments),
+    visitedNodeCount,
+    emittedItemCount,
+    completeTreeTraversalCount: 0,
+  })
+  transitionSourceCoverageAuthorities.set(result, {
+    sourceState: input.sourceState,
+    range: Object.freeze({ ...input.range }),
+    visitedNodes,
+  })
+  return result
+}
+
+export type VNextTextBlockTransitionSourceSummaryCompositionResultInternalV1 =
+  | {
+      readonly status: "accepted"
+      readonly summary: VNextTextBlockUnifiedLayoutSourceSummaryV1
+      readonly completeTreeBuildCount: 0
+      readonly completeSuffixTraversalCount: 0
+    }
+  | {
+      readonly status: "blocked"
+      readonly summary: null
+      readonly completeTreeBuildCount: 0
+      readonly completeSuffixTraversalCount: 0
+    }
+
+interface VirtualSourceSummaryNodeInternalV1 {
+  readonly height: number
+  readonly summary: VNextTextBlockUnifiedLayoutSourceSummaryV1 | null
+  readonly sourceNode: VNextTextBlockUnifiedLayoutSourceNodeV1 | null
+  readonly items: readonly SourceSummaryItemInternalV1[] | null
+  readonly children: readonly VirtualSourceSummaryNodeInternalV1[] | null
+  readonly requiresRebalance: boolean
+}
+
+function retainedVirtualSourceSummaryNodeInternalV1(
+  node: VNextTextBlockUnifiedLayoutSourceNodeV1,
+): VirtualSourceSummaryNodeInternalV1 {
+  return {
+    height: node.height,
+    summary: node.summary,
+    sourceNode: node,
+    items: null,
+    children: null,
+    requiresRebalance: false,
+  }
+}
+
+function virtualSourceLeafInternalV1(
+  items: readonly SourceSummaryItemInternalV1[],
+  factory: FingerprintFactory,
+): VirtualSourceSummaryNodeInternalV1 {
+  return {
+    height: 0,
+    summary: items.length === 0 ? null : summaryFromItems(items, factory),
+    sourceNode: null,
+    items,
+    children: null,
+    requiresRebalance: items.length === 0 || items.length > 8,
+  }
+}
+
+function virtualSourceBranchInternalV1(
+  height: number,
+  children: readonly VirtualSourceSummaryNodeInternalV1[],
+  factory: FingerprintFactory,
+): VirtualSourceSummaryNodeInternalV1 {
+  if (height < 1 || children.some((child) => child.height !== height - 1)) {
+    throw new RangeError("transition summary branch heights are not exact")
+  }
+  return {
+    height,
+    summary: children.length === 0
+      ? null
+      : summaryFromChildren(children.map((child) => ({
+          summary: requiredVirtualSourceSummaryInternalV1(child),
+        })), factory),
+    sourceNode: null,
+    items: null,
+    children,
+    requiresRebalance: children.length < 2 || children.length > 8,
+  }
+}
+
+function requiredVirtualSourceSummaryInternalV1(
+  node: VirtualSourceSummaryNodeInternalV1,
+): VNextTextBlockUnifiedLayoutSourceSummaryV1 {
+  if (node.summary == null) {
+    throw new RangeError("transition summary node is empty")
+  }
+  return node.summary
+}
+
+function virtualSourceLeafItemsInternalV1(
+  node: VirtualSourceSummaryNodeInternalV1,
+  visitedNodes: ReadonlySet<VNextTextBlockUnifiedLayoutSourceNodeV1>,
+): readonly SourceSummaryItemInternalV1[] {
+  if (node.height !== 0) {
+    throw new RangeError("transition summary expected a leaf")
+  }
+  if (node.items != null) return node.items
+  if (
+    node.sourceNode?.nodeKind !== "leaf"
+    || !visitedNodes.has(node.sourceNode)
+  ) {
+    throw new RangeError("transition summary leaf lacks bounded Source authority")
+  }
+  return node.sourceNode.items
+}
+
+function virtualSourceBranchChildrenInternalV1(
+  node: VirtualSourceSummaryNodeInternalV1,
+  visitedNodes: ReadonlySet<VNextTextBlockUnifiedLayoutSourceNodeV1>,
+): readonly VirtualSourceSummaryNodeInternalV1[] {
+  if (node.height === 0) {
+    throw new RangeError("transition summary expected a branch")
+  }
+  if (node.children != null) return node.children
+  if (
+    node.sourceNode?.nodeKind !== "branch"
+    || !visitedNodes.has(node.sourceNode)
+  ) {
+    throw new RangeError("transition summary branch lacks bounded Source authority")
+  }
+  return node.sourceNode.children.map(
+    retainedVirtualSourceSummaryNodeInternalV1,
+  )
+}
+
+function virtualSourceOccupancyInternalV1(
+  node: VirtualSourceSummaryNodeInternalV1,
+  visitedNodes: ReadonlySet<VNextTextBlockUnifiedLayoutSourceNodeV1>,
+): number {
+  return node.height === 0
+    ? virtualSourceLeafItemsInternalV1(node, visitedNodes).length
+    : virtualSourceBranchChildrenInternalV1(node, visitedNodes).length
+}
+
+function splitOverflowVirtualSourceNodeInternalV1(
+  node: VirtualSourceSummaryNodeInternalV1,
+  visitedNodes: ReadonlySet<VNextTextBlockUnifiedLayoutSourceNodeV1>,
+  factory: FingerprintFactory,
+): readonly VirtualSourceSummaryNodeInternalV1[] {
+  const occupancy = virtualSourceOccupancyInternalV1(node, visitedNodes)
+  if (occupancy <= 8) return [node]
+  if (occupancy > 16) {
+    throw new RangeError("transition summary local overflow is not bounded")
+  }
+  const leftCount = Math.floor(occupancy / 2)
+  if (leftCount !== 4 && occupancy === 9) {
+    throw new RangeError("transition summary nine-entry split must be 4/5")
+  }
+  if (node.height === 0) {
+    const items = virtualSourceLeafItemsInternalV1(node, visitedNodes)
+    return [
+      virtualSourceLeafInternalV1(items.slice(0, leftCount), factory),
+      virtualSourceLeafInternalV1(items.slice(leftCount), factory),
+    ]
+  }
+  const children = virtualSourceBranchChildrenInternalV1(node, visitedNodes)
+  return [
+    virtualSourceBranchInternalV1(
+      node.height,
+      children.slice(0, leftCount),
+      factory,
+    ),
+    virtualSourceBranchInternalV1(
+      node.height,
+      children.slice(leftCount),
+      factory,
+    ),
+  ]
+}
+
+function rebalanceVirtualSourceSiblingsInternalV1(
+  inputNodes: readonly VirtualSourceSummaryNodeInternalV1[],
+  visitedNodes: ReadonlySet<VNextTextBlockUnifiedLayoutSourceNodeV1>,
+  factory: FingerprintFactory,
+): readonly VirtualSourceSummaryNodeInternalV1[] {
+  const nodes = inputNodes.flatMap((node) => node.requiresRebalance
+      && virtualSourceOccupancyInternalV1(node, visitedNodes) > 8
+    ? splitOverflowVirtualSourceNodeInternalV1(node, visitedNodes, factory)
+    : [node])
+  let index = 0
+  while (index < nodes.length) {
+    const current = nodes[index]!
+    if (!current.requiresRebalance) {
+      index += 1
+      continue
+    }
+    const minimum = current.height === 0 ? 1 : 2
+    const currentOccupancy = virtualSourceOccupancyInternalV1(
+      current,
+      visitedNodes,
+    )
+    if (currentOccupancy >= minimum) {
+      index += 1
+      continue
+    }
+
+    const borrow = (donorIndex: number, fromLeft: boolean): boolean => {
+      const donor = nodes[donorIndex]
+      if (donor == null || donor.height !== current.height) return false
+      const donorMinimum = donor.height === 0 ? 1 : 2
+      if (virtualSourceOccupancyInternalV1(donor, visitedNodes) <= donorMinimum) {
+        return false
+      }
+      if (current.height === 0) {
+        const donorItems = [...virtualSourceLeafItemsInternalV1(donor, visitedNodes)]
+        const currentItems = [...virtualSourceLeafItemsInternalV1(current, visitedNodes)]
+        const borrowed = fromLeft ? donorItems.pop() : donorItems.shift()
+        if (borrowed == null) throw new RangeError("transition summary leaf borrow failed")
+        if (fromLeft) currentItems.unshift(borrowed)
+        else currentItems.push(borrowed)
+        nodes[donorIndex] = virtualSourceLeafInternalV1(donorItems, factory)
+        nodes[index] = virtualSourceLeafInternalV1(currentItems, factory)
+      } else {
+        const donorChildren = [...virtualSourceBranchChildrenInternalV1(donor, visitedNodes)]
+        const currentChildren = [...virtualSourceBranchChildrenInternalV1(current, visitedNodes)]
+        const borrowed = fromLeft ? donorChildren.pop() : donorChildren.shift()
+        if (borrowed == null) throw new RangeError("transition summary branch borrow failed")
+        if (fromLeft) currentChildren.unshift(borrowed)
+        else currentChildren.push(borrowed)
+        nodes[donorIndex] = virtualSourceBranchInternalV1(
+          donor.height,
+          donorChildren,
+          factory,
+        )
+        nodes[index] = virtualSourceBranchInternalV1(
+          current.height,
+          currentChildren,
+          factory,
+        )
+      }
+      return true
+    }
+
+    if (index > 0 && borrow(index - 1, true)) continue
+    if (index + 1 < nodes.length && borrow(index + 1, false)) continue
+
+    const merge = (
+      leftIndex: number,
+      rightIndex: number,
+    ): void => {
+      const left = nodes[leftIndex]!
+      const right = nodes[rightIndex]!
+      if (left.height !== right.height) {
+        throw new RangeError("transition summary merge heights differ")
+      }
+      const merged = left.height === 0
+        ? virtualSourceLeafInternalV1([
+            ...virtualSourceLeafItemsInternalV1(left, visitedNodes),
+            ...virtualSourceLeafItemsInternalV1(right, visitedNodes),
+          ], factory)
+        : virtualSourceBranchInternalV1(left.height, [
+            ...virtualSourceBranchChildrenInternalV1(left, visitedNodes),
+            ...virtualSourceBranchChildrenInternalV1(right, visitedNodes),
+          ], factory)
+      if (virtualSourceOccupancyInternalV1(merged, visitedNodes) > 8) {
+        throw new RangeError("transition summary merge overflowed")
+      }
+      nodes.splice(leftIndex, 2, merged)
+    }
+
+    if (index > 0) {
+      merge(index - 1, index)
+      index -= 1
+      continue
+    }
+    if (index + 1 < nodes.length) {
+      merge(index, index + 1)
+      continue
+    }
+    if (currentOccupancy === 0) nodes.splice(index, 1)
+    else index += 1
+  }
+  return nodes
+}
+
+function retainedSourceSummaryItemSliceInternalV1(input: {
+  readonly item: VNextTextBlockUnifiedLayoutSourceItemV1
+  readonly startRenderedUtf16: number
+  readonly endRenderedUtf16: number
+  readonly factory: FingerprintFactory
+}): SourceSummaryItemInternalV1 {
+  if (
+    input.startRenderedUtf16 === 0
+    && input.endRenderedUtf16 === input.item.renderedUtf16Length
+  ) return input.item
+  if (
+    input.item.kind !== "text"
+    || input.startRenderedUtf16 < 0
+    || input.endRenderedUtf16 <= input.startRenderedUtf16
+    || input.endRenderedUtf16 > input.item.renderedUtf16Length
+  ) throw new RangeError("transition summary may split only bounded text items")
+  const renderedText = input.item.renderedText.slice(
+    input.startRenderedUtf16,
+    input.endRenderedUtf16,
+  )
+  return {
+    kind: input.item.kind,
+    renderedUtf16Length: renderedText.length,
+    semanticFingerprint: input.item.semanticFingerprint,
+    contentFingerprint: fingerprintWith(input.factory, {
+      renderedText,
+      renderedUtf16Length: renderedText.length,
+    }),
+    sourceFingerprint: input.item.sourceFingerprint,
+    provenanceFingerprint: input.item.provenanceFingerprint,
+    paintFingerprint: input.item.paintFingerprint,
+    layoutDependencyFingerprint: input.item.layoutDependencyFingerprint,
+    boundaryFingerprint: input.item.boundaryFingerprint,
+  }
+}
+
+/**
+ * Source-owner summary-only range composition for Task 2. It consumes exact
+ * bounded coverage authority, retains untouched subtree summaries by
+ * reference, and never allocates a next Source node/tree.
+ */
+export function composeVNextTextBlockTransitionSourceSummaryInternalV1(input: {
+  readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly sourceCoverage: AcceptedTransitionSourceCoverageInternalV1
+  readonly previousRange: {
+    readonly startRenderedUtf16: number
+    readonly endRenderedUtf16: number
+  }
+  readonly replacementItems: readonly VNextTextBlockUnifiedLayoutSourceItemV1[]
+}): VNextTextBlockTransitionSourceSummaryCompositionResultInternalV1 {
+  const prepared = preparedStates.get(input.sourceState)
+  const coverageAuthority = transitionSourceCoverageAuthorities.get(
+    input.sourceCoverage,
+  )
+  if (
+    prepared == null
+    || coverageAuthority == null
+    || coverageAuthority.sourceState !== input.sourceState
+    || input.previousRange.startRenderedUtf16
+      < coverageAuthority.range.startRenderedUtf16
+    || input.previousRange.endRenderedUtf16
+      > coverageAuthority.range.endRenderedUtf16
+    || input.previousRange.endRenderedUtf16
+      < input.previousRange.startRenderedUtf16
+  ) {
+    return {
+      status: "blocked",
+      summary: null,
+      completeTreeBuildCount: 0,
+      completeSuffixTraversalCount: 0,
+    }
+  }
+  try {
+    const replacementSummaryItems: readonly SourceSummaryItemInternalV1[] =
+      input.replacementItems
+    let replacementEmitted = false
+    const emitReplacement = (
+      output: SourceSummaryItemInternalV1[],
+    ): void => {
+      if (replacementEmitted) return
+      replacementEmitted = true
+      output.push(...replacementSummaryItems)
+    }
+    const pointEdit = input.previousRange.startRenderedUtf16
+      === input.previousRange.endRenderedUtf16
+
+    const transform = (
+      node: VNextTextBlockUnifiedLayoutSourceNodeV1,
+      absoluteStart: number,
+    ): readonly VirtualSourceSummaryNodeInternalV1[] => {
+      if (!coverageAuthority.visitedNodes.has(node)) {
+        throw new RangeError("transition summary path lacks bounded Source authority")
+      }
+      if (node.nodeKind === "leaf") {
+        const nextItems: SourceSummaryItemInternalV1[] = []
+        let itemStart = absoluteStart
+        for (const item of node.items) {
+          const itemEnd = safeAdd(itemStart, item.renderedUtf16Length)
+          if (pointEdit) {
+            const point = input.previousRange.startRenderedUtf16
+            if (!replacementEmitted && point <= itemStart) emitReplacement(nextItems)
+            if (point > itemStart && point < itemEnd) {
+              nextItems.push(retainedSourceSummaryItemSliceInternalV1({
+                item,
+                startRenderedUtf16: 0,
+                endRenderedUtf16: point - itemStart,
+                factory: prepared.fingerprintFactory,
+              }))
+              emitReplacement(nextItems)
+              nextItems.push(retainedSourceSummaryItemSliceInternalV1({
+                item,
+                startRenderedUtf16: point - itemStart,
+                endRenderedUtf16: item.renderedUtf16Length,
+                factory: prepared.fingerprintFactory,
+              }))
+            } else {
+              nextItems.push(item)
+            }
+          } else if (itemEnd <= input.previousRange.startRenderedUtf16) {
+            nextItems.push(item)
+          } else if (itemStart >= input.previousRange.endRenderedUtf16) {
+            emitReplacement(nextItems)
+            nextItems.push(item)
+          } else {
+            if (itemStart < input.previousRange.startRenderedUtf16) {
+              nextItems.push(retainedSourceSummaryItemSliceInternalV1({
+                item,
+                startRenderedUtf16: 0,
+                endRenderedUtf16:
+                  input.previousRange.startRenderedUtf16 - itemStart,
+                factory: prepared.fingerprintFactory,
+              }))
+            }
+            emitReplacement(nextItems)
+            if (itemEnd > input.previousRange.endRenderedUtf16) {
+              nextItems.push(retainedSourceSummaryItemSliceInternalV1({
+                item,
+                startRenderedUtf16:
+                  input.previousRange.endRenderedUtf16 - itemStart,
+                endRenderedUtf16: item.renderedUtf16Length,
+                factory: prepared.fingerprintFactory,
+              }))
+            }
+          }
+          itemStart = itemEnd
+        }
+        if (!replacementEmitted) emitReplacement(nextItems)
+        return splitOverflowVirtualSourceNodeInternalV1(
+          virtualSourceLeafInternalV1(nextItems, prepared.fingerprintFactory),
+          coverageAuthority.visitedNodes,
+          prepared.fingerprintFactory,
+        )
+      }
+
+      const children: VirtualSourceSummaryNodeInternalV1[] = []
+      let childStart = absoluteStart
+      let selectedPointChild = false
+      for (let index = 0; index < node.children.length; index += 1) {
+        const child = node.children[index]!
+        const childEnd = safeAdd(
+          childStart,
+          child.summary.renderedUtf16Length,
+        )
+        const affected = pointEdit
+          ? !selectedPointChild && (
+              input.previousRange.startRenderedUtf16 < childEnd
+              || (
+                index === node.children.length - 1
+                && input.previousRange.startRenderedUtf16 === childEnd
+              )
+            )
+          : input.previousRange.startRenderedUtf16 < childEnd
+            && input.previousRange.endRenderedUtf16 > childStart
+        if (affected) {
+          selectedPointChild = true
+          children.push(...transform(child, childStart))
+        } else {
+          children.push(retainedVirtualSourceSummaryNodeInternalV1(child))
+        }
+        childStart = childEnd
+      }
+      const rebalancedChildren =
+        rebalanceVirtualSourceSiblingsInternalV1(
+          children,
+          coverageAuthority.visitedNodes,
+          prepared.fingerprintFactory,
+        )
+      return splitOverflowVirtualSourceNodeInternalV1(
+        virtualSourceBranchInternalV1(
+          node.height,
+          rebalancedChildren,
+          prepared.fingerprintFactory,
+        ),
+        coverageAuthority.visitedNodes,
+        prepared.fingerprintFactory,
+      )
+    }
+
+    let roots = transform(input.sourceState.root, 0)
+    if (!replacementEmitted || roots.length === 0) {
+      throw new RangeError("transition summary cannot produce an empty Source")
+    }
+    while (roots.length > 1) {
+      const height = roots[0]!.height + 1
+      if (roots.some((root) => root.height !== height - 1)) {
+        throw new RangeError("transition summary root heights differ")
+      }
+      roots = splitOverflowVirtualSourceNodeInternalV1(
+        virtualSourceBranchInternalV1(
+          height,
+          roots,
+          prepared.fingerprintFactory,
+        ),
+        coverageAuthority.visitedNodes,
+        prepared.fingerprintFactory,
+      )
+    }
+    let root = roots[0]!
+    while (root.height > 0) {
+      const children = virtualSourceBranchChildrenInternalV1(
+        root,
+        coverageAuthority.visitedNodes,
+      )
+      if (children.length !== 1) break
+      root = children[0]!
+    }
+    const summary = requiredVirtualSourceSummaryInternalV1(root)
+    const expectedLength = safeAdd(
+      input.sourceState.summary.renderedUtf16Length
+        - (
+          input.previousRange.endRenderedUtf16
+          - input.previousRange.startRenderedUtf16
+        ),
+      input.replacementItems.reduce(
+        (total, item) => safeAdd(total, item.renderedUtf16Length),
+        0,
+      ),
+    )
+    if (summary.renderedUtf16Length !== expectedLength) {
+      throw new RangeError("transition summary rendered length is not exact")
+    }
+    return {
+      status: "accepted",
+      summary: deepFreeze(summary),
+      completeTreeBuildCount: 0,
+      completeSuffixTraversalCount: 0,
+    }
+  } catch {
+    return {
+      status: "blocked",
+      summary: null,
+      completeTreeBuildCount: 0,
+      completeSuffixTraversalCount: 0,
+    }
+  }
 }

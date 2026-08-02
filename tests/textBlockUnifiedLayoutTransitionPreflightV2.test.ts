@@ -19,11 +19,15 @@ import {
   acceptedRepeatedUnifiedLayoutRootFixture5b,
 } from "./helpers/textBlockUnifiedIncremental5b.js"
 import {
+  repeatedUnifiedLayoutRootSourceFixtureV1,
+} from "./helpers/textBlockUnifiedLayoutRootV1.js"
+import {
   createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestInternalV1,
   getVNextTextBlockLimitExceededAuthorityRecordInternalV1,
   setVNextTextBlockPostBindingLimitOverrideForTestInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
+  resolveVNextTextBlockSupportedStyleOverlayInternalV1,
   forceVNextTextBlockRegisteredSourceStyleCollisionForTestInternalV1,
   visitVNextTextBlockTransitionSourceCoverageInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
@@ -36,7 +40,11 @@ import {
 import { createVNextCompactFingerprint } from "../src/fingerprint/compactFingerprint.js"
 import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
 import type { VNextTextBlockUnifiedLayoutRootV2 } from "../src/layout/textBlockUnifiedLayoutRootContractV2.js"
-import type { VNextTextBlockUnifiedLayoutSourceItemV1 } from "../src/layout/textBlockUnifiedLayoutSourceStateContractV1.js"
+import type {
+  VNextTextBlockUnifiedLayoutSourceItemV1,
+  VNextTextBlockUnifiedLayoutSourceNodeV1,
+  VNextTextBlockUnifiedLayoutSourceSummaryV1,
+} from "../src/layout/textBlockUnifiedLayoutSourceStateContractV1.js"
 import type { TextRunStyleV4Target } from "../src/schema/documentV4Foundation.js"
 import type {
   VNextTextBlockTransitionProducerResponseV1,
@@ -120,6 +128,21 @@ function clusteredTextRoot(
     VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
   )
   if (built.status !== "accepted") throw new Error("clustered root missing")
+  return built.root
+}
+
+function repeatedTextRoot(lineCount: number, includeImages = true) {
+  const source = repeatedUnifiedLayoutRootSourceFixtureV1({
+    lineCount,
+    includeImages,
+  })
+  const built = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2({
+    inputAuthority: "core-synthetic-qa-only",
+    initialFlow: source.initialFlow,
+    evidence: source.evidence,
+    spatialEntries: source.spatialEntries,
+  }, VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1)
+  if (built.status !== "accepted") throw new Error("repeated text root missing")
   return built.root
 }
 
@@ -325,6 +348,201 @@ function expectedCanonicalInsertedTextItem(input: {
     ...facts,
     fingerprint: fingerprint({ contractVersion: 1, ...facts }),
   }
+}
+
+function expectedCanonicalTextBearingItem(input: {
+  readonly kind: "text" | "resolved-field"
+  readonly fieldKey?: string
+  readonly renderedText: string
+  readonly lineageId: string
+  readonly inlineId: string
+  readonly sourceFingerprint: string | null
+  readonly provenanceFingerprint: string
+  readonly style: Extract<VNextTextBlockUnifiedLayoutSourceItemV1, {
+    kind: "text" | "resolved-field"
+  }>["style"]
+}): VNextTextBlockUnifiedLayoutSourceItemV1 {
+  const semanticFacts = {
+    kind: input.kind,
+    inlineId: input.inlineId,
+    ...(input.kind === "resolved-field" ? { fieldKey: input.fieldKey } : {}),
+  }
+  const sourceFingerprint = input.sourceFingerprint ?? fingerprint({
+    ...semanticFacts,
+    authoredLocalStyleWithoutPaint:
+      input.style.authoredLocalStyle == null
+        ? null
+        : {
+            fontSize: input.style.authoredLocalStyle.fontSize ?? null,
+            fontFamilyKey:
+              input.style.authoredLocalStyle.fontFamilyKey ?? null,
+            fontWeight: input.style.authoredLocalStyle.fontWeight ?? null,
+            fontStyle: input.style.authoredLocalStyle.fontStyle ?? null,
+          },
+  })
+  const common = {
+    lineageId: input.lineageId,
+    inlineId: input.inlineId,
+    renderedText: input.renderedText,
+    renderedUtf16Length: input.renderedText.length,
+    semanticFingerprint: fingerprint(semanticFacts),
+    contentFingerprint: fingerprint({
+      renderedText: input.renderedText,
+      renderedUtf16Length: input.renderedText.length,
+    }),
+    sourceFingerprint,
+    provenanceFingerprint: input.provenanceFingerprint,
+    paintFingerprint: fingerprint({
+      textColor: input.style.textColor,
+      textDecoration: input.style.textDecoration,
+      strikethrough: input.style.strikethrough,
+      authoredTextColor: input.style.authoredLocalStyle?.textColor ?? null,
+    }),
+    layoutDependencyFingerprint: fingerprint({
+      fontFamilyKey: input.style.fontFamilyKey,
+      fontFaceId: input.style.fontFaceId,
+      fontSizeLayoutUnit: input.style.fontSizeLayoutUnit,
+      fontWeight: input.style.fontWeight,
+      fontStyle: input.style.fontStyle,
+    }),
+    boundaryFingerprint: fingerprint({
+      kind: "text-bearing",
+      inlineId: input.inlineId,
+    }),
+  }
+  const variant = input.kind === "resolved-field"
+    ? { kind: input.kind, fieldKey: input.fieldKey!, style: input.style }
+    : { kind: input.kind, style: input.style }
+  const facts = { ...common, ...variant }
+  return {
+    ...facts,
+    fingerprint: fingerprint({ contractVersion: 1, ...facts }),
+  } as VNextTextBlockUnifiedLayoutSourceItemV1
+}
+
+function expectedCanonicalLeafSummary(
+  items: readonly VNextTextBlockUnifiedLayoutSourceItemV1[],
+): VNextTextBlockUnifiedLayoutSourceSummaryV1 {
+  const count = (kind: "text-bearing" | "hard-break" | "inline-image") =>
+    items.filter((item) => kind === "text-bearing"
+      ? item.kind !== "hard-break" && item.kind !== "inline-image"
+      : kind === "hard-break"
+        ? item.kind === "hard-break"
+        : item.kind === "inline-image").length
+  return {
+    renderedUtf16Length: items.reduce(
+      (total, item) => total + item.renderedUtf16Length,
+      0,
+    ),
+    itemCount: items.length,
+    leafCount: 1,
+    nodeCount: 1,
+    textBearingItemCount: count("text-bearing"),
+    hardBreakItemCount: count("hard-break"),
+    inlineImageItemCount: count("inline-image"),
+    semanticFingerprint: fingerprint({
+      items: items.map((item) => item.semanticFingerprint),
+    }),
+    contentFingerprint: fingerprint({
+      items: items.map((item) => item.contentFingerprint),
+    }),
+    sourceFingerprint: fingerprint({
+      items: items.map((item) => item.sourceFingerprint),
+    }),
+    provenanceFingerprint: fingerprint({
+      items: items.map((item) => item.provenanceFingerprint),
+    }),
+    paintFingerprint: fingerprint({
+      items: items.map((item) => item.paintFingerprint),
+    }),
+    layoutDependencyFingerprint: fingerprint({
+      items: items.map((item) => item.layoutDependencyFingerprint),
+    }),
+    boundaryFingerprint: fingerprint({
+      items: items.map((item) => item.boundaryFingerprint),
+    }),
+  }
+}
+
+function expectedCanonicalBranchSummary(
+  children: readonly VNextTextBlockUnifiedLayoutSourceSummaryV1[],
+): VNextTextBlockUnifiedLayoutSourceSummaryV1 {
+  const sum = (key: "renderedUtf16Length" | "itemCount" | "leafCount" | "nodeCount" | "textBearingItemCount" | "hardBreakItemCount" | "inlineImageItemCount") =>
+    children.reduce((total, child) => total + child[key], 0)
+  return {
+    renderedUtf16Length: sum("renderedUtf16Length"),
+    itemCount: sum("itemCount"),
+    leafCount: sum("leafCount"),
+    nodeCount: 1 + sum("nodeCount"),
+    textBearingItemCount: sum("textBearingItemCount"),
+    hardBreakItemCount: sum("hardBreakItemCount"),
+    inlineImageItemCount: sum("inlineImageItemCount"),
+    semanticFingerprint: fingerprint({
+      children: children.map((child) => child.semanticFingerprint),
+    }),
+    contentFingerprint: fingerprint({
+      children: children.map((child) => child.contentFingerprint),
+    }),
+    sourceFingerprint: fingerprint({
+      children: children.map((child) => child.sourceFingerprint),
+    }),
+    provenanceFingerprint: fingerprint({
+      children: children.map((child) => child.provenanceFingerprint),
+    }),
+    paintFingerprint: fingerprint({
+      children: children.map((child) => child.paintFingerprint),
+    }),
+    layoutDependencyFingerprint: fingerprint({
+      children: children.map((child) => child.layoutDependencyFingerprint),
+    }),
+    boundaryFingerprint: fingerprint({
+      children: children.map((child) => child.boundaryFingerprint),
+    }),
+  }
+}
+
+function expectedCanonicalPathCopySummary(
+  node: VNextTextBlockUnifiedLayoutSourceNodeV1,
+  previousItem: VNextTextBlockUnifiedLayoutSourceItemV1,
+  nextItem: VNextTextBlockUnifiedLayoutSourceItemV1,
+): { readonly summary: VNextTextBlockUnifiedLayoutSourceSummaryV1; readonly changed: boolean } {
+  if (node.nodeKind === "leaf") {
+    const changed = node.items.includes(previousItem)
+    return {
+      changed,
+      summary: changed
+        ? expectedCanonicalLeafSummary(node.items.map((item) =>
+            item === previousItem ? nextItem : item))
+        : node.summary,
+    }
+  }
+  let changed = false
+  const children = node.children.map((child) => {
+    const result = expectedCanonicalPathCopySummary(child, previousItem, nextItem)
+    changed ||= result.changed
+    return result.summary
+  })
+  return {
+    changed,
+    summary: changed ? expectedCanonicalBranchSummary(children) : node.summary,
+  }
+}
+
+function expectedTargetBindingFromSourceSummary(
+  root: VNextTextBlockUnifiedLayoutRootV2,
+  summary: VNextTextBlockUnifiedLayoutSourceSummaryV1,
+) {
+  const facts = {
+    semanticFingerprint: summary.semanticFingerprint,
+    renderedContentFingerprint: summary.contentFingerprint,
+    sourceFingerprint: summary.sourceFingerprint,
+    provenanceFingerprint: summary.provenanceFingerprint,
+    paintFingerprint: summary.paintFingerprint,
+    layoutDependencyFingerprint: summary.layoutDependencyFingerprint,
+    authoredBoxPlanFingerprint: root.sourceState.authoredBoxPlan.fingerprint,
+    spatialEntrySetFingerprint: root.spatialState.entrySetFingerprint,
+  }
+  return { ...facts, fingerprint: fingerprint(facts) }
 }
 
 describe("Text-block unified transition preflight V2", () => {
@@ -1355,5 +1573,498 @@ describe("Text-block unified transition preflight V2", () => {
       status: "blocked",
       issues: [expect.objectContaining({ code: "invalid-change-range" })],
     })
+  })
+
+  it.each([
+    { name: "paint-only", nextStyle: { textColor: "FF0000" } },
+    { name: "semantic-only", nextStyle: {} },
+  ] as const)("keeps $name classification independent of producer material ceilings", ({
+    nextStyle,
+  }) => {
+    const previousRoot = textRoot("ABCD")
+    setVNextTextBlockPostBindingLimitOverrideForTestInternalV1({
+      stage: "evidence",
+      unit: "evidence-context-atoms",
+      effectiveLimit: 0,
+    })
+    try {
+      const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+        previousRoot,
+        change: styleChange(previousRoot, nextStyle),
+        workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      })
+
+      expect(result.status).toBe("not-required")
+      if (result.status !== "not-required") return
+      expect(result.request).toBeNull()
+      expect(result.sourceMaterial).toBeNull()
+      expect(result.completedCandidateWork.evidence).toMatchObject({
+        requestCount: 0,
+        materializedContextAtomCount: 0,
+        requestedAtomCount: 0,
+        requestedClusterCount: 0,
+      })
+    } finally {
+      setVNextTextBlockPostBindingLimitOverrideForTestInternalV1(null)
+    }
+  })
+
+  it("composes a canonical one-leaf target binding from independent Source facts", () => {
+    const previousRoot = textRoot("ABCD")
+    const previousItem = coveredItems(previousRoot)[0]?.item
+    if (previousItem?.kind !== "text") throw new Error("text item missing")
+    const change = replacement(previousRoot, 0, 4, "xy")
+    const expectedItem = expectedCanonicalInsertedTextItem({
+      renderedText: "xy",
+      inlineId: "replace-0-4",
+      sourceFingerprint: "replace-source-0-4",
+      provenanceFingerprint: "replace-provenance-0-4",
+      style: previousItem.style,
+    })
+    const expectedBinding = expectedTargetBindingFromSourceSummary(
+      previousRoot,
+      expectedCanonicalLeafSummary([expectedItem]),
+    )
+
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      change,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    })
+
+    expect(result.status).toBe("required")
+    if (result.status !== "required") return
+    expect(result.preflight.expectedTargetBinding).toEqual(expectedBinding)
+  })
+
+  it.each([
+    { name: "start leaf", lineCount: 1, itemPosition: "start", height: 0 },
+    { name: "middle branch", lineCount: 4, itemPosition: "middle", height: 1 },
+    { name: "end two-level branch", lineCount: 32, itemPosition: "end", height: 2 },
+  ] as const)("matches an independent canonical path-copy oracle at the $name", ({
+    lineCount,
+    itemPosition,
+    height,
+  }) => {
+    const previousRoot = repeatedTextRoot(lineCount)
+    const textFragments = coveredItems(previousRoot).filter((fragment) =>
+      fragment.item.kind === "text")
+    const itemIndex = itemPosition === "start"
+      ? 0
+      : itemPosition === "middle"
+        ? Math.floor(textFragments.length / 2)
+        : textFragments.length - 1
+    const fragment = textFragments[itemIndex]
+    if (fragment?.item.kind !== "text") throw new Error("text path-copy item missing")
+    const insertedText = "MNOPQRSTUVWX"
+    const change = replacement(
+      previousRoot,
+      fragment.itemAbsoluteStartRenderedUtf16,
+      fragment.itemAbsoluteEndRenderedUtf16,
+      insertedText,
+    )
+    const expectedItem = expectedCanonicalTextBearingItem({
+      kind: "text",
+      renderedText: insertedText,
+      lineageId: change.insertedSource.lineageId,
+      inlineId: change.insertedSource.lineageId,
+      sourceFingerprint: change.insertedSource.sourceFingerprint,
+      provenanceFingerprint: change.insertedSource.provenanceFingerprint,
+      style: fragment.item.style,
+    })
+    const expectedSummary = expectedCanonicalPathCopySummary(
+      previousRoot.sourceState.root,
+      fragment.item,
+      expectedItem,
+    )
+    expect(previousRoot.sourceState.root.height).toBe(height)
+    expect(expectedSummary.changed).toBe(true)
+
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      change,
+      workPolicy: previousRoot.workPolicy,
+    })
+
+    expect(result.status).toBe("required")
+    if (result.status !== "required") return
+    expect(result.preflight.expectedTargetBinding).toEqual(
+      expectedTargetBindingFromSourceSummary(previousRoot, expectedSummary.summary),
+    )
+  })
+
+  it("matches independent canonical Source summary facts for a field edit", () => {
+    const built = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+      unifiedLayoutRootBuildInputFixtureV2({ content: "field-image-page-break" }),
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    )
+    if (built.status !== "accepted") throw new Error("field root missing")
+    const previousRoot = built.root
+    const fragment = coveredItems(previousRoot).find((candidate) =>
+      candidate.item.kind === "resolved-field")
+    if (fragment?.item.kind !== "resolved-field") throw new Error("field item missing")
+    const change = frozen({
+      ...changeBase(previousRoot),
+      kind: "resolved-field-rendered-value-change" as const,
+      inlineId: fragment.item.inlineId,
+      fieldKey: fragment.item.fieldKey,
+      expectedPreviousRenderedValueFingerprint: fragment.item.contentFingerprint,
+      nextRenderedText: "Q",
+      nextSource: {
+        lineageId: fragment.item.lineageId,
+        sourceFingerprint: "canonical-field-source-next",
+        provenanceFingerprint: "canonical-field-provenance-next",
+      },
+    })
+    const expectedItem = expectedCanonicalTextBearingItem({
+      kind: "resolved-field",
+      fieldKey: fragment.item.fieldKey,
+      renderedText: change.nextRenderedText,
+      lineageId: change.nextSource.lineageId,
+      inlineId: fragment.item.inlineId,
+      sourceFingerprint: change.nextSource.sourceFingerprint,
+      provenanceFingerprint: change.nextSource.provenanceFingerprint,
+      style: fragment.item.style,
+    })
+    const expectedSummary = expectedCanonicalPathCopySummary(
+      previousRoot.sourceState.root,
+      fragment.item,
+      expectedItem,
+    )
+
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      change,
+      workPolicy: previousRoot.workPolicy,
+    })
+
+    expect(result.status).toBe("required")
+    if (result.status !== "required") return
+    expect(result.preflight.expectedTargetBinding).toEqual(
+      expectedTargetBindingFromSourceSummary(previousRoot, expectedSummary.summary),
+    )
+  })
+
+  it("matches an independent two-level canonical path-copy oracle for a style edit", () => {
+    const previousRoot = repeatedTextRoot(32)
+    const textFragments = coveredItems(previousRoot).filter((fragment) =>
+      fragment.item.kind === "text")
+    const fragment = textFragments[Math.floor(textFragments.length / 2)]
+    if (fragment?.item.kind !== "text") throw new Error("style path-copy item missing")
+    const nextStyle = frozen({ fontSize: { value: 13, unit: "pt" as const } })
+    const nextStyleProvenanceFingerprint = fingerprint({
+      owner: "canonical-style-oracle",
+      nextStyle,
+    })
+    const change = frozen({
+      ...changeBase(previousRoot),
+      kind: "supported-style-change" as const,
+      range: {
+        startRenderedUtf16: fragment.itemAbsoluteStartRenderedUtf16,
+        endRenderedUtf16: fragment.itemAbsoluteEndRenderedUtf16,
+      },
+      expectedPreviousStyleFingerprint: fragment.item.layoutDependencyFingerprint,
+      expectedPreviousStyleProvenanceFingerprint: fragment.item.provenanceFingerprint,
+      nextStyle,
+      nextStyleFingerprint: fingerprint(nextStyle),
+      nextStyleProvenanceFingerprint,
+    })
+    const resolvedStyle = resolveVNextTextBlockSupportedStyleOverlayInternalV1({
+      sourceState: previousRoot.sourceState,
+      baseStyle: fragment.item.style,
+      nextStyle,
+    })
+    if (resolvedStyle.status !== "resolved") throw new Error("style oracle did not resolve")
+    const expectedItem = expectedCanonicalTextBearingItem({
+      kind: "text",
+      renderedText: fragment.item.renderedText,
+      lineageId: fragment.item.lineageId,
+      inlineId: fragment.item.inlineId,
+      sourceFingerprint: null,
+      provenanceFingerprint: nextStyleProvenanceFingerprint,
+      style: resolvedStyle.style,
+    })
+    const expectedSummary = expectedCanonicalPathCopySummary(
+      previousRoot.sourceState.root,
+      fragment.item,
+      expectedItem,
+    )
+
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      change,
+      workPolicy: previousRoot.workPolicy,
+    })
+
+    expect(result.status).toBe("required")
+    if (result.status !== "required") return
+    expect(result.preflight.expectedTargetBinding).toEqual(
+      expectedTargetBindingFromSourceSummary(previousRoot, expectedSummary.summary),
+    )
+  })
+
+  it("matches the locked 4/5 leaf and branch split policy", () => {
+    const previousRoot = repeatedTextRoot(37, false)
+    const sourceRoot = previousRoot.sourceState.root
+    if (sourceRoot.nodeKind !== "branch" || sourceRoot.children.length !== 2) {
+      throw new Error("split root shape missing")
+    }
+    const fullBranch = sourceRoot.children[0]
+    if (fullBranch?.nodeKind !== "branch" || fullBranch.children.length !== 8) {
+      throw new Error("full split branch missing")
+    }
+    const fullLeaf = fullBranch.children[0]
+    if (fullLeaf?.nodeKind !== "leaf" || fullLeaf.items.length !== 8) {
+      throw new Error("full split leaf missing")
+    }
+    const firstItem = fullLeaf.items[0]
+    if (firstItem?.kind !== "text") throw new Error("split text item missing")
+    const change = insertionAt(previousRoot, 0, "X")
+    const inserted = expectedCanonicalTextBearingItem({
+      kind: "text",
+      renderedText: change.insertedText,
+      lineageId: change.insertedSource.lineageId,
+      inlineId: change.insertedSource.lineageId,
+      sourceFingerprint: change.insertedSource.sourceFingerprint,
+      provenanceFingerprint: change.insertedSource.provenanceFingerprint,
+      style: firstItem.style,
+    })
+    const splitLeaves = [
+      expectedCanonicalLeafSummary([inserted, ...fullLeaf.items.slice(0, 3)]),
+      expectedCanonicalLeafSummary(fullLeaf.items.slice(3)),
+    ]
+    const nineChildSummaries = [
+      ...splitLeaves,
+      ...fullBranch.children.slice(1).map((child) => child.summary),
+    ]
+    const expectedSummary = expectedCanonicalBranchSummary([
+      expectedCanonicalBranchSummary(nineChildSummaries.slice(0, 4)),
+      expectedCanonicalBranchSummary(nineChildSummaries.slice(4)),
+      sourceRoot.children[1]!.summary,
+    ])
+
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      change,
+      workPolicy: previousRoot.workPolicy,
+    })
+
+    expect(result.status).toBe("required")
+    if (result.status !== "required") return
+    expect(result.preflight.expectedTargetBinding).toEqual(
+      expectedTargetBindingFromSourceSummary(previousRoot, expectedSummary),
+    )
+  })
+
+  it("borrows from the left leaf before the right on leaf underflow", () => {
+    const previousRoot = repeatedTextRoot(12, false)
+    const sourceRoot = previousRoot.sourceState.root
+    if (sourceRoot.nodeKind !== "branch" || sourceRoot.children.length !== 3) {
+      throw new Error("leaf borrow root shape missing")
+    }
+    const [left, removed, right] = sourceRoot.children
+    if (left?.nodeKind !== "leaf" || removed?.nodeKind !== "leaf" || right?.nodeKind !== "leaf") {
+      throw new Error("leaf borrow children missing")
+    }
+    const fragments = coveredItems(previousRoot)
+    const firstRemoved = fragments[8]!
+    const lastRemoved = fragments[15]!
+    const change = deletion(
+      previousRoot,
+      firstRemoved.itemAbsoluteStartRenderedUtf16,
+      lastRemoved.itemAbsoluteEndRenderedUtf16,
+    )
+    const expectedSummary = expectedCanonicalBranchSummary([
+      expectedCanonicalLeafSummary(left.items.slice(0, -1)),
+      expectedCanonicalLeafSummary([left.items.at(-1)!]),
+      right.summary,
+    ])
+
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      change,
+      workPolicy: previousRoot.workPolicy,
+    })
+
+    expect(result.status).toBe("required")
+    if (result.status !== "required") return
+    expect(result.preflight.expectedTargetBinding).toEqual(
+      expectedTargetBindingFromSourceSummary(previousRoot, expectedSummary),
+    )
+  })
+
+  it("merges minimum leaves and collapses a unary root", () => {
+    const previousRoot = repeatedTextRoot(3)
+    const sourceRoot = previousRoot.sourceState.root
+    if (sourceRoot.nodeKind !== "branch" || sourceRoot.children.length !== 2) {
+      throw new Error("leaf merge root shape missing")
+    }
+    const right = sourceRoot.children[1]
+    if (right?.nodeKind !== "leaf" || right.items.length !== 5) {
+      throw new Error("leaf merge right child missing")
+    }
+    const fragments = coveredItems(previousRoot)
+    const change = deletion(
+      previousRoot,
+      fragments[0]!.itemAbsoluteStartRenderedUtf16,
+      fragments[7]!.itemAbsoluteEndRenderedUtf16,
+    )
+    const expectedSummary = expectedCanonicalLeafSummary([right.items.at(-1)!])
+
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      change,
+      workPolicy: previousRoot.workPolicy,
+    })
+
+    expect(result.status).toBe("required")
+    if (result.status !== "required") return
+    expect(result.preflight.expectedTargetBinding).toEqual(
+      expectedTargetBindingFromSourceSummary(previousRoot, expectedSummary),
+    )
+  })
+
+  it("borrows two children from the right branch after full-branch deletion", () => {
+    const previousRoot = repeatedTextRoot(33, false)
+    const sourceRoot = previousRoot.sourceState.root
+    if (sourceRoot.nodeKind !== "branch" || sourceRoot.children.length !== 2) {
+      throw new Error("branch borrow root shape missing")
+    }
+    const left = sourceRoot.children[0]
+    const right = sourceRoot.children[1]
+    if (left?.nodeKind !== "branch" || left.children.length !== 4 || right?.nodeKind !== "branch" || right.children.length !== 5) {
+      throw new Error("branch borrow children missing")
+    }
+    const fragments = coveredItems(previousRoot)
+    const change = deletion(
+      previousRoot,
+      fragments[0]!.itemAbsoluteStartRenderedUtf16,
+      fragments[31]!.itemAbsoluteEndRenderedUtf16,
+    )
+    const expectedSummary = expectedCanonicalBranchSummary([
+      expectedCanonicalBranchSummary(right.children.slice(0, 2).map((child) => child.summary)),
+      expectedCanonicalBranchSummary(right.children.slice(2).map((child) => child.summary)),
+    ])
+
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      change,
+      workPolicy: previousRoot.workPolicy,
+    })
+
+    expect(result.status).toBe("required")
+    if (result.status !== "required") return
+    expect(result.preflight.expectedTargetBinding).toEqual(
+      expectedTargetBindingFromSourceSummary(previousRoot, expectedSummary),
+    )
+  })
+
+  it("merges minimum branches and collapses a unary root", () => {
+    const previousRoot = repeatedTextRoot(33, false)
+    const sourceRoot = previousRoot.sourceState.root
+    if (sourceRoot.nodeKind !== "branch" || sourceRoot.children.length !== 2) {
+      throw new Error("branch merge root shape missing")
+    }
+    const right = sourceRoot.children[1]
+    if (right?.nodeKind !== "branch" || right.children.length !== 5) {
+      throw new Error("branch merge right child missing")
+    }
+    const fragments = coveredItems(previousRoot)
+    const change = deletion(
+      previousRoot,
+      fragments[0]!.itemAbsoluteStartRenderedUtf16,
+      fragments[55]!.itemAbsoluteEndRenderedUtf16,
+    )
+    const firstRetainedLeaf = right.children[3]
+    const lastRetainedLeaf = right.children[4]
+    if (firstRetainedLeaf?.nodeKind !== "leaf" || lastRetainedLeaf?.nodeKind !== "leaf") {
+      throw new Error("branch merge retained leaves missing")
+    }
+    const expectedSummary = expectedCanonicalBranchSummary([
+      expectedCanonicalLeafSummary([firstRetainedLeaf.items[0]!]),
+      expectedCanonicalLeafSummary(firstRetainedLeaf.items.slice(1)),
+      lastRetainedLeaf.summary,
+    ])
+
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      change,
+      workPolicy: previousRoot.workPolicy,
+    })
+
+    expect(result.status).toBe("required")
+    if (result.status !== "required") return
+    expect(result.preflight.expectedTargetBinding).toEqual(
+      expectedTargetBindingFromSourceSummary(previousRoot, expectedSummary),
+    )
+  })
+
+  it("retains exact completed visits and zero requests on post-visit blocked exits", () => {
+    const previousRoot = textRoot("ABCD")
+    const deleteAll = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      change: deletion(previousRoot, 0, 4),
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    })
+    expect(deleteAll.status).toBe("blocked")
+    expect(deleteAll.completedCandidateWork.evidence).toMatchObject({
+      requestCount: 0,
+      visitedRequestLookupNodeCount: 1,
+      materializedContextAtomCount: 0,
+      requestedAtomCount: 0,
+      requestedClusterCount: 0,
+    })
+
+    const unavailableStyle = frozen({
+      ...insertionAt(previousRoot, 0, "X"),
+      measurementStyleKey: "missing-measurement",
+      effectiveShapingStyleKey: "missing-shaping",
+    })
+    const unavailable = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      change: unavailableStyle,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    })
+    expect(unavailable.status).toBe("blocked")
+    expect(unavailable.completedCandidateWork.evidence).toMatchObject({
+      requestCount: 0,
+      visitedRequestLookupNodeCount: 2,
+      materializedContextAtomCount: 0,
+      requestedAtomCount: 0,
+      requestedClusterCount: 0,
+    })
+  })
+
+  it("counts an actual registered request exactly once and no pre-request fallback", () => {
+    const previousRoot = textRoot("ABCD")
+    const accepted = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      change: insertionAt(previousRoot, 0, "X"),
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    })
+    expect(accepted.status).toBe("required")
+    expect(accepted.completedCandidateWork.evidence.requestCount).toBe(1)
+
+    setVNextTextBlockPostBindingLimitOverrideForTestInternalV1({
+      stage: "evidence",
+      unit: "evidence-context-atoms",
+      effectiveLimit: 1,
+    })
+    try {
+      const fallback = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+        previousRoot,
+        change: insertionAt(previousRoot, 0, "Y"),
+        workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      })
+      expect(fallback.status).toBe("fallback-required")
+      expect(fallback.completedCandidateWork.evidence).toMatchObject({
+        requestCount: 0,
+        materializedContextAtomCount: 1,
+        requestedAtomCount: 0,
+        requestedClusterCount: 0,
+      })
+    } finally {
+      setVNextTextBlockPostBindingLimitOverrideForTestInternalV1(null)
+    }
   })
 })
