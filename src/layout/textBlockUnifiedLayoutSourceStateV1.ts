@@ -322,10 +322,13 @@ export function resolveVNextTextBlockSupportedStyleOverlayInternalV1(input: {
     ?? input.baseStyle.textDecoration
   const strikethrough = input.nextStyle.strikethrough
     ?? input.baseStyle.strikethrough
-  const authoredLocalStyle = {
-    ...(input.baseStyle.authoredLocalStyle ?? {}),
-    ...structuredClone(input.nextStyle),
-  }
+  const authoredLocalStyle = input.baseStyle.authoredLocalStyle == null
+      && Reflect.ownKeys(input.nextStyle).length === 0
+    ? null
+    : {
+        ...(input.baseStyle.authoredLocalStyle ?? {}),
+        ...structuredClone(input.nextStyle),
+      }
   const fontWeight = face.weight === 700 ? "bold" as const : "normal" as const
   const style = deepFreeze({
     measurementStyleKey: input.baseStyle.measurementStyleKey,

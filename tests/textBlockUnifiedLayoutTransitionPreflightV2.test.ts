@@ -23,6 +23,7 @@ import { createVNextCompactFingerprint } from "../src/fingerprint/compactFingerp
 import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
 import type { VNextTextBlockUnifiedLayoutRootV2 } from "../src/layout/textBlockUnifiedLayoutRootContractV2.js"
 import type { VNextTextBlockUnifiedLayoutSourceItemV1 } from "../src/layout/textBlockUnifiedLayoutSourceStateContractV1.js"
+import type { TextRunStyleV4Target } from "../src/schema/documentV4Foundation.js"
 
 function frozen<T>(value: T): T {
   if (value != null && typeof value === "object") {
@@ -124,6 +125,30 @@ function insertionAt(
     },
     measurementStyleKey: item.style.measurementStyleKey,
     effectiveShapingStyleKey: item.style.effectiveShapingStyleKey,
+  })
+}
+
+function styleChange(
+  root: VNextTextBlockUnifiedLayoutRootV2,
+  nextStyle: TextRunStyleV4Target,
+) {
+  const item = coveredItems(root)[0]?.item
+  if (item?.kind !== "text") throw new Error("text item missing")
+  return frozen({
+    ...changeBase(root),
+    kind: "supported-style-change" as const,
+    range: {
+      startRenderedUtf16: 0,
+      endRenderedUtf16: item.renderedUtf16Length,
+    },
+    expectedPreviousStyleFingerprint: item.layoutDependencyFingerprint,
+    expectedPreviousStyleProvenanceFingerprint: item.provenanceFingerprint,
+    nextStyle,
+    nextStyleFingerprint: fingerprint(nextStyle),
+    nextStyleProvenanceFingerprint: fingerprint({
+      owner: "next-style",
+      nextStyle,
+    }),
   })
 }
 
@@ -421,9 +446,9 @@ describe("Text-block unified transition preflight V2", () => {
         range: { startRenderedUtf16: 1, endRenderedUtf16: 3 },
         expectedPreviousStyleFingerprint: item.layoutDependencyFingerprint,
         expectedPreviousStyleProvenanceFingerprint: item.provenanceFingerprint,
-        nextStyle: { textColor: "FF0000" },
-        nextStyleFingerprint: fingerprint({ textColor: "FF0000" }),
-        nextStyleProvenanceFingerprint: fingerprint({ owner: "style-red" }),
+        nextStyle: { fontSize: { value: 24, unit: "pt" } },
+        nextStyleFingerprint: fingerprint({ fontSize: { value: 24, unit: "pt" } }),
+        nextStyleProvenanceFingerprint: fingerprint({ owner: "style-24pt" }),
       }),
     })
 
@@ -434,7 +459,7 @@ describe("Text-block unified transition preflight V2", () => {
     expect(result.sourceMaterial.next.atoms[1]).toMatchObject({
       kind: "text",
       renderedText: "BC",
-      resolvedStyle: expect.objectContaining({ textColor: "FF0000" }),
+      resolvedStyle: expect.objectContaining({ fontSizeLayoutUnit: 24_000_000 }),
     })
   })
 
@@ -560,5 +585,70 @@ describe("Text-block unified transition preflight V2", () => {
     } finally {
       setVNextTextBlockPostBindingLimitOverrideForTestInternalV1(null)
     }
+  })
+
+  it("classifies an exact paint-only style overlay without producer evidence", () => {
+    const previousRoot = textRoot("ABCD")
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      change: styleChange(previousRoot, { textColor: "FF0000" }),
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    })
+
+    expect(result).toMatchObject({
+      status: "not-required",
+      request: null,
+      sourceMaterial: null,
+      preflight: {
+        producerEvidence: "not-required",
+        effectClassification: {
+          effectClass: "paint-affecting-change",
+          semanticIdentityChanged: true,
+        },
+      },
+    })
+  })
+
+  it("classifies equal-metric style identity as semantic-only", () => {
+    const previousRoot = textRoot("ABCD")
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      change: styleChange(previousRoot, {}),
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    })
+
+    expect(result).toMatchObject({
+      status: "not-required",
+      request: null,
+      sourceMaterial: null,
+      preflight: {
+        producerEvidence: "not-required",
+        effectClassification: {
+          effectClass: "semantic-only-change",
+          semanticIdentityChanged: true,
+        },
+      },
+    })
+  })
+
+  it("requires producer evidence for a metric style overlay", () => {
+    const previousRoot = textRoot("ABCD")
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      change: styleChange(previousRoot, {
+        fontSize: { value: 24, unit: "pt" },
+      }),
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    })
+
+    expect(result).toMatchObject({
+      status: "required",
+      preflight: {
+        producerEvidence: "required",
+        effectClassification: {
+          effectClass: "geometry-affecting-change",
+        },
+      },
+    })
   })
 })

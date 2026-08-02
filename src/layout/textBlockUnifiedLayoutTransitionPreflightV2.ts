@@ -11,6 +11,8 @@ import type {
 } from "./textBlockUnifiedLayoutEvidenceContractV2.js"
 import {
   bindVNextTextBlockUnifiedLayoutChangeInternalV1,
+  deriveVNextTextBlockExpectedTargetBindingFromRootInternalV1,
+  deriveVNextTextBlockUnifiedLayoutEffectClassificationInternalV1,
   evaluateNextVNextTextBlockStageVisitInternalV1,
   getVNextTextBlockLimitExceededAuthorityRecordInternalV1,
 } from "./textBlockUnifiedLayoutTransitionEvidenceV1.js"
@@ -428,6 +430,141 @@ function scalarCountInRange(
   return count
 }
 
+function sameOrderedStrings(
+  left: readonly string[],
+  right: readonly string[],
+): boolean {
+  return left.length === right.length
+    && left.every((value, index) => value === right[index])
+}
+
+function deriveBoundedTargetFacts(input: {
+  readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+  readonly sourceRange: VNextTextBlockSourceRangeV1
+  readonly sourceFragments: readonly {
+    readonly item: VNextTextBlockUnifiedLayoutSourceItemV1
+    readonly itemAbsoluteStartRenderedUtf16: number
+    readonly itemAbsoluteEndRenderedUtf16: number
+    readonly selectedAbsoluteStartRenderedUtf16: number
+    readonly selectedAbsoluteEndRenderedUtf16: number
+  }[]
+  readonly replacementItems: readonly VNextTextBlockUnifiedLayoutSourceItemV1[]
+}): {
+  readonly expectedTargetBinding: VNextTextBlockExpectedTargetBindingV1
+  readonly effectClassification: VNextTextBlockUnifiedLayoutEffectClassificationV1
+  readonly producerEvidence: "required" | "not-required"
+} {
+  const previousTargetBinding =
+    deriveVNextTextBlockExpectedTargetBindingFromRootInternalV1(
+      input.previousRoot,
+    )
+  const removed = input.sourceFragments.filter((fragment) =>
+    fragment.selectedAbsoluteStartRenderedUtf16
+      < input.sourceRange.endRenderedUtf16
+    && fragment.selectedAbsoluteEndRenderedUtf16
+      > input.sourceRange.startRenderedUtf16
+  )
+  const previousRenderedText = removed.map((fragment) => {
+    const start = Math.max(
+      fragment.selectedAbsoluteStartRenderedUtf16,
+      input.sourceRange.startRenderedUtf16,
+    )
+    const end = Math.min(
+      fragment.selectedAbsoluteEndRenderedUtf16,
+      input.sourceRange.endRenderedUtf16,
+    )
+    return fragment.item.renderedText.slice(
+      start - fragment.itemAbsoluteStartRenderedUtf16,
+      end - fragment.itemAbsoluteStartRenderedUtf16,
+    )
+  }).join("")
+  const nextRenderedText = input.replacementItems
+    .map((item) => item.renderedText)
+    .join("")
+  const component = (
+    name: string,
+    previousFingerprint: string,
+    previousValues: readonly string[],
+    nextValues: readonly string[],
+  ): string => sameOrderedStrings(previousValues, nextValues)
+    ? previousFingerprint
+    : fingerprint({
+        source: "vnext-text-block-transition-target-component-v2",
+        component: name,
+        previousFingerprint,
+        changedSourceRange: input.sourceRange,
+        previousValues,
+        nextValues,
+      })
+  const previousItems = removed.map((fragment) => fragment.item)
+  const replacementItems = input.replacementItems
+  const bindingFacts = {
+    semanticFingerprint: component(
+      "semantic",
+      previousTargetBinding.semanticFingerprint,
+      previousItems.map((item) => item.semanticFingerprint),
+      replacementItems.map((item) => item.semanticFingerprint),
+    ),
+    renderedContentFingerprint: previousRenderedText === nextRenderedText
+      ? previousTargetBinding.renderedContentFingerprint
+      : fingerprint({
+          source: "vnext-text-block-transition-target-component-v2",
+          component: "rendered-content",
+          previousFingerprint:
+            previousTargetBinding.renderedContentFingerprint,
+          changedSourceRange: input.sourceRange,
+          previousRenderedText,
+          nextRenderedText,
+        }),
+    sourceFingerprint: component(
+      "source",
+      previousTargetBinding.sourceFingerprint,
+      previousItems.map((item) => item.sourceFingerprint),
+      replacementItems.map((item) => item.sourceFingerprint),
+    ),
+    provenanceFingerprint: component(
+      "provenance",
+      previousTargetBinding.provenanceFingerprint,
+      previousItems.map((item) => item.provenanceFingerprint),
+      replacementItems.map((item) => item.provenanceFingerprint),
+    ),
+    paintFingerprint: component(
+      "paint",
+      previousTargetBinding.paintFingerprint,
+      previousItems.map((item) => item.paintFingerprint),
+      replacementItems.map((item) => item.paintFingerprint),
+    ),
+    layoutDependencyFingerprint: component(
+      "layout-dependency",
+      previousTargetBinding.layoutDependencyFingerprint,
+      previousItems.map((item) => item.layoutDependencyFingerprint),
+      replacementItems.map((item) => item.layoutDependencyFingerprint),
+    ),
+    authoredBoxPlanFingerprint:
+      previousTargetBinding.authoredBoxPlanFingerprint,
+    spatialEntrySetFingerprint:
+      previousTargetBinding.spatialEntrySetFingerprint,
+  }
+  const expectedTargetBinding = freeze({
+    ...bindingFacts,
+    fingerprint: fingerprint(bindingFacts),
+  })
+  const effectClassification =
+    deriveVNextTextBlockUnifiedLayoutEffectClassificationInternalV1({
+      previousTargetBinding,
+      expectedTargetBinding,
+      requiresGeometryRecomputation: false,
+    })
+  return {
+    expectedTargetBinding,
+    effectClassification,
+    producerEvidence: effectClassification.effectClass
+        === "geometry-affecting-change"
+      ? "required"
+      : "not-required",
+  }
+}
+
 /** Private Core transition owner seam. It never accepts producer output or builds a next tree. */
 export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(input: {
   readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
@@ -437,39 +574,16 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
   const bound = bindVNextTextBlockUnifiedLayoutChangeInternalV1(input)
   if (bound.status !== "accepted") return freeze({ status: "blocked" as const, completedCandidateWork: bound.incrementalCandidateWork, issues: bound.issues })
   const { validatedChange } = bound
-  const equalRenderedField = validatedChange.change.kind === "resolved-field-rendered-value-change"
-    && (() => {
-      const changedRange = sourceRangeForChange(
-        input.previousRoot,
-        validatedChange.change,
-        () => true,
-      )
-      if (changedRange.status !== "accepted") return false
-      const covered = visitVNextTextBlockTransitionSourceCoverageInternalV1({
-        sourceState: input.previousRoot.sourceState,
-        range: changedRange.range,
-        beforeVisitNode: () => true,
-        beforeEmitItem: () => true,
-      })
-      const item = covered.status === "accepted" ? covered.fragments[0]?.item : null
-      return item?.kind === "resolved-field"
-        && item.renderedText === validatedChange.change.nextRenderedText
-    })()
-  const producerEvidence = equalRenderedField ? "not-required" as const : validatedChange.producerEvidence
-  const effectClassification = equalRenderedField
-    ? freeze({
-        effectClass: "semantic-only-change" as const,
-        semanticIdentityChanged: true,
-        fingerprint: fingerprint({
-          effectClass: "semantic-only-change",
-          semanticIdentityChanged: true,
-          validatedChangeFingerprint: validatedChange.fingerprint,
-        }),
-      })
-    : validatedChange.effectClassification
-  if (producerEvidence === "not-required") {
+  const requiresBoundedTextFacts = [
+    "text-insertion",
+    "text-deletion",
+    "text-replacement",
+    "resolved-field-rendered-value-change",
+    "supported-style-change",
+  ].includes(validatedChange.change.kind)
+  if (!requiresBoundedTextFacts) {
     const ranges = emptyRanges()
-    const preflight = freeze({ change: validatedChange.change, eligibility: validatedChange.eligibility, expectedTargetBinding: validatedChange.expectedTargetBinding, effectClassification, producerEvidence, previousRanges: ranges, nextRanges: ranges, replacementItems: freeze([]), fingerprint: fingerprint({ changeFingerprint: validatedChange.fingerprint, ranges, effectClassification }) })
+    const preflight = freeze({ change: validatedChange.change, eligibility: validatedChange.eligibility, expectedTargetBinding: validatedChange.expectedTargetBinding, effectClassification: validatedChange.effectClassification, producerEvidence: validatedChange.producerEvidence, previousRanges: ranges, nextRanges: ranges, replacementItems: freeze([]), fingerprint: fingerprint({ changeFingerprint: validatedChange.fingerprint, ranges, effectClassification: validatedChange.effectClassification }) })
     preflights.set(preflight, { request: null, sourceMaterial: null })
     return freeze({ status: "not-required" as const, preflight, request: null, sourceMaterial: null, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([]) })
   }
@@ -785,7 +899,29 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
     requestedAtomCount,
     requestedClusterCount,
   )
-  const preflight = freeze({ change: validatedChange.change, eligibility: validatedChange.eligibility, expectedTargetBinding: validatedChange.expectedTargetBinding, effectClassification, producerEvidence, previousRanges, nextRanges, replacementItems, fingerprint: fingerprint({ changeFingerprint: validatedChange.fingerprint, previousRanges, nextRanges, effectClassification }) })
+  const boundedTargetFacts = deriveBoundedTargetFacts({
+    previousRoot: input.previousRoot,
+    sourceRange,
+    sourceFragments: sourceCoverage.fragments,
+    replacementItems,
+  })
+  const {
+    expectedTargetBinding,
+    effectClassification,
+    producerEvidence,
+  } = boundedTargetFacts
+  const preflight = freeze({ change: validatedChange.change, eligibility: validatedChange.eligibility, expectedTargetBinding, effectClassification, producerEvidence, previousRanges, nextRanges, replacementItems, fingerprint: fingerprint({ changeFingerprint: validatedChange.fingerprint, previousRanges, nextRanges, expectedTargetBinding, effectClassification, producerEvidence }) })
+  if (producerEvidence === "not-required") {
+    preflights.set(preflight, { request: null, sourceMaterial: null })
+    return freeze({
+      status: "not-required" as const,
+      preflight,
+      request: null,
+      sourceMaterial: null,
+      completedCandidateWork: work,
+      issues: freeze([]),
+    })
+  }
   const responseLimit = evaluatedLimit(input.workPolicy, input.previousRoot, "evidence-response-nodes", 0)
   if (responseLimit.status !== "within-limit") {
     return fallback({
