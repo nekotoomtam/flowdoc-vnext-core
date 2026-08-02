@@ -12,6 +12,9 @@ import { VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_I
 import {
   noOpUnifiedLayoutChange5b,
 } from "./helpers/textBlockUnifiedIncremental5b.js"
+import {
+  visitVNextTextBlockTransitionSourceCoverageInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
 
 function frozen<T>(value: T): T {
   if (value != null && typeof value === "object") {
@@ -63,6 +66,57 @@ function contains(
 }
 
 describe("Text-block unified transition preflight V2", () => {
+  it("classifies an equal-rendered field provenance change after bounded facts", () => {
+    const previousRoot = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+      unifiedLayoutRootBuildInputFixtureV2({ content: "field-image-page-break" }),
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    )
+    if (previousRoot.status !== "accepted") throw new Error("field root missing")
+    const covered = visitVNextTextBlockTransitionSourceCoverageInternalV1({
+      sourceState: previousRoot.root.sourceState,
+      range: { startRenderedUtf16: 0, endRenderedUtf16: 1 },
+      beforeVisitNode: () => true,
+      beforeEmitItem: () => true,
+    })
+    const field = covered.status === "accepted" ? covered.fragments[0]?.item : null
+    if (field?.kind !== "resolved-field") throw new Error("field fixture missing")
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot: previousRoot.root,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      change: frozen({
+        source: "vnext-text-block-unified-layout-change-v1" as const,
+        contractVersion: 1 as const,
+        kind: "resolved-field-rendered-value-change" as const,
+        documentId: previousRoot.root.documentId,
+        sectionId: previousRoot.root.sectionId,
+        textBlockId: previousRoot.root.textBlockId,
+        expectedPreviousRootFingerprint: previousRoot.root.fingerprint,
+        expectedPreviousSourceFingerprint: previousRoot.root.sourceState.fingerprint,
+        inlineId: field.inlineId,
+        fieldKey: field.fieldKey,
+        expectedPreviousRenderedValueFingerprint: field.contentFingerprint,
+        nextRenderedText: field.renderedText,
+        nextSource: {
+          lineageId: field.lineageId,
+          sourceFingerprint: field.sourceFingerprint,
+          provenanceFingerprint: `${field.provenanceFingerprint}-next`,
+        },
+      }),
+    })
+    expect(result).toMatchObject({
+      status: "not-required",
+      request: null,
+      sourceMaterial: null,
+      preflight: {
+        producerEvidence: "not-required",
+        effectClassification: {
+          effectClass: "semantic-only-change",
+          semanticIdentityChanged: true,
+        },
+      },
+    })
+  })
+
   it("keeps a true no-op evidence-free after exact change binding", () => {
     const previousRoot = acceptedUnifiedLayoutRootFixtureV2({
       content: "text-only",

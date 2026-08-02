@@ -2510,6 +2510,7 @@ export function visitVNextTextBlockTransitionSourceCoverageInternalV1(input: {
     if (node.nodeKind === "branch") {
       let childStart = start
       for (const child of node.children) {
+        if (childStart >= input.range.endRenderedUtf16) return
         visit(child, childStart)
         childStart += child.summary.renderedUtf16Length
         if (stopped) return

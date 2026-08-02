@@ -213,9 +213,35 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
   const bound = bindVNextTextBlockUnifiedLayoutChangeInternalV1(input)
   if (bound.status !== "accepted") return freeze({ status: "blocked" as const, completedCandidateWork: bound.incrementalCandidateWork, issues: bound.issues })
   const { validatedChange } = bound
-  if (validatedChange.producerEvidence === "not-required") {
+  const equalRenderedField = validatedChange.change.kind === "resolved-field-rendered-value-change"
+    && (() => {
+      const changedRange = sourceRangeForChange(input.previousRoot, validatedChange.change)
+      if (changedRange == null) return false
+      const covered = visitVNextTextBlockTransitionSourceCoverageInternalV1({
+        sourceState: input.previousRoot.sourceState,
+        range: changedRange,
+        beforeVisitNode: () => true,
+        beforeEmitItem: () => true,
+      })
+      const item = covered.status === "accepted" ? covered.fragments[0]?.item : null
+      return item?.kind === "resolved-field"
+        && item.renderedText === validatedChange.change.nextRenderedText
+    })()
+  const producerEvidence = equalRenderedField ? "not-required" as const : validatedChange.producerEvidence
+  const effectClassification = equalRenderedField
+    ? freeze({
+        effectClass: "semantic-only-change" as const,
+        semanticIdentityChanged: true,
+        fingerprint: fingerprint({
+          effectClass: "semantic-only-change",
+          semanticIdentityChanged: true,
+          validatedChangeFingerprint: validatedChange.fingerprint,
+        }),
+      })
+    : validatedChange.effectClassification
+  if (producerEvidence === "not-required") {
     const ranges = emptyRanges()
-    const preflight = freeze({ change: validatedChange.change, eligibility: validatedChange.eligibility, expectedTargetBinding: validatedChange.expectedTargetBinding, effectClassification: validatedChange.effectClassification, producerEvidence: validatedChange.producerEvidence, previousRanges: ranges, nextRanges: ranges, replacementItems: freeze([]), fingerprint: fingerprint({ changeFingerprint: validatedChange.fingerprint, ranges }) })
+    const preflight = freeze({ change: validatedChange.change, eligibility: validatedChange.eligibility, expectedTargetBinding: validatedChange.expectedTargetBinding, effectClassification, producerEvidence, previousRanges: ranges, nextRanges: ranges, replacementItems: freeze([]), fingerprint: fingerprint({ changeFingerprint: validatedChange.fingerprint, ranges, effectClassification }) })
     preflights.set(preflight, { request: null, sourceMaterial: null })
     return freeze({ status: "not-required" as const, preflight, request: null, sourceMaterial: null, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([]) })
   }
@@ -257,7 +283,7 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
   })
   const work = requestedWork(bound.incrementalCandidateWork, input.workPolicy, visitedNodes, emittedAtoms, 0, flowCoverage.status === "accepted" ? flowCoverage.fragments.length : 0)
   if (sourceCoverage.status !== "accepted" || flowCoverage.status !== "accepted") return freeze({ status: "fallback-required" as const, evaluatorOrProofAuthority: freeze({}), completedCandidateWork: work, issues: freeze([]) })
-  const paragraphStyleKey = input.previousRoot.sourceState.producerRequirements.paragraphFontFamilyKey
+  const paragraphStyleKey = input.previousRoot.sourceState.producerRequirements.paragraphStyle.styleKey
   const previousAtoms = sourceCoverage.fragments.map((fragment) => atomFromItem(fragment.item, fragment.itemAbsoluteStartRenderedUtf16, fragment.selectedAbsoluteStartRenderedUtf16, fragment.selectedAbsoluteEndRenderedUtf16, previousRanges.coverageRange.startRenderedUtf16, paragraphStyleKey))
   const replacementItems: readonly VNextTextBlockUnifiedLayoutSourceItemV1[] = replacementStyle == null
     || (validatedChange.change.kind !== "text-insertion" && validatedChange.change.kind !== "text-replacement")
@@ -290,7 +316,7 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
     return [shiftedAtom(atom, delta + previousRanges.coverageRange.startRenderedUtf16 - nextRanges.coverageRange.startRenderedUtf16)]
   })
   const next = lane(nextRanges, insertedAtoms.length === 0 ? nextContextAtoms : [...insertedAtoms, ...nextContextAtoms])
-  const preflight = freeze({ change: validatedChange.change, eligibility: validatedChange.eligibility, expectedTargetBinding: validatedChange.expectedTargetBinding, effectClassification: validatedChange.effectClassification, producerEvidence: validatedChange.producerEvidence, previousRanges, nextRanges, replacementItems, fingerprint: fingerprint({ changeFingerprint: validatedChange.fingerprint, previousRanges, nextRanges }) })
+  const preflight = freeze({ change: validatedChange.change, eligibility: validatedChange.eligibility, expectedTargetBinding: validatedChange.expectedTargetBinding, effectClassification, producerEvidence, previousRanges, nextRanges, replacementItems, fingerprint: fingerprint({ changeFingerprint: validatedChange.fingerprint, previousRanges, nextRanges, effectClassification }) })
   const responseLimit = evaluatedLimit(input.workPolicy, input.previousRoot, "evidence-response-nodes", 0)
   if (responseLimit.status !== "within-limit") return freeze({ status: "fallback-required" as const, evaluatorOrProofAuthority: freeze({}), completedCandidateWork: work, issues: freeze([]) })
   const requestFacts = { source: "vnext-text-block-transition-evidence-request-v2" as const, contractVersion: 2 as const, previousRootFingerprint: input.previousRoot.fingerprint, changeFingerprint: validatedChange.fingerprint, documentId: input.previousRoot.documentId, sectionId: input.previousRoot.sectionId, textBlockId: input.previousRoot.textBlockId, previous: previousRanges, next: nextRanges, nextSegmentationContextRanges: freeze([nextRanges.shapeVerificationRange]), requiredStableSegmentationExpansionCount: 1, fontStyleUnitDependencyFingerprint: input.previousRoot.sourceState.producerRequirements.fontStyleUnitDependencyFingerprint, producerRuntimeRequirementFingerprint: input.previousRoot.sourceState.producerRequirements.producerRuntimeRequirementFingerprint, layoutUnitPolicyFingerprint: input.previousRoot.sourceState.producerRequirements.layoutUnitPolicyFingerprint, workPolicyFingerprint: input.workPolicy.fingerprint }
