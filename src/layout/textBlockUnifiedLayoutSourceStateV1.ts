@@ -131,6 +131,74 @@ const imagePaintSourceItemAuthorities = new WeakMap<
   }
 >()
 
+interface RegisteredStyleSetInternalV1 {
+  readonly entries: readonly {
+    readonly style: VNextTextBlockUnifiedLayoutSourceStyleV1
+    readonly referenceCount: number
+  }[]
+}
+
+const registeredStylesBySourceState = new WeakMap<
+  VNextTextBlockUnifiedLayoutSourceStateV1,
+  RegisteredStyleSetInternalV1
+>()
+
+function registeredStyleSetFromItems(
+  items: readonly VNextTextBlockUnifiedLayoutSourceItemV1[],
+): RegisteredStyleSetInternalV1 {
+  const counts = new Map<VNextTextBlockUnifiedLayoutSourceStyleV1, number>()
+  for (const item of items) {
+    if (item.kind === "text" || item.kind === "resolved-field" || item.kind === "generated-page-number") {
+      counts.set(item.style, (counts.get(item.style) ?? 0) + 1)
+    }
+  }
+  return Object.freeze({
+    entries: Object.freeze([...counts.entries()].map(([style, referenceCount]) =>
+      Object.freeze({ style, referenceCount })
+    )),
+  })
+}
+
+function sameResolvedStyle(
+  left: VNextTextBlockUnifiedLayoutSourceStyleV1,
+  right: VNextTextBlockUnifiedLayoutSourceStyleV1,
+): boolean {
+  return left.measurementStyleKey === right.measurementStyleKey
+    && left.effectiveShapingStyleKey === right.effectiveShapingStyleKey
+    && left.fontFamilyKey === right.fontFamilyKey
+    && left.fontFaceId === right.fontFaceId
+    && left.fontSizeLayoutUnit === right.fontSizeLayoutUnit
+    && left.textColor === right.textColor
+    && left.fontWeight === right.fontWeight
+    && left.fontStyle === right.fontStyle
+    && left.textDecoration === right.textDecoration
+    && left.strikethrough === right.strikethrough
+}
+
+export interface VNextTextBlockTransitionSourceCoverageFragmentInternalV1 {
+  readonly item: VNextTextBlockUnifiedLayoutSourceItemV1
+  readonly itemAbsoluteStartRenderedUtf16: number
+  readonly itemAbsoluteEndRenderedUtf16: number
+  readonly selectedAbsoluteStartRenderedUtf16: number
+  readonly selectedAbsoluteEndRenderedUtf16: number
+}
+
+export type VNextTextBlockTransitionSourceCoverageResultInternalV1 =
+  | {
+      readonly status: "accepted"
+      readonly fragments: readonly VNextTextBlockTransitionSourceCoverageFragmentInternalV1[]
+      readonly visitedNodeCount: number
+      readonly emittedItemCount: number
+      readonly completeTreeTraversalCount: 0
+    }
+  | {
+      readonly status: "blocked" | "limit-exceeded"
+      readonly fragments: null
+      readonly visitedNodeCount: number
+      readonly emittedItemCount: number
+      readonly completeTreeTraversalCount: 0
+    }
+
 export interface VNextTextBlockSourceIndexLookupObservationForTestV1 {
   readonly inlineId: string
   readonly indexProbeCount: number
@@ -1370,6 +1438,10 @@ function buildComplete(
       itemIndex,
       sourceEnvelopeFacts,
     })
+    registeredStylesBySourceState.set(
+      sourceState,
+      registeredStyleSetFromItems(items),
+    )
     const evidenceStates = statesByEvidence.get(evidence) ?? new WeakSet()
     evidenceStates.add(sourceState)
     statesByEvidence.set(evidence, evidenceStates)
@@ -2006,6 +2078,12 @@ export function createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransition
       itemIndex: prepared.itemIndex,
       sourceEnvelopeFacts: prepared.sourceEnvelopeFacts,
     })
+    const previousStyles = registeredStylesBySourceState.get(
+      input.previousSourceState,
+    )
+    if (previousStyles != null) {
+      registeredStylesBySourceState.set(sourceState, previousStyles)
+    }
     const nextStates =
       imagePaintNextStates.get(input.previousSourceState) ?? new WeakSet()
     nextStates.add(sourceState)
@@ -2379,4 +2457,84 @@ export function lookupVNextTextBlockUnifiedLayoutSourceItemInternalV1(input: {
       completeTreeTraversalCount: 0,
     },
   }
+}
+
+export function resolveVNextTextBlockRegisteredSourceStyleInternalV1(input: {
+  readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly measurementStyleKey: string
+  readonly effectiveShapingStyleKey: string
+}):
+  | { readonly status: "resolved"; readonly style: VNextTextBlockUnifiedLayoutSourceStyleV1 }
+  | { readonly status: "unavailable" | "ambiguous"; readonly style: null } {
+  const registered = registeredStylesBySourceState.get(input.sourceState)
+  if (registered == null) return { status: "unavailable", style: null }
+  const candidates = registered.entries
+    .map((entry) => entry.style)
+    .filter((style) =>
+      style.measurementStyleKey === input.measurementStyleKey
+      && style.effectiveShapingStyleKey === input.effectiveShapingStyleKey
+    )
+  if (candidates.length === 0) return { status: "unavailable", style: null }
+  const first = candidates[0]!
+  return candidates.every((candidate) => sameResolvedStyle(first, candidate))
+    ? { status: "resolved", style: first }
+    : { status: "ambiguous", style: null }
+}
+
+export function visitVNextTextBlockTransitionSourceCoverageInternalV1(input: {
+  readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly range: { readonly startRenderedUtf16: number; readonly endRenderedUtf16: number }
+  readonly beforeVisitNode: () => boolean
+  readonly beforeEmitItem: () => boolean
+}): VNextTextBlockTransitionSourceCoverageResultInternalV1 {
+  if (
+    inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1(input.sourceState)
+      .status !== "prepared-unregistered"
+    || !Number.isSafeInteger(input.range.startRenderedUtf16)
+    || !Number.isSafeInteger(input.range.endRenderedUtf16)
+    || input.range.startRenderedUtf16 < 0
+    || input.range.endRenderedUtf16 < input.range.startRenderedUtf16
+    || input.range.endRenderedUtf16 > input.sourceState.summary.renderedUtf16Length
+  ) return { status: "blocked", fragments: null, visitedNodeCount: 0, emittedItemCount: 0, completeTreeTraversalCount: 0 }
+  const fragments: VNextTextBlockTransitionSourceCoverageFragmentInternalV1[] = []
+  let visitedNodeCount = 0
+  let emittedItemCount = 0
+  let stopped = false
+  const visit = (
+    node: VNextTextBlockUnifiedLayoutSourceNodeV1,
+    start: number,
+  ): void => {
+    if (stopped || input.range.endRenderedUtf16 <= start || input.range.startRenderedUtf16 >= start + node.summary.renderedUtf16Length) return
+    if (!input.beforeVisitNode()) { stopped = true; return }
+    visitedNodeCount += 1
+    if (node.nodeKind === "branch") {
+      let childStart = start
+      for (const child of node.children) {
+        visit(child, childStart)
+        childStart += child.summary.renderedUtf16Length
+        if (stopped) return
+      }
+      return
+    }
+    let itemStart = start
+    for (const item of node.items) {
+      const itemEnd = itemStart + item.renderedUtf16Length
+      if (input.range.startRenderedUtf16 < itemEnd && input.range.endRenderedUtf16 > itemStart) {
+        if (!input.beforeEmitItem()) { stopped = true; return }
+        emittedItemCount += 1
+        fragments.push(Object.freeze({
+          item,
+          itemAbsoluteStartRenderedUtf16: itemStart,
+          itemAbsoluteEndRenderedUtf16: itemEnd,
+          selectedAbsoluteStartRenderedUtf16: Math.max(itemStart, input.range.startRenderedUtf16),
+          selectedAbsoluteEndRenderedUtf16: Math.min(itemEnd, input.range.endRenderedUtf16),
+        }))
+      }
+      itemStart = itemEnd
+    }
+  }
+  visit(input.sourceState.root, 0)
+  return stopped
+    ? { status: "limit-exceeded", fragments: null, visitedNodeCount, emittedItemCount, completeTreeTraversalCount: 0 }
+    : { status: "accepted", fragments: Object.freeze(fragments), visitedNodeCount, emittedItemCount, completeTreeTraversalCount: 0 }
 }

@@ -41,6 +41,7 @@ import type {
   VNextTextBlockUnifiedLayoutSourceNodeV1,
   VNextTextBlockUnifiedLayoutSourceStateV1,
 } from "./textBlockUnifiedLayoutSourceStateContractV1.js"
+import type { VNextTextBlockSourceRangeV1 } from "./textBlockUnifiedLayoutChangeContractV1.js"
 
 type FingerprintFactory = (canonicalFacts: string) => string
 
@@ -84,6 +85,28 @@ WeakSet<VNextTextBlockIncrementalFlowTreeV1>
 const registeredRootGraphTrees = new WeakSet<
 VNextTextBlockIncrementalFlowTreeV1
 >()
+
+export interface VNextTextBlockTransitionFlowCoverageFragmentInternalV1 {
+  readonly atom: VNextTextBlockIncrementalFlowAtomV1
+  readonly atomAbsoluteStartRenderedUtf16: number
+  readonly atomAbsoluteEndRenderedUtf16: number
+}
+
+export type VNextTextBlockTransitionFlowCoverageResultInternalV1 =
+  | {
+      readonly status: "accepted"
+      readonly fragments: readonly VNextTextBlockTransitionFlowCoverageFragmentInternalV1[]
+      readonly visitedNodeCount: number
+      readonly emittedAtomCount: number
+      readonly completeTreeTraversalCount: 0
+    }
+  | {
+      readonly status: "blocked" | "limit-exceeded"
+      readonly fragments: null
+      readonly visitedNodeCount: number
+      readonly emittedAtomCount: number
+      readonly completeTreeTraversalCount: 0
+    }
 
 function defaultFingerprint(canonicalFacts: string): string {
   return createVNextCompactFingerprint(canonicalFacts)
@@ -1092,4 +1115,53 @@ export function lookupVNextTextBlockIncrementalFlowAtomInternalV1(input: {
       completeTreeTraversalCount: 0,
     },
   }
+}
+
+export function visitVNextTextBlockTransitionFlowCoverageInternalV1(input: {
+  readonly flowTree: VNextTextBlockIncrementalFlowTreeV1
+  readonly range: VNextTextBlockSourceRangeV1
+  readonly beforeVisitNode: () => boolean
+  readonly beforeEmitAtom: () => boolean
+}): VNextTextBlockTransitionFlowCoverageResultInternalV1 {
+  if (
+    inspectVNextTextBlockIncrementalFlowTreeInternalV1(input.flowTree)
+      .status !== "prepared-unregistered"
+    || !Number.isSafeInteger(input.range.startRenderedUtf16)
+    || !Number.isSafeInteger(input.range.endRenderedUtf16)
+    || input.range.startRenderedUtf16 < 0
+    || input.range.endRenderedUtf16 < input.range.startRenderedUtf16
+    || input.range.endRenderedUtf16 > input.flowTree.summary.renderedUtf16Length
+  ) return { status: "blocked", fragments: null, visitedNodeCount: 0, emittedAtomCount: 0, completeTreeTraversalCount: 0 }
+  const fragments: VNextTextBlockTransitionFlowCoverageFragmentInternalV1[] = []
+  let visitedNodeCount = 0
+  let emittedAtomCount = 0
+  let stopped = false
+  const visit = (node: VNextTextBlockIncrementalFlowNodeV1, start: number): void => {
+    if (stopped || input.range.endRenderedUtf16 <= start || input.range.startRenderedUtf16 >= start + node.summary.renderedUtf16Length) return
+    if (!input.beforeVisitNode()) { stopped = true; return }
+    visitedNodeCount += 1
+    if (node.nodeKind === "branch") {
+      let childStart = start
+      for (const child of node.children) {
+        visit(child, childStart)
+        childStart += child.summary.renderedUtf16Length
+        if (stopped) return
+      }
+      return
+    }
+    let atomStart = start
+    for (const atom of node.atoms) {
+      const atomEnd = atomStart + atom.renderedUtf16Length
+      if (input.range.startRenderedUtf16 < atomEnd && input.range.endRenderedUtf16 > atomStart) {
+        if (!input.beforeEmitAtom()) { stopped = true; return }
+        emittedAtomCount += 1
+        fragments.push(Object.freeze({ atom, atomAbsoluteStartRenderedUtf16: atomStart, atomAbsoluteEndRenderedUtf16: atomEnd }))
+      }
+      atomStart = atomEnd
+    }
+  }
+  visit(input.flowTree.root, 0)
+  return stopped
+    ? { status: "limit-exceeded", fragments: null, visitedNodeCount, emittedAtomCount, completeTreeTraversalCount: 0 }
+    : { status: "accepted", fragments: Object.freeze(fragments), visitedNodeCount, emittedAtomCount, completeTreeTraversalCount: 0 }
 }

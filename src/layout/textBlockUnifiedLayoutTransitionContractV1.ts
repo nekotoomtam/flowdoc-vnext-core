@@ -121,6 +121,7 @@ export type VNextTextBlockUnifiedLayoutIssueCodeV1 =
   | "invalid-change-range"
   | "invalid-change-value"
   | "unsupported-change-value"
+  | "style-authority-ambiguous"
   | "invalid-work-policy"
   | "inactive-work-policy-stage"
   | "prelock-work-policy-stage"
