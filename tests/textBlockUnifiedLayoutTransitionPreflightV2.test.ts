@@ -15,6 +15,10 @@ import {
 import {
   visitVNextTextBlockTransitionSourceCoverageInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
+import { createVNextCompactFingerprint } from "../src/fingerprint/compactFingerprint.js"
+import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
+import type { VNextTextBlockUnifiedLayoutRootV2 } from "../src/layout/textBlockUnifiedLayoutRootContractV2.js"
+import type { VNextTextBlockUnifiedLayoutSourceItemV1 } from "../src/layout/textBlockUnifiedLayoutSourceStateContractV1.js"
 
 function frozen<T>(value: T): T {
   if (value != null && typeof value === "object") {
@@ -63,6 +67,96 @@ function contains(
 ) {
   return outer.startRenderedUtf16 <= inner.startRenderedUtf16
     && outer.endRenderedUtf16 >= inner.endRenderedUtf16
+}
+
+function fingerprint(value: unknown): string {
+  return createVNextCompactFingerprint(stringifyVNextCanonicalJson(value))
+}
+
+function textRoot(text: string) {
+  const built = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+    unifiedLayoutRootBuildInputFixtureV2({ content: "text-only", text }),
+    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+  )
+  if (built.status !== "accepted") throw new Error("text root missing")
+  return built.root
+}
+
+function coveredItems(
+  root: VNextTextBlockUnifiedLayoutRootV2,
+  startRenderedUtf16 = 0,
+  endRenderedUtf16 = root.sourceState.summary.renderedUtf16Length,
+) {
+  const result = visitVNextTextBlockTransitionSourceCoverageInternalV1({
+    sourceState: root.sourceState,
+    range: { startRenderedUtf16, endRenderedUtf16 },
+    beforeVisitNode: () => true,
+    beforeEmitItem: () => true,
+  })
+  if (result.status !== "accepted") throw new Error("source coverage missing")
+  return result.fragments
+}
+
+function changeBase(root: VNextTextBlockUnifiedLayoutRootV2) {
+  return {
+    source: "vnext-text-block-unified-layout-change-v1" as const,
+    contractVersion: 1 as const,
+    documentId: root.documentId,
+    sectionId: root.sectionId,
+    textBlockId: root.textBlockId,
+    expectedPreviousRootFingerprint: root.fingerprint,
+    expectedPreviousSourceFingerprint: root.sourceState.fingerprint,
+  }
+}
+
+function expectedCanonicalInsertedTextItem(input: {
+  readonly renderedText: string
+  readonly inlineId: string
+  readonly sourceFingerprint: string
+  readonly provenanceFingerprint: string
+  readonly style: Extract<VNextTextBlockUnifiedLayoutSourceItemV1, { kind: "text" }>["style"]
+}): VNextTextBlockUnifiedLayoutSourceItemV1 {
+  const semanticFingerprint = fingerprint({ kind: "text", inlineId: input.inlineId })
+  const contentFingerprint = fingerprint({
+    renderedText: input.renderedText,
+    renderedUtf16Length: input.renderedText.length,
+  })
+  const paintFingerprint = fingerprint({
+    textColor: input.style.textColor,
+    textDecoration: input.style.textDecoration,
+    strikethrough: input.style.strikethrough,
+    authoredTextColor: input.style.authoredLocalStyle?.textColor ?? null,
+  })
+  const layoutDependencyFingerprint = fingerprint({
+    fontFamilyKey: input.style.fontFamilyKey,
+    fontFaceId: input.style.fontFaceId,
+    fontSizeLayoutUnit: input.style.fontSizeLayoutUnit,
+    fontWeight: input.style.fontWeight,
+    fontStyle: input.style.fontStyle,
+  })
+  const boundaryFingerprint = fingerprint({
+    kind: "text-bearing",
+    inlineId: input.inlineId,
+  })
+  const facts = {
+    lineageId: input.inlineId,
+    inlineId: input.inlineId,
+    renderedText: input.renderedText,
+    renderedUtf16Length: input.renderedText.length,
+    semanticFingerprint,
+    contentFingerprint,
+    sourceFingerprint: input.sourceFingerprint,
+    provenanceFingerprint: input.provenanceFingerprint,
+    paintFingerprint,
+    layoutDependencyFingerprint,
+    boundaryFingerprint,
+    kind: "text" as const,
+    style: input.style,
+  }
+  return {
+    ...facts,
+    fingerprint: fingerprint({ contractVersion: 1, ...facts }),
+  }
 }
 
 describe("Text-block unified transition preflight V2", () => {
@@ -175,5 +269,127 @@ describe("Text-block unified transition preflight V2", () => {
         measurementStyleKey: "paragraph-body",
       }),
     }))
+  })
+
+  it("preserves exact prefix and suffix material around a middle text replacement", () => {
+    const previousRoot = textRoot("ABCD")
+    const item = coveredItems(previousRoot)[0]?.item
+    if (item?.kind !== "text") throw new Error("text item missing")
+    const insertedSource = {
+      lineageId: "replacement-x",
+      sourceFingerprint: "replacement-source",
+      provenanceFingerprint: "replacement-provenance",
+    }
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      change: frozen({
+        ...changeBase(previousRoot),
+        kind: "text-replacement" as const,
+        removedRange: { startRenderedUtf16: 1, endRenderedUtf16: 3 },
+        expectedRemovedContentFingerprint: item.contentFingerprint,
+        expectedRemovedSourceFingerprint: item.sourceFingerprint,
+        expectedRemovedProvenanceFingerprint: item.provenanceFingerprint,
+        insertedText: "xy",
+        insertedSource,
+        measurementStyleKey: item.style.measurementStyleKey,
+        effectiveShapingStyleKey: item.style.effectiveShapingStyleKey,
+      }),
+    })
+
+    expect(result.status).toBe("required")
+    if (result.status !== "required") return
+    expect(result.sourceMaterial.next.atoms.map((atom) => atom.renderedText))
+      .toEqual(["A", "xy", "D"])
+    expect(result.preflight.replacementItems).toEqual([
+      expectedCanonicalInsertedTextItem({
+        renderedText: "xy",
+        inlineId: insertedSource.lineageId,
+        sourceFingerprint: insertedSource.sourceFingerprint,
+        provenanceFingerprint: insertedSource.provenanceFingerprint,
+        style: item.style,
+      }),
+    ])
+  })
+
+  it("emits the exact next resolved-field atom with retained style and new provenance", () => {
+    const built = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+      unifiedLayoutRootBuildInputFixtureV2({ content: "field-image-page-break" }),
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    )
+    if (built.status !== "accepted") throw new Error("field root missing")
+    const previousRoot = built.root
+    const field = coveredItems(previousRoot)[0]?.item
+    if (field?.kind !== "resolved-field") throw new Error("field item missing")
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      change: frozen({
+        ...changeBase(previousRoot),
+        kind: "resolved-field-rendered-value-change" as const,
+        inlineId: field.inlineId,
+        fieldKey: field.fieldKey,
+        expectedPreviousRenderedValueFingerprint: field.contentFingerprint,
+        nextRenderedText: "Q",
+        nextSource: {
+          lineageId: field.lineageId,
+          sourceFingerprint: "field-source-next",
+          provenanceFingerprint: "field-provenance-next",
+        },
+      }),
+    })
+
+    expect(result.status).toBe("required")
+    if (result.status !== "required") return
+    expect(result.preflight.replacementItems).toHaveLength(1)
+    expect(result.preflight.replacementItems[0]).toMatchObject({
+      kind: "resolved-field",
+      fieldKey: field.fieldKey,
+      inlineId: field.inlineId,
+      renderedText: "Q",
+      sourceFingerprint: "field-source-next",
+      provenanceFingerprint: "field-provenance-next",
+      style: field.style,
+    })
+    expect(result.sourceMaterial.next.atoms).toContainEqual(expect.objectContaining({
+      kind: "resolved-field",
+      fieldKey: field.fieldKey,
+      renderedText: "Q",
+      sourceFingerprint: "field-source-next",
+      provenanceFingerprint: "field-provenance-next",
+      resolvedStyle: expect.objectContaining({
+        effectiveShapingStyleKey: field.style.effectiveShapingStyleKey,
+      }),
+    }))
+  })
+
+  it("splits style material without deleting selected text", () => {
+    const previousRoot = textRoot("ABCD")
+    const item = coveredItems(previousRoot)[0]?.item
+    if (item?.kind !== "text") throw new Error("text item missing")
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      change: frozen({
+        ...changeBase(previousRoot),
+        kind: "supported-style-change" as const,
+        range: { startRenderedUtf16: 1, endRenderedUtf16: 3 },
+        expectedPreviousStyleFingerprint: item.layoutDependencyFingerprint,
+        expectedPreviousStyleProvenanceFingerprint: item.provenanceFingerprint,
+        nextStyle: { textColor: "FF0000" },
+        nextStyleFingerprint: fingerprint({ textColor: "FF0000" }),
+        nextStyleProvenanceFingerprint: fingerprint({ owner: "style-red" }),
+      }),
+    })
+
+    expect(result.status).toBe("required")
+    if (result.status !== "required") return
+    expect(result.sourceMaterial.next.atoms.map((atom) => atom.renderedText))
+      .toEqual(["A", "BC", "D"])
+    expect(result.sourceMaterial.next.atoms[1]).toMatchObject({
+      kind: "text",
+      renderedText: "BC",
+      resolvedStyle: expect.objectContaining({ textColor: "FF0000" }),
+    })
   })
 })

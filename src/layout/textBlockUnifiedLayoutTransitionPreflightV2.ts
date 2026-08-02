@@ -13,7 +13,9 @@ import {
   bindVNextTextBlockUnifiedLayoutChangeInternalV1,
 } from "./textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
+  createVNextTextBlockTransitionReplacementSourceItemInternalV1,
   resolveVNextTextBlockRegisteredSourceStyleInternalV1,
+  resolveVNextTextBlockSupportedStyleOverlayInternalV1,
   visitVNextTextBlockTransitionSourceCoverageInternalV1,
 } from "./textBlockUnifiedLayoutSourceStateV1.js"
 import {
@@ -133,15 +135,21 @@ function styleV2(style: VNextTextBlockUnifiedLayoutSourceStyleV1, paragraphStyle
 function atomFromItem(
   item: VNextTextBlockUnifiedLayoutSourceItemV1,
   itemAbsoluteStart: number,
-  absoluteStart: number,
-  absoluteEnd: number,
+  selectedAbsoluteStart: number,
+  selectedAbsoluteEnd: number,
+  outputAbsoluteStart: number,
   laneStart: number,
   paragraphStyleKey: string,
 ): VNextTextBlockTransitionProducerSourceAtomV2 {
+  const renderedText = item.renderedText.slice(
+    selectedAbsoluteStart - itemAbsoluteStart,
+    selectedAbsoluteEnd - itemAbsoluteStart,
+  )
   const base = {
-    relativeStartRenderedUtf16: absoluteStart - laneStart,
-    relativeEndRenderedUtf16: absoluteEnd - laneStart,
-    renderedText: item.renderedText.slice(absoluteStart - itemAbsoluteStart, absoluteEnd - itemAbsoluteStart),
+    relativeStartRenderedUtf16: outputAbsoluteStart - laneStart,
+    relativeEndRenderedUtf16:
+      outputAbsoluteStart + renderedText.length - laneStart,
+    renderedText,
     inlineId: item.inlineId,
     sourceFingerprint: item.sourceFingerprint,
     provenanceFingerprint: item.provenanceFingerprint,
@@ -152,41 +160,6 @@ function atomFromItem(
         : item.kind === "hard-break" ? { kind: "hard-break" as const, boundaryFingerprint: item.boundaryFingerprint }
           : { kind: "inline-image-boundary" as const, boundaryFingerprint: item.boundaryFingerprint }
   return freeze({ ...base, ...variant, fingerprint: fingerprint({ ...base, ...variant }) }) as VNextTextBlockTransitionProducerSourceAtomV2
-}
-
-function shiftedAtom(
-  atom: VNextTextBlockTransitionProducerSourceAtomV2,
-  delta: number,
-): VNextTextBlockTransitionProducerSourceAtomV2 {
-  const { fingerprint: _fingerprint, ...facts } = atom
-  const shifted = {
-    ...facts,
-    relativeStartRenderedUtf16: facts.relativeStartRenderedUtf16 + delta,
-    relativeEndRenderedUtf16: facts.relativeEndRenderedUtf16 + delta,
-  }
-  return freeze({ ...shifted, fingerprint: fingerprint(shifted) }) as VNextTextBlockTransitionProducerSourceAtomV2
-}
-
-function replacementItem(
-  change: Extract<VNextTextBlockUnifiedLayoutChangeV1, { readonly kind: "text-insertion" | "text-replacement" }>,
-  style: VNextTextBlockUnifiedLayoutSourceStyleV1,
-): VNextTextBlockUnifiedLayoutSourceItemV1 {
-  const common = {
-    lineageId: change.insertedSource.lineageId,
-    inlineId: change.insertedSource.lineageId,
-    renderedText: change.insertedText,
-    renderedUtf16Length: change.insertedText.length,
-    semanticFingerprint: fingerprint({ kind: "text", lineageId: change.insertedSource.lineageId }),
-    contentFingerprint: fingerprint({ renderedText: change.insertedText }),
-    sourceFingerprint: change.insertedSource.sourceFingerprint,
-    provenanceFingerprint: change.insertedSource.provenanceFingerprint,
-    paintFingerprint: fingerprint({ textColor: style.textColor, textDecoration: style.textDecoration, strikethrough: style.strikethrough }),
-    layoutDependencyFingerprint: fingerprint({ fontFamilyKey: style.fontFamilyKey, fontFaceId: style.fontFaceId, fontSizeLayoutUnit: style.fontSizeLayoutUnit, fontWeight: style.fontWeight, fontStyle: style.fontStyle }),
-    boundaryFingerprint: fingerprint({ kind: "text-bearing", inlineId: change.insertedSource.lineageId }),
-    kind: "text" as const,
-    style,
-  }
-  return freeze({ ...common, fingerprint: fingerprint({ contractVersion: 1, ...common }) })
 }
 
 function requestedWork(base: VNextTextBlockIncrementalCandidateWorkV1, policy: VNextTextBlockUnifiedLayoutWorkPolicyV1, lookup: number, atoms: number, requestedAtoms: number, requestedClusters: number): VNextTextBlockIncrementalCandidateWorkV1 {
@@ -250,19 +223,107 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
   if (sourceRange == null || sourceRange.startRenderedUtf16 < 0 || sourceRange.endRenderedUtf16 < sourceRange.startRenderedUtf16 || sourceRange.endRenderedUtf16 > previousLength) {
     return freeze({ status: "blocked" as const, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([issue("invalid-change-range", "change", "preflight requires one safe bounded source range")]) })
   }
-  let replacementText = ""
-  let replacementStyle: VNextTextBlockUnifiedLayoutSourceStyleV1 | null = null
+  let replacementItems: readonly VNextTextBlockUnifiedLayoutSourceItemV1[] = freeze([])
   if (validatedChange.change.kind === "text-insertion" || validatedChange.change.kind === "text-replacement") {
-    replacementText = validatedChange.change.insertedText
     const resolved = resolveVNextTextBlockRegisteredSourceStyleInternalV1({ sourceState: input.previousRoot.sourceState, measurementStyleKey: validatedChange.change.measurementStyleKey, effectiveShapingStyleKey: validatedChange.change.effectiveShapingStyleKey })
     if (resolved.status !== "resolved") return freeze({ status: "blocked" as const, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([issue(resolved.status === "ambiguous" ? "style-authority-ambiguous" : "unsupported-change-value", "change", "inserted text must use one exact registered Source State style")]) })
-    replacementStyle = resolved.style
+    const item = createVNextTextBlockTransitionReplacementSourceItemInternalV1({
+      sourceState: input.previousRoot.sourceState,
+      kind: "text",
+      renderedText: validatedChange.change.insertedText,
+      lineageId: validatedChange.change.insertedSource.lineageId,
+      inlineId: validatedChange.change.insertedSource.lineageId,
+      sourceFingerprint: validatedChange.change.insertedSource.sourceFingerprint,
+      provenanceFingerprint:
+        validatedChange.change.insertedSource.provenanceFingerprint,
+      style: resolved.style,
+    })
+    if (item == null) return freeze({ status: "blocked" as const, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([issue("unsupported-change-value", "change", "inserted text could not produce canonical Source facts")]) })
+    replacementItems = freeze([item])
   } else if (validatedChange.change.kind === "resolved-field-rendered-value-change") {
-    replacementText = validatedChange.change.nextRenderedText
+    const fieldChange = validatedChange.change
+    const fieldCoverage = visitVNextTextBlockTransitionSourceCoverageInternalV1({
+      sourceState: input.previousRoot.sourceState,
+      range: sourceRange,
+      beforeVisitNode: () => true,
+      beforeEmitItem: () => true,
+    })
+    const previousField = fieldCoverage.status === "accepted"
+      ? fieldCoverage.fragments.find((fragment) =>
+          fragment.item.kind === "resolved-field"
+          && fragment.item.inlineId === fieldChange.inlineId
+          && fragment.item.fieldKey === fieldChange.fieldKey
+        )?.item
+      : null
+    if (previousField?.kind !== "resolved-field") return freeze({ status: "blocked" as const, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([issue("change-target-mismatch", "change", "resolved field change requires the exact previous field item")]) })
+    const item = createVNextTextBlockTransitionReplacementSourceItemInternalV1({
+      sourceState: input.previousRoot.sourceState,
+      kind: "resolved-field",
+      fieldKey: previousField.fieldKey,
+      renderedText: fieldChange.nextRenderedText,
+      lineageId: fieldChange.nextSource.lineageId,
+      inlineId: previousField.inlineId,
+      sourceFingerprint: fieldChange.nextSource.sourceFingerprint,
+      provenanceFingerprint:
+        fieldChange.nextSource.provenanceFingerprint,
+      style: previousField.style,
+    })
+    if (item == null) return freeze({ status: "blocked" as const, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([issue("unsupported-change-value", "change", "resolved field change could not produce canonical Source facts")]) })
+    replacementItems = freeze([item])
+  } else if (validatedChange.change.kind === "supported-style-change") {
+    const styleCoverage = visitVNextTextBlockTransitionSourceCoverageInternalV1({
+      sourceState: input.previousRoot.sourceState,
+      range: sourceRange,
+      beforeVisitNode: () => true,
+      beforeEmitItem: () => true,
+    })
+    if (styleCoverage.status !== "accepted" || styleCoverage.fragments.length === 0) {
+      return freeze({ status: "blocked" as const, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([issue("change-target-mismatch", "change", "style change requires bounded text Source facts")]) })
+    }
+    const items: VNextTextBlockUnifiedLayoutSourceItemV1[] = []
+    for (const fragment of styleCoverage.fragments) {
+      if (fragment.item.kind !== "text") {
+        return freeze({ status: "blocked" as const, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([issue("unsupported-change-value", "change", "supported style changes may cover only text Source items")]) })
+      }
+      const resolved = resolveVNextTextBlockSupportedStyleOverlayInternalV1({
+        sourceState: input.previousRoot.sourceState,
+        baseStyle: fragment.item.style,
+        nextStyle: validatedChange.change.nextStyle,
+      })
+      if (resolved.status !== "resolved") {
+        return freeze({ status: "blocked" as const, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([issue(resolved.status === "ambiguous" ? "style-authority-ambiguous" : "unsupported-change-value", "change", "style overlay must resolve against exact Source style and font authority")]) })
+      }
+      const renderedText = fragment.item.renderedText.slice(
+        fragment.selectedAbsoluteStartRenderedUtf16
+          - fragment.itemAbsoluteStartRenderedUtf16,
+        fragment.selectedAbsoluteEndRenderedUtf16
+          - fragment.itemAbsoluteStartRenderedUtf16,
+      )
+      const item = createVNextTextBlockTransitionReplacementSourceItemInternalV1({
+        sourceState: input.previousRoot.sourceState,
+        kind: "text",
+        renderedText,
+        lineageId: fragment.item.lineageId,
+        inlineId: fragment.item.inlineId,
+        sourceFingerprint: null,
+        provenanceFingerprint:
+          validatedChange.change.nextStyleProvenanceFingerprint,
+        style: resolved.style,
+      })
+      if (item == null) return freeze({ status: "blocked" as const, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([issue("unsupported-change-value", "change", "style overlay could not produce canonical Source facts")]) })
+      items.push(item)
+    }
+    replacementItems = freeze(items)
   }
-  const nextLength = previousLength - (sourceRange.endRenderedUtf16 - sourceRange.startRenderedUtf16) + replacementText.length
+  const replacementLength = replacementItems.reduce(
+    (sum, item) => sum + item.renderedUtf16Length,
+    0,
+  )
+  const nextLength = previousLength
+    - (sourceRange.endRenderedUtf16 - sourceRange.startRenderedUtf16)
+    + replacementLength
   if (!Number.isSafeInteger(nextLength) || nextLength < 1) return freeze({ status: "blocked" as const, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([issue("unsupported-change-value", "change", "preflight cannot produce an empty source topology")]) })
-  const nextChanged = range(sourceRange.startRenderedUtf16, sourceRange.startRenderedUtf16 + replacementText.length)
+  const nextChanged = range(sourceRange.startRenderedUtf16, sourceRange.startRenderedUtf16 + replacementLength)
   const previousRanges = laneRanges(sourceRange, previousLength)
   const nextRanges = laneRanges(nextChanged, nextLength)
   const lookupLimit = evaluatedLimit(input.workPolicy, input.previousRoot, "evidence-request-lookup-nodes", 1)
@@ -284,38 +345,83 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
   const work = requestedWork(bound.incrementalCandidateWork, input.workPolicy, visitedNodes, emittedAtoms, 0, flowCoverage.status === "accepted" ? flowCoverage.fragments.length : 0)
   if (sourceCoverage.status !== "accepted" || flowCoverage.status !== "accepted") return freeze({ status: "fallback-required" as const, evaluatorOrProofAuthority: freeze({}), completedCandidateWork: work, issues: freeze([]) })
   const paragraphStyleKey = input.previousRoot.sourceState.producerRequirements.paragraphStyle.styleKey
-  const previousAtoms = sourceCoverage.fragments.map((fragment) => atomFromItem(fragment.item, fragment.itemAbsoluteStartRenderedUtf16, fragment.selectedAbsoluteStartRenderedUtf16, fragment.selectedAbsoluteEndRenderedUtf16, previousRanges.coverageRange.startRenderedUtf16, paragraphStyleKey))
-  const replacementItems: readonly VNextTextBlockUnifiedLayoutSourceItemV1[] = replacementStyle == null
-    || (validatedChange.change.kind !== "text-insertion" && validatedChange.change.kind !== "text-replacement")
-    ? freeze([])
-    : freeze([replacementItem(validatedChange.change, replacementStyle)])
-  const insertedAtoms: VNextTextBlockTransitionProducerSourceAtomV2[] = replacementStyle == null ? [] : (() => {
-    const facts = {
-      relativeStartRenderedUtf16: nextChanged.startRenderedUtf16 - nextRanges.coverageRange.startRenderedUtf16,
-      relativeEndRenderedUtf16: nextChanged.endRenderedUtf16 - nextRanges.coverageRange.startRenderedUtf16,
-      renderedText: replacementText,
-      inlineId: validatedChange.change.kind === "text-insertion" || validatedChange.change.kind === "text-replacement" ? validatedChange.change.insertedSource.lineageId : "",
-      sourceFingerprint: validatedChange.change.kind === "text-insertion" || validatedChange.change.kind === "text-replacement" ? validatedChange.change.insertedSource.sourceFingerprint : "",
-      provenanceFingerprint: validatedChange.change.kind === "text-insertion" || validatedChange.change.kind === "text-replacement" ? validatedChange.change.insertedSource.provenanceFingerprint : "",
-      kind: "text" as const,
-      resolvedStyle: styleV2(replacementStyle, paragraphStyleKey),
-    }
-    return [freeze({ ...facts, fingerprint: fingerprint(facts) }) as VNextTextBlockTransitionProducerSourceAtomV2]
-  })()
+  const previousAtoms = sourceCoverage.fragments.map((fragment) => atomFromItem(fragment.item, fragment.itemAbsoluteStartRenderedUtf16, fragment.selectedAbsoluteStartRenderedUtf16, fragment.selectedAbsoluteEndRenderedUtf16, fragment.selectedAbsoluteStartRenderedUtf16, previousRanges.coverageRange.startRenderedUtf16, paragraphStyleKey))
   const lane = (ranges: VNextTextBlockTransitionProducerLaneRangesV2, atoms: readonly VNextTextBlockTransitionProducerSourceAtomV2[]): VNextTextBlockTransitionProducerLaneMaterialV2 => freeze({ ranges, atoms: freeze([...atoms]), fingerprint: fingerprint({ ranges, atoms }) })
   const previous = lane(previousRanges, previousAtoms)
-  const nextContextAtoms = sourceCoverage.fragments.flatMap((fragment, index) => {
-    const atom = previousAtoms[index]!
-    const removed = sourceRange.endRenderedUtf16 > sourceRange.startRenderedUtf16
-      && fragment.selectedAbsoluteStartRenderedUtf16 < sourceRange.endRenderedUtf16
-      && fragment.selectedAbsoluteEndRenderedUtf16 > sourceRange.startRenderedUtf16
-    if (removed) return []
-    const delta = fragment.selectedAbsoluteStartRenderedUtf16 >= sourceRange.endRenderedUtf16
-      ? replacementText.length - (sourceRange.endRenderedUtf16 - sourceRange.startRenderedUtf16)
-      : 0
-    return [shiftedAtom(atom, delta + previousRanges.coverageRange.startRenderedUtf16 - nextRanges.coverageRange.startRenderedUtf16)]
-  })
-  const next = lane(nextRanges, insertedAtoms.length === 0 ? nextContextAtoms : [...insertedAtoms, ...nextContextAtoms])
+  const nextAtoms: VNextTextBlockTransitionProducerSourceAtomV2[] = []
+  const append = (inputAtom: {
+    readonly item: VNextTextBlockUnifiedLayoutSourceItemV1
+    readonly itemAbsoluteStart: number
+    readonly selectedAbsoluteStart: number
+    readonly selectedAbsoluteEnd: number
+    readonly outputAbsoluteStart: number
+  }): void => {
+    const outputAbsoluteEnd = inputAtom.outputAbsoluteStart
+      + inputAtom.selectedAbsoluteEnd - inputAtom.selectedAbsoluteStart
+    const clippedOutputStart = Math.max(
+      inputAtom.outputAbsoluteStart,
+      nextRanges.coverageRange.startRenderedUtf16,
+    )
+    const clippedOutputEnd = Math.min(
+      outputAbsoluteEnd,
+      nextRanges.coverageRange.endRenderedUtf16,
+    )
+    if (clippedOutputEnd <= clippedOutputStart) return
+    const sourceClip = clippedOutputStart - inputAtom.outputAbsoluteStart
+    nextAtoms.push(atomFromItem(
+      inputAtom.item,
+      inputAtom.itemAbsoluteStart,
+      inputAtom.selectedAbsoluteStart + sourceClip,
+      inputAtom.selectedAbsoluteStart + sourceClip
+        + clippedOutputEnd - clippedOutputStart,
+      clippedOutputStart,
+      nextRanges.coverageRange.startRenderedUtf16,
+      paragraphStyleKey,
+    ))
+  }
+  let emittedReplacement = false
+  const emitReplacement = (): void => {
+    if (emittedReplacement) return
+    emittedReplacement = true
+    let outputStart = sourceRange.startRenderedUtf16
+    for (const item of replacementItems) {
+      append({
+        item,
+        itemAbsoluteStart: 0,
+        selectedAbsoluteStart: 0,
+        selectedAbsoluteEnd: item.renderedUtf16Length,
+        outputAbsoluteStart: outputStart,
+      })
+      outputStart += item.renderedUtf16Length
+    }
+  }
+  const delta = replacementLength
+    - (sourceRange.endRenderedUtf16 - sourceRange.startRenderedUtf16)
+  for (const fragment of sourceCoverage.fragments) {
+    const start = fragment.selectedAbsoluteStartRenderedUtf16
+    const end = fragment.selectedAbsoluteEndRenderedUtf16
+    if (end <= sourceRange.startRenderedUtf16) {
+      append({ item: fragment.item, itemAbsoluteStart: fragment.itemAbsoluteStartRenderedUtf16, selectedAbsoluteStart: start, selectedAbsoluteEnd: end, outputAbsoluteStart: start })
+      continue
+    }
+    if (start >= sourceRange.endRenderedUtf16) {
+      emitReplacement()
+      append({ item: fragment.item, itemAbsoluteStart: fragment.itemAbsoluteStartRenderedUtf16, selectedAbsoluteStart: start, selectedAbsoluteEnd: end, outputAbsoluteStart: start + delta })
+      continue
+    }
+    if (start < sourceRange.startRenderedUtf16) {
+      append({ item: fragment.item, itemAbsoluteStart: fragment.itemAbsoluteStartRenderedUtf16, selectedAbsoluteStart: start, selectedAbsoluteEnd: sourceRange.startRenderedUtf16, outputAbsoluteStart: start })
+    }
+    emitReplacement()
+    if (end > sourceRange.endRenderedUtf16) {
+      append({ item: fragment.item, itemAbsoluteStart: fragment.itemAbsoluteStartRenderedUtf16, selectedAbsoluteStart: sourceRange.endRenderedUtf16, selectedAbsoluteEnd: end, outputAbsoluteStart: sourceRange.endRenderedUtf16 + delta })
+    }
+  }
+  emitReplacement()
+  nextAtoms.sort((left, right) =>
+    left.relativeStartRenderedUtf16 - right.relativeStartRenderedUtf16
+  )
+  const next = lane(nextRanges, nextAtoms)
   const preflight = freeze({ change: validatedChange.change, eligibility: validatedChange.eligibility, expectedTargetBinding: validatedChange.expectedTargetBinding, effectClassification, producerEvidence, previousRanges, nextRanges, replacementItems, fingerprint: fingerprint({ changeFingerprint: validatedChange.fingerprint, previousRanges, nextRanges, effectClassification }) })
   const responseLimit = evaluatedLimit(input.workPolicy, input.previousRoot, "evidence-response-nodes", 0)
   if (responseLimit.status !== "within-limit") return freeze({ status: "fallback-required" as const, evaluatorOrProofAuthority: freeze({}), completedCandidateWork: work, issues: freeze([]) })

@@ -3,9 +3,13 @@ import { stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
 import type {
   ImageFrameV4Target,
 } from "../schema/documentV4ImageTarget.js"
+import type { TextRunStyleV4Target } from "../schema/documentV4Foundation.js"
 import {
   convertVNextPositiveUnitValueToLayoutUnitV1,
 } from "./layoutUnitPolicyV1.js"
+import {
+  createVNextTextBlockEffectiveShapingStyleIdentityV1,
+} from "./textBlockEffectiveShapingStyleIdentityV1.js"
 import {
   hasVNextTextBlockFlowEvidenceBindingInternalV2,
   inspectVNextTextBlockFlowEvidenceV2,
@@ -173,6 +177,182 @@ function sameResolvedStyle(
     && left.fontStyle === right.fontStyle
     && left.textDecoration === right.textDecoration
     && left.strikethrough === right.strikethrough
+    && stringifyVNextCanonicalJson(left.authoredLocalStyle)
+      === stringifyVNextCanonicalJson(right.authoredLocalStyle)
+}
+
+export type VNextTextBlockTransitionReplacementSourceItemInputInternalV1 = {
+  readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly renderedText: string
+  readonly lineageId: string
+  readonly inlineId: string
+  readonly sourceFingerprint: string | null
+  readonly provenanceFingerprint: string
+  readonly style: VNextTextBlockUnifiedLayoutSourceStyleV1
+} & (
+  | { readonly kind: "text" }
+  | { readonly kind: "resolved-field"; readonly fieldKey: string }
+)
+
+export function createVNextTextBlockTransitionReplacementSourceItemInternalV1(
+  input: VNextTextBlockTransitionReplacementSourceItemInputInternalV1,
+): VNextTextBlockUnifiedLayoutSourceItemV1 | null {
+  const prepared = preparedStates.get(input.sourceState)
+  if (
+    prepared == null
+    || input.renderedText.length === 0
+    || !Number.isSafeInteger(input.renderedText.length)
+    || input.lineageId.trim().length === 0
+    || input.inlineId.trim().length === 0
+    || input.provenanceFingerprint.trim().length === 0
+  ) return null
+  const semanticFacts = {
+    kind: input.kind,
+    inlineId: input.inlineId,
+    ...(input.kind === "resolved-field" ? { fieldKey: input.fieldKey } : {}),
+  }
+  const contentFacts = {
+    renderedText: input.renderedText,
+    renderedUtf16Length: input.renderedText.length,
+  }
+  const sourceFingerprint = input.sourceFingerprint ?? fingerprintWith(
+    prepared.fingerprintFactory,
+    {
+      ...semanticFacts,
+      authoredLocalStyleWithoutPaint:
+        input.style.authoredLocalStyle == null
+          ? null
+          : {
+              fontSize: input.style.authoredLocalStyle.fontSize ?? null,
+              fontFamilyKey:
+                input.style.authoredLocalStyle.fontFamilyKey ?? null,
+              fontWeight: input.style.authoredLocalStyle.fontWeight ?? null,
+              fontStyle: input.style.authoredLocalStyle.fontStyle ?? null,
+            },
+    },
+  )
+  const paintFingerprint = canonicalVNextTextBlockTextPaintFactsInternalV1({
+    textColor: input.style.textColor,
+    textDecoration: input.style.textDecoration,
+    strikethrough: input.style.strikethrough,
+    authoredTextColor: input.style.authoredLocalStyle?.textColor ?? null,
+  }, prepared.fingerprintFactory).fingerprint
+  const common = {
+    lineageId: input.lineageId,
+    inlineId: input.inlineId,
+    renderedText: input.renderedText,
+    renderedUtf16Length: input.renderedText.length,
+    semanticFingerprint: fingerprintWith(
+      prepared.fingerprintFactory,
+      semanticFacts,
+    ),
+    contentFingerprint: fingerprintWith(
+      prepared.fingerprintFactory,
+      contentFacts,
+    ),
+    sourceFingerprint,
+    provenanceFingerprint: input.provenanceFingerprint,
+    paintFingerprint,
+    layoutDependencyFingerprint: fingerprintWith(
+      prepared.fingerprintFactory,
+      {
+        fontFamilyKey: input.style.fontFamilyKey,
+        fontFaceId: input.style.fontFaceId,
+        fontSizeLayoutUnit: input.style.fontSizeLayoutUnit,
+        fontWeight: input.style.fontWeight,
+        fontStyle: input.style.fontStyle,
+      },
+    ),
+    boundaryFingerprint: fingerprintWith(prepared.fingerprintFactory, {
+      kind: "text-bearing",
+      inlineId: input.inlineId,
+    }),
+  }
+  const variant = input.kind === "resolved-field"
+    ? { kind: input.kind, fieldKey: input.fieldKey, style: input.style }
+    : { kind: input.kind, style: input.style }
+  return deepFreeze({
+    ...common,
+    ...variant,
+    fingerprint: fingerprintWith(prepared.fingerprintFactory, {
+      contractVersion: 1,
+      ...common,
+      ...variant,
+    }),
+  })
+}
+
+export function resolveVNextTextBlockSupportedStyleOverlayInternalV1(input: {
+  readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly baseStyle: VNextTextBlockUnifiedLayoutSourceStyleV1
+  readonly nextStyle: TextRunStyleV4Target
+}):
+  | { readonly status: "resolved"; readonly style: VNextTextBlockUnifiedLayoutSourceStyleV1 }
+  | { readonly status: "unavailable" | "ambiguous"; readonly style: null } {
+  if (!preparedStates.has(input.sourceState)) {
+    return { status: "unavailable", style: null }
+  }
+  if (input.nextStyle.fontFamilyKey != null) {
+    return { status: "unavailable", style: null }
+  }
+  const fontSize = input.nextStyle.fontSize == null
+    ? { status: "accepted" as const, layoutUnit: input.baseStyle.fontSizeLayoutUnit }
+    : convertVNextPositiveUnitValueToLayoutUnitV1(
+        input.nextStyle.fontSize,
+        "change.nextStyle.fontSize",
+      )
+  if (fontSize.status !== "accepted") {
+    return { status: "unavailable", style: null }
+  }
+  const requestedWeight = input.nextStyle.fontWeight == null
+    ? input.baseStyle.fontWeight
+    : input.nextStyle.fontWeight === "bold" ? 700 : 400
+  const requestedStyle = input.nextStyle.fontStyle
+    ?? input.baseStyle.fontStyle
+  const faces = input.sourceState.producerRequirements.fontFaces.filter(
+    (face) => face.fontFamilyKey === input.baseStyle.fontFamilyKey
+      && face.weight === requestedWeight
+      && face.style === requestedStyle,
+  )
+  if (faces.length === 0) return { status: "unavailable", style: null }
+  if (faces.length !== 1) return { status: "ambiguous", style: null }
+  const face = faces[0]!
+  const textColor = input.nextStyle.textColor ?? input.baseStyle.textColor
+  const textDecoration = input.nextStyle.textDecoration
+    ?? input.baseStyle.textDecoration
+  const strikethrough = input.nextStyle.strikethrough
+    ?? input.baseStyle.strikethrough
+  const authoredLocalStyle = {
+    ...(input.baseStyle.authoredLocalStyle ?? {}),
+    ...structuredClone(input.nextStyle),
+  }
+  const fontWeight = face.weight === 700 ? "bold" as const : "normal" as const
+  const style = deepFreeze({
+    measurementStyleKey: input.baseStyle.measurementStyleKey,
+    effectiveShapingStyleKey:
+      createVNextTextBlockEffectiveShapingStyleIdentityV1({
+        paragraphStyleKey:
+          input.sourceState.producerRequirements.paragraphStyle.styleKey,
+        fontFamilyKey: input.baseStyle.fontFamilyKey,
+        fontFaceId: face.fontFaceId,
+        fontSizeLayoutUnit: fontSize.layoutUnit,
+        textColor,
+        fontWeight,
+        fontStyle: face.style,
+        textDecoration,
+        strikethrough,
+      }),
+    fontFamilyKey: input.baseStyle.fontFamilyKey,
+    fontFaceId: face.fontFaceId,
+    fontSizeLayoutUnit: fontSize.layoutUnit,
+    textColor,
+    fontWeight: face.weight,
+    fontStyle: face.style,
+    textDecoration,
+    strikethrough,
+    authoredLocalStyle,
+  })
+  return { status: "resolved", style }
 }
 
 export interface VNextTextBlockTransitionSourceCoverageFragmentInternalV1 {

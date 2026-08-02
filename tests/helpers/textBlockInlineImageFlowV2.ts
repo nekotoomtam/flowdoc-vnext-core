@@ -18,6 +18,7 @@ import {
 
 export interface InlineImageFlowFixtureOptions {
   documentId?: string
+  text?: string
   content?:
     | "image-only"
     | "text-image-text"
@@ -122,11 +123,15 @@ export function acceptedInlineImageEvidenceFixture(
     assetId,
     frame,
   }
-  const textA = { ...sourceText, id: "text-a", text: "A" }
+  const textA = {
+    ...sourceText,
+    id: "text-a",
+    text: options.text ?? "A",
+  }
   const textARun: VNextTextBlockV4MeasurementRun = {
     ...sourceTextRun,
     inlineId: textA.id,
-    renderedText: "A",
+    renderedText: textA.text,
   }
   const textB = { ...sourceText, id: "text-b", text: "B" }
   const textF = { ...sourceText, id: "text-f", text: "f" }
@@ -164,7 +169,11 @@ export function acceptedInlineImageEvidenceFixture(
     ]
   } else if (content === "text-only") {
     children = [textA]
-    runs = [{ ...textARun, renderStartOffset: 0, renderEndOffset: 1 }]
+    runs = [{
+      ...textARun,
+      renderStartOffset: 0,
+      renderEndOffset: textA.text.length,
+    }]
   } else if (content === "adjacent-text") {
     children = [textF, textI]
     runs = [
