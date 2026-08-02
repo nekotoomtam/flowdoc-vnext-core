@@ -62,7 +62,15 @@ export type VNextTextBlockTransitionPreflightResultV2 =
   | { readonly status: "not-required"; readonly preflight: VNextTextBlockUnifiedLayoutChangePreflightV2; readonly request: null; readonly sourceMaterial: null; readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1; readonly issues: readonly [] }
   | VNextTextBlockUnifiedLayoutOwnedStageFailureV1
 
-const preflights = new WeakMap<object, { readonly request: VNextTextBlockTransitionEvidenceRequestV2 | null; readonly sourceMaterial: VNextTextBlockTransitionProducerSourceMaterialV2 | null }>()
+interface RegisteredPreflightTupleInternalV2 {
+  readonly request: VNextTextBlockTransitionEvidenceRequestV2 | null
+  readonly sourceMaterial: VNextTextBlockTransitionProducerSourceMaterialV2 | null
+  readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+  readonly change: VNextTextBlockUnifiedLayoutChangeV1
+  readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+}
+
+const preflights = new WeakMap<object, RegisteredPreflightTupleInternalV2>()
 const failureAuthorities = new WeakMap<object, {
   readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
   readonly change: VNextTextBlockUnifiedLayoutChangeV1
@@ -80,6 +88,57 @@ export function inspectVNextTextBlockTransitionPreflightFailureAuthorityInternal
       failureAuthorities.has(value as object)
       || getVNextTextBlockLimitExceededAuthorityRecordInternalV1(value) != null
     )
+}
+
+/** Task-2 exact tuple assertion; it exposes no iterable registry or factory. */
+export function inspectVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
+  input: {
+    readonly preflight: unknown
+    readonly request: unknown
+    readonly sourceMaterial: unknown
+    readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+    readonly change: VNextTextBlockUnifiedLayoutChangeV1
+    readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+  },
+):
+  | { readonly status: "valid" }
+  | {
+      readonly status: "invalid"
+      readonly code: "evidence-authority-mismatch"
+      readonly message: string
+    } {
+  const record = input.preflight != null && typeof input.preflight === "object"
+    ? preflights.get(input.preflight as object)
+    : null
+  return record != null
+      && record.request === input.request
+      && record.sourceMaterial === input.sourceMaterial
+      && record.previousRoot === input.previousRoot
+      && record.change === input.change
+      && record.workPolicy === input.workPolicy
+    ? { status: "valid" }
+    : {
+        status: "invalid",
+        code: "evidence-authority-mismatch",
+        message: "preflight is not the exact registered Task-2 tuple",
+      }
+}
+
+function registerPreflightTuple(input: {
+  readonly preflight: VNextTextBlockUnifiedLayoutChangePreflightV2
+  readonly request: VNextTextBlockTransitionEvidenceRequestV2 | null
+  readonly sourceMaterial: VNextTextBlockTransitionProducerSourceMaterialV2 | null
+  readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+  readonly change: VNextTextBlockUnifiedLayoutChangeV1
+  readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+}): void {
+  preflights.set(input.preflight, Object.freeze({
+    request: input.request,
+    sourceMaterial: input.sourceMaterial,
+    previousRoot: input.previousRoot,
+    change: input.change,
+    workPolicy: input.workPolicy,
+  }))
 }
 
 function fingerprint(value: unknown): string {
@@ -157,6 +216,57 @@ function sourceRangeForChange(
   return { status: "not-found", range: null }
 }
 
+function declaredReplacementRenderedUtf16Length(
+  change: VNextTextBlockUnifiedLayoutChangeV1,
+  sourceRange: VNextTextBlockSourceRangeV1,
+): number {
+  switch (change.kind) {
+    case "text-insertion":
+    case "text-replacement":
+      return change.insertedText.length
+    case "text-deletion":
+      return 0
+    case "resolved-field-rendered-value-change":
+      return change.nextRenderedText.length
+    case "supported-style-change":
+      return sourceRange.endRenderedUtf16 - sourceRange.startRenderedUtf16
+    default:
+      return 0
+  }
+}
+
+function sourceCoverageForBothLanes(input: {
+  readonly previousCoverage: VNextTextBlockSourceRangeV1
+  readonly nextCoverage: VNextTextBlockSourceRangeV1
+  readonly changedPreviousRange: VNextTextBlockSourceRangeV1
+  readonly replacementRenderedUtf16Length: number
+  readonly delta: number
+  readonly previousLength: number
+}): VNextTextBlockSourceRangeV1 {
+  const replacementEnd = input.changedPreviousRange.startRenderedUtf16
+    + input.replacementRenderedUtf16Length
+  const mapStart = (offset: number): number => {
+    if (offset <= input.changedPreviousRange.startRenderedUtf16) return offset
+    if (offset >= replacementEnd) return offset - input.delta
+    return input.changedPreviousRange.startRenderedUtf16
+  }
+  const mapEnd = (offset: number): number => {
+    if (offset <= input.changedPreviousRange.startRenderedUtf16) return offset
+    if (offset >= replacementEnd) return offset - input.delta
+    return input.changedPreviousRange.endRenderedUtf16
+  }
+  return range(
+    clamp(Math.min(
+      input.previousCoverage.startRenderedUtf16,
+      mapStart(input.nextCoverage.startRenderedUtf16),
+    ), input.previousLength),
+    clamp(Math.max(
+      input.previousCoverage.endRenderedUtf16,
+      mapEnd(input.nextCoverage.endRenderedUtf16),
+    ), input.previousLength),
+  )
+}
+
 function styleV2(style: VNextTextBlockUnifiedLayoutSourceStyleV1, paragraphStyleKey: string): VNextTextBlockTransitionProducerResolvedStyleV2 {
   const facts = {
     measurementStyleKey: style.measurementStyleKey,
@@ -232,7 +342,6 @@ interface PreflightWorkMeterInternalV2 {
 
 function workMeter(
   policy: VNextTextBlockUnifiedLayoutWorkPolicyV1,
-  root: VNextTextBlockUnifiedLayoutRootV2,
   validatedChange: Parameters<
     typeof evaluateNextVNextTextBlockStageVisitInternalV1
   >[0]["validatedChange"],
@@ -288,7 +397,6 @@ function workMeter(
     ),
     beforeMaterialAtom: () => before(meter, "evidence-context-atoms"),
   }
-  void root
   return meter
 }
 
@@ -584,12 +692,18 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
   if (!requiresBoundedTextFacts) {
     const ranges = emptyRanges()
     const preflight = freeze({ change: validatedChange.change, eligibility: validatedChange.eligibility, expectedTargetBinding: validatedChange.expectedTargetBinding, effectClassification: validatedChange.effectClassification, producerEvidence: validatedChange.producerEvidence, previousRanges: ranges, nextRanges: ranges, replacementItems: freeze([]), fingerprint: fingerprint({ changeFingerprint: validatedChange.fingerprint, ranges, effectClassification: validatedChange.effectClassification }) })
-    preflights.set(preflight, { request: null, sourceMaterial: null })
+    registerPreflightTuple({
+      preflight,
+      request: null,
+      sourceMaterial: null,
+      previousRoot: input.previousRoot,
+      change: input.change,
+      workPolicy: input.workPolicy,
+    })
     return freeze({ status: "not-required" as const, preflight, request: null, sourceMaterial: null, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([]) })
   }
   const meter = workMeter(
     input.workPolicy,
-    input.previousRoot,
     validatedChange,
     bound.incrementalCandidateWork,
   )
@@ -637,9 +751,38 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
     initialFlowCoverage.fragments,
     previousLength,
   )
+  const declaredReplacementLength = declaredReplacementRenderedUtf16Length(
+    validatedChange.change,
+    sourceRange,
+  )
+  const nextLength = previousLength
+    - (sourceRange.endRenderedUtf16 - sourceRange.startRenderedUtf16)
+    + declaredReplacementLength
+  if (!Number.isSafeInteger(nextLength) || nextLength < 1) return freeze({ status: "blocked" as const, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([issue("unsupported-change-value", "change", "preflight cannot produce an empty source topology")]) })
+  const nextChanged = range(
+    sourceRange.startRenderedUtf16,
+    sourceRange.startRenderedUtf16 + declaredReplacementLength,
+  )
+  const delta = declaredReplacementLength
+    - (sourceRange.endRenderedUtf16 - sourceRange.startRenderedUtf16)
+  const nextRanges = deriveNextLaneRanges(
+    nextChanged,
+    nextLength,
+    previousRanges,
+    sourceRange,
+    delta,
+  )
+  const sourceCoverageRange = sourceCoverageForBothLanes({
+    previousCoverage: previousRanges.coverageRange,
+    nextCoverage: nextRanges.coverageRange,
+    changedPreviousRange: sourceRange,
+    replacementRenderedUtf16Length: declaredReplacementLength,
+    delta,
+    previousLength,
+  })
   const sourceCoverage = visitVNextTextBlockTransitionSourceCoverageInternalV1({
     sourceState: input.previousRoot.sourceState,
-    range: previousRanges.coverageRange,
+    range: sourceCoverageRange,
     beforeVisitNode: meter.beforeVisitNode,
     beforeEmitItem: () => true,
   })
@@ -767,25 +910,23 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
     (sum, item) => sum + item.renderedUtf16Length,
     0,
   )
-  const nextLength = previousLength
-    - (sourceRange.endRenderedUtf16 - sourceRange.startRenderedUtf16)
-    + replacementLength
-  if (!Number.isSafeInteger(nextLength) || nextLength < 1) return freeze({ status: "blocked" as const, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([issue("unsupported-change-value", "change", "preflight cannot produce an empty source topology")]) })
-  const nextChanged = range(sourceRange.startRenderedUtf16, sourceRange.startRenderedUtf16 + replacementLength)
-  const delta = replacementLength
-    - (sourceRange.endRenderedUtf16 - sourceRange.startRenderedUtf16)
-  const nextRanges = deriveNextLaneRanges(
-    nextChanged,
-    nextLength,
-    previousRanges,
-    sourceRange,
-    delta,
-  )
+  if (replacementLength !== declaredReplacementLength) {
+    return freeze({ status: "blocked" as const, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([issue("unsupported-change-value", "change", "canonical replacement length differs from the exact declared replacement")]) })
+  }
   const paragraphStyleKey = input.previousRoot.sourceState.producerRequirements.paragraphStyle.styleKey
   const previousAtoms: VNextTextBlockTransitionProducerSourceAtomV2[] = []
   for (const fragment of sourceCoverage.fragments) {
+    const selectedStart = Math.max(
+      fragment.selectedAbsoluteStartRenderedUtf16,
+      previousRanges.coverageRange.startRenderedUtf16,
+    )
+    const selectedEnd = Math.min(
+      fragment.selectedAbsoluteEndRenderedUtf16,
+      previousRanges.coverageRange.endRenderedUtf16,
+    )
+    if (selectedEnd <= selectedStart) continue
     if (!meter.beforeMaterialAtom()) break
-    previousAtoms.push(atomFromItem(fragment.item, fragment.itemAbsoluteStartRenderedUtf16, fragment.selectedAbsoluteStartRenderedUtf16, fragment.selectedAbsoluteEndRenderedUtf16, fragment.selectedAbsoluteStartRenderedUtf16, previousRanges.coverageRange.startRenderedUtf16, paragraphStyleKey))
+    previousAtoms.push(atomFromItem(fragment.item, fragment.itemAbsoluteStartRenderedUtf16, selectedStart, selectedEnd, selectedStart, previousRanges.coverageRange.startRenderedUtf16, paragraphStyleKey))
   }
   if (meter.failedUnit != null) {
     return fallback({
@@ -912,7 +1053,14 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
   } = boundedTargetFacts
   const preflight = freeze({ change: validatedChange.change, eligibility: validatedChange.eligibility, expectedTargetBinding, effectClassification, producerEvidence, previousRanges, nextRanges, replacementItems, fingerprint: fingerprint({ changeFingerprint: validatedChange.fingerprint, previousRanges, nextRanges, expectedTargetBinding, effectClassification, producerEvidence }) })
   if (producerEvidence === "not-required") {
-    preflights.set(preflight, { request: null, sourceMaterial: null })
+    registerPreflightTuple({
+      preflight,
+      request: null,
+      sourceMaterial: null,
+      previousRoot: input.previousRoot,
+      change: input.change,
+      workPolicy: input.workPolicy,
+    })
     return freeze({
       status: "not-required" as const,
       preflight,
@@ -937,6 +1085,13 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
   const request = freeze({ ...requestFacts, fingerprint: fingerprint(requestFacts) })
   const materialFacts = { source: "vnext-text-block-transition-producer-source-material-v2" as const, contractVersion: 2 as const, requestFingerprint: request.fingerprint, previous, next, paragraphStyleKey, fontFaces: input.previousRoot.sourceState.producerRequirements.fontFaces, layoutUnitPolicyFingerprint: input.previousRoot.sourceState.producerRequirements.layoutUnitPolicyFingerprint, sourceTopologyFingerprint: input.previousRoot.sourceState.summary.sourceFingerprint, producerWorkCeilings: { maximumVisitedEvidenceNodeCount: responseLimit.effectiveLimit, maximumRequestedAtomCount: requestedAtomCount, maximumRequestedClusterCount: requestedClusterCount } }
   const sourceMaterial = freeze({ ...materialFacts, fingerprint: fingerprint(materialFacts) })
-  preflights.set(preflight, { request, sourceMaterial })
+  registerPreflightTuple({
+    preflight,
+    request,
+    sourceMaterial,
+    previousRoot: input.previousRoot,
+    change: input.change,
+    workPolicy: input.workPolicy,
+  })
   return freeze({ status: "required" as const, preflight, request, sourceMaterial, completedCandidateWork: work, issues: freeze([]) })
 }

@@ -139,7 +139,14 @@ export function acceptedInlineImageEvidenceFixture(
   }
   const textB = { ...sourceText, id: "text-b", text: "B" }
   const textF = { ...sourceText, id: "text-f", text: "f" }
-  const textI = { ...sourceText, id: "text-i", text: "i" }
+  const textI = {
+    ...sourceText,
+    id: "text-i",
+    text: "i",
+    ...(options.mixedTextSizes
+      ? { style: { fontSize: { value: 24, unit: "pt" as const } } }
+      : {}),
+  }
   const hardBreak = { id: "break-1", type: "line-break" as const }
   const secondImage = {
     ...image,
@@ -182,7 +189,16 @@ export function acceptedInlineImageEvidenceFixture(
     children = [textF, textI]
     runs = [
       { ...textARun, inlineId: textF.id, renderStartOffset: 0, renderEndOffset: 1, renderedText: "f" },
-      { ...textARun, inlineId: textI.id, renderStartOffset: 1, renderEndOffset: 2, renderedText: "i" },
+      {
+        ...textARun,
+        inlineId: textI.id,
+        renderStartOffset: 1,
+        renderEndOffset: 2,
+        renderedText: "i",
+        ...(options.mixedTextSizes
+          ? { localStyle: { fontSize: { value: 24, unit: "pt" as const } } }
+          : {}),
+      },
     ]
   } else if (content === "thai-image-latin") {
     children = [thai, image, latin]
@@ -270,7 +286,9 @@ export function acceptedInlineImageEvidenceFixture(
       runs,
     },
   })
-  if (initial.status !== "classified") throw new Error("Initial Flow fixture blocked")
+  if (initial.status !== "classified") {
+    throw new Error(`Initial Flow fixture blocked: ${JSON.stringify(initial.issues)}`)
+  }
 
   const fontFaces = initial.flow.fontFaces.map(({ fontFamilyKey: _key, ...face }) => ({ ...face }))
   const shapingRuns = initial.flow.atoms.flatMap((atom, index) => (
@@ -280,7 +298,7 @@ export function acceptedInlineImageEvidenceFixture(
       ? [shapingRun(atom, index)]
       : []
   ))
-  if (content === "adjacent-text") {
+  if (content === "adjacent-text" && options.mixedTextSizes !== true) {
     const first = initial.flow.atoms[0]
     if (first?.kind !== "text") throw new Error("adjacent text flow fixture missing")
     shapingRuns.splice(0, shapingRuns.length, {

@@ -2682,6 +2682,30 @@ export function resolveVNextTextBlockRegisteredSourceStyleInternalV1(input: {
     : { status: "ambiguous", style: null }
 }
 
+/** Test-only exact-authority seam for exercising a supplied-key digest collision. */
+export function forceVNextTextBlockRegisteredSourceStyleCollisionForTestInternalV1(
+  sourceState: VNextTextBlockUnifiedLayoutSourceStateV1,
+): boolean {
+  const registered = registeredStylesBySourceState.get(sourceState)
+  const first = registered?.entries[0]
+  if (registered == null || first == null) return false
+  const collidingStyle = deepFreeze({
+    ...first.style,
+    textColor: first.style.textColor === "000000" ? "FFFFFF" : "000000",
+    authoredLocalStyle: {
+      ...(first.style.authoredLocalStyle ?? {}),
+      textColor: first.style.textColor === "000000" ? "FFFFFF" : "000000",
+    },
+  })
+  registeredStylesBySourceState.set(sourceState, Object.freeze({
+    entries: Object.freeze([
+      ...registered.entries,
+      Object.freeze({ style: collidingStyle, referenceCount: 1 }),
+    ]),
+  }))
+  return true
+}
+
 export function visitVNextTextBlockTransitionSourceItemByInlineIdInternalV1(
   input: {
     readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
