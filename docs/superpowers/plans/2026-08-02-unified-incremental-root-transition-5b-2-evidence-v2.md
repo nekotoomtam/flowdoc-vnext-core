@@ -1,7 +1,7 @@
 # Unified Incremental Root Transition 5B-2 Evidence V2 Implementation Plan
 
-Status: written plan awaiting user review. This plan does not authorize
-implementation until the user explicitly approves it.
+Status: approved for implementation by the user on 2026-08-02. Execute only
+through the review checkpoints and scope gates defined below.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 

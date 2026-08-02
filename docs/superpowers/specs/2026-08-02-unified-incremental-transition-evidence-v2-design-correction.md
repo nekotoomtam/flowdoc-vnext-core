@@ -1,8 +1,8 @@
 # Unified Incremental Transition Evidence V2 Design Correction
 
 Status: accepted written correction as of 2026-08-02. The Phase 5B-2
-implementation plan has been rewritten against it and remains non-executable
-until that plan receives explicit user review and approval.
+implementation plan has been rewritten against it and received explicit user
+review and approval on 2026-08-02.
 
 This document corrects the evidence ordering, source-material authority,
 resolved-style, range, runtime, and work-accounting gaps found before Phase
@@ -623,7 +623,7 @@ state:
 
 1. satisfied — this written correction is reviewed and accepted;
 2. satisfied — the implementation plan is rewritten against this correction;
-3. pending — the rewritten plan receives explicit user review and approval;
+3. satisfied — the rewritten plan received explicit user review and approval;
    and
 4. first-execution requirement — Task 2 begins with RED tests for Core-owned
    bounded preflight, not producer adapter code.
