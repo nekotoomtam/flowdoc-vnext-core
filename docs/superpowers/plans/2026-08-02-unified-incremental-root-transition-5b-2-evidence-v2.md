@@ -1,7 +1,9 @@
 # Unified Incremental Root Transition 5B-2 Evidence V2 Implementation Plan
 
-Status: approved for implementation by the user on 2026-08-02. Execute only
-through the review checkpoints and scope gates defined below.
+Status: approved for implementation as of 2026-08-02. The revised plan received
+separate explicit user approval after the accepted Source-topology/fallback-
+target design correction. Execute only through the review checkpoints and
+scope gates defined below.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -15,9 +17,12 @@ complete-oracle parity.
 pipeline. Insert a Core-owned bounded change preflight before producer
 execution, activate Transition Evidence V2 with exact source-material
 authority, and keep producer, source/flow, line, reconvergence, disposition,
-geometry, and Root/Scene ownership in focused modules. Every operation checks
-its exact work limit before a visit. Publish `5b-2-v1` only after factual
-calibration while `5b-1-v3` remains frozen QA evidence.
+geometry, and Root/Scene ownership in focused modules. Task 2 classifies only
+bounded logical deltas; Task 4 is the sole next-Source topology owner. Exact
+incremental structural acceptance stays separate from candidate-independent
+Fallback Request/Completion V2 logical replay. Every operation checks its exact
+work limit before a visit. Publish `5b-2-v1` only after factual calibration
+while `5b-1-v3` remains frozen QA evidence.
 
 **Tech Stack:** TypeScript 6 ESM, Vitest 4, fixed-point layout units, canonical
 JSON plus compact SHA-256 fingerprints, existing Node-native and
@@ -27,6 +32,7 @@ foundations, Core `npm run check`, and package-local `npm run type-check`.
 ## Global Constraints
 
 - Normative design:
+  `docs/superpowers/specs/2026-08-02-unified-incremental-source-topology-and-fallback-target-design-correction.md`, then
   `docs/superpowers/specs/2026-08-02-unified-incremental-transition-evidence-v2-design-correction.md`, followed by the non-conflicting portions of
   `docs/superpowers/specs/2026-08-01-unified-incremental-root-transition-5b-2-v3-amendment-design.md`.
 - Work only in `flowdoc-vnext-core`; Editor and Backend remain read-only and
@@ -60,6 +66,25 @@ foundations, Core `npm run check`, and package-local `npm run type-check`.
 - Every visit limit is checked by the operation owner before the visit.
 - No partial Source, Flow, Line, Geometry, Scene, cover, or delivery candidate
   crosses the complete-fallback boundary.
+- Task 2 never builds or simulates next Source topology. Task 4 is the sole
+  local packing/path-copy owner and uses atomic local `canonicalGroups`:
+  `9 -> 4/5`, `10 -> 8/2`, `15 -> 8/7`, `16 -> 8/8`, and `17 -> 8/4/5`.
+- Topology has no private sixteen-entry cap. Only exact operation-owned work
+  evaluators may stop a safe batch.
+- Fallback Request/Completion V2 carries no partial candidate target binding,
+  summary, range, topology, or reuse decision. Complete-lane replay validates
+  the exact original change independently of incremental packing.
+- Plain-text physical fragments may share a logical `inlineId`; exact object
+  plus registered range identifies the fragment. Inline-addressed atomic kinds
+  remain unique and ambiguous singular lookup blocks.
+- Source State V1 remains an explicit no-data-shape/no-version-bump decision.
+  Stop for written Source State V2/Root compatibility review if implementation
+  requires a serialized segment id, changes public field or complete-build
+  invariants, changes an atomic kind's `inlineId` meaning, or accepts ambiguous
+  lookup authority.
+- Semantic contract identity, immutable work-policy identity, and fixture
+  calibration revision remain separate; changing one never silently renames or
+  re-fingerprints the others.
 - Exact authority always requires registered object identity; fingerprint
   equality alone is insufficient.
 - Transition Evidence V1 remains frozen 5B-1 compatibility/QA evidence.
@@ -110,10 +135,11 @@ Run the equivalent read-only status/fetch/divergence checks in
 `C:\Users\nekot\Documents\GitHub\flowdoc-vnext-editor` and
 `C:\Users\nekot\Documents\GitHub\flowdoc-vnext-backend`.
 
-Expected Core baseline before implementation: clean reviewed plan HEAD on
-`phase-5b-unified-incremental-root-transition`; type-check passes; the last
-reviewed runtime baseline is 453 test files / 2,517 tests. Report rather than
-guess if upstream or test counts changed.
+Expected Core execution base before implementation: reviewed revised-plan HEAD
+on `phase-5b-unified-incremental-root-transition`. The recovery review baseline
+before this plan revision is `0d2558c`; type-check passes; the last verified
+runtime baseline is 454 test files / 2,586 tests. Report rather than guess if
+HEAD, upstream, worktree state, or test counts change.
 
 ## File Responsibility Map
 
@@ -130,6 +156,11 @@ New focused files:
   public V2 attempt input only; it reuses the existing transition result.
 - `src/layout/textBlockUnifiedLayoutTransitionV2.ts` — final 5B-2 policy-bound
   orchestration and two-step fallback conversion only.
+- `src/layout/textBlockUnifiedLayoutFallbackContractV2.ts` — closed additive
+  Fallback Request/Completion V2 data and complete-lane replay work shapes.
+- `src/layout/textBlockUnifiedLayoutFallbackV2.ts` — sanitized exact request
+  minting, independent complete Root construction, logical change replay, and
+  single-use completion authority. It never imports a partial stage candidate.
 - `packages/text-engine-rust-wasm/src/unifiedIncrementalEvidenceV2.ts` — answer
   one exact V2 transition request with request-scoped Node/WASM facts.
 - `src/layout/textBlockUnifiedLayoutTransitionSourceInternalsV1.ts` — classify
@@ -155,7 +186,8 @@ do not move unrelated logic or turn any new module into a generic framework.
 1. **5B-2A Contract and Evidence Activation** — Tasks 1-3.
 2. **5B-2B Source and Flow Transition** — Tasks 4-5.
 3. **5B-2C Bounded Layout and E/T/R/N** — Tasks 6-7.
-4. **5B-2D Geometry, Scene, Fallback, and Oracle Closure** — Tasks 8-9.
+4. **5B-2D Geometry, Scene, Fallback, and Oracle Closure** — Tasks 8, 9A,
+   and 9B.
 5. **5B-2E Work-Policy Calibration and Review Gate** — Tasks 10-11.
 
 ---
@@ -216,8 +248,10 @@ export const VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ON
   VNextTextBlockUnifiedLayoutWorkPolicyV1
 ```
 
-The test-only policy has the final 24-row shape, two inactive spatial rows,
-and finite calibration ceilings of floor `8,192`, absolute `32,768`, relative
+The completed test-only policy has the pre-correction 24-row incremental-stage
+shape and two inactive spatial rows. Task 10 adds the three reviewed Fallback
+V2 replay rows only to final `5b-2-v1`; it does not rewrite a V3 row. The
+test-only policy uses finite calibration ceilings of floor `8,192`, absolute `32,768`, relative
 numerator `8`, denominator `1` for every temporary locked row. It is private,
 named test-only, rejected by every public boundary, absent from manifests and
 Root fingerprints outside focused tests, and deleted in Task 10 when the exact
@@ -310,7 +344,13 @@ git add src/layout/textBlockUnifiedLayoutTransitionContractV1.ts src/layout/text
 git commit -m "refactor(layout): own transition evidence work"
 ```
 
-### Task 2: Core-Owned Bounded Change Preflight and Material Authority
+### Task 2: Recover Core-Owned Bounded Semantic Preflight and Material Authority
+
+The recovery base already contains the first Task 2 implementation through
+`0d2558c`. Treat existing GREEN tests as regression evidence, not as authority
+for virtual next-tree composition. This task begins by adding RED tests that
+remove the unaccepted topology simulation and preserve the other reviewed
+preflight behavior.
 
 **Files:**
 
@@ -329,11 +369,12 @@ git commit -m "refactor(layout): own transition evidence work"
   work policy, existing V3 change-shape/root-binding authority, Source State,
   and Flow Tree summaries.
 - Produces: one exact process-local V2 preflight authority; exact bounded
-  previous/next source facts; effect classification; evidence requirement;
-  four Core-owned range classes per lane; and exact registered Producer Source
-  Material V2 when evidence is required.
-- Does not invoke Node/WASM, build next Source/Flow trees, inspect complete next
-  material, or export style/material authority factories.
+  previous/next logical delta facts; effect classification; evidence
+  requirement; four Core-owned range classes per lane; and exact registered
+  Producer Source Material V2 when evidence is required.
+- Does not invoke Node/WASM, build or simulate next Source/Flow trees, compose a
+  next Source summary, inspect complete next material, or export style/material
+  authority factories.
 
 Add these data contracts in
 `textBlockUnifiedLayoutEvidenceContractV2.ts`:
@@ -456,10 +497,40 @@ fields rather than making them optional on one broad interface.
 Add the private preflight contract:
 
 ```ts
+export interface VNextTextBlockBoundedSourceDeltaSpanInternalV2 {
+  readonly kind:
+    | "text"
+    | "resolved-field"
+    | "generated-page-number"
+    | "hard-break"
+    | "inline-image-boundary"
+  readonly renderedText: string
+  readonly renderedUtf16Length: number
+  readonly logicalInlineId: string
+  readonly semanticFingerprint: string
+  readonly sourceFingerprint: string
+  readonly provenanceFingerprint: string
+  readonly paintFingerprint: string
+  readonly layoutDependencyFingerprint: string
+  readonly boundaryFingerprint: string
+}
+
+export interface VNextTextBlockBoundedSourceDeltaFactsInternalV2 {
+  readonly previous:
+    readonly VNextTextBlockBoundedSourceDeltaSpanInternalV2[]
+  readonly next:
+    readonly VNextTextBlockBoundedSourceDeltaSpanInternalV2[]
+  readonly renderedContentEqual: boolean
+  readonly semanticIdentityChanged: boolean
+  readonly paintEqual: boolean
+  readonly layoutEqual: boolean
+  readonly fingerprint: string
+}
+
 export interface VNextTextBlockUnifiedLayoutChangePreflightV2 {
   readonly change: VNextTextBlockUnifiedLayoutChangeV1
   readonly eligibility: VNextTextBlockUnifiedLayoutEligibilityV1
-  readonly expectedTargetBinding: VNextTextBlockExpectedTargetBindingV1
+  readonly boundedDelta: VNextTextBlockBoundedSourceDeltaFactsInternalV2
   readonly effectClassification:
     VNextTextBlockUnifiedLayoutEffectClassificationV1
   readonly producerEvidence: "required" | "not-required"
@@ -543,8 +614,20 @@ expect(metricStyle).toMatchObject({
     effectClassification: { effectClass: "geometry-affecting-change" },
   },
 })
+expect(semanticOnly.preflight).not.toHaveProperty("expectedTargetBinding")
+expect(semanticOnly.preflight).not.toHaveProperty("nextSourceSummary")
+expect(semanticOnly.preflight.boundedDelta).toMatchObject({
+  renderedContentEqual: true,
+  semanticIdentityChanged: true,
+  paintEqual: true,
+  layoutEqual: true,
+})
 ```
 
+Add partial paint-only and equal-metric style rows that split one full
+eight-item text leaf. Assert both remain evidence-free even though a future
+Task 4 Source topology will change. Assert classification is invariant under
+forced alternate virtual grouping because Task 2 receives no grouping input.
 Assert V1 request/response contract sources and V3 fingerprints are unchanged.
 
 - [ ] **Step 2: Run the focused RED contract test**
@@ -553,7 +636,9 @@ Assert V1 request/response contract sources and V3 fingerprints are unchanged.
 npx vitest run --config vitest.config.ts tests/textBlockUnifiedLayoutTransitionPreflightV2.test.ts
 ```
 
-Expected: FAIL because V2 contracts and preflight do not exist.
+Expected: FAIL on the recovery base because preflight still exposes
+`expectedTargetBinding`, composes a virtual next Source summary, and derives
+classification from topology-sensitive aggregate fields.
 
 - [ ] **Step 3: Add exact registered style sidecar tests**
 
@@ -733,9 +818,10 @@ In `textBlockUnifiedLayoutTransitionPreflightV2.ts`:
 3. resolve insertion/replacement style from the exact Root registry, retain
    field style, or resolve the supported style overlay from exact base styles;
 4. construct exact replacement items without building a next Source tree;
-5. compose expected summary/binding facts from retained summary authorities
-   and the bounded replacement summary;
-6. derive effect classification and evidence requirement;
+5. form exact ordered bounded previous/next delta spans from visited fragments
+   and replacement items without leaf/branch grouping facts;
+6. derive effect classification and evidence requirement only from those
+   bounded delta spans;
 7. derive changed, evidence-target, shape-verification, coverage, and ordered
    segmentation context ranges from Source/Flow summaries and prior clusters;
 8. evaluate `evidence-request-lookup-nodes` before every Source/Flow node and
@@ -749,6 +835,11 @@ In `textBlockUnifiedLayoutTransitionPreflightV2.ts`:
 10. deep-freeze and register the exact preflight/request/material tuple in
     private WeakMaps.
 
+Delete the Task 2 virtual Source summary types/functions and every call to
+`composeVNextTextBlockTransitionSourceSummaryInternalV1(...)`. Keep the Source
+coverage/style seams that Task 4 consumes. A throwing test hook installed on
+any next-topology helper must observe zero calls for every preflight outcome.
+
 Material offsets are relative only to their lane coverage start. Generated
 page numbers carry passive style/owner facts; hard breaks and image boundaries
 carry no style, assets, frame, decode, paint, geometry, or renderer state.
@@ -759,7 +850,10 @@ Wrap non-intersecting Source/Flow subtrees in throwing sentinels. Add
 threshold-minus-one, threshold, and threshold-plus-one for request lookup and
 material atoms. Add clone/cross-Root/cross-change/cross-policy, unsafe integer,
 duplicate range, non-nested range, accessor, symbol, prototype, unknown field,
-and forced fingerprint-collision rows.
+and forced fingerprint-collision rows. Add a full-leaf interior insertion that
+would form ten Task 4 entries and a bounded replacement above sixteen; both
+must finish or stop only on existing preflight work evaluators without running
+packing code.
 
 ```ts
 expect(atLimit.status).toBe("required")
@@ -781,13 +875,14 @@ git diff --check
 ```
 
 Expected: PASS; V1/V3 identities are unchanged; no Node/WASM runtime was
-invoked; no complete Source/Flow/suffix traversal occurred.
+invoked; no next Source summary/topology was composed; no complete Source/Flow/
+suffix traversal occurred. Record the new focused count in the task report.
 
 - [ ] **Step 10: Commit Task 2**
 
 ```powershell
 git add src/layout/textBlockUnifiedLayoutEvidenceContractV2.ts src/layout/textBlockUnifiedLayoutTransitionPreflightV2.ts src/layout/textBlockUnifiedLayoutSourceStateV1.ts src/layout/textBlockIncrementalFlowTreeV1.ts src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.ts src/layout/textBlockUnifiedLayoutTransitionContractV1.ts tests/helpers/textBlockUnifiedLayoutRootV2.ts tests/textBlockUnifiedLayoutTransitionPreflightV2.test.ts
-git commit -m "feat(layout): add bounded transition preflight v2"
+git commit -m "fix(layout): separate semantic preflight from source topology"
 ```
 
 ### Task 3: Exact Node/WASM Evidence V2 Producer and Acceptance
@@ -1263,7 +1358,9 @@ finding before Task 4.
   accepted V2 evidence when required, and operation-owned source visit
   authority. It does not reclassify the change or resolve style again.
 - Produces: an unregistered next Source State candidate, exact dirty source
-  ranges, exact source-item lineage mapping, and factual source work.
+  ranges, exact source-item lineage mapping, one exact incremental structural
+  target authority, one exact source-layout-delta authority, and factual Source
+  work.
 
 ```ts
 export interface VNextTextBlockUnifiedLayoutSourceStageAcceptedV1 {
@@ -1274,8 +1371,20 @@ export interface VNextTextBlockUnifiedLayoutSourceStageAcceptedV1 {
   readonly nextSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
   readonly existingLineageIds: readonly string[]
   readonly insertedLineageIds: readonly string[]
+  readonly structuralTargetAuthority:
+    VNextTextBlockIncrementalStructuralTargetAuthorityInternalV1
+  readonly sourceLayoutDeltaAuthority:
+    VNextTextBlockSourceLayoutDeltaAuthorityInternalV1
   readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
   readonly issues: readonly []
+}
+
+export interface VNextTextBlockIncrementalStructuralTargetAuthorityInternalV1 {
+  readonly __incrementalStructuralTargetAuthorityOpaque: never
+}
+
+export interface VNextTextBlockSourceLayoutDeltaAuthorityInternalV1 {
+  readonly __sourceLayoutDeltaAuthorityOpaque: never
 }
 
 export interface VNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1 {
@@ -1294,6 +1403,10 @@ export type VNextTextBlockSourceRangePathCopyResultInternalV1 =
       readonly visitedLookupNodeCount: number
       readonly copiedPathNodeCount: number
       readonly visitedChangedLeafItemCount: number
+      readonly structuralTargetAuthority:
+        VNextTextBlockIncrementalStructuralTargetAuthorityInternalV1
+      readonly sourceLayoutDeltaAuthority:
+        VNextTextBlockSourceLayoutDeltaAuthorityInternalV1
       readonly issues: readonly []
     }
   | {
@@ -1327,8 +1440,7 @@ Task 4 consumes the exact preflight replacement instead of resolving it again.
 expect(semanticOnly.status).toBe("accepted")
 expect(semanticOnly.nextSourceState.summary.provenanceFingerprint)
   .not.toBe(previous.root.sourceState.summary.provenanceFingerprint)
-expect(semanticOnly.nextSourceState.summary.contentFingerprint)
-  .toBe(previous.root.sourceState.summary.contentFingerprint)
+expect(semanticOnly.sourceLayoutDeltaAuthority).toEqual(expect.any(Object))
 expect(metricStyle.completedCandidateWork.flow.completeSuffixTraversalCount)
   .toBe(0)
 ```
@@ -1338,6 +1450,34 @@ reads. Add clone/foreign/changed authority, unsafe range arithmetic, split
 surrogate, invalid hard-break/image-boundary, duplicate lineage, and forced
 collision rows. Add a two-transition row proving the first accepted next
 Source State owns an exact updated style registry for the second preflight.
+
+Add independent topology expectations that do not import production Source
+packing helpers:
+
+```ts
+expect(occupancies(fullLeafInteriorInsert)).toEqual([8, 2])
+expect(occupancies(batch15)).toEqual([8, 7])
+expect(occupancies(batch16)).toEqual([8, 8])
+expect(occupancies(batch17)).toEqual([8, 4, 5])
+expect(localFromEightEight.occupancies).toEqual([8, 2, 8])
+expect(completeSameLogicalTarget.occupancies).toEqual([8, 8, 2])
+expect(localFromEightEight.nextSourceState.root.fingerprint)
+  .not.toBe(completeSameLogicalTarget.sourceState.root.fingerprint)
+```
+
+Cover first/middle/last interior edits; start/middle/end item-boundary edits;
+full eight-child parent expansion at first/middle/last child; recursive
+ten-child parent overflow; multi-leaf/multi-style replacement; adjacent
+underflows; borrow left/right; merge left/right; donor exhaustion; unary-root
+collapse; and an accepted within-limit final batch above sixteen. For every
+row assert exact retained sibling `toBe` identity and zero complete suffix
+traversal.
+
+Add physical-fragment rows proving retained prefix and suffix may share one
+plain-text logical `inlineId`, remain distinct item objects, and can each be
+targeted by a second exact range transition. Prove complete Source validation
+accepts ordered duplicate plain-text logical ids but still rejects duplicate
+resolved-field, generated-page-number, hard-break, and inline-image ids.
 
 - [ ] **Step 2: Run RED**
 
@@ -1365,12 +1505,36 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
 
 The helper performs summary lookup, boundary-leaf split, local rebalance under
 the fixed eight-item/eight-child policy, and copied-path summary composition.
+It forms one atomic final ordered batch and uses the Source owner's existing
+`canonicalGroups` rule locally: emit leftmost groups of eight while more than
+nine remain, split a final nine as 4/5, and otherwise emit the remaining 1-8.
+Apply the same rule recursively to copied child batches. Do not decompose a
+change into sequential mini-edits and do not use `floor(occupancy / 2)`.
+
+Underflow is bottom-up and left-to-right. Borrow the minimum needed from left
+then right while leaving the donor at minimum; otherwise merge left then right,
+re-evaluate the position, and collapse a unary root only after the level is
+stable. Every donor/merge neighbor requires exact coverage and a pre-visit
+evaluator check. Empty complete Source remains blocked.
+
 It must not classify changes or register Root authority. It updates the
 process-local style sidecar from exact previous style reference counts plus
 bounded removed/replacement items, removes bindings whose exact count reaches
 zero, and binds the resulting exact style set to the prepared next Source
 State. It never copies a historical style that is absent from the next state
 and never traverses the retained suffix to rebuild the registry.
+
+Replace the global unique-inline index assumption with a kind-aware private
+index. Plain-text logical ids map to ordered physical fragment records; a
+singular lookup never chooses one ambiguous text fragment. Inline-addressed
+atomic kinds remain unique. Existing complete fixtures and fingerprints must
+remain byte-for-byte unchanged.
+
+This is a Source State V1 validation narrowing, not a new serialized identity
+field. If a test cannot prove fragment authority from exact registered object
+and range alone, or any accepted fixture/complete-build invariant would change,
+stop Task 4 and request the Source State V2/Root compatibility decision; do not
+patch in a segment id or reinterpret an existing Root.
 
 - [ ] **Step 4: Consume preflight classification and replacement facts**
 
@@ -1395,6 +1559,13 @@ exact Task 2 replacement record and changed source ranges.
 Require accepted exact V2 evidence bound to the same preflight material for
 evidence-bearing rows and reject evidence for evidence-free rows.
 
+After path copy, derive the topology-sensitive target binding from the actual
+unregistered next Source object. Mint the structural target authority only
+after the Source owner verifies the exact previous Source/preflight/evidence/
+policy/next Source tuple. Separately mint source-layout-delta authority only
+when exact bounded ordered layout facts prove equality; topology-sensitive
+whole-Source fingerprint equality is neither required nor sufficient.
+
 - [ ] **Step 5: Enforce source visits before work**
 
 For each lookup/path-copy/leaf-item visit, call the exact stage evaluator from
@@ -1402,6 +1573,12 @@ validated-change authority. Commit the count after acceptance only. Convert a
 limit result to its evaluator authority; convert proof/identity failure to a
 Core-minted proof authority or structured block. Never manufacture fallback
 from a caller-shaped reason.
+
+`source-leaf-items` counts every attempted final affected item-slot
+composition before access/emission. `source-path-copy-nodes` counts every
+attempted changed leaf/branch/root construction before allocation. A batch
+above sixteen stops only through one of those evaluator authorities, never a
+private topology exception.
 
 - [ ] **Step 6: Run GREEN and source regressions**
 
@@ -1430,10 +1607,11 @@ git commit -m "feat(layout): add text and style source transitions"
 
 **Interfaces:**
 
-- Consumes: Task 4 Source stage, exact accepted V2 evidence, and previous Flow
-  Tree authority.
+- Consumes: Task 4 Source stage including exact source-layout-delta authority,
+  exact accepted V2 evidence, and previous Flow Tree authority.
 - Produces: an unregistered next Flow Tree candidate, Core-derived layout seed,
-  existing/new lineage facts, and completed flow work.
+  or an exact previous Flow Tree alias plus binding authority; Core-derived
+  layout seed; existing/new lineage facts; and completed flow work.
 
 ```ts
 export interface VNextTextBlockUnifiedLayoutFlowStageAcceptedV1 {
@@ -1441,11 +1619,17 @@ export interface VNextTextBlockUnifiedLayoutFlowStageAcceptedV1 {
   readonly preflight: VNextTextBlockUnifiedLayoutChangePreflightV2
   readonly nextSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
   readonly nextFlowTree: VNextTextBlockIncrementalFlowTreeV1
+  readonly flowBindingAuthority:
+    VNextTextBlockFlowBindingAuthorityInternalV1
   readonly seedRegion: VNextTextBlockLayoutSeedRegionV1
   readonly existingLineageIds: readonly string[]
   readonly insertedLineageIds: readonly string[]
   readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
   readonly issues: readonly []
+}
+
+export interface VNextTextBlockFlowBindingAuthorityInternalV1 {
+  readonly __flowBindingAuthorityOpaque: never
 }
 
 export type VNextTextBlockIncrementalFlowRangePathCopyResultInternalV1 =
@@ -1482,6 +1666,7 @@ expect(semanticOnly.nextFlowTree)
   .toBe(previous.root.flowTree)
 expect(paintOnly.nextFlowTree)
   .toBe(previous.root.flowTree)
+expect(paintOnly.flowBindingAuthority).toEqual(expect.any(Object))
 expect(metricChange.nextFlowTree).not.toBe(previous.root.flowTree)
 expect(metricChange.completedCandidateWork.flow).toMatchObject({
   completeTreeRebuildCount: 0,
@@ -1493,6 +1678,12 @@ expect(metricChange.completedCandidateWork.flow).toMatchObject({
 Cover retained prefix/suffix identity, boundary leaf splits, 1/8/32/33/128/
 2,048-line source scales, request coverage drift, changed style/font/unit
 dependencies, throwing suffix sentinels, and every flow unit limit.
+
+Include partial paint-only and equal-metric style edits that change Source leaf
+grouping from one full leaf to `8/2`. Assert exact previous Flow Tree identity,
+zero Flow wrapper/path-copy construction, accepted exact binding authority, and
+no geometry promotion. A forged layout-equal fingerprint without exact Task 4
+delta authority must block.
 
 - [ ] **Step 2: Run RED**
 
@@ -1514,6 +1705,14 @@ export function prepareVNextTextBlockIncrementalFlowRangePathCopyInternalV1(inpu
   readonly nextRange: VNextTextBlockSourceRangeV1
   readonly beforeVisit: (unit: "flow-atoms" | "flow-tree-nodes") => boolean
 }): VNextTextBlockIncrementalFlowRangePathCopyResultInternalV1
+
+export function bindVNextTextBlockIncrementalFlowExactAliasInternalV1(input: {
+  readonly previousFlowTree: VNextTextBlockIncrementalFlowTreeV1
+  readonly previousSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly nextSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly sourceLayoutDeltaAuthority:
+    VNextTextBlockSourceLayoutDeltaAuthorityInternalV1
+}): VNextTextBlockFlowBindingAuthorityInternalV1 | null
 ```
 
 The owner retains exact paint-neutral suffix subtrees, creates only replacement
@@ -1525,7 +1724,10 @@ Convert accepted V2 shaping runs/breaks for the exact evidence target and
 Source Stage facts into flow atoms.
 For semantic-only and paint-only rows, bind the exact previous Flow Tree to the
 new Source State through a narrow alias proof instead of building a wrapper.
-Reject any evidence gap, surplus, topology mismatch, or dependency drift.
+The alias owner checks exact previous/next Source and Task 4 delta authority;
+it does not require topology-sensitive whole-Source layout fingerprints to be
+equal. Reject any evidence gap, surplus, authority mismatch, or ordered layout
+dependency drift.
 
 - [ ] **Step 5: Derive the layout seed and wire private stage sequencing**
 
@@ -2063,23 +2265,21 @@ git add src/layout/textBlockUnifiedLayoutTransitionGeometryInternalsV1.ts src/la
 git commit -m "feat(layout): project text and style transition geometry"
 ```
 
-### Task 9: Scene/Root Candidate, Exact Fallback, and QA Oracle
+### Task 9A: Scene/Delivery and Atomic Incremental Root Candidate
 
 **Files:**
 
-- Create: `tests/helpers/textBlockUnifiedIncremental5b2.ts`
 - Create: `tests/textBlockUnifiedLayoutTextStyleTransitionV1.test.ts`
 - Modify: `src/layout/textBlockUnifiedLayoutTransitionSceneInternalsV1.ts`
 - Modify: `src/layout/textBlockUnifiedLayoutTransitionV1.ts`
 - Modify: `src/layout/textBlockUnifiedLayoutRootV2.ts`
-- Modify: `src/layout/textBlockUnifiedLayoutFallbackV1.ts`
-- Modify: `tests/textBlockUnifiedLayoutFallbackV1.test.ts`
 
 **Interfaces:**
 
 - Consumes: Task 4-8 accepted private stages.
-- Produces: one prepared Scene/Delivery/Root candidate or one exact
-  proof/evaluator failure authority. Public V3 remains inactive until Task 10.
+- Produces: one prepared Scene/Delivery/Root candidate, exact atomic
+  incremental registration, or one sanitized proof/evaluator cause authority.
+  Public V3 remains inactive until policy activation.
 
 ```ts
 export interface VNextTextBlockUnifiedLayoutTextStyleSceneStageAcceptedV1 {
@@ -2090,6 +2290,20 @@ export interface VNextTextBlockUnifiedLayoutTextStyleSceneStageAcceptedV1 {
   readonly issues: readonly []
 }
 
+export interface VNextTextBlockUnifiedLayoutFallbackCauseAuthorityInternalV2 {
+  readonly __fallbackCauseAuthorityOpaque: never
+}
+
+export function createVNextTextBlockUnifiedLayoutFallbackCauseAuthorityInternalV2(input: {
+  readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+  readonly change: VNextTextBlockUnifiedLayoutChangeV1
+  readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+  readonly failure: Extract<
+    VNextTextBlockUnifiedLayoutOwnedStageFailureV1,
+    { readonly status: "fallback-required" }
+  >
+}): VNextTextBlockUnifiedLayoutFallbackCauseAuthorityInternalV2 | null
+
 export function prepareVNextTextBlockUnifiedLayoutTextStyleSceneTransitionInternalV1(input: {
   readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
   readonly flowStage: VNextTextBlockUnifiedLayoutFlowStageAcceptedV1
@@ -2098,19 +2312,6 @@ export function prepareVNextTextBlockUnifiedLayoutTextStyleSceneTransitionIntern
 }):
   | VNextTextBlockUnifiedLayoutTextStyleSceneStageAcceptedV1
   | VNextTextBlockUnifiedLayoutOwnedStageFailureV1
-```
-
-QA helper only:
-
-```ts
-export interface VNextTextBlockUnifiedLayout5b2QaComparisonV1 {
-  readonly incrementalRenderer: { readonly chunks: readonly unknown[]; readonly summary: unknown }
-  readonly completeFallbackRenderer: { readonly chunks: readonly unknown[]; readonly summary: unknown }
-  readonly completeOracleRenderer: { readonly chunks: readonly unknown[]; readonly summary: unknown }
-  readonly incrementalCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
-  readonly completeFallbackWork: VNextTextBlockCompleteFallbackWorkV1
-  readonly completeOracleWork: VNextTextBlockCompleteOracleWorkV1
-}
 ```
 
 - [ ] **Step 1: Write Scene/Delivery RED tests**
@@ -2140,62 +2341,41 @@ range, assert registered canonical shapes produce the one expected cover and
 forged alternate/equal-size/noncanonical shapes are rejected rather than
 silently selecting an implementation-dependent tie.
 
-- [ ] **Step 2: Write atomic candidate and fallback RED tests**
+- [ ] **Step 2: Write structural-target and atomic Root RED tests**
 
-Force proof and limit failures at evidence, source, flow, line, proof, geometry,
-Scene, and delivery stages. Assert one exact request and no registered
-candidate. Supply independent complete material later and assert the shared
-complete kernel accepts only exact target binding.
+Prepare a valid Task 4-8 tuple and assert Root assembly consumes the exact Task
+4 structural target authority. The actual Root binding must use the exact next
+Source object recorded by that authority; a clone, alternate `5/5` packing,
+cross-change authority, or equal forced-collision fingerprint blocks before
+registration.
 
 ```ts
-expect(attempt).toMatchObject({ status: "fallback-required" })
-expect(observedFallbackCandidates).toHaveLength(1)
-expect(observedFallbackCandidates[0]).toBe(fallback.root)
-expect(fallback.completeFallbackWork).toMatchObject({
-  completeRootV2BuildCount: 1,
-  completeSceneV2BuildCount: 1,
+expect(accepted.status).toBe("accepted-incremental")
+expect(accepted.root.sourceState).toBe(sourceStage.nextSourceState)
+expect(inspectVNextTextBlockUnifiedLayoutRootV2(accepted.root).status)
+  .toBe("accepted-incremental")
+expect(alternatePacking).toMatchObject({
+  status: "blocked",
+  issues: [expect.objectContaining({ code: "change-target-mismatch" })],
 })
 ```
 
-Reject fabricated/cross-attempt request, changed target, leaked candidate
-object/range/summary, complete material on the attempt, and partial candidate
-passed to fallback.
+- [ ] **Step 3: Write sanitized failure-cause RED tests**
 
-Assert the observer is empty after the attempt and before completion. Then
-populate `observedFallbackCandidates` with the existing private
-`setVNextTextBlockUnifiedLayoutFallbackCandidateObserverForTestInternalV1(...)`
-around the complete-fallback call; its only value must be the independently
-built accepted fallback Root. Clear the observer in `finally`.
-
-- [ ] **Step 3: Write independent oracle RED tests**
-
-Build complete target material from fixture authorship after the attempt.
-Compare semantic/source/provenance, flow, line/fragment geometry, ordered
-renderer chunks/summary, payload observation under the same estimate contract,
-and complete delivery. Do not compare composite Root fingerprints across
-different construction provenance.
-
-```ts
-expect(comparison.incrementalRenderer)
-  .toEqual(comparison.completeOracleRenderer)
-expect(comparison.completeFallbackRenderer)
-  .toEqual(comparison.completeOracleRenderer)
-expect(Object.keys(comparison)).toContain("completeOracleWork")
-expect(comparison.incrementalCandidateWork)
-  .not.toHaveProperty("completeOracleBuildCount")
-```
-
-Add a frozen V1 normalization assertion in the helper and spy that no V1
-constructor/materialization runs in production attempt/fallback.
+Force one exact failure at Source, Flow, line, proof, geometry, Scene, and
+delivery. The stage owner returns an opaque cause authority plus exact stopped
+work. Assert it exposes no Root/Source/Flow/Line/Scene object, range, summary,
+target binding, topology, or reuse decision as own data. Clone, cross-stage,
+cross-change, accessor, symbol, prototype, and forced-collision causes block.
 
 - [ ] **Step 4: Run RED**
 
 ```powershell
-npx vitest run --config vitest.config.ts tests/textBlockUnifiedLayoutTextStyleTransitionV1.test.ts tests/textBlockUnifiedLayoutFallbackV1.test.ts
+npx vitest run --config vitest.config.ts tests/textBlockUnifiedLayoutTextStyleTransitionV1.test.ts tests/textBlockSceneDeliveryV2.test.ts tests/textBlockUnifiedLayoutRootV2.test.ts
 ```
 
-Expected: FAIL because general text/style Scene/Root orchestration and QA helper
-do not exist.
+Expected: FAIL because general text/style Scene/Root orchestration and Task 4
+structural-target acceptance do not exist.
 
 - [ ] **Step 5: Implement disposition-driven Scene path copy**
 
@@ -2209,47 +2389,352 @@ authority.
 
 Use `prepareVNextTextBlockUnifiedLayoutRootIncrementalCandidateInternalV2(...)`
 with Task 4-9 candidate dependencies. Recompose actual target binding and
-compare every field with validated expected target binding. Call
+compare every field with the exact Task 4 structural target authority. Require
+the exact recorded next Source object and every stage authority. Call
 `registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2(...)` only
 after final work audit and delivery validation pass. This private integration
 remains unreachable from the public V3 attempt.
 
-- [ ] **Step 7: Route all failures through exact authority**
+- [ ] **Step 7: Mint sanitized cause authority without candidate retention**
 
-Reuse the existing evaluator/proof-to-fallback protocol. Never accept direct
-mode/reason/stage/limit/work fields. Prove candidate work stops at the attempt,
-complete fallback work starts in completion, and oracle work exists only in
-the QA comparison record.
+Consume the exact evaluator/proof failure while minting a closed cause
+authority. The cause registry records exact previous Root/change/policy,
+mode/reason/stage, and stopped `incrementalCandidateWork`, but no partial stage
+object. Never accept direct caller-shaped mode/reason/stage/limit/work fields.
 
-- [ ] **Step 8: Implement the QA-only comparison helper**
-
-Keep it under `tests/helpers`. It imports public complete bootstrap/delivery
-and fixture authorship, not private production stage functions. Add a test that
-removing/skipping the helper does not change production candidate, fallback,
-work, or fingerprint facts.
-
-- [ ] **Step 9: Run GREEN and the 5B-2D gate**
+- [ ] **Step 8: Run GREEN for Scene/Root atomic acceptance**
 
 ```powershell
-npx vitest run --config vitest.config.ts tests/textBlockUnifiedLayoutTextStyleTransitionV1.test.ts tests/textBlockUnifiedLayoutTextStyleGeometryV1.test.ts tests/textBlockUnifiedLayoutReconvergenceV1.test.ts tests/textBlockSceneDeliveryV2.test.ts tests/textBlockPersistentSceneV2.test.ts tests/textBlockUnifiedLayoutRootV2.test.ts tests/textBlockUnifiedLayoutFallbackV1.test.ts tests/textBlockUnifiedLayoutAdversarialV2.test.ts
+npx vitest run --config vitest.config.ts tests/textBlockUnifiedLayoutTextStyleTransitionV1.test.ts tests/textBlockUnifiedLayoutTextStyleGeometryV1.test.ts tests/textBlockUnifiedLayoutReconvergenceV1.test.ts tests/textBlockSceneDeliveryV2.test.ts tests/textBlockPersistentSceneV2.test.ts tests/textBlockUnifiedLayoutRootV2.test.ts tests/textBlockUnifiedLayoutAdversarialV2.test.ts
 npm run type-check
 git diff --check
 ```
 
-- [ ] **Step 10: Commit**
+- [ ] **Step 9: Commit Task 9A**
 
 ```powershell
-git add src/layout/textBlockUnifiedLayoutTransitionSceneInternalsV1.ts src/layout/textBlockUnifiedLayoutTransitionV1.ts src/layout/textBlockUnifiedLayoutRootV2.ts src/layout/textBlockUnifiedLayoutFallbackV1.ts tests/helpers/textBlockUnifiedIncremental5b2.ts tests/textBlockUnifiedLayoutTextStyleTransitionV1.test.ts tests/textBlockUnifiedLayoutFallbackV1.test.ts
+git add src/layout/textBlockUnifiedLayoutTransitionSceneInternalsV1.ts src/layout/textBlockUnifiedLayoutTransitionV1.ts src/layout/textBlockUnifiedLayoutRootV2.ts tests/textBlockUnifiedLayoutTextStyleTransitionV1.test.ts
 git commit -m "feat(layout): assemble text and style Root V2 candidates"
+```
+
+### Task 9B: Candidate-Independent Fallback V2 and QA Oracle
+
+**Files:**
+
+- Create: `src/layout/textBlockUnifiedLayoutFallbackContractV2.ts`
+- Create: `src/layout/textBlockUnifiedLayoutFallbackV2.ts`
+- Create: `tests/textBlockUnifiedLayoutFallbackV2.test.ts`
+- Create: `tests/helpers/textBlockUnifiedIncremental5b2.ts`
+- Modify: `src/layout/textBlockUnifiedLayoutTransitionV1.ts`
+- Modify: `src/layout/textBlockUnifiedLayoutRootV2.ts`
+- Modify: `src/layout/textBlockUnifiedLayoutTransitionContractV1.ts`
+- Modify: `tests/textBlockUnifiedLayoutFallbackV1.test.ts`
+
+**Interfaces:**
+
+- Consumes: exact previous Root/change/work policy, one exact consumed Task 9A
+  cause proof, stopped incremental work, and independently supplied complete
+  material provided only after the attempt.
+- Produces: one single-use sanitized Fallback Request V2, one accepted
+  independent complete Root V2 or structured completion block, complete-only
+  replay work, and QA-only normalized comparison.
+
+```ts
+export interface VNextTextBlockUnifiedLayoutFallbackRequestV2 {
+  readonly source:
+    "vnext-text-block-unified-layout-fallback-request-v2"
+  readonly contractVersion: 2
+  readonly mode: VNextTextBlockUnifiedLayoutFallbackModeV1
+  readonly reason: VNextTextBlockUnifiedLayoutFallbackReasonV1
+  readonly skippedOrFailedStage: VNextTextBlockUnifiedLayoutStageV1
+  readonly incrementalWorkAttempted: boolean
+  readonly previousRootFingerprint: string
+  readonly changeFingerprint: string
+  readonly documentId: string
+  readonly sectionId: string
+  readonly textBlockId: string
+  readonly changeTargetClaimFingerprint: string
+  readonly workPolicyFingerprint: string
+  readonly incrementalCandidateWork:
+    VNextTextBlockIncrementalCandidateWorkV1
+  readonly fingerprint: string
+}
+
+export interface VNextTextBlockCompleteFallbackReplayWorkV2 {
+  readonly visitedPreviousSourceItemCount: number
+  readonly visitedCompleteSourceItemCount: number
+  readonly comparedLogicalSpanCount: number
+}
+
+export interface VNextTextBlockCompleteFallbackWorkV2 {
+  readonly completeBuildWork: VNextTextBlockCompleteFallbackWorkV1
+  readonly logicalReplay: VNextTextBlockCompleteFallbackReplayWorkV2
+}
+
+export type VNextTextBlockUnifiedLayoutFallbackRequestInspectionV2 =
+  | {
+      readonly status: "valid"
+      readonly mode: VNextTextBlockUnifiedLayoutFallbackModeV1
+      readonly skippedOrFailedStage: VNextTextBlockUnifiedLayoutStageV1
+      readonly previousRootFingerprint: string
+      readonly changeFingerprint: string
+      readonly fingerprint: string
+    }
+  | {
+      readonly status: "invalid"
+      readonly code: "fallback-request-authority-mismatch"
+      readonly message: string
+    }
+
+export type VNextTextBlockUnifiedLayoutCompleteFallbackResultV2 =
+  | {
+      readonly status: "accepted-complete-fallback"
+      readonly root: VNextTextBlockUnifiedLayoutRootV2
+      readonly persistentScene: VNextTextBlockPersistentSceneV2
+      readonly deliveryPlan: null
+      readonly completeFallbackWork: VNextTextBlockCompleteFallbackWorkV2
+      readonly issues: readonly []
+      readonly stagedEditorApply: false
+      readonly mayPublishLayout: false
+      readonly productionBinding: false
+    }
+  | {
+      readonly status: "blocked"
+      readonly root: null
+      readonly persistentScene: null
+      readonly deliveryPlan: null
+      readonly completeFallbackWork: VNextTextBlockCompleteFallbackWorkV2
+      readonly issues: readonly VNextTextBlockUnifiedLayoutIssueV1[]
+      readonly stagedEditorApply: false
+      readonly mayPublishLayout: false
+      readonly productionBinding: false
+    }
+
+export function createVNextTextBlockUnifiedLayoutFallbackRequestInternalV2(
+  input: {
+    readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+    readonly change: VNextTextBlockUnifiedLayoutChangeV1
+    readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+    readonly causeAuthority:
+      VNextTextBlockUnifiedLayoutFallbackCauseAuthorityInternalV2
+    readonly incrementalCandidateWork:
+      VNextTextBlockIncrementalCandidateWorkV1
+  },
+): VNextTextBlockUnifiedLayoutFallbackRequestV2 | null
+
+export function completeVNextTextBlockUnifiedLayoutRootFallbackInternalV2(
+  input: {
+    readonly request: VNextTextBlockUnifiedLayoutFallbackRequestV2
+    readonly completeMaterial: VNextTextBlockUnifiedLayoutRootBuildInputV2
+    readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+  },
+): VNextTextBlockUnifiedLayoutCompleteFallbackResultV2
+
+export function inspectVNextTextBlockUnifiedLayoutFallbackRequestV2(
+  value: unknown,
+): VNextTextBlockUnifiedLayoutFallbackRequestInspectionV2
+
+export function completeVNextTextBlockUnifiedLayoutRootFallbackV2(input: {
+  readonly request: VNextTextBlockUnifiedLayoutFallbackRequestV2
+  readonly completeMaterial: VNextTextBlockUnifiedLayoutRootBuildInputV2
+}): VNextTextBlockUnifiedLayoutCompleteFallbackResultV2
+```
+
+Request V2 intentionally has no `expectedTargetBinding`, candidate
+fingerprint, summary, range, topology, reuse, or delivery field. Its exact
+WeakMap record stores only previous Root/change/policy and sanitized cause
+facts after consuming the cause authority.
+
+- [ ] **Step 1: Write Fallback V2 request RED tests**
+
+Force one failure at every active stage. Assert one exact frozen Request V2,
+one-shot cause consumption, exact stopped work, no registered candidate, and
+the exact closed own-key set. Reject clone, replay, cross-Root/change/policy/
+cause, accessor, symbol, prototype, unknown field, unsafe integer, and forced
+collision substitution. Assert Fallback V1 shape, tests, and fingerprint
+fixtures remain unchanged.
+
+```ts
+expect(Object.keys(request).sort()).toEqual([
+  "changeFingerprint",
+  "changeTargetClaimFingerprint",
+  "contractVersion",
+  "documentId",
+  "fingerprint",
+  "incrementalCandidateWork",
+  "incrementalWorkAttempted",
+  "mode",
+  "previousRootFingerprint",
+  "reason",
+  "sectionId",
+  "skippedOrFailedStage",
+  "source",
+  "textBlockId",
+  "workPolicyFingerprint",
+].sort())
+expect(request).not.toHaveProperty("expectedTargetBinding")
+```
+
+- [ ] **Step 2: Write complete logical replay RED tests**
+
+Supply complete material only after Request V2 exists. Cover insert/delete/
+replace, field value, partial paint-only, and partial equal/changed-metric style
+rows. Stream-compare the exact original change over previous logical source
+facts with prepared complete material. Coalesce adjacent spans only when exact
+kind/logical identity/source/provenance/paint/layout/boundary facts match; a
+fingerprint match alone never coalesces.
+
+Include the `[8,8]` counterexample:
+
+```ts
+expect(local.root.sourceState.root.fingerprint)
+  .not.toBe(complete.root.sourceState.root.fingerprint)
+expect(fallback.status).toBe("accepted-complete-fallback")
+expect(fallback.root).toBe(observedCompleteCandidate)
+expect(fallback.completeFallbackWork.logicalReplay)
+  .toMatchObject({
+    visitedPreviousSourceItemCount: expect.any(Number),
+    visitedCompleteSourceItemCount: expect.any(Number),
+    comparedLogicalSpanCount: expect.any(Number),
+  })
+```
+
+Reject invented retained inline identities, reordered fragments, changed
+source/provenance/paint/layout/boundary facts, incorrect authored-box/spatial
+target, leaked Task 2 replacement, Task 4 node/summary, and complete material
+on the incremental attempt.
+
+- [ ] **Step 3: Write replay work-limit RED tests**
+
+Add the three additive 5B-2-only units
+`fallback-replay-previous-source-items`,
+`fallback-replay-complete-source-items`, and
+`fallback-replay-logical-spans`. Check before each visit/compare and assert
+threshold-minus-one/threshold/threshold-plus-one. A completion limit returns a
+structured blocked completion with exact attempted/completed replay work; it
+does not mint another fallback request. Assert these units are absent from all
+frozen `5b-1-v3` policy facts.
+
+Extend only the shared type vocabulary required by the versioned work-policy
+row shape:
+
+```ts
+export type VNextTextBlockUnifiedLayoutStageV1 =
+  | "change-gate"
+  | "evidence"
+  | "source-flow"
+  | "spatial-index"
+  | "structural-reuse-proof"
+  | "layout-reconvergence"
+  | "geometry"
+  | "scene"
+  | "delivery-plan"
+  | "atomic-acceptance"
+  | "complete-fallback"
+
+export type VNextTextBlockUnifiedLayoutStageUnitV1 =
+  | "evidence-request-lookup-nodes"
+  | "evidence-context-atoms"
+  | "evidence-response-nodes"
+  | "source-items"
+  | "source-lookup-nodes"
+  | "source-path-copy-nodes"
+  | "source-leaf-items"
+  | "flow-atoms"
+  | "flow-tree-nodes"
+  | "spatial-index-nodes"
+  | "spatial-query-bands"
+  | "selected-exact-subtree-nodes"
+  | "line-tree-lookup-nodes"
+  | "scene-tree-lookup-nodes"
+  | "recomputed-lines"
+  | "proof-nodes"
+  | "reprojected-lines"
+  | "visited-fragments"
+  | "copied-scene-nodes"
+  | "replacement-chunks"
+  | "delivery-operations"
+  | "retain-cover-nodes"
+  | "fallback-replay-previous-source-items"
+  | "fallback-replay-complete-source-items"
+  | "fallback-replay-logical-spans"
+```
+
+This additive compile-time vocabulary is not a Fallback V1 capability change:
+no V1 request/result field, V1 policy row, V1 fingerprint, or V1 execution path
+may acquire these values. Tests must prove all frozen V1 runtime facts remain
+byte-for-byte canonical. Request V2 validation also rejects
+`skippedOrFailedStage: "complete-fallback"`; that stage is completion work, not
+an incremental-attempt failure source.
+
+- [ ] **Step 4: Run Fallback V2 RED**
+
+```powershell
+npx vitest run --config vitest.config.ts tests/textBlockUnifiedLayoutFallbackV2.test.ts tests/textBlockUnifiedLayoutFallbackV1.test.ts
+```
+
+Expected: FAIL because Request/Completion V2 and logical replay do not exist.
+
+- [ ] **Step 5: Implement sanitized request minting**
+
+Validate and consume the exact Task 9A cause authority, copy only closed
+reason/stage/work facts, bind exact previous Root/change/policy in a private
+WeakMap, deep-freeze the request, and make it single-use. Do not retain the
+cause object or inspect a partial candidate while completing fallback.
+
+- [ ] **Step 6: Implement independent complete construction and replay**
+
+Call `prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2(...)`
+with only independent complete material, exact policy, and
+`"complete-fallback"`. Reuse the bootstrap complete kernel; do not create a
+second Source/Flow/line/Scene/Root builder. Separately traverse exact previous
+logical source and prepared complete Source under the original change, enforce
+the three replay evaluators before visits, and register only after exact replay,
+identity, work audit, and Root validation all pass.
+
+- [ ] **Step 7: Write and implement the QA-only oracle helper**
+
+Build complete target authorship after the attempt. Compare incremental,
+complete fallback, and complete oracle through ordered normalized renderer and
+logical source facts, line/fragment geometry, payload observation, and complete
+delivery. Do not compare composite Root or topology-sensitive Source
+fingerprints across provenance.
+
+```ts
+expect(comparison.incrementalRenderer)
+  .toEqual(comparison.completeOracleRenderer)
+expect(comparison.completeFallbackRenderer)
+  .toEqual(comparison.completeOracleRenderer)
+expect(comparison.incrementalCandidateWork)
+  .not.toHaveProperty("completeOracleBuildCount")
+expect(comparison.completeOracleWork).toEqual(expect.any(Object))
+```
+
+Keep the helper under `tests/helpers`; production imports no QA normalizer.
+
+- [ ] **Step 8: Run GREEN and Fallback/Oracle regressions**
+
+```powershell
+npx vitest run --config vitest.config.ts tests/textBlockUnifiedLayoutFallbackV2.test.ts tests/textBlockUnifiedLayoutFallbackV1.test.ts tests/textBlockUnifiedLayoutTextStyleTransitionV1.test.ts tests/textBlockUnifiedLayoutRootV2.test.ts tests/textBlockUnifiedLayoutAdversarialV2.test.ts
+npm run type-check
+git diff --check
+```
+
+- [ ] **Step 9: Commit Task 9B**
+
+```powershell
+git add src/layout/textBlockUnifiedLayoutFallbackContractV2.ts src/layout/textBlockUnifiedLayoutFallbackV2.ts src/layout/textBlockUnifiedLayoutTransitionV1.ts src/layout/textBlockUnifiedLayoutRootV2.ts src/layout/textBlockUnifiedLayoutTransitionContractV1.ts tests/helpers/textBlockUnifiedIncremental5b2.ts tests/textBlockUnifiedLayoutFallbackV2.test.ts tests/textBlockUnifiedLayoutFallbackV1.test.ts
+git commit -m "feat(layout): add candidate-independent fallback v2"
 ```
 
 ### 5B-2D Review Stop
 
 PASS requires disposition-honest geometry/Scene work, no executable prelock,
-canonical delivery, exact target binding, atomic registration, exact deferred
-fallback, no candidate contamination, external oracle, separate work ledgers,
-and no V1 production materialization. Stop before policy publication on any
-Critical/Important finding.
+canonical delivery, exact Task 4 structural target authority, atomic
+incremental registration, sanitized deferred Fallback V2, logical replay that
+accepts topology-different complete material, no candidate contamination,
+external oracle, separate work ledgers, and unchanged Fallback/Evidence V1.
+Stop before policy publication on any Critical/Important finding.
 
 ---
 
@@ -2265,9 +2750,10 @@ Critical/Important finding.
 - Modify: `src/layout/textBlockUnifiedLayoutRootV2.ts`
 - Modify: `src/layout/textBlockUnifiedLayoutTransitionPreflightV2.ts`
 - Modify: `src/layout/textBlockUnifiedLayoutTransitionEvidenceV2.ts`
+- Modify: `src/layout/textBlockUnifiedLayoutFallbackContractV2.ts`
+- Modify: `src/layout/textBlockUnifiedLayoutFallbackV2.ts`
 - Create: `src/layout/textBlockUnifiedLayoutTransitionContractV2.ts`
 - Create: `src/layout/textBlockUnifiedLayoutTransitionV2.ts`
-- Modify: `src/layout/textBlockUnifiedLayoutFallbackV1.ts`
 - Modify: `src/index.ts`
 - Modify: `fixtures/live-draft-unified-incremental-root-5b-manifest.v1.json`
 - Modify: `tests/liveDraftMr1UnifiedIncrementalRoot5b.test.ts`
@@ -2276,8 +2762,8 @@ Critical/Important finding.
 
 **Interfaces:**
 
-- Consumes: factual operation-owned observations from Tasks 1-9 and the exact
-  V3 calibration formula.
+- Consumes: factual operation-owned observations from Tasks 1-9A/9B and the
+  exact V3 calibration formula.
 - Produces: one immutable public `5b-2-v1` policy, calibration revision `4`,
   policy-bound public bootstrap/attempt, and an explicit V3-root rejection.
 
@@ -2316,7 +2802,7 @@ export function attemptVNextTextBlockUnifiedLayoutRootTransitionV2(
 ): VNextTextBlockUnifiedLayoutTransitionResultV1
 ```
 
-The new policy has exactly 24 ordered rows:
+The new policy has exactly 27 ordered rows:
 
 1. three locked evidence rows;
 2. six locked source/flow rows;
@@ -2325,11 +2811,19 @@ The new policy has exactly 24 ordered rows:
 5. two locked layout/reconvergence rows;
 6. two locked text/style geometry rows owned by `5B-2`;
 7. four locked Scene rows; and
-8. three locked delivery rows.
+8. three locked delivery rows; and
+9. three locked Fallback V2 replay rows.
+
+The additive stage/unit strings are `complete-fallback` with
+`fallback-replay-previous-source-items`,
+`fallback-replay-complete-source-items`, and
+`fallback-replay-logical-spans`. They are executable only through Fallback
+Completion V2. Existing V1 policy objects contain none of these rows and keep
+their exact fingerprints.
 
 - [ ] **Step 1: Record the deterministic calibration observations**
 
-Run the declared fixture matrix through private Tasks 1-9 stage harnesses in
+Run the declared fixture matrix through private Tasks 1-9A/9B stage harnesses in
 this exact order:
 
 ```text
@@ -2339,6 +2833,9 @@ this exact order:
 33 lines: equal-metric and metric-affecting style
 128 lines: exact and translated reconvergence
 2,048 lines: long retained suffix for insert/delete/replace/style
+[8,8] local/complete topology divergence: Fallback V2 logical replay
+17 and >16 local Source batches: canonical grouping and Source limits
+two transitions: prefix/replacement/suffix fragment identity
 ```
 
 The ordered matrix also includes `fi`/`ffi`, Thai combining boundaries,
@@ -2379,14 +2876,14 @@ relativeDenominator = 1
 ```
 
 Assert exact generated floor/absolute/relative values, limit-minus-one/limit/
-limit-plus-one outcomes, 24-row order, 22 locked rows, two inactive spatial
+limit-plus-one outcomes, 27-row order, 25 locked rows, two inactive spatial
 rows, no prelock, no duration, and payload outside the policy.
 
 ```ts
 expect(policy.policyId).toBe("5b-2-v1")
-expect(policy.stages).toHaveLength(24)
+expect(policy.stages).toHaveLength(27)
 expect(policy.stages.filter(row => row.lockStatus === "locked"))
-  .toHaveLength(22)
+  .toHaveLength(25)
 expect(policy.stages.filter(row => row.lockStatus === "inactive"))
   .toHaveLength(2)
 expect(policy.stages.some(row => row.lockStatus === "prelock"))
@@ -2427,7 +2924,8 @@ exports, accepted Root facts, and handoff evidence.
 Update the manifest with exact policy fingerprint, calibration file SHA,
 `fixtureCalibrationRevision: 4`, active text/style/semantic-only capabilities,
 Core-owned text layout reconvergence, text/style-only geometry ownership, and
-all 5B-3/product capabilities false.
+candidate-independent Fallback V2 logical replay. Keep all 5B-3/product
+capabilities false.
 
 - [ ] **Step 6: Make activation bootstrap-bound and caller-free**
 
@@ -2455,15 +2953,16 @@ expect(v2AttemptWith5b2Root.status).toBe("accepted-incremental")
 There is no policy migration in the attempt. A caller creates a 5B-2 Root by
 calling the ordinary complete public bootstrap after activation.
 
-- [ ] **Step 7: Activate Tasks 1-9 orchestration atomically**
+- [ ] **Step 7: Activate Tasks 1-9A/9B orchestration atomically**
 
 In `textBlockUnifiedLayoutTransitionV2.ts`, execute exact Preflight → accepted
 Evidence V2 or accepted producer-failure authority → Source → Flow → Line/
 reconvergence/disposition → Geometry → Scene/Delivery → target-binding →
 atomic Root registration. A preflight limit or exact accepted producer failure
-is converted to the ordinary two-step fallback request here. Each other
-failure returns its exact existing blocked/fallback result. No stage is
-repaired from complete/oracle material.
+is converted to sanitized Fallback Request V2 here. Each other exact cause is
+consumed into the same candidate-free V2 request protocol. Complete material
+is accepted only later by public `completeVNextTextBlockUnifiedLayoutRootFallbackV2(...)`.
+No stage is repaired from complete/oracle material.
 
 After accepted preflight classification, true no-op returns the exact previous
 Root/Scene wrappers before Source work. Semantic-only and paint-only continue
@@ -2475,7 +2974,11 @@ retaining the exact previous Line Tree dependency.
 Export `VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_V1`,
 `VNextTextBlockUnifiedLayoutTransitionInputV2`,
 `attemptVNextTextBlockUnifiedLayoutRootTransitionV2`, and the reviewed V2
-evidence type/function seam. Preserve the frozen public V1 evidence
+evidence type/function seam. Export the closed Fallback Request/Completion V2
+types plus `inspectVNextTextBlockUnifiedLayoutFallbackRequestV2(...)` and
+`completeVNextTextBlockUnifiedLayoutRootFallbackV2(...)`; request minting,
+cause inspection, replay internals, and authority maps remain private.
+Preserve the frozen public V1 evidence
 surface and the existing exact `5B1_V3` policy export unchanged as frozen QA
 compatibility evidence; do not accept it in the V2 attempt or add a caller
 policy selector. Assert no owner helper, calibration
@@ -2486,7 +2989,7 @@ policy, or QA helper is public.
 - [ ] **Step 9: Run policy, activation, and 5B-1 binding gates**
 
 ```powershell
-npx vitest run --config vitest.config.ts tests/textBlockUnifiedLayoutWorkCalibration5b2V1.test.ts tests/textBlockUnifiedLayoutTextStyleTransitionV1.test.ts tests/textBlockUnifiedLayoutTransitionFoundationV1.test.ts tests/textBlockUnifiedLayoutWorkCalibrationV3.test.ts tests/liveDraftMr1UnifiedIncrementalRoot5b.test.ts tests/textBlockUnifiedLayoutRootV2.test.ts tests/textBlockUnifiedLayoutFallbackV1.test.ts tests/textBlockUnifiedLayoutAdversarialV2.test.ts
+npx vitest run --config vitest.config.ts tests/textBlockUnifiedLayoutWorkCalibration5b2V1.test.ts tests/textBlockUnifiedLayoutTextStyleTransitionV1.test.ts tests/textBlockUnifiedLayoutTransitionFoundationV1.test.ts tests/textBlockUnifiedLayoutWorkCalibrationV3.test.ts tests/liveDraftMr1UnifiedIncrementalRoot5b.test.ts tests/textBlockUnifiedLayoutRootV2.test.ts tests/textBlockUnifiedLayoutFallbackV2.test.ts tests/textBlockUnifiedLayoutFallbackV1.test.ts tests/textBlockUnifiedLayoutAdversarialV2.test.ts
 npm run type-check
 git diff --check
 ```
@@ -2498,7 +3001,7 @@ V3 fixtures remain unchanged; public activation is only `5b-2-v1`.
 - [ ] **Step 10: Commit**
 
 ```powershell
-git add fixtures/live-draft-unified-incremental-root-5b2-work-calibration.v1.json fixtures/live-draft-unified-incremental-root-5b-manifest.v1.json src/layout/textBlockUnifiedLayoutWorkPolicyV1.ts src/layout/textBlockUnifiedLayoutRootV2.ts src/layout/textBlockUnifiedLayoutTransitionPreflightV2.ts src/layout/textBlockUnifiedLayoutTransitionEvidenceV2.ts src/layout/textBlockUnifiedLayoutTransitionContractV2.ts src/layout/textBlockUnifiedLayoutTransitionV2.ts src/layout/textBlockUnifiedLayoutFallbackV1.ts src/index.ts tests/textBlockUnifiedLayoutWorkCalibration5b2V1.test.ts tests/liveDraftMr1UnifiedIncrementalRoot5b.test.ts tests/textBlockUnifiedLayoutTextStyleTransitionV1.test.ts tests/textBlockUnifiedLayoutTransitionFoundationV1.test.ts
+git add fixtures/live-draft-unified-incremental-root-5b2-work-calibration.v1.json fixtures/live-draft-unified-incremental-root-5b-manifest.v1.json src/layout/textBlockUnifiedLayoutWorkPolicyV1.ts src/layout/textBlockUnifiedLayoutRootV2.ts src/layout/textBlockUnifiedLayoutTransitionPreflightV2.ts src/layout/textBlockUnifiedLayoutTransitionEvidenceV2.ts src/layout/textBlockUnifiedLayoutTransitionContractV2.ts src/layout/textBlockUnifiedLayoutTransitionV2.ts src/layout/textBlockUnifiedLayoutFallbackContractV2.ts src/layout/textBlockUnifiedLayoutFallbackV2.ts src/index.ts tests/textBlockUnifiedLayoutWorkCalibration5b2V1.test.ts tests/liveDraftMr1UnifiedIncrementalRoot5b.test.ts tests/textBlockUnifiedLayoutTextStyleTransitionV1.test.ts tests/textBlockUnifiedLayoutTransitionFoundationV1.test.ts tests/textBlockUnifiedLayoutFallbackV2.test.ts
 git commit -m "feat(layout): activate phase 5b-2 work policy"
 ```
 
@@ -2516,7 +3019,8 @@ git commit -m "feat(layout): activate phase 5b-2 work policy"
 
 **Interfaces:**
 
-- Consumes: committed Tasks 1-10 and exact calibration identity.
+- Consumes: committed Tasks 1-8, 9A/9B, and 10 plus exact calibration
+  identity.
 - Produces: capability-honest handoff, final verification evidence, scoped
   review verdict, and one closure commit. It does not start 5B-3.
 
@@ -2532,6 +3036,9 @@ expect(manifest.capabilities).toMatchObject({
   textInsertionReplacementStyleAuthority: "existing-root-registered-only",
   novelStyleInsertionReplacement: false,
   semanticOnlyIncrementalTransition: true,
+  sourceTopologyPacking: "atomic-local-canonical-groups",
+  plainTextLogicalInlineFragmentation: "exact-object-and-range-authority",
+  completeFallbackTargetValidation: "logical-replay-v2",
   emptyBlockIncrementalTransition: false,
   generatedPageNumberProducerContext: "passive-only",
   generatedPageNumberIncrementalMutation: false,
@@ -2547,6 +3054,9 @@ expect(manifest.capabilities).toMatchObject({
 expect(manifest.ownershipMap).toMatchObject({
   transitionEvidenceProtocol: "Core-v2",
   producerSourceMaterialAuthority: "Core-process-local-exact",
+  sourceTopologyPacking: "Core-Task-4-only",
+  incrementalStructuralTargetAuthority: "Core-Task-4-exact",
+  completeFallbackTargetAuthority: "Core-complete-logical-replay-v2",
   structuralReuseProof: "Core",
   textLayoutReconvergence: "Core",
   geometryProjection: "Core-text-style-only",
@@ -2561,7 +3071,7 @@ three work ledgers remain separate.
 - [ ] **Step 2: Run the complete focused 5B-2 gate**
 
 ```powershell
-npx vitest run --config vitest.config.ts tests/textBlockUnifiedLayoutTransitionContractV1.test.ts tests/textBlockUnifiedLayoutTransitionEvidenceV1.test.ts tests/textBlockUnifiedLayoutTransitionPreflightV2.test.ts tests/textBlockUnifiedLayoutTransitionEvidenceV2.test.ts tests/textBlockUnifiedLayoutProducerEvidenceV2.test.ts tests/textBlockUnifiedLayoutTextStyleSourceV1.test.ts tests/textBlockUnifiedLayoutTextStyleFlowV1.test.ts tests/textBlockUnifiedLayoutLineTransitionV1.test.ts tests/textBlockUnifiedLayoutReconvergenceV1.test.ts tests/textBlockUnifiedLayoutTextStyleGeometryV1.test.ts tests/textBlockUnifiedLayoutTextStyleTransitionV1.test.ts tests/textBlockPersistentLayoutLineTreeV1.test.ts tests/textBlockPersistentSceneV2.test.ts tests/textBlockSceneDeliveryV2.test.ts tests/textBlockUnifiedLayoutRootV2.test.ts tests/textBlockUnifiedLayoutTransitionFoundationV1.test.ts tests/textBlockUnifiedLayoutFallbackV1.test.ts tests/textBlockUnifiedLayoutAdversarialV2.test.ts tests/textBlockUnifiedLayoutWorkCalibrationV3.test.ts tests/textBlockUnifiedLayoutWorkCalibration5b2V1.test.ts tests/liveDraftMr1UnifiedIncrementalRoot5b.test.ts tests/textEngineMr1RangeFactsV1.test.ts tests/textEngineIncrementalRangeExecutionV1.test.ts tests/textEngineFlowEvidenceNodeWasmV2.test.ts
+npx vitest run --config vitest.config.ts tests/textBlockUnifiedLayoutTransitionContractV1.test.ts tests/textBlockUnifiedLayoutTransitionEvidenceV1.test.ts tests/textBlockUnifiedLayoutTransitionPreflightV2.test.ts tests/textBlockUnifiedLayoutTransitionEvidenceV2.test.ts tests/textBlockUnifiedLayoutProducerEvidenceV2.test.ts tests/textBlockUnifiedLayoutTextStyleSourceV1.test.ts tests/textBlockUnifiedLayoutTextStyleFlowV1.test.ts tests/textBlockUnifiedLayoutLineTransitionV1.test.ts tests/textBlockUnifiedLayoutReconvergenceV1.test.ts tests/textBlockUnifiedLayoutTextStyleGeometryV1.test.ts tests/textBlockUnifiedLayoutTextStyleTransitionV1.test.ts tests/textBlockPersistentLayoutLineTreeV1.test.ts tests/textBlockPersistentSceneV2.test.ts tests/textBlockSceneDeliveryV2.test.ts tests/textBlockUnifiedLayoutRootV2.test.ts tests/textBlockUnifiedLayoutTransitionFoundationV1.test.ts tests/textBlockUnifiedLayoutFallbackV2.test.ts tests/textBlockUnifiedLayoutFallbackV1.test.ts tests/textBlockUnifiedLayoutAdversarialV2.test.ts tests/textBlockUnifiedLayoutWorkCalibrationV3.test.ts tests/textBlockUnifiedLayoutWorkCalibration5b2V1.test.ts tests/liveDraftMr1UnifiedIncrementalRoot5b.test.ts tests/textEngineMr1RangeFactsV1.test.ts tests/textEngineIncrementalRangeExecutionV1.test.ts tests/textEngineFlowEvidenceNodeWasmV2.test.ts
 npm run type-check
 git diff --check
 ```
@@ -2584,10 +3094,15 @@ Review commit range and working diff for:
 
 ```text
 Critical: complete next/suffix/oracle on hot path; caller policy/range/reuse;
-          partial candidate in fallback; forged authority accepted
+          partial candidate/cause object retained in fallback;
+          forged authority accepted; Task 2 simulates next Source topology;
+          fallback requires local incremental structural fingerprint equality
 Important: post-visit limits; non-exhaustive E/T/R/N; weak T proof;
            executable prelock; mandatory common fallback/planned-complete;
-           V3 row drift; public internal leakage; broad geometry overclaim
+           V3/V1 runtime row or fingerprint drift; public internal leakage;
+           broad geometry overclaim; floor(occupancy/2) or >16 private block;
+           duplicate text-fragment identity ambiguity;
+           topology-sensitive effect classification or Flow promotion
 Normal:    duplicated task-specific owners; stale terminology/counts;
            files accumulating unrelated responsibilities
 ```
@@ -2601,10 +3116,14 @@ separately from findings.
 - [ ] **Step 5: Update handoff documents from exact evidence**
 
 Document active policy id/fingerprint, calibration revision/file SHA, exact
-locked/inactive row counts, fixture matrix, focused/full counts, renderer
-parity, fallback/oracle separation, E/T/R/N semantics, text/style-only geometry,
-object-graph-only lifetime claim, public/private boundary, and all inactive
-5B-3/product capabilities. Add an explicit stop before 5B-3.
+27/25/2 total/locked/inactive row counts, fixture matrix, focused/full counts,
+renderer parity, Task 4-only topology ownership, atomic `canonicalGroups`,
+plain-text fragment identity, incremental structural-target authority versus
+Fallback V2 logical-target replay, fallback/oracle separation, all three
+fallback replay work units, E/T/R/N semantics, text/style-only geometry,
+object-graph-only lifetime claim, public/private boundary, unchanged V1 runtime
+facts, and all inactive 5B-3/product capabilities. Add an explicit stop before
+5B-3.
 
 - [ ] **Step 6: Write final evidence files**
 
@@ -2663,8 +3182,8 @@ authorization.
 | Accepted design requirement | Plan coverage |
 | --- | --- |
 | V3 accepted base and immutable identity | Global Constraints, Tasks 1 and 10 |
-| Five reviewable slices | Tasks 1-11 and five review stops |
-| Post-bounded-preflight effect classification | Task 2 |
+| Five reviewable slices | Tasks 1-8, 9A/9B, 10-11 and five review stops |
+| Post-bounded-preflight effect classification with no next topology simulation | Task 2 |
 | Exact registered-style authority and collision block | Task 2 |
 | Distinct changed/target/verification/coverage ranges | Task 2 |
 | Evidence V2 material/runtime exact tuple | Tasks 2-3 |
@@ -2674,15 +3193,21 @@ authorization.
 | Empty-block and novel-style capability remain inactive | Tasks 2, 10-11 |
 | Pre-visit request/material/producer work limits | Tasks 1-3, 10 |
 | V1 evidence frozen; V2 is active producer lane | Global Constraints, Tasks 2-3, 10 |
-| Text/field/style Source and Flow path copy | Tasks 4-5 |
+| Task 4-only atomic local Source topology and no hard 16-item cap | Task 4 |
+| Kind-aware exact logical/physical fragment identity | Task 4 |
+| Explicit Source V1 no-bump decision and Source V2/Root compatibility stop | Global Constraints, Task 4 |
+| Text/field/style Source and topology-insensitive Flow path copy | Tasks 4-5 |
 | Bounded line work and zero suffix traversal | Task 6 |
 | Whole-subtree structural proof remains distinct from reconvergence | Task 7 |
 | Exact/strict translated reconvergence | Task 7 |
 | Canonical exhaustive E/T/R/N | Task 7 |
 | Text/style-only locked geometry; no executable prelock | Tasks 8 and 10 |
-| Scene/delivery/atomic Root acceptance | Task 9 |
-| Exact two-step candidate-independent fallback | Task 9 |
-| External oracle and separate ledgers | Tasks 9 and 11 |
+| Scene/delivery/atomic Root acceptance | Task 9A |
+| Incremental exact structural target separated from complete fallback logical target | Tasks 4, 9A-9B |
+| Exact two-step candidate-independent Fallback V2 with sanitized cause consumption | Task 9B |
+| Bounded complete logical replay and three exact replay units | Tasks 9B-10 |
+| External oracle and separate incremental/fallback/oracle ledgers | Tasks 9B and 11 |
+| Fallback/Evidence V1 runtime facts and fingerprints unchanged | Tasks 9B-11 |
 | `5b-2-v1`, factual calibration, threshold gates | Task 10 |
 | Bootstrap-bound policy activation | Task 10 |
 | Capability-honest handoff and full Core gate | Task 11 |
