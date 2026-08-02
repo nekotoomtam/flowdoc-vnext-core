@@ -1,8 +1,10 @@
-import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint.js"
-import { stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
 import type { VNextTextBlockSourceRangeV1 } from "./textBlockUnifiedLayoutChangeContractV1.js"
-import type { VNextTextBlockTransitionEvidenceV2 } from "./textBlockUnifiedLayoutEvidenceContractV2.js"
 import type {
+  VNextTextBlockTransitionEvidenceV2,
+  VNextTextBlockTransitionProducerSourceMaterialV2,
+} from "./textBlockUnifiedLayoutEvidenceContractV2.js"
+import type {
+  VNextTextBlockUnifiedLayoutSourceItemV1,
   VNextTextBlockUnifiedLayoutSourceStateV1,
 } from "./textBlockUnifiedLayoutSourceStateContractV1.js"
 import {
@@ -12,9 +14,16 @@ import {
   type VNextTextBlockSourceLayoutDeltaAuthorityInternalV1,
   type VNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1,
 } from "./textBlockUnifiedLayoutSourceStateV1.js"
+import {
+  createVNextTextBlockSourceLayoutDeltaAuthorityInternalV1,
+  createVNextTextBlockStructuralTargetAuthorityInternalV1,
+  hasVNextTextBlockSourceLayoutDeltaAuthorityBindingInternalV1,
+  hasVNextTextBlockStructuralTargetAuthorityBindingInternalV1,
+} from "./textBlockUnifiedLayoutSourceAuthorityInternalsV1.js"
 import type {
   VNextTextBlockIncrementalCandidateWorkV1,
   VNextTextBlockUnifiedLayoutIssueV1,
+  VNextTextBlockValidatedChangeV1,
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
 import {
   evaluateNextVNextTextBlockStageVisitInternalV1,
@@ -54,41 +63,51 @@ export interface VNextTextBlockUnifiedLayoutSourceStageAcceptedV1 {
   readonly issues: readonly []
 }
 
-const structuralTargetAuthorities = new WeakMap<object, {
+export interface VNextTextBlockUnifiedLayoutSourceStageRecordInternalV1 {
   readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
-  readonly preflight: VNextTextBlockUnifiedLayoutChangePreflightV2
+  readonly sourceStage: VNextTextBlockUnifiedLayoutSourceStageAcceptedV1
   readonly evidence: VNextTextBlockTransitionEvidenceV2 | null
-  readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
-  readonly previousSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
-  readonly nextSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
-  readonly workPolicy: VNextTextBlockUnifiedLayoutRootV2["workPolicy"]
-  readonly replacementFingerprint: string
-  readonly sourcePolicyFingerprint: string
-  readonly topologyTargetFingerprint: string
-}>()
-const sourceLayoutDeltaAuthorities = new WeakMap<object, {
-  readonly structuralTargetAuthority:
-    VNextTextBlockIncrementalStructuralTargetAuthorityInternalV1
-  readonly boundedDeltaFingerprint: string
-  readonly previousSourceRange: VNextTextBlockSourceRangeV1
-  readonly nextSourceRange: VNextTextBlockSourceRangeV1
-}>()
-
-function freeze<T>(value: T): T {
-  if (value != null && typeof value === "object") {
-    for (const key of Reflect.ownKeys(value)) {
-      const descriptor = Object.getOwnPropertyDescriptor(value, key)
-      if (descriptor != null && Object.hasOwn(descriptor, "value")) {
-        freeze(descriptor.value)
-      }
-    }
-    if (!Object.isFrozen(value)) Object.freeze(value)
-  }
-  return value
+  readonly validatedChange: VNextTextBlockValidatedChangeV1
+  readonly sourceMaterial:
+    VNextTextBlockTransitionProducerSourceMaterialV2 | null
+  readonly boundedNextSourceItems:
+    readonly VNextTextBlockUnifiedLayoutSourceItemV1[]
+  readonly boundedNextSourceStartRenderedUtf16: number
 }
 
-function fingerprint(value: unknown): string {
-  return createVNextCompactFingerprint(stringifyVNextCanonicalJson(value))
+const sourceStageRecords = new WeakMap<
+  object,
+  VNextTextBlockUnifiedLayoutSourceStageRecordInternalV1
+>()
+
+export function getVNextTextBlockUnifiedLayoutSourceStageRecordInternalV1(
+  input: {
+    readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+    readonly sourceStage: unknown
+    readonly evidence: VNextTextBlockTransitionEvidenceV2 | null
+  },
+): VNextTextBlockUnifiedLayoutSourceStageRecordInternalV1 | null {
+  const record = input.sourceStage != null
+      && typeof input.sourceStage === "object"
+    ? sourceStageRecords.get(input.sourceStage as object)
+    : null
+  return record != null
+      && record.previousRoot === input.previousRoot
+      && record.evidence === input.evidence
+    ? record
+    : null
+}
+
+export {
+  hasVNextTextBlockSourceLayoutDeltaAuthorityBindingInternalV1,
+  hasVNextTextBlockStructuralTargetAuthorityBindingInternalV1,
+} from "./textBlockUnifiedLayoutSourceAuthorityInternalsV1.js"
+
+function freeze<T>(value: T): T {
+  if (value != null && typeof value === "object" && !Object.isFrozen(value)) {
+    Object.freeze(value)
+  }
+  return value
 }
 
 function issue(message: string): VNextTextBlockUnifiedLayoutIssueV1 {
@@ -108,12 +127,12 @@ function updateSourceWork(input: {
   readonly copiedPathNodeCount: number
   readonly visitedChangedLeafItemCount: number
 }): VNextTextBlockIncrementalCandidateWorkV1 {
-  const flow = {
+  const flow = Object.freeze({
     ...input.work.flow,
     visitedSourceLookupNodeCount: input.visitedLookupNodeCount,
     copiedSourcePathNodeCount: input.copiedPathNodeCount,
     visitedChangedSourceLeafItemCount: input.visitedChangedLeafItemCount,
-  }
+  })
   const counts = new Map(
     input.work.stageWork.map((row) => [`${row.stage}/${row.unit}`, row.count]),
   )
@@ -163,24 +182,10 @@ function finalizeSourceStageAuthorities(input: {
     || input.completedCandidateWork.flow.visitedChangedSourceLeafItemCount
       !== candidate.visitedChangedLeafItemCount
   ) return null
-  const structuralTargetAuthority = Object.freeze(
-    {},
-  ) as VNextTextBlockIncrementalStructuralTargetAuthorityInternalV1
-  structuralTargetAuthorities.set(structuralTargetAuthority, {
-    previousRoot: input.previousRoot,
-    preflight: input.preflight,
-    evidence: input.evidence,
-    completedCandidateWork: input.completedCandidateWork,
+  const structuralTargetAuthority =
+    createVNextTextBlockStructuralTargetAuthorityInternalV1({
     previousSourceState: candidate.previousSourceState,
     nextSourceState: candidate.nextSourceState,
-    workPolicy: input.previousRoot.workPolicy,
-    replacementFingerprint: candidate.replacement.fingerprint,
-    sourcePolicyFingerprint: candidate.nextSourceState.policy.fingerprint,
-    topologyTargetFingerprint: fingerprint({
-      sourceStateFingerprint: candidate.nextSourceState.fingerprint,
-      sourceRootFingerprint: candidate.nextSourceState.root.fingerprint,
-      sourceSummary: candidate.nextSourceState.summary,
-    }),
   })
   if (!input.preflight.boundedDelta.layoutEqual) {
     return Object.freeze({
@@ -188,15 +193,11 @@ function finalizeSourceStageAuthorities(input: {
       sourceLayoutDeltaAuthority: null,
     })
   }
-  const sourceLayoutDeltaAuthority = Object.freeze(
-    {},
-  ) as VNextTextBlockSourceLayoutDeltaAuthorityInternalV1
-  sourceLayoutDeltaAuthorities.set(sourceLayoutDeltaAuthority, {
+  const sourceLayoutDeltaAuthority =
+    createVNextTextBlockSourceLayoutDeltaAuthorityInternalV1({
     structuralTargetAuthority,
-    boundedDeltaFingerprint: input.preflight.boundedDelta.fingerprint,
-    previousSourceRange: input.preflight.previousRanges.changedSourceRange,
-    nextSourceRange: input.preflight.nextRanges.changedSourceRange,
   })
+  if (sourceLayoutDeltaAuthority == null) return null
   return Object.freeze({
     structuralTargetAuthority,
     sourceLayoutDeltaAuthority,
@@ -351,7 +352,14 @@ export function transitionVNextTextBlockUnifiedLayoutSourceInternalV1(input: {
       "source authorities require the exact completed transition tuple",
     )
   }
-  return freeze({
+  const pathCopyRecord =
+    getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInternalV1(
+      prepared.pathCopyCandidateAuthority,
+    )
+  if (pathCopyRecord == null) {
+    return blocked(work, "source path-copy candidate authority was lost")
+  }
+  const sourceStage = freeze({
     status: "accepted" as const,
     preflight: input.preflight,
     previousSourceRange: input.preflight.previousRanges.changedSourceRange,
@@ -364,4 +372,15 @@ export function transitionVNextTextBlockUnifiedLayoutSourceInternalV1(input: {
     completedCandidateWork: work,
     issues: freeze([]) as readonly [],
   })
+  sourceStageRecords.set(sourceStage, Object.freeze({
+    previousRoot: input.previousRoot,
+    sourceStage,
+    evidence: input.evidence,
+    validatedChange: record.validatedChange,
+    sourceMaterial: record.sourceMaterial,
+    boundedNextSourceItems: pathCopyRecord.nextLeafItems,
+    boundedNextSourceStartRenderedUtf16:
+      pathCopyRecord.nextLeafStartRenderedUtf16,
+  }))
+  return sourceStage
 }

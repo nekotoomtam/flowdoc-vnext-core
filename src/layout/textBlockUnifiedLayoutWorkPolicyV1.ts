@@ -496,11 +496,43 @@ const calibrationEvidenceLocked = (
   checkpointOwner: "5B-2",
 })
 
+const calibrationSourceFlowLocked = (
+  unit:
+    | "source-items"
+    | "source-lookup-nodes"
+    | "source-path-copy-nodes"
+    | "source-leaf-items"
+    | "flow-atoms"
+    | "flow-tree-nodes",
+): VNextTextBlockStageLimitV1 => stageLimit({
+  stage: "source-flow",
+  unit,
+  lockStatus: "locked",
+  smallBlockFloor: 8_192,
+  absoluteStageLimit: 32_768,
+  relativeNumerator: 8,
+  relativeDenominator: 1,
+  checkpointOwner: "5B-2",
+})
+
 const policy5b2CalibrationTestOnlyStages = Object.freeze([
   calibrationEvidenceLocked("evidence-request-lookup-nodes"),
   calibrationEvidenceLocked("evidence-context-atoms"),
   calibrationEvidenceLocked("evidence-response-nodes"),
-  ...policy5b1V3Stages,
+  ...policy5b1V3Stages.map((row) => {
+    if (row.stage !== "source-flow") return row
+    switch (row.unit) {
+      case "source-items":
+      case "source-lookup-nodes":
+      case "source-path-copy-nodes":
+      case "source-leaf-items":
+      case "flow-atoms":
+      case "flow-tree-nodes":
+        return calibrationSourceFlowLocked(row.unit)
+      default:
+        return row
+    }
+  }),
 ])
 const policy5b2CalibrationTestOnlyFacts = {
   source: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_SOURCE,

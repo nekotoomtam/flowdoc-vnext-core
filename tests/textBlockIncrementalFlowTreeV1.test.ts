@@ -144,6 +144,25 @@ describe("Phase 5B layout-only incremental flow tree", () => {
     })
   })
 
+  it("keeps one exact complete cluster across adjacent Source items", () => {
+    const built = completePair(acceptedInlineImageEvidenceFixture({
+      content: "adjacent-text",
+      breakOffsets: [0, 2],
+    }))
+    const root = built.flow.flowTree.root
+    if (root.nodeKind !== "leaf") throw new Error("adjacent Flow root missing")
+    expect(root.atoms).toHaveLength(1)
+    expect(root.atoms[0]).toMatchObject({
+      kind: "text-cluster",
+      renderedText: "fi",
+      renderedUtf16Length: 2,
+      localStartRenderedUtf16: 0,
+      localEndRenderedUtf16: 2,
+      advanceLayoutUnit: 6_000_000,
+    })
+    expect(root.atoms[0]!.lineageId).toMatch(/^composite-cluster:/)
+  })
+
   it("rejects foreign source/evidence bindings and stays unregistered", () => {
     const fixture = acceptedInlineImageEvidenceFixture()
     const source = createVNextTextBlockUnifiedLayoutSourceStateCompleteInternalV1(

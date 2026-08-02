@@ -6,6 +6,9 @@ import type {
 import type {
   VNextTextBlockTransitionEvidenceV1,
 } from "./textBlockUnifiedLayoutEvidenceContractV1.js"
+import type {
+  VNextTextBlockTransitionEvidenceV2,
+} from "./textBlockUnifiedLayoutEvidenceContractV2.js"
 import {
   bindVNextTextBlockIncrementalFlowTreeToImagePaintSourceInternalV1,
 } from "./textBlockIncrementalFlowTreeV1.js"
@@ -50,6 +53,17 @@ import {
 import {
   prepareVNextTextBlockUnifiedLayoutImagePaintSceneTransitionInternalV1,
 } from "./textBlockUnifiedLayoutTransitionSceneInternalsV1.js"
+import {
+  transitionVNextTextBlockUnifiedLayoutFlowInternalV1,
+  type VNextTextBlockUnifiedLayoutFlowStageAcceptedV1,
+} from "./textBlockUnifiedLayoutTransitionFlowInternalsV1.js"
+import {
+  transitionVNextTextBlockUnifiedLayoutSourceInternalV1,
+} from "./textBlockUnifiedLayoutTransitionSourceInternalsV1.js"
+import type {
+  VNextTextBlockUnifiedLayoutOwnedStageFailureV1,
+  VNextTextBlockUnifiedLayoutChangePreflightV2,
+} from "./textBlockUnifiedLayoutTransitionPreflightV2.js"
 import {
   bindVNextTextBlockUnifiedSpatialStateToImagePaintSourceInternalV1,
 } from "./textBlockUnifiedSpatialStateV1.js"
@@ -584,6 +598,32 @@ function acceptedNoOpAfterWorkLimit(
         audit.unit,
         "final work audit found operation work not stopped by its owner",
       )])
+}
+
+/** Private 5B-2 stage harness; it prepares no Root and registers no graph. */
+export function transitionVNextTextBlockUnifiedLayoutSourceAndFlowInternalV1(
+  input: {
+    readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+    readonly preflight: VNextTextBlockUnifiedLayoutChangePreflightV2
+    readonly evidence: VNextTextBlockTransitionEvidenceV2 | null
+    readonly completedCandidateWork:
+      VNextTextBlockIncrementalCandidateWorkV1
+  },
+):
+  | VNextTextBlockUnifiedLayoutFlowStageAcceptedV1
+  | VNextTextBlockUnifiedLayoutOwnedStageFailureV1 {
+  const sourceStage = transitionVNextTextBlockUnifiedLayoutSourceInternalV1({
+    previousRoot: input.previousRoot,
+    preflight: input.preflight,
+    evidence: input.evidence,
+    completedCandidateWork: input.completedCandidateWork,
+  })
+  if (sourceStage.status !== "accepted") return sourceStage
+  return transitionVNextTextBlockUnifiedLayoutFlowInternalV1({
+    previousRoot: input.previousRoot,
+    sourceStage,
+    evidence: input.evidence,
+  })
 }
 
 export function attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1(

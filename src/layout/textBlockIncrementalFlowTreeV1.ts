@@ -34,6 +34,7 @@ import {
 import {
   hasVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionBindingInternalV1,
   hasVNextTextBlockUnifiedLayoutSourceStatePreparedBindingInternalV1,
+  inspectVNextTextBlockPreparedSourceEnvelopeFactsInternalV1,
   inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1,
 } from "./textBlockUnifiedLayoutSourceStateV1.js"
 import type {
@@ -41,6 +42,20 @@ import type {
   VNextTextBlockUnifiedLayoutSourceNodeV1,
   VNextTextBlockUnifiedLayoutSourceStateV1,
 } from "./textBlockUnifiedLayoutSourceStateContractV1.js"
+import type {
+  VNextTextBlockTransitionEvidenceV2,
+} from "./textBlockUnifiedLayoutEvidenceContractV2.js"
+import {
+  hasVNextTextBlockSourceLayoutDeltaAuthorityBindingInternalV1,
+  hasVNextTextBlockStructuralTargetAuthorityBindingInternalV1,
+} from "./textBlockUnifiedLayoutSourceAuthorityInternalsV1.js"
+import type {
+  VNextTextBlockIncrementalStructuralTargetAuthorityInternalV1,
+  VNextTextBlockSourceLayoutDeltaAuthorityInternalV1,
+} from "./textBlockUnifiedLayoutSourceStateV1.js"
+import type {
+  VNextTextBlockUnifiedLayoutIssueV1,
+} from "./textBlockUnifiedLayoutTransitionContractV1.js"
 import type { VNextTextBlockSourceRangeV1 } from "./textBlockUnifiedLayoutChangeContractV1.js"
 
 type FingerprintFactory = (canonicalFacts: string) => string
@@ -86,6 +101,80 @@ const registeredRootGraphTrees = new WeakSet<
 VNextTextBlockIncrementalFlowTreeV1
 >()
 
+export interface VNextTextBlockFlowBindingAuthorityInternalV1 {
+  readonly __flowBindingAuthorityOpaque: never
+}
+
+const flowBindingAuthorities = new WeakMap<object, {
+  readonly previousFlowTree: VNextTextBlockIncrementalFlowTreeV1
+  readonly nextFlowTree: VNextTextBlockIncrementalFlowTreeV1
+  readonly previousSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly nextSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+}>()
+
+const replacementAtomAuthorities = new WeakMap<
+  readonly VNextTextBlockIncrementalFlowAtomV1[],
+  {
+    readonly nextSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly targetRange: VNextTextBlockSourceRangeV1
+    readonly renderedUtf16Length: number
+  }
+>()
+
+let flowPathCopyOperationObserverForTest:
+  | ((event: {
+      readonly operation: "visit-atom" | "visit-node" | "create-node"
+      readonly value: object | null
+    }) => void)
+  | null = null
+
+let flowTreeInspectionObserverForTest: (() => void) | null = null
+let flowRecursiveFreezeObserverForTest: ((value: object) => void) | null = null
+let flowProjectionPayloadObserverForTest: (() => void) | null = null
+
+export function setVNextTextBlockFlowPathCopyOperationObserverForTestInternalV1(
+  observer: typeof flowPathCopyOperationObserverForTest,
+): void {
+  flowPathCopyOperationObserverForTest = observer
+}
+
+export function setVNextTextBlockFlowTreeInspectionObserverForTestInternalV1(
+  observer: (() => void) | null,
+): void {
+  flowTreeInspectionObserverForTest = observer
+}
+
+export function setVNextTextBlockFlowRecursiveFreezeObserverForTestInternalV1(
+  observer: ((value: object) => void) | null,
+): void {
+  flowRecursiveFreezeObserverForTest = observer
+}
+
+export function setVNextTextBlockFlowProjectionPayloadObserverForTestInternalV1(
+  observer: (() => void) | null,
+): void {
+  flowProjectionPayloadObserverForTest = observer
+}
+
+export type VNextTextBlockIncrementalFlowRangePathCopyResultInternalV1 =
+  | {
+      readonly status: "prepared"
+      readonly flowTree: VNextTextBlockIncrementalFlowTreeV1
+      readonly visitedFlowAtomCount: number
+      readonly visitedFlowTreeNodeCount: number
+      readonly reusedFlowTreeNodeCount: number
+      readonly createdFlowTreeNodeCount: number
+      readonly issues: readonly []
+    }
+  | {
+      readonly status: "blocked" | "limit-exceeded"
+      readonly flowTree: null
+      readonly visitedFlowAtomCount: number
+      readonly visitedFlowTreeNodeCount: number
+      readonly createdFlowTreeNodeCount: number
+      readonly issues: readonly VNextTextBlockUnifiedLayoutIssueV1[]
+    }
+
 export interface VNextTextBlockTransitionFlowCoverageFragmentInternalV1 {
   readonly atom: VNextTextBlockIncrementalFlowAtomV1
   readonly atomAbsoluteStartRenderedUtf16: number
@@ -125,6 +214,7 @@ function fingerprintWith(
 
 function deepFreeze<T>(value: T): T {
   if (value == null || typeof value !== "object") return value
+  flowRecursiveFreezeObserverForTest?.(value as object)
   for (const key of Reflect.ownKeys(value)) {
     const descriptor = Object.getOwnPropertyDescriptor(value, key)
     if (descriptor != null && Object.hasOwn(descriptor, "value")) {
@@ -247,28 +337,107 @@ function collectSourceItems(
   return items
 }
 
-function splitClusterAdvance(input: {
-  readonly advanceLayoutUnit: number
-  readonly clusterStartOffset: number
-  readonly clusterEndOffset: number
-  readonly segmentStartOffset: number
-  readonly segmentEndOffset: number
-}): number | null {
-  const totalLength = input.clusterEndOffset - input.clusterStartOffset
-  const segmentLength = input.segmentEndOffset - input.segmentStartOffset
-  const relativeStart = input.segmentStartOffset - input.clusterStartOffset
-  if (totalLength <= 0 || segmentLength <= 0 || relativeStart < 0) return null
-  const wholeUnitAdvance = Math.floor(input.advanceLayoutUnit / totalLength)
-  const remainder = input.advanceLayoutUnit % totalLength
-  const value = wholeUnitAdvance * segmentLength
-    + Math.max(0, Math.min(remainder - relativeStart, segmentLength))
-  return Number.isSafeInteger(value) ? value : null
+interface TextFlowSourceFacts {
+  readonly kind:
+    | "text"
+    | "resolved-field"
+    | "generated-page-number"
+    | "composite"
+  readonly lineageId: string
+  readonly inlineId: string
+  readonly sourceFingerprint: string
+  readonly provenanceFingerprint: string
+  readonly boundaryFingerprint: string
 }
 
-function textAtom(input: {
+interface TextFlowSourceSpan {
   readonly source: Extract<VNextTextBlockUnifiedLayoutSourceItemV1, {
     kind: "text" | "resolved-field" | "generated-page-number"
   }>
+  readonly absoluteStart: number
+  readonly absoluteEnd: number
+}
+
+function textFlowSourceFacts(input: {
+  readonly spans: readonly TextFlowSourceSpan[]
+  readonly clusterStart: number
+  readonly clusterEnd: number
+  readonly factory: FingerprintFactory
+}): {
+  readonly source: TextFlowSourceFacts
+  readonly sourceAbsoluteStart: number
+} | null {
+  const selected = input.spans
+  if (selected.length === 0) return null
+  let cursor = input.clusterStart
+  const segments = selected.map((span) => {
+    const start = Math.max(span.absoluteStart, input.clusterStart)
+    const end = Math.min(span.absoluteEnd, input.clusterEnd)
+    if (start !== cursor || end <= start) return null
+    cursor = end
+    return {
+      kind: span.source.kind,
+      lineageId: span.source.lineageId,
+      inlineId: span.source.inlineId,
+      sourceFingerprint: span.source.sourceFingerprint,
+      provenanceFingerprint: span.source.provenanceFingerprint,
+      boundaryFingerprint: span.source.boundaryFingerprint,
+      localStartRenderedUtf16: start - span.absoluteStart,
+      localEndRenderedUtf16: end - span.absoluteStart,
+    }
+  })
+  if (cursor !== input.clusterEnd || segments.some((segment) => segment == null)) {
+    return null
+  }
+  if (selected.length === 1) {
+    return {
+      source: selected[0]!.source,
+      sourceAbsoluteStart: selected[0]!.absoluteStart,
+    }
+  }
+  const exactSegments = segments as readonly Exclude<
+    (typeof segments)[number],
+    null
+  >[]
+  const compositeFingerprint = fingerprintWith(input.factory, {
+    contractVersion: 1,
+    kind: "composite-text-cluster-source",
+    segments: exactSegments,
+  })
+  const commonKind = selected.every(
+    (span) => span.source.kind === selected[0]!.source.kind,
+  )
+    ? selected[0]!.source.kind
+    : "composite" as const
+  const commonInlineId = selected.every(
+    (span) => span.source.inlineId === selected[0]!.source.inlineId,
+  )
+    ? selected[0]!.source.inlineId
+    : `composite-inline:${compositeFingerprint}`
+  return {
+    source: {
+      kind: commonKind,
+      lineageId: `composite-cluster:${compositeFingerprint}`,
+      inlineId: commonInlineId,
+      sourceFingerprint: fingerprintWith(input.factory, {
+        kind: "composite-cluster-source",
+        segments: exactSegments.map((segment) => segment.sourceFingerprint),
+      }),
+      provenanceFingerprint: fingerprintWith(input.factory, {
+        kind: "composite-cluster-provenance",
+        segments: exactSegments.map((segment) => segment.provenanceFingerprint),
+      }),
+      boundaryFingerprint: fingerprintWith(input.factory, {
+        kind: "composite-cluster-boundary",
+        segments: exactSegments.map((segment) => segment.boundaryFingerprint),
+      }),
+    },
+    sourceAbsoluteStart: input.clusterStart,
+  }
+}
+
+function textAtom(input: {
+  readonly source: TextFlowSourceFacts
   readonly sourceAbsoluteStart: number
   readonly shapingRun: VNextTextBlockFlowEvidenceV2["shapingRuns"][number]
   readonly cluster: VNextTextBlockFlowEvidenceV2["shapingRuns"][number]["clusters"][number]
@@ -443,70 +612,88 @@ function atomsFromSourceAndEvidence(input: {
     input.evidence.fontFaces.map((face) => [face.fontFaceId, face]),
   )
   const atoms: VNextTextBlockIncrementalFlowAtomV1[] = []
+  const sourceSpans: Array<{
+    readonly source: VNextTextBlockUnifiedLayoutSourceItemV1
+    readonly absoluteStart: number
+    readonly absoluteEnd: number
+  }> = []
   let absoluteStart = 0
-  let visitedEvidenceClusterCount = 0
   for (const source of sourceItems) {
     const absoluteEnd = safeAdd(absoluteStart, source.renderedUtf16Length)
-    if (source.kind === "hard-break") {
-      atoms.push(hardBreakAtom(source, input.factory))
-      absoluteStart = absoluteEnd
-      continue
-    }
-    if (source.kind === "inline-image") {
-      const atom = imageAtom(source, input.factory)
-      if (atom == null) return null
-      atoms.push(atom)
-      absoluteStart = absoluteEnd
-      continue
-    }
-
-    const shapingRuns = input.evidence.shapingRuns.filter((run) => (
-      run.renderStartOffset < absoluteEnd
-      && run.renderEndOffset > absoluteStart
-    ))
-    let sourceCursor = absoluteStart
-    for (const shapingRun of shapingRuns) {
-      if (shapingRun.renderStartOffset > sourceCursor) return null
-      const face = faces.get(shapingRun.fontFaceId)
-      if (face == null) return null
-      for (const cluster of shapingRun.clusters) {
-        visitedEvidenceClusterCount += 1
-        const segmentStart = Math.max(
-          cluster.renderStartOffset,
-          absoluteStart,
-        )
-        const segmentEnd = Math.min(cluster.renderEndOffset, absoluteEnd)
-        if (segmentEnd <= segmentStart) continue
-        if (segmentStart !== sourceCursor) return null
-        const advanceLayoutUnit = splitClusterAdvance({
-          advanceLayoutUnit: cluster.advanceLayoutUnit,
-          clusterStartOffset: cluster.renderStartOffset,
-          clusterEndOffset: cluster.renderEndOffset,
-          segmentStartOffset: segmentStart,
-          segmentEndOffset: segmentEnd,
-        })
-        if (advanceLayoutUnit == null) return null
-        const atom = textAtom({
-          source,
-          sourceAbsoluteStart: absoluteStart,
-          shapingRun,
-          cluster,
-          face,
-          advanceLayoutUnit,
-          segmentStart,
-          segmentEnd,
-          factory: input.factory,
-        })
-        if (atom == null) return null
-        atoms.push(atom)
-        sourceCursor = segmentEnd
-      }
-    }
-    if (sourceCursor !== absoluteEnd) return null
+    sourceSpans.push({ source, absoluteStart, absoluteEnd })
     absoluteStart = absoluteEnd
   }
   if (absoluteStart !== input.sourceState.summary.renderedUtf16Length) {
     return null
+  }
+  const textSpans = sourceSpans.filter((span): span is TextFlowSourceSpan => (
+    span.source.kind === "text"
+    || span.source.kind === "resolved-field"
+    || span.source.kind === "generated-page-number"
+  ))
+  let visitedEvidenceClusterCount = 0
+  let cursor = 0
+  while (cursor < absoluteStart) {
+    const sourceSpan = sourceSpans.find((span) => (
+      span.absoluteStart <= cursor && span.absoluteEnd > cursor
+    ))
+    if (sourceSpan == null) return null
+    const source = sourceSpan.source
+    if (source.kind === "hard-break") {
+      if (cursor !== sourceSpan.absoluteStart) return null
+      atoms.push(hardBreakAtom(source, input.factory))
+      cursor = sourceSpan.absoluteEnd
+      continue
+    }
+    if (source.kind === "inline-image") {
+      if (cursor !== sourceSpan.absoluteStart) return null
+      const atom = imageAtom(source, input.factory)
+      if (atom == null) return null
+      atoms.push(atom)
+      cursor = sourceSpan.absoluteEnd
+      continue
+    }
+    let selectedRun: VNextTextBlockFlowEvidenceV2["shapingRuns"][number]
+      | null = null
+    let selectedCluster: VNextTextBlockFlowEvidenceV2["shapingRuns"][number]["clusters"][number]
+      | null = null
+    for (const shapingRun of input.evidence.shapingRuns) {
+      const cluster = shapingRun.clusters.find(
+        (candidate) => candidate.renderStartOffset === cursor,
+      )
+      if (cluster != null) {
+        selectedRun = shapingRun
+        selectedCluster = cluster
+        break
+      }
+    }
+    if (selectedRun == null || selectedCluster == null) return null
+    const face = faces.get(selectedRun.fontFaceId)
+    const sourceFacts = textFlowSourceFacts({
+      spans: textSpans.filter((span) => (
+        span.absoluteStart < selectedCluster.renderEndOffset
+        && span.absoluteEnd > selectedCluster.renderStartOffset
+      )),
+      clusterStart: selectedCluster.renderStartOffset,
+      clusterEnd: selectedCluster.renderEndOffset,
+      factory: input.factory,
+    })
+    if (face == null || sourceFacts == null) return null
+    const atom = textAtom({
+      source: sourceFacts.source,
+      sourceAbsoluteStart: sourceFacts.sourceAbsoluteStart,
+      shapingRun: selectedRun,
+      cluster: selectedCluster,
+      face,
+      advanceLayoutUnit: selectedCluster.advanceLayoutUnit,
+      segmentStart: selectedCluster.renderStartOffset,
+      segmentEnd: selectedCluster.renderEndOffset,
+      factory: input.factory,
+    })
+    if (atom == null) return null
+    atoms.push(atom)
+    visitedEvidenceClusterCount += 1
+    cursor = selectedCluster.renderEndOffset
   }
   return { atoms, sourceItems, visitedEvidenceClusterCount }
 }
@@ -867,6 +1054,7 @@ export function createVNextTextBlockIncrementalFlowTreeWithForcedCollisionForTes
 export function inspectVNextTextBlockIncrementalFlowTreeInternalV1(
   value: unknown,
 ): VNextTextBlockIncrementalFlowTreeInspectionV1 {
+  flowTreeInspectionObserverForTest?.()
   if (
     value == null
     || typeof value !== "object"
@@ -924,9 +1112,9 @@ export function hasVNextTextBlockIncrementalFlowTreePreparedBindingInternalV1(
     && typeof sourceState === "object"
     && flowTree != null
     && typeof flowTree === "object"
-    && inspectVNextTextBlockIncrementalFlowTreeInternalV1(
-      flowTree,
-    ).status === "prepared-unregistered"
+    && preparedTrees.has(
+      flowTree as VNextTextBlockIncrementalFlowTreeV1,
+    )
     && treesBySourceState.get(
       sourceState as VNextTextBlockUnifiedLayoutSourceStateV1,
     )?.has(
@@ -1165,4 +1353,884 @@ export function visitVNextTextBlockTransitionFlowCoverageInternalV1(input: {
   return stopped
     ? { status: "limit-exceeded", fragments: null, visitedNodeCount, emittedAtomCount, completeTreeTraversalCount: 0 }
     : { status: "accepted", fragments: Object.freeze(fragments), visitedNodeCount, emittedAtomCount, completeTreeTraversalCount: 0 }
+}
+
+function flowTransitionIssue(message: string): VNextTextBlockUnifiedLayoutIssueV1 {
+  return Object.freeze({
+    code: "incremental-proof-unavailable",
+    severity: "error",
+    stage: "source-flow",
+    path: "flowTree",
+    message,
+  })
+}
+
+export type VNextTextBlockIncrementalFlowReplacementAtomsResultInternalV1 =
+  | {
+      readonly status: "prepared"
+      readonly atoms: readonly VNextTextBlockIncrementalFlowAtomV1[]
+      readonly visitedFlowAtomCount: number
+      readonly issues: readonly []
+    }
+  | {
+      readonly status: "blocked" | "limit-exceeded"
+      readonly atoms: null
+      readonly issues: readonly VNextTextBlockUnifiedLayoutIssueV1[]
+    }
+
+export function prepareVNextTextBlockIncrementalFlowReplacementAtomsInternalV1(
+  input: {
+    readonly nextSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly boundedSourceItems:
+      readonly VNextTextBlockUnifiedLayoutSourceItemV1[]
+    readonly boundedSourceStartRenderedUtf16: number
+    readonly targetRange: VNextTextBlockSourceRangeV1
+    readonly evidence: VNextTextBlockTransitionEvidenceV2
+    readonly beforeVisit: () => boolean
+  },
+): VNextTextBlockIncrementalFlowReplacementAtomsResultInternalV1 {
+  if (
+    inspectVNextTextBlockPreparedSourceEnvelopeFactsInternalV1(
+      input.nextSourceState,
+    ) == null
+    || !Number.isSafeInteger(input.boundedSourceStartRenderedUtf16)
+    || input.boundedSourceStartRenderedUtf16 < 0
+    || !Number.isSafeInteger(input.targetRange.startRenderedUtf16)
+    || !Number.isSafeInteger(input.targetRange.endRenderedUtf16)
+    || input.targetRange.endRenderedUtf16
+      < input.targetRange.startRenderedUtf16
+  ) {
+    return Object.freeze({
+      status: "blocked" as const,
+      atoms: null,
+      issues: Object.freeze([flowTransitionIssue(
+        "Flow projection requires exact bounded Source authority",
+      )]),
+    })
+  }
+  const factory = defaultFingerprint
+  let faces: Map<
+    string,
+    VNextTextBlockUnifiedLayoutSourceStateV1["producerRequirements"]["fontFaces"][number]
+  > | null = null
+  const atoms: VNextTextBlockIncrementalFlowAtomV1[] = []
+  let visitedFlowAtomCount = 0
+  const beforeCreateAtom = (): boolean => {
+    if (!input.beforeVisit()) return false
+    visitedFlowAtomCount += 1
+    return true
+  }
+  let sourceIndex = 0
+  let sourceAbsoluteStart = input.boundedSourceStartRenderedUtf16
+  let shapingRunIndex = 0
+  let shapingClusterIndex = 0
+  let projectedCursor = input.targetRange.startRenderedUtf16
+  while (projectedCursor < input.targetRange.endRenderedUtf16) {
+    if (!beforeCreateAtom()) {
+      return Object.freeze({
+        status: "limit-exceeded" as const,
+        atoms: null,
+        issues: Object.freeze([]),
+      })
+    }
+    flowProjectionPayloadObserverForTest?.()
+    let source = input.boundedSourceItems[sourceIndex]
+    let sourceAbsoluteEnd = source == null
+      ? sourceAbsoluteStart
+      : safeAdd(sourceAbsoluteStart, source.renderedUtf16Length)
+    while (source != null && sourceAbsoluteEnd <= projectedCursor) {
+      sourceIndex += 1
+      sourceAbsoluteStart = sourceAbsoluteEnd
+      source = input.boundedSourceItems[sourceIndex]
+      sourceAbsoluteEnd = source == null
+        ? sourceAbsoluteStart
+        : safeAdd(sourceAbsoluteStart, source.renderedUtf16Length)
+    }
+    if (
+      source == null
+      || sourceAbsoluteStart > projectedCursor
+      || sourceAbsoluteEnd <= projectedCursor
+    ) {
+      return Object.freeze({
+        status: "blocked" as const,
+        atoms: null,
+        issues: Object.freeze([flowTransitionIssue(
+          "bounded Source items leave a Flow projection gap",
+        )]),
+      })
+    }
+    if (source.kind === "hard-break" || source.kind === "inline-image") {
+      if (
+        projectedCursor !== sourceAbsoluteStart
+        || sourceAbsoluteEnd > input.targetRange.endRenderedUtf16
+      ) {
+        return Object.freeze({
+          status: "blocked" as const,
+          atoms: null,
+          issues: Object.freeze([flowTransitionIssue(
+            "non-text Flow projection must remain atomic",
+          )]),
+        })
+      }
+      const atom = source.kind === "hard-break"
+        ? hardBreakAtom(source, factory)
+        : imageAtom(source, factory)
+      if (atom == null) {
+        return Object.freeze({
+          status: "blocked" as const,
+          atoms: null,
+          issues: Object.freeze([flowTransitionIssue(
+            "non-text Flow projection has unsafe geometry",
+          )]),
+        })
+      }
+      atoms.push(deepFreeze(atom))
+      projectedCursor = sourceAbsoluteEnd
+      continue
+    }
+    let selectedRun: VNextTextBlockTransitionEvidenceV2["shapingRuns"][number]
+      | null = null
+    let selectedCluster: VNextTextBlockTransitionEvidenceV2["shapingRuns"][number]["clusters"][number]
+      | null = null
+    while (shapingRunIndex < input.evidence.shapingRuns.length) {
+      flowProjectionPayloadObserverForTest?.()
+      const shapingRun = input.evidence.shapingRuns[shapingRunIndex]
+      if (shapingRun == null) break
+      while (
+        shapingClusterIndex < shapingRun.clusters.length
+        && shapingRun.clusters[shapingClusterIndex]!.renderEndOffset
+          <= projectedCursor
+      ) shapingClusterIndex += 1
+      if (shapingClusterIndex < shapingRun.clusters.length) {
+        selectedRun = shapingRun
+        selectedCluster = shapingRun.clusters[shapingClusterIndex] ?? null
+        break
+      }
+      shapingRunIndex += 1
+      shapingClusterIndex = 0
+    }
+    if (
+      selectedRun == null
+      || selectedCluster == null
+      || selectedCluster.renderStartOffset !== projectedCursor
+      || selectedCluster.renderEndOffset > input.targetRange.endRenderedUtf16
+    ) {
+      return Object.freeze({
+        status: "blocked" as const,
+        atoms: null,
+        issues: Object.freeze([flowTransitionIssue(
+          "Flow evidence cluster coverage is not exact and ordered",
+        )]),
+      })
+    }
+    if (faces == null) {
+      flowProjectionPayloadObserverForTest?.()
+      faces = new Map(
+        input.nextSourceState.producerRequirements.fontFaces.map(
+          (face) => [face.fontFaceId, face],
+        ),
+      )
+    }
+    const face = faces.get(selectedRun.fontFaceId)
+    const textSpans: TextFlowSourceSpan[] = []
+    let spanIndex = sourceIndex
+    let spanAbsoluteStart = sourceAbsoluteStart
+    let coveredSourceEnd = selectedCluster.renderStartOffset
+    while (coveredSourceEnd < selectedCluster.renderEndOffset) {
+      const spanSource = input.boundedSourceItems[spanIndex]
+      if (
+        spanSource == null
+        || (
+          spanSource.kind !== "text"
+          && spanSource.kind !== "resolved-field"
+          && spanSource.kind !== "generated-page-number"
+        )
+      ) break
+      const spanAbsoluteEnd = safeAdd(
+        spanAbsoluteStart,
+        spanSource.renderedUtf16Length,
+      )
+      const selectedStart = Math.max(
+        spanAbsoluteStart,
+        selectedCluster.renderStartOffset,
+      )
+      const selectedEnd = Math.min(
+        spanAbsoluteEnd,
+        selectedCluster.renderEndOffset,
+      )
+      if (selectedStart !== coveredSourceEnd || selectedEnd <= selectedStart) {
+        break
+      }
+      textSpans.push({
+        source: spanSource,
+        absoluteStart: spanAbsoluteStart,
+        absoluteEnd: spanAbsoluteEnd,
+      })
+      coveredSourceEnd = selectedEnd
+      if (spanAbsoluteEnd <= selectedCluster.renderEndOffset) {
+        spanIndex += 1
+        spanAbsoluteStart = spanAbsoluteEnd
+      }
+    }
+    const sourceFacts = textFlowSourceFacts({
+      spans: textSpans,
+      clusterStart: selectedCluster.renderStartOffset,
+      clusterEnd: selectedCluster.renderEndOffset,
+      factory,
+    })
+    if (
+      face == null
+      || coveredSourceEnd !== selectedCluster.renderEndOffset
+      || sourceFacts == null
+    ) {
+      return Object.freeze({
+        status: "blocked" as const,
+        atoms: null,
+        issues: Object.freeze([flowTransitionIssue(
+          "Flow evidence cluster lacks exact Source or font authority",
+        )]),
+      })
+    }
+    const atom = textAtom({
+      source: sourceFacts.source,
+      sourceAbsoluteStart: sourceFacts.sourceAbsoluteStart,
+      shapingRun: selectedRun,
+      cluster: selectedCluster,
+      face,
+      advanceLayoutUnit: selectedCluster.advanceLayoutUnit,
+      segmentStart: selectedCluster.renderStartOffset,
+      segmentEnd: selectedCluster.renderEndOffset,
+      factory,
+    })
+    if (atom == null) {
+      return Object.freeze({
+        status: "blocked" as const,
+        atoms: null,
+        issues: Object.freeze([flowTransitionIssue(
+          "Flow evidence could not form an exact canonical atom",
+        )]),
+      })
+    }
+    atoms.push(deepFreeze(atom))
+    projectedCursor = selectedCluster.renderEndOffset
+    shapingClusterIndex += 1
+    sourceIndex = spanIndex
+    sourceAbsoluteStart = spanAbsoluteStart
+  }
+  if (projectedCursor !== input.targetRange.endRenderedUtf16) {
+    return Object.freeze({
+      status: "blocked" as const,
+      atoms: null,
+      issues: Object.freeze([flowTransitionIssue(
+        "bounded Flow projection does not cover the exact target range",
+      )]),
+    })
+  }
+  const preparedAtoms = Object.freeze(atoms)
+  replacementAtomAuthorities.set(preparedAtoms, Object.freeze({
+    nextSourceState: input.nextSourceState,
+    targetRange: input.targetRange,
+    renderedUtf16Length:
+      input.targetRange.endRenderedUtf16
+      - input.targetRange.startRenderedUtf16,
+  }))
+  return Object.freeze({
+    status: "prepared" as const,
+    atoms: preparedAtoms,
+    visitedFlowAtomCount,
+    issues: Object.freeze([]) as readonly [],
+  })
+}
+
+export function prepareVNextTextBlockIncrementalFlowRangePathCopyInternalV1(
+  input: {
+    readonly previousFlowTree: VNextTextBlockIncrementalFlowTreeV1
+    readonly previousSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly nextSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly replacementAtoms: readonly VNextTextBlockIncrementalFlowAtomV1[]
+    readonly previousRange: VNextTextBlockSourceRangeV1
+    readonly nextRange: VNextTextBlockSourceRangeV1
+    readonly beforeVisit: (
+      unit: "flow-atoms" | "flow-tree-nodes",
+    ) => boolean
+  },
+): VNextTextBlockIncrementalFlowRangePathCopyResultInternalV1 {
+  const stored = preparedTrees.get(input.previousFlowTree)
+  let visitedFlowAtomCount = 0
+  let visitedFlowTreeNodeCount = 0
+  let createdFlowTreeNodeCount = 0
+  let createdFlowLeafCount = 0
+  const blockedResult = (message: string) => Object.freeze({
+    status: "blocked" as const,
+    flowTree: null,
+    visitedFlowAtomCount,
+    visitedFlowTreeNodeCount,
+    createdFlowTreeNodeCount,
+    issues: Object.freeze([flowTransitionIssue(message)]),
+  })
+  const limitResult = () => Object.freeze({
+    status: "limit-exceeded" as const,
+    flowTree: null,
+    visitedFlowAtomCount,
+    visitedFlowTreeNodeCount,
+    createdFlowTreeNodeCount,
+    issues: Object.freeze([]) as readonly [],
+  })
+  const replacementAuthority = replacementAtomAuthorities.get(
+    input.replacementAtoms,
+  )
+  const replacementRenderedUtf16Length =
+    replacementAuthority?.renderedUtf16Length ?? -1
+  const removedRenderedUtf16Length = input.previousRange.endRenderedUtf16
+    - input.previousRange.startRenderedUtf16
+  let expectedNextRenderedUtf16Length: number
+  try {
+    expectedNextRenderedUtf16Length = safeAdd(
+      input.previousFlowTree.summary.renderedUtf16Length
+        - removedRenderedUtf16Length,
+      replacementRenderedUtf16Length,
+    )
+  } catch {
+    return blockedResult("Flow path-copy target length is unsafe")
+  }
+  if (
+    stored == null
+    || replacementAuthority == null
+    || replacementAuthority.nextSourceState !== input.nextSourceState
+    || replacementAuthority.targetRange.startRenderedUtf16
+      !== input.nextRange.startRenderedUtf16
+    || replacementAuthority.targetRange.endRenderedUtf16
+      !== input.nextRange.endRenderedUtf16
+    || !hasVNextTextBlockIncrementalFlowTreePreparedBindingInternalV1(
+      input.previousSourceState,
+      input.previousFlowTree,
+    )
+    || inspectVNextTextBlockPreparedSourceEnvelopeFactsInternalV1(
+      input.nextSourceState,
+    ) == null
+    || input.previousFlowTree.layoutContextFingerprint
+      !== fingerprintWith(stored.fingerprintFactory, {
+        layoutId: input.nextSourceState.producerRequirements.layoutId,
+        layoutUnitPolicyFingerprint:
+          input.nextSourceState.producerRequirements.layoutUnitPolicyFingerprint,
+        availableWidthLayoutUnit:
+          input.nextSourceState.producerRequirements.availableWidthLayoutUnit,
+        declaredLineHeightLayoutUnit:
+          input.nextSourceState.producerRequirements.declaredLineHeightLayoutUnit,
+        paragraphFontFamilyKey:
+          input.nextSourceState.producerRequirements.paragraphFontFamilyKey,
+        paragraphStyle:
+          input.nextSourceState.producerRequirements.paragraphStyle,
+        fontFaces: input.nextSourceState.producerRequirements.fontFaces,
+      })
+    || input.previousRange.startRenderedUtf16 < 0
+    || input.previousRange.endRenderedUtf16
+      < input.previousRange.startRenderedUtf16
+    || input.previousRange.endRenderedUtf16
+      > input.previousFlowTree.summary.renderedUtf16Length
+    || input.previousFlowTree.summary.renderedUtf16Length
+      !== input.previousSourceState.summary.renderedUtf16Length
+    || input.nextRange.startRenderedUtf16 < 0
+    || input.nextRange.endRenderedUtf16 < input.nextRange.startRenderedUtf16
+    || input.nextRange.startRenderedUtf16
+      !== input.previousRange.startRenderedUtf16
+    || input.nextRange.endRenderedUtf16
+      > input.nextSourceState.summary.renderedUtf16Length
+    || replacementRenderedUtf16Length !== input.nextRange.endRenderedUtf16
+      - input.nextRange.startRenderedUtf16
+    || expectedNextRenderedUtf16Length
+      !== input.nextSourceState.summary.renderedUtf16Length
+  ) return blockedResult("Flow path copy requires exact compatible authority")
+
+  let limitExceeded = false
+  let structuralIssue: string | null = null
+  const createdNodes = new WeakSet<object>()
+  const originalAtoms = new WeakSet<object>()
+  const reusedAtoms = new Set<VNextTextBlockIncrementalFlowAtomV1>()
+  const reusedRoots = new Set<VNextTextBlockIncrementalFlowNodeV1>()
+
+  const visitAtom = (
+    value: VNextTextBlockIncrementalFlowAtomV1 | null = null,
+  ): boolean => {
+    if (!input.beforeVisit("flow-atoms")) {
+      limitExceeded = true
+      return false
+    }
+    visitedFlowAtomCount += 1
+    flowPathCopyOperationObserverForTest?.({
+      operation: "visit-atom",
+      value,
+    })
+    return true
+  }
+  const visitNode = (
+    value: VNextTextBlockIncrementalFlowNodeV1 | null = null,
+    operation: "visit-node" | "create-node" = "visit-node",
+  ): boolean => {
+    if (!input.beforeVisit("flow-tree-nodes")) {
+      limitExceeded = true
+      return false
+    }
+    visitedFlowTreeNodeCount += 1
+    flowPathCopyOperationObserverForTest?.({ operation, value })
+    return true
+  }
+  const retain = (node: VNextTextBlockIncrementalFlowNodeV1): void => {
+    if (!createdNodes.has(node)) reusedRoots.add(node)
+  }
+  const open = (node: VNextTextBlockIncrementalFlowNodeV1): void => {
+    reusedRoots.delete(node)
+  }
+  const createLeaf = (
+    atoms: readonly VNextTextBlockIncrementalFlowAtomV1[],
+  ): VNextTextBlockIncrementalFlowLeafV1 | null => {
+    if (!visitNode(null, "create-node")) return null
+    const value = leaf(atoms, stored.fingerprintFactory)
+    deepFreeze(value.summary)
+    Object.freeze(value.atoms)
+    Object.freeze(value)
+    createdNodes.add(value)
+    createdFlowTreeNodeCount += 1
+    createdFlowLeafCount += 1
+    return value
+  }
+  const createBranch = (
+    children: readonly VNextTextBlockIncrementalFlowNodeV1[],
+  ): VNextTextBlockIncrementalFlowBranchV1 | null => {
+    if (!visitNode(null, "create-node")) return null
+    const value = branch(children, stored.fingerprintFactory)
+    deepFreeze(value.summary)
+    Object.freeze(value.children)
+    Object.freeze(value)
+    createdNodes.add(value)
+    createdFlowTreeNodeCount += 1
+    for (const child of children) retain(child)
+    return value
+  }
+  const packAtoms = (
+    atoms: readonly VNextTextBlockIncrementalFlowAtomV1[],
+  ): readonly VNextTextBlockIncrementalFlowLeafV1[] | null => {
+    const result: VNextTextBlockIncrementalFlowLeafV1[] = []
+    for (const group of canonicalGroups(atoms, 8)) {
+      const value = createLeaf(group)
+      if (value == null) return null
+      result.push(value)
+    }
+    return result
+  }
+  const packChildren = (
+    children: readonly VNextTextBlockIncrementalFlowNodeV1[],
+  ): readonly VNextTextBlockIncrementalFlowBranchV1[] | null => {
+    const result: VNextTextBlockIncrementalFlowBranchV1[] = []
+    for (const group of canonicalGroups(children, 8)) {
+      const value = createBranch(group)
+      if (value == null) return null
+      result.push(value)
+    }
+    return result
+  }
+
+  function concatParts(
+    left: VNextTextBlockIncrementalFlowNodeV1,
+    right: VNextTextBlockIncrementalFlowNodeV1,
+  ): readonly VNextTextBlockIncrementalFlowNodeV1[] | null {
+    if (left.height === right.height) {
+      if (left.nodeKind === "leaf" && right.nodeKind === "leaf") {
+        const totalAtomCount = left.atoms.length + right.atoms.length
+        const canonicalAtomGroupSizes = canonicalGroups(
+          new Array<null>(totalAtomCount).fill(null),
+          8,
+        ).map((group) => group.length)
+        if (
+          totalAtomCount > 8
+          && (
+            !createdNodes.has(left)
+            || !createdNodes.has(right)
+            || (
+              canonicalAtomGroupSizes.length === 2
+              && canonicalAtomGroupSizes[0] === left.atoms.length
+              && canonicalAtomGroupSizes[1] === right.atoms.length
+            )
+          )
+        ) {
+          retain(left)
+          retain(right)
+          return [left, right]
+        }
+        open(left)
+        open(right)
+        const atoms: VNextTextBlockIncrementalFlowAtomV1[] = []
+        for (const [owner, atom] of [
+          ...left.atoms.map((atom) => [left, atom] as const),
+          ...right.atoms.map((atom) => [right, atom] as const),
+        ]) {
+          if (!visitAtom(atom)) return null
+          atoms.push(atom)
+          if (!createdNodes.has(owner)) originalAtoms.add(atom)
+          if (originalAtoms.has(atom)) reusedAtoms.add(atom)
+        }
+        return packAtoms(atoms)
+      }
+      if (left.nodeKind !== "branch" || right.nodeKind !== "branch") {
+        structuralIssue = "Flow concat encountered inconsistent node heights"
+        return null
+      }
+      const totalChildCount = left.children.length + right.children.length
+      const canonicalChildGroupSizes = canonicalGroups(
+        new Array<null>(totalChildCount).fill(null),
+        8,
+      ).map((group) => group.length)
+      if (
+        totalChildCount > 8
+        && (
+          !createdNodes.has(left)
+          || !createdNodes.has(right)
+          || (
+            canonicalChildGroupSizes.length === 2
+            && canonicalChildGroupSizes[0] === left.children.length
+            && canonicalChildGroupSizes[1] === right.children.length
+          )
+        )
+      ) {
+        retain(left)
+        retain(right)
+        return [left, right]
+      }
+      if (!visitNode(left) || !visitNode(right)) return null
+      open(left)
+      open(right)
+      return packChildren([...left.children, ...right.children])
+    }
+    if (left.height > right.height) {
+      if (left.nodeKind !== "branch" || !visitNode(left)) {
+        if (!limitExceeded) structuralIssue = "Flow concat left height is invalid"
+        return null
+      }
+      open(left)
+      const boundary = left.children.at(-1)
+      if (boundary == null) {
+        structuralIssue = "Flow concat left boundary is missing"
+        return null
+      }
+      const joined = concatParts(boundary, right)
+      if (joined == null) return null
+      return packChildren([...left.children.slice(0, -1), ...joined])
+    }
+    if (right.nodeKind !== "branch" || !visitNode(right)) {
+      if (!limitExceeded) structuralIssue = "Flow concat right height is invalid"
+      return null
+    }
+    open(right)
+    const boundary = right.children[0]
+    if (boundary == null) {
+      structuralIssue = "Flow concat right boundary is missing"
+      return null
+    }
+    const joined = concatParts(left, boundary)
+    if (joined == null) return null
+    return packChildren([...joined, ...right.children.slice(1)])
+  }
+
+  function rootFromParts(
+    parts: readonly VNextTextBlockIncrementalFlowNodeV1[],
+  ): VNextTextBlockIncrementalFlowNodeV1 | null {
+    if (parts.length === 0) return null
+    if (parts.length === 1) {
+      const only = parts[0]!
+      retain(only)
+      return only
+    }
+    let level = parts
+    while (level.length > 1) {
+      const next = packChildren(level)
+      if (next == null) return null
+      level = next
+    }
+    return level[0] ?? null
+  }
+
+  function concatRoots(
+    left: VNextTextBlockIncrementalFlowNodeV1 | null,
+    right: VNextTextBlockIncrementalFlowNodeV1 | null,
+  ): VNextTextBlockIncrementalFlowNodeV1 | null {
+    if (left == null) {
+      if (right != null) retain(right)
+      return right
+    }
+    if (right == null) {
+      retain(left)
+      return left
+    }
+    const parts = concatParts(left, right)
+    return parts == null ? null : rootFromParts(parts)
+  }
+
+  function sequenceRoot(
+    nodes: readonly VNextTextBlockIncrementalFlowNodeV1[],
+  ): VNextTextBlockIncrementalFlowNodeV1 | null {
+    let result: VNextTextBlockIncrementalFlowNodeV1 | null = null
+    for (const node of nodes) result = concatRoots(result, node)
+    return result
+  }
+
+  function splitNode(
+    node: VNextTextBlockIncrementalFlowNodeV1,
+    offset: number,
+  ): {
+    readonly left: VNextTextBlockIncrementalFlowNodeV1 | null
+    readonly right: VNextTextBlockIncrementalFlowNodeV1 | null
+  } | null {
+    if (offset === 0) return { left: null, right: node }
+    if (offset === node.summary.renderedUtf16Length) {
+      return { left: node, right: null }
+    }
+    if (
+      offset < 0
+      || offset > node.summary.renderedUtf16Length
+      || !visitNode(node)
+    ) {
+      if (!limitExceeded) structuralIssue = "Flow split offset is outside its node"
+      return null
+    }
+    open(node)
+    if (node.nodeKind === "leaf") {
+      const atoms: VNextTextBlockIncrementalFlowAtomV1[] = []
+      let cursor = 0
+      let splitIndex = -1
+      for (let index = 0; index < node.atoms.length; index += 1) {
+        if (!visitAtom()) return null
+        const atom = node.atoms[index]
+        if (atom == null) {
+          structuralIssue = "Flow leaf summary is inconsistent"
+          return null
+        }
+        flowPathCopyOperationObserverForTest?.({
+          operation: "visit-atom",
+          value: atom,
+        })
+        originalAtoms.add(atom)
+        atoms.push(atom)
+        cursor = safeAdd(cursor, atom.renderedUtf16Length)
+        if (splitIndex < 0 && cursor === offset) splitIndex = index + 1
+        if (splitIndex < 0 && cursor > offset) {
+          structuralIssue = "Flow replacement range must use exact atom boundaries"
+          return null
+        }
+      }
+      if (splitIndex < 0) {
+        structuralIssue = "Flow leaf does not cover the exact split offset"
+        return null
+      }
+      const leftAtoms = atoms.slice(0, splitIndex)
+      const rightAtoms = atoms.slice(splitIndex)
+      for (const atom of atoms) reusedAtoms.add(atom)
+      const leftLeaves = packAtoms(leftAtoms)
+      const rightLeaves = packAtoms(rightAtoms)
+      if (leftLeaves == null || rightLeaves == null) return null
+      return {
+        left: rootFromParts(leftLeaves),
+        right: rootFromParts(rightLeaves),
+      }
+    }
+    let cursor = 0
+    for (let index = 0; index < node.children.length; index += 1) {
+      const child = node.children[index]!
+      const end = safeAdd(cursor, child.summary.renderedUtf16Length)
+      if (offset === cursor) {
+        return {
+          left: sequenceRoot(node.children.slice(0, index)),
+          right: sequenceRoot(node.children.slice(index)),
+        }
+      }
+      if (offset < end) {
+        const split = splitNode(child, offset - cursor)
+        if (split == null) return null
+        const left = sequenceRoot([
+          ...node.children.slice(0, index),
+          ...(split.left == null ? [] : [split.left]),
+        ])
+        const right = sequenceRoot([
+          ...(split.right == null ? [] : [split.right]),
+          ...node.children.slice(index + 1),
+        ])
+        return { left, right }
+      }
+      cursor = end
+    }
+    structuralIssue = "Flow branch does not cover the exact split offset"
+    return null
+  }
+
+  const firstSplit = splitNode(
+    input.previousFlowTree.root,
+    input.previousRange.startRenderedUtf16,
+  )
+  if (firstSplit == null) {
+    return limitExceeded
+      ? limitResult()
+      : blockedResult(structuralIssue ?? "Flow start split was unavailable")
+  }
+  const removedLength = input.previousRange.endRenderedUtf16
+    - input.previousRange.startRenderedUtf16
+  const secondSplit = firstSplit.right == null
+    ? removedLength === 0 ? { left: null, right: null } : null
+    : splitNode(firstSplit.right, removedLength)
+  if (secondSplit == null) {
+    return limitExceeded
+      ? limitResult()
+      : blockedResult(structuralIssue ?? "Flow end split was unavailable")
+  }
+  let replacementRoot: VNextTextBlockIncrementalFlowNodeV1 | null = null
+  if (input.replacementAtoms.length > 0) {
+    const replacementAtoms: VNextTextBlockIncrementalFlowAtomV1[] = []
+    for (const atom of input.replacementAtoms) {
+      if (!visitAtom(atom)) return limitResult()
+      replacementAtoms.push(atom)
+    }
+    const replacementLeaves = packAtoms(replacementAtoms)
+    if (replacementLeaves == null) return limitResult()
+    replacementRoot = rootFromParts(replacementLeaves)
+  }
+  const withReplacement = concatRoots(firstSplit.left, replacementRoot)
+  const nextRoot = concatRoots(withReplacement, secondSplit.right)
+  if (limitExceeded) return limitResult()
+  if (structuralIssue != null) return blockedResult(structuralIssue)
+  if (nextRoot == null) return blockedResult("Flow path copy produced no root")
+  if (
+    nextRoot.summary.renderedUtf16Length
+      !== expectedNextRenderedUtf16Length
+  ) return blockedResult("Flow path copy produced a mismatched target length")
+  const reusedFlowTreeNodeCount = [...reusedRoots].reduce(
+    (total, reused) => safeAdd(total, reused.summary.nodeCount),
+    0,
+  )
+  const reusedAtomCount = safeAdd(
+    [...reusedRoots].reduce(
+      (total, reused) => safeAdd(total, reused.summary.atomCount),
+      0,
+    ),
+    reusedAtoms.size,
+  )
+  const work = deepFreeze({
+    completeBuildCount: 0 as const,
+    visitedSourceItemCount: 0 as const,
+    visitedEvidenceShapingRunCount: 0 as const,
+    visitedEvidenceClusterCount: 0 as const,
+    createdAtomCount: input.replacementAtoms.length,
+    createdLeafCount: createdFlowLeafCount,
+    createdNodeCount: createdFlowTreeNodeCount,
+    reusedAtomCount,
+    reusedNodeCount: reusedFlowTreeNodeCount,
+    completeTreeRebuildCount: 0 as const,
+    completeSuffixTraversalCount: 0 as const,
+  })
+  const facts = {
+    source: input.previousFlowTree.source,
+    contractVersion: input.previousFlowTree.contractVersion,
+    documentId: input.previousFlowTree.documentId,
+    sectionId: input.previousFlowTree.sectionId,
+    textBlockId: input.previousFlowTree.textBlockId,
+    instanceRevision: input.previousFlowTree.instanceRevision,
+    layoutId: input.previousFlowTree.layoutId,
+    layoutContextFingerprint: input.previousFlowTree.layoutContextFingerprint,
+    sourceStateLayoutDependencyFingerprint:
+      input.nextSourceState.summary.layoutDependencyFingerprint,
+    producerRuntimeRequirementFingerprint:
+      input.previousFlowTree.producerRuntimeRequirementFingerprint,
+    policy: input.previousFlowTree.policy,
+    root: nextRoot,
+    summary: nextRoot.summary,
+    work,
+    contracts: input.previousFlowTree.contracts,
+    mayPublishLayout: false as const,
+    productionBinding: false as const,
+  }
+  const canonicalFacts = stringifyVNextCanonicalJson(treeCanonicalFacts({
+    ...facts,
+    fingerprint: "",
+  }))
+  const flowTree = Object.freeze({
+    ...facts,
+    fingerprint: stored.fingerprintFactory(canonicalFacts),
+  })
+  preparedTrees.set(flowTree, {
+    fingerprint: flowTree.fingerprint,
+    canonicalFacts,
+    fingerprintFactory: stored.fingerprintFactory,
+  })
+  const bound = treesBySourceState.get(input.nextSourceState) ?? new WeakSet()
+  bound.add(flowTree)
+  treesBySourceState.set(input.nextSourceState, bound)
+  return Object.freeze({
+    status: "prepared" as const,
+    flowTree,
+    visitedFlowAtomCount,
+    visitedFlowTreeNodeCount,
+    reusedFlowTreeNodeCount,
+    createdFlowTreeNodeCount,
+    issues: Object.freeze([]) as readonly [],
+  })
+}
+
+function flowBindingAuthority(input: {
+  readonly previousFlowTree: VNextTextBlockIncrementalFlowTreeV1
+  readonly nextFlowTree: VNextTextBlockIncrementalFlowTreeV1
+  readonly previousSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly nextSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+}): VNextTextBlockFlowBindingAuthorityInternalV1 {
+  const authority = Object.freeze(
+    {},
+  ) as VNextTextBlockFlowBindingAuthorityInternalV1
+  flowBindingAuthorities.set(authority, Object.freeze(input))
+  return authority
+}
+
+export function bindVNextTextBlockIncrementalFlowExactAliasInternalV1(input: {
+  readonly previousFlowTree: VNextTextBlockIncrementalFlowTreeV1
+  readonly previousSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly nextSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly sourceLayoutDeltaAuthority:
+    VNextTextBlockSourceLayoutDeltaAuthorityInternalV1
+}): VNextTextBlockFlowBindingAuthorityInternalV1 | null {
+  if (
+    !hasVNextTextBlockIncrementalFlowTreePreparedBindingInternalV1(
+      input.previousSourceState,
+      input.previousFlowTree,
+    )
+    || !hasVNextTextBlockSourceLayoutDeltaAuthorityBindingInternalV1({
+      authority: input.sourceLayoutDeltaAuthority,
+      previousSourceState: input.previousSourceState,
+      nextSourceState: input.nextSourceState,
+    })
+  ) return null
+  const bound = treesBySourceState.get(input.nextSourceState) ?? new WeakSet()
+  bound.add(input.previousFlowTree)
+  treesBySourceState.set(input.nextSourceState, bound)
+  return flowBindingAuthority({
+    previousFlowTree: input.previousFlowTree,
+    nextFlowTree: input.previousFlowTree,
+    previousSourceState: input.previousSourceState,
+    nextSourceState: input.nextSourceState,
+  })
+}
+
+export function bindVNextTextBlockIncrementalFlowCandidateInternalV1(input: {
+  readonly previousFlowTree: VNextTextBlockIncrementalFlowTreeV1
+  readonly nextFlowTree: VNextTextBlockIncrementalFlowTreeV1
+  readonly previousSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly nextSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly structuralTargetAuthority:
+    VNextTextBlockIncrementalStructuralTargetAuthorityInternalV1
+}): VNextTextBlockFlowBindingAuthorityInternalV1 | null {
+  return hasVNextTextBlockIncrementalFlowTreePreparedBindingInternalV1(
+    input.nextSourceState,
+    input.nextFlowTree,
+  )
+    && hasVNextTextBlockStructuralTargetAuthorityBindingInternalV1({
+      authority: input.structuralTargetAuthority,
+      previousSourceState: input.previousSourceState,
+      nextSourceState: input.nextSourceState,
+    })
+    ? flowBindingAuthority(input)
+    : null
 }

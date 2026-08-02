@@ -100,11 +100,31 @@ function sourceItemIndexEntriesInternalV1(
   index: SourceItemIndex,
   inlineId: string,
   beforeVisitLayer?: () => boolean,
+  meterCompleteLayer = true,
 ): {
   readonly entries: readonly SourceItemIndexEntryInternalV1[]
   readonly visitedIndexLayerCount: number
   readonly limitExceeded: boolean
 } {
+  if (index.indexKind === "complete") {
+    if (
+      meterCompleteLayer
+      && beforeVisitLayer != null
+      && !beforeVisitLayer()
+    ) {
+      return {
+        entries: Object.freeze([]),
+        visitedIndexLayerCount: 0,
+        limitExceeded: true,
+      }
+    }
+    return {
+      entries: index.entries.get(inlineId) ?? Object.freeze([]),
+      visitedIndexLayerCount:
+        beforeVisitLayer == null || !meterCompleteLayer ? 0 : 1,
+      limitExceeded: false,
+    }
+  }
   if (beforeVisitLayer != null && !beforeVisitLayer()) {
     return {
       entries: Object.freeze([]),
@@ -112,17 +132,11 @@ function sourceItemIndexEntriesInternalV1(
       limitExceeded: true,
     }
   }
-  if (index.indexKind === "complete") {
-    return {
-      entries: index.entries.get(inlineId) ?? Object.freeze([]),
-      visitedIndexLayerCount: beforeVisitLayer == null ? 0 : 1,
-      limitExceeded: false,
-    }
-  }
   const inherited = sourceItemIndexEntriesInternalV1(
     index.previous,
     inlineId,
     beforeVisitLayer,
+    meterCompleteLayer,
   )
   if (inherited.limitExceeded) {
     return {
@@ -270,6 +284,9 @@ export interface VNextTextBlockSourcePathCopyCandidateRecordInternalV1 {
   readonly nextSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
   readonly replacement:
     VNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1
+  readonly nextLeafItems:
+    readonly VNextTextBlockUnifiedLayoutSourceItemV1[]
+  readonly nextLeafStartRenderedUtf16: number
   readonly visitedLookupNodeCount: number
   readonly copiedPathNodeCount: number
   readonly visitedChangedLeafItemCount: number
@@ -1011,6 +1028,9 @@ function indexedSourceItemWithPreBindingGuardInternalV1(
       })
       return true
     },
+    // Frozen V3 calibrated tree nodes, not its O(1) complete-index probe.
+    // Persistent range-delta layers remain metered; V2 callers meter both.
+    false,
   )
   if (indexFailure.value != null) {
     return {
@@ -2490,6 +2510,8 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
     previousSourceState: input.previousSourceState,
     nextSourceState: sourceState,
     replacement: input.replacement,
+    nextLeafItems: Object.freeze([...nextLeafItems]),
+    nextLeafStartRenderedUtf16: nodeStartRenderedUtf16,
     visitedLookupNodeCount,
     copiedPathNodeCount,
     visitedChangedLeafItemCount,

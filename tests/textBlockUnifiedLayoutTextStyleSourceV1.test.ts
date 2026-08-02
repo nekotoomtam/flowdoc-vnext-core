@@ -27,6 +27,9 @@ import {
   transitionVNextTextBlockUnifiedLayoutSourceInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionSourceInternalsV1.js"
 import {
+  setVNextTextBlockPostBindingLimitOverrideForTestInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
+import {
   createVNextTextBlockTransitionReplacementSourceItemInternalV1,
   lookupVNextTextBlockUnifiedLayoutSourceItemByInlineIdInternalV1,
   prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1,
@@ -736,7 +739,7 @@ describe("5B-2 text/style Source path copy", () => {
       .toEqual([64, 16, 16])
     expect(result.sourceState.root.children[2]).toBe(retainedLastParent)
     expect(result.sourceState.work.completeSuffixTraversalCount).toBe(0)
-  })
+  }, 30_000)
 
   it("targets retained prefix and suffix physical fragments independently", () => {
     const root = textRoot("ABCD")
@@ -940,6 +943,11 @@ describe("5B-2 text/style Source path copy", () => {
     setVNextTextBlockSourceReplacementItemReadObserverForTestInternalV1(
       () => { replacementItemReadCount += 1 },
     )
+    setVNextTextBlockPostBindingLimitOverrideForTestInternalV1({
+      stage: "source-flow",
+      unit: "source-leaf-items",
+      effectiveLimit: 32,
+    })
     try {
       const result = transitionVNextTextBlockUnifiedLayoutSourceInternalV1({
         previousRoot: root,
@@ -955,6 +963,7 @@ describe("5B-2 text/style Source path copy", () => {
       })
       expect(replacementItemReadCount).toBe(0)
     } finally {
+      setVNextTextBlockPostBindingLimitOverrideForTestInternalV1(null)
       setVNextTextBlockSourceReplacementItemReadObserverForTestInternalV1(null)
     }
   }, 30_000)

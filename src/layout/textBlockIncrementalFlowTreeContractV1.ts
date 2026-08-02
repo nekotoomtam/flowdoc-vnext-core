@@ -32,6 +32,7 @@ export type VNextTextBlockIncrementalFlowAtomV1 =
         | "text"
         | "resolved-field"
         | "generated-page-number"
+        | "composite"
       readonly localStartRenderedUtf16: number
       readonly localEndRenderedUtf16: number
       readonly fontFaceId: string
@@ -89,7 +90,7 @@ export type VNextTextBlockIncrementalFlowNodeV1 =
   | VNextTextBlockIncrementalFlowLeafV1
   | VNextTextBlockIncrementalFlowBranchV1
 
-export interface VNextTextBlockIncrementalFlowTreeWorkV1 {
+export interface VNextTextBlockIncrementalFlowTreeCompleteWorkV1 {
   readonly completeBuildCount: 1
   readonly visitedSourceItemCount: number
   readonly visitedEvidenceShapingRunCount: number
@@ -102,6 +103,24 @@ export interface VNextTextBlockIncrementalFlowTreeWorkV1 {
   readonly completeTreeRebuildCount: 1
   readonly completeSuffixTraversalCount: 0
 }
+
+export interface VNextTextBlockIncrementalFlowTreePathCopyWorkV1 {
+  readonly completeBuildCount: 0
+  readonly visitedSourceItemCount: 0
+  readonly visitedEvidenceShapingRunCount: 0
+  readonly visitedEvidenceClusterCount: 0
+  readonly createdAtomCount: number
+  readonly createdLeafCount: number
+  readonly createdNodeCount: number
+  readonly reusedAtomCount: number
+  readonly reusedNodeCount: number
+  readonly completeTreeRebuildCount: 0
+  readonly completeSuffixTraversalCount: 0
+}
+
+export type VNextTextBlockIncrementalFlowTreeWorkV1 =
+  | VNextTextBlockIncrementalFlowTreeCompleteWorkV1
+  | VNextTextBlockIncrementalFlowTreePathCopyWorkV1
 
 export interface VNextTextBlockIncrementalFlowTreeV1 {
   readonly source: typeof VNEXT_TEXT_BLOCK_INCREMENTAL_FLOW_TREE_V1_SOURCE
