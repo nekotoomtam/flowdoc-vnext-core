@@ -1,5 +1,16 @@
 # Unified Incremental Root Transition 5B-2 Rebaseline Implementation Plan
 
+> **Task 3 architecture stop (2026-08-03):** Do not continue this document's
+> Task 3 or start Task 4 from implementation head `ac81d46`. The reviewed
+> Producer Invocation Authority correction in
+> `docs/superpowers/specs/2026-08-03-producer-invocation-authority-boundary-design.md`
+> and its implementation plan in
+> `docs/superpowers/plans/2026-08-03-producer-invocation-authority-boundary.md`
+> normatively replace the Task 3 continuation and 5B-2A review stop. Resume
+> this plan at Task 4 only after that replacement plan passes its full gate,
+> fresh review has no open Critical or Important finding, and the user gives
+> explicit approval.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Activate a bounded, Core-only, process-local Root V2 text/field/style
