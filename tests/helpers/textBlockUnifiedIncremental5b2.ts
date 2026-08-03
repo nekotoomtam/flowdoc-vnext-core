@@ -37,6 +37,9 @@ import type {
 import {
   completeTextGeometryBuildInputFixture,
 } from "./textBlockInitialFlowV1.js"
+import {
+  FLOWDOC_TEXT_ENGINE_MR1_SARABUN_FONT_FACES_V1,
+} from "../../packages/text-engine-rust-wasm/src/mr1FontFaces.js"
 
 export function admitted5B2RootFixture(input: Parameters<
   typeof unifiedLayoutRootBuildInputFixtureV2
@@ -101,6 +104,9 @@ function acceptedCompleteText5B2SourceFixture(input: {
   const initial = createVNextTextBlockInitialFlowV1({
     ...base,
     textBlock,
+    fontFaces: FLOWDOC_TEXT_ENGINE_MR1_SARABUN_FONT_FACES_V1
+      .filter((face) => face.fontFaceId === "sarabun-regular")
+      .map(({ fontAssetPath: _fontAssetPath, ...face }) => ({ ...face })),
     authoredBoxPlan: authoredBox.plan,
     parentRegion: parentRegion.region,
     measurement: {

@@ -10,14 +10,12 @@ import {
   acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2,
   createVNextTextBlockTransitionProducerRuntimeIdentityInternalV2,
   createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV2,
+  hasVNextTextBlockUnifiedLayoutTransitionEvidenceBindingInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV2.js"
-import { createVNextTextBlockUnifiedLayoutRootCompleteInternalV2 } from "../src/layout/textBlockUnifiedLayoutRootV2.js"
-import { VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
-import { unifiedLayoutRootBuildInputFixtureV2 } from "./helpers/textBlockUnifiedLayoutRootV2.js"
-import { acceptedUnifiedLayoutRootFixtureV2 } from "./helpers/textBlockUnifiedLayoutRootV2.js"
 import { noOpUnifiedLayoutChange5b } from "./helpers/textBlockUnifiedIncremental5b.js"
 import { createVNextCompactFingerprint } from "../src/fingerprint/compactFingerprint.js"
 import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
+import { admitted5B2RootFixture } from "./helpers/textBlockUnifiedIncremental5b2.js"
 
 function frozen<T>(value: T): T {
   if (value != null && typeof value === "object") {
@@ -40,29 +38,30 @@ function exactFixture() {
   const actualFontFaces = FLOWDOC_TEXT_ENGINE_MR1_SARABUN_FONT_FACES_V1
     .filter((face) => face.fontFaceId === "sarabun-regular")
     .map(({ fontAssetPath: _path, ...face }) => ({ ...face }))
-  const built = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
-    unifiedLayoutRootBuildInputFixtureV2({ content: "text-only", text: "flowdoc evidence", fontFaces: actualFontFaces }),
-    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
-  )
-  if (built.status !== "accepted" || built.root.sourceState.root.nodeKind !== "leaf") throw new Error("evidence root fixture blocked")
-  const item = built.root.sourceState.root.items.find((candidate) => candidate.kind === "text")
+  const root = admitted5B2RootFixture({
+    content: "text-only",
+    text: "flowdoc evidence",
+    fontFaces: actualFontFaces,
+  })
+  if (root.sourceState.root.nodeKind !== "leaf") throw new Error("evidence root fixture blocked")
+  const item = root.sourceState.root.items.find((candidate) => candidate.kind === "text")
   if (item?.kind !== "text") throw new Error("evidence text fixture missing")
   const change = frozen({
     source: "vnext-text-block-unified-layout-change-v1" as const,
     contractVersion: 1 as const,
     kind: "text-insertion" as const,
-    documentId: built.root.documentId,
-    sectionId: built.root.sectionId,
-    textBlockId: built.root.textBlockId,
-    expectedPreviousRootFingerprint: built.root.fingerprint,
-    expectedPreviousSourceFingerprint: built.root.sourceState.fingerprint,
+    documentId: root.documentId,
+    sectionId: root.sectionId,
+    textBlockId: root.textBlockId,
+    expectedPreviousRootFingerprint: root.fingerprint,
+    expectedPreviousSourceFingerprint: root.sourceState.fingerprint,
     atRenderedUtf16: "flowdoc evidence".length,
     insertedText: "X",
     insertedSource: { lineageId: "accept-v2", sourceFingerprint: "accept-source-v2", provenanceFingerprint: "accept-provenance-v2" },
     measurementStyleKey: item.style.measurementStyleKey,
     effectiveShapingStyleKey: item.style.effectiveShapingStyleKey,
   })
-  const bundle = createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV2({ previousRoot: built.root, change })
+  const bundle = createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV2({ previousRoot: root, change })
   if (bundle.status !== "required") throw new Error(`evidence request fixture was ${bundle.status}`)
   const runtimeIdentity = createVNextTextBlockTransitionProducerRuntimeIdentityInternalV2({
     runtime: "node-native-mr1-range",
@@ -86,12 +85,12 @@ function exactFixture() {
     },
   })
   if (produced.status !== "accepted") throw new Error(`producer fixture blocked: ${produced.failure.code}`)
-  return { previousRoot: built.root, change, request: bundle.request, sourceMaterial: bundle.sourceMaterial, producerRuntimeIdentity: runtimeIdentity, response: produced.response }
+  return { previousRoot: root, change, request: bundle.request, sourceMaterial: bundle.sourceMaterial, producerRuntimeIdentity: runtimeIdentity, response: produced.response }
 }
 
 describe("Core transition evidence V2 acceptance", () => {
   it("projects not-required preflight rows without leaking preflight or material", () => {
-    const { root } = acceptedUnifiedLayoutRootFixtureV2()
+    const root = admitted5B2RootFixture({ content: "text-only" })
     expect(createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV2({ previousRoot: root, change: noOpUnifiedLayoutChange5b(root) })).toMatchObject({
       status: "not-required",
       request: null,
@@ -103,11 +102,43 @@ describe("Core transition evidence V2 acceptance", () => {
 
   it("accepts only the exact registered request/material/runtime tuple", () => {
     const exact = exactFixture()
-    expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2(exact)).toMatchObject({ status: "accepted", issues: [] })
+    const accepted = acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2(exact)
+    expect(accepted).toMatchObject({ status: "accepted", issues: [] })
+    if (accepted.status !== "accepted") return
+    expect(hasVNextTextBlockUnifiedLayoutTransitionEvidenceBindingInternalV2({
+      evidence: accepted.evidence,
+      previousRoot: exact.previousRoot,
+      change: exact.change,
+      completedCandidateWork: accepted.completedCandidateWork,
+      expectedRequest: exact.request,
+      expectedSourceMaterial: exact.sourceMaterial,
+    })).toBe(true)
+    const equalDigestClone = structuredClone(accepted.evidence)
+    expect(equalDigestClone.fingerprint).toBe(accepted.evidence.fingerprint)
+    expect(hasVNextTextBlockUnifiedLayoutTransitionEvidenceBindingInternalV2({
+      evidence: equalDigestClone,
+      previousRoot: exact.previousRoot,
+      change: exact.change,
+      completedCandidateWork: accepted.completedCandidateWork,
+      expectedRequest: exact.request,
+      expectedSourceMaterial: exact.sourceMaterial,
+    })).toBe(false)
     expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({ ...exact, sourceMaterial: structuredClone(exact.sourceMaterial) })).toMatchObject({ status: "blocked", evidence: null })
     expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({ ...exact, producerRuntimeIdentity: structuredClone(exact.producerRuntimeIdentity) })).toMatchObject({ status: "blocked", evidence: null })
     expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({ ...exact, request: structuredClone(exact.request) })).toMatchObject({ status: "blocked", evidence: null })
     expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({ ...exact, change: structuredClone(exact.change) })).toMatchObject({ status: "blocked", evidence: null })
+    const crossRuntimeIdentity = createVNextTextBlockTransitionProducerRuntimeIdentityInternalV2({
+      runtime: "node-native-mr1-range",
+      engineBuildFingerprint: "engine-node-v2-cross-runtime",
+      fontBackendFingerprint: "font-backend-node-v2-cross-runtime",
+      unitPolicyFingerprint: exact.request.layoutUnitPolicyFingerprint,
+      fontStyleUnitDependencyFingerprint: exact.request.fontStyleUnitDependencyFingerprint,
+      producerRuntimeRequirementFingerprint: exact.request.producerRuntimeRequirementFingerprint,
+    })
+    expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({
+      ...exact,
+      producerRuntimeIdentity: crossRuntimeIdentity,
+    })).toMatchObject({ status: "blocked", evidence: null })
   })
 
   it("blocks response tampering, unknown fields, symbols, prototypes, and accessors", () => {
@@ -163,6 +194,43 @@ describe("Core transition evidence V2 acceptance", () => {
     unsafeInteger.shapingRuns[0]!.clusters[0]!.advanceLayoutUnit = Number.MAX_SAFE_INTEGER + 1
     expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({ ...exact, response: rehash(unsafeInteger) })).toMatchObject({ status: "blocked", evidence: null })
     expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({ ...exact, response: { ...exact.response, fingerprint: "forced-collision" } })).toMatchObject({ status: "blocked", evidence: null })
+  })
+
+  it("charges Core acceptance slots before observation and retains factual stopped work", () => {
+    const exact = exactFixture()
+    const observed: string[] = []
+    const hostileRuns = Array.from(
+      { length: 9_000 },
+      () => structuredClone(exact.response.shapingRuns[0]!),
+    )
+    const hostileArray = new Proxy(hostileRuns, {
+      getOwnPropertyDescriptor(target, property) {
+        if (property === "8999") observed.push("shapingRuns[8999]")
+        return Reflect.getOwnPropertyDescriptor(target, property)
+      },
+    })
+    const hostile = rehash({
+      ...structuredClone(exact.response),
+      runtimeIdentity: exact.producerRuntimeIdentity,
+      shapingRuns: hostileArray,
+    })
+    observed.length = 0
+
+    const result = acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({
+      ...exact,
+      response: hostile,
+    })
+
+    expect(result).toMatchObject({
+      status: "fallback-required",
+      evidence: null,
+      evaluatorOrProofAuthority: expect.any(Object),
+      completedCandidateWork: {
+        evidence: { visitedEvidenceNodeCount: 8_192 },
+      },
+      issues: [],
+    })
+    expect(observed).toEqual([])
   })
 
   it("accepts an exact factual producer failure and rejects its clone tuple", () => {

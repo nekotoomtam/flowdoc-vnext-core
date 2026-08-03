@@ -214,6 +214,113 @@ function exactArrayLength(value: unknown): number | null {
   }
 }
 
+interface ResponseNodeMeterV2 {
+  readonly limit: number
+  count: number
+  readonly beforeObservation: () => boolean
+}
+
+type MeteredSnapshotV2 =
+  | { readonly status: "accepted"; readonly value: unknown }
+  | { readonly status: "invalid" | "ceiling" }
+
+function createResponseNodeMeter(limit: number): ResponseNodeMeterV2 {
+  const meter: ResponseNodeMeterV2 = {
+    limit,
+    count: 0,
+    beforeObservation() {
+      if (meter.count >= meter.limit) return false
+      meter.count += 1
+      return true
+    },
+  }
+  return meter
+}
+
+function snapshotDataBeforeObservation(
+  value: unknown,
+  meter: ResponseNodeMeterV2,
+  seen = new Set<object>(),
+): MeteredSnapshotV2 {
+  if (
+    value == null
+    || typeof value === "string"
+    || typeof value === "boolean"
+    || typeof value === "number"
+  ) {
+    return typeof value === "number" && !Number.isSafeInteger(value)
+      ? { status: "invalid" }
+      : { status: "accepted", value }
+  }
+  if (typeof value !== "object" || seen.has(value)) return { status: "invalid" }
+  seen.add(value)
+  try {
+    if (!meter.beforeObservation()) return { status: "ceiling" }
+    const prototype = Object.getPrototypeOf(value)
+    if (!meter.beforeObservation()) return { status: "ceiling" }
+    if (Object.getOwnPropertySymbols(value).length !== 0) return { status: "invalid" }
+    if (!meter.beforeObservation()) return { status: "ceiling" }
+    const keys = Reflect.ownKeys(value)
+    if (Array.isArray(value)) {
+      if (prototype !== Array.prototype) return { status: "invalid" }
+      if (!meter.beforeObservation()) return { status: "ceiling" }
+      const lengthDescriptor = Object.getOwnPropertyDescriptor(value, "length")
+      if (
+        lengthDescriptor == null
+        || !Object.hasOwn(lengthDescriptor, "value")
+        || !Number.isSafeInteger(lengthDescriptor.value)
+        || lengthDescriptor.value < 0
+        || keys.length !== lengthDescriptor.value + 1
+      ) return { status: "invalid" }
+      const output: unknown[] = []
+      for (let index = 0; index < lengthDescriptor.value; index += 1) {
+        if (!meter.beforeObservation()) return { status: "ceiling" }
+        const descriptor = Object.getOwnPropertyDescriptor(value, String(index))
+        if (
+          descriptor == null
+          || !Object.hasOwn(descriptor, "value")
+          || descriptor.enumerable !== true
+        ) return { status: "invalid" }
+        const child = snapshotDataBeforeObservation(descriptor.value, meter, seen)
+        if (child.status !== "accepted") return child
+        output.push(child.value)
+      }
+      return { status: "accepted", value: output }
+    }
+    if (prototype !== Object.prototype && prototype !== null) {
+      return { status: "invalid" }
+    }
+    const output: Record<string, unknown> = {}
+    for (const key of keys) {
+      if (typeof key !== "string") return { status: "invalid" }
+      if (!meter.beforeObservation()) return { status: "ceiling" }
+      const descriptor = Object.getOwnPropertyDescriptor(value, key)
+      if (
+        descriptor == null
+        || !Object.hasOwn(descriptor, "value")
+        || descriptor.enumerable !== true
+      ) return { status: "invalid" }
+      const child = snapshotDataBeforeObservation(descriptor.value, meter, seen)
+      if (child.status !== "accepted") return child
+      output[key] = child.value
+    }
+    return { status: "accepted", value: output }
+  } catch {
+    return { status: "invalid" }
+  } finally {
+    seen.delete(value)
+  }
+}
+
+function producerResponseLimit(value: unknown): number | null {
+  const material = ownData(value, "sourceMaterial")
+  const ceilings = ownData(material, "producerWorkCeilings")
+  const limit = ownData(ceilings, "maximumVisitedEvidenceNodeCount")
+  return Number.isSafeInteger(limit) && (limit as number) >= 0
+    ? limit as number
+    : null
+}
+
 function invalidInputFailure(input: {
   readonly request: unknown
   readonly sourceMaterial: unknown
@@ -221,19 +328,17 @@ function invalidInputFailure(input: {
 }): FlowDocUnifiedIncrementalEvidenceResultV2 {
   const requestFingerprint = ownData(input.request, "fingerprint")
   const sourceMaterialFingerprint = ownData(input.sourceMaterial, "fingerprint")
-  const runtimeIdentity = input.runtimeIdentity != null && typeof input.runtimeIdentity === "object" && safeDataTree(input.runtimeIdentity)
-    ? input.runtimeIdentity as VNextTextBlockTransitionProducerRuntimeIdentityV2
-    : freeze({
-        source: "vnext-text-block-transition-producer-runtime-v2" as const,
-        contractVersion: 2 as const,
-        runtime: "node-native-mr1-range" as const,
-        engineBuildFingerprint: "invalid",
-        fontBackendFingerprint: "invalid",
-        unitPolicyFingerprint: "invalid",
-        fontStyleUnitDependencyFingerprint: "invalid",
-        producerRuntimeRequirementFingerprint: "invalid",
-        fingerprint: "invalid",
-      })
+  const runtimeIdentity = freeze({
+    source: "vnext-text-block-transition-producer-runtime-v2" as const,
+    contractVersion: 2 as const,
+    runtime: "node-native-mr1-range" as const,
+    engineBuildFingerprint: "invalid",
+    fontBackendFingerprint: "invalid",
+    unitPolicyFingerprint: "invalid",
+    fontStyleUnitDependencyFingerprint: "invalid",
+    producerRuntimeRequirementFingerprint: "invalid",
+    fingerprint: "invalid",
+  })
   const work = freeze({
     requestedAtomCount: 0,
     requestedClusterCount: 0,
@@ -263,17 +368,91 @@ interface UnifiedIncrementalEvidenceInputV2 {
   readonly runtime: FlowDocUnifiedIncrementalEvidenceRuntimeV2
 }
 
-function snapshotAdapterInput(value: unknown): UnifiedIncrementalEvidenceInputV2 | null {
-  if (!exactKeys(value, ["request", "sourceMaterial", "runtime"])) return null
-  const request = ownData(value, "request")
-  const sourceMaterial = ownData(value, "sourceMaterial")
-  const runtime = ownData(value, "runtime")
-  if (!exactKeys(runtime, ["identity", "shapeRange", "segmentRange"])) return null
-  const identity = ownData(runtime, "identity")
-  const shapeRange = ownData(runtime, "shapeRange")
-  const segmentRange = ownData(runtime, "segmentRange")
-  if (typeof shapeRange !== "function" || typeof segmentRange !== "function") return null
-  return { request, sourceMaterial, runtime: { identity, shapeRange, segmentRange } } as UnifiedIncrementalEvidenceInputV2
+function exactDataFieldsBeforeObservation(
+  value: unknown,
+  keys: readonly string[],
+  meter: ResponseNodeMeterV2,
+): { readonly status: "accepted"; readonly fields: Record<string, unknown> }
+  | { readonly status: "invalid" | "ceiling" } {
+  try {
+    if (value == null || typeof value !== "object" || Array.isArray(value)) {
+      return { status: "invalid" }
+    }
+    if (!meter.beforeObservation()) return { status: "ceiling" }
+    const prototype = Object.getPrototypeOf(value)
+    if (prototype !== Object.prototype && prototype !== null) return { status: "invalid" }
+    if (!meter.beforeObservation()) return { status: "ceiling" }
+    if (Object.getOwnPropertySymbols(value).length !== 0) return { status: "invalid" }
+    if (!meter.beforeObservation()) return { status: "ceiling" }
+    const actual = Reflect.ownKeys(value)
+    if (
+      actual.length !== keys.length
+      || actual.some((key) => typeof key !== "string" || !keys.includes(key))
+    ) return { status: "invalid" }
+    const fields: Record<string, unknown> = {}
+    for (const key of keys) {
+      if (!meter.beforeObservation()) return { status: "ceiling" }
+      const descriptor = Object.getOwnPropertyDescriptor(value, key)
+      if (
+        descriptor == null
+        || !Object.hasOwn(descriptor, "value")
+        || descriptor.enumerable !== true
+      ) return { status: "invalid" }
+      fields[key] = descriptor.value
+    }
+    return { status: "accepted", fields }
+  } catch {
+    return { status: "invalid" }
+  }
+}
+
+function snapshotAdapterInput(
+  value: unknown,
+  meter: ResponseNodeMeterV2,
+): { readonly status: "accepted"; readonly input: UnifiedIncrementalEvidenceInputV2 }
+  | { readonly status: "invalid" | "ceiling" } {
+  const envelope = exactDataFieldsBeforeObservation(
+    value,
+    ["request", "sourceMaterial", "runtime"],
+    meter,
+  )
+  if (envelope.status !== "accepted") return envelope
+  const runtimeEnvelope = exactDataFieldsBeforeObservation(
+    envelope.fields.runtime,
+    ["identity", "shapeRange", "segmentRange"],
+    meter,
+  )
+  if (runtimeEnvelope.status !== "accepted") return runtimeEnvelope
+  if (
+    typeof runtimeEnvelope.fields.shapeRange !== "function"
+    || typeof runtimeEnvelope.fields.segmentRange !== "function"
+  ) return { status: "invalid" }
+  const request = snapshotDataBeforeObservation(envelope.fields.request, meter)
+  if (request.status !== "accepted") return request
+  const sourceMaterial = snapshotDataBeforeObservation(
+    envelope.fields.sourceMaterial,
+    meter,
+  )
+  if (sourceMaterial.status !== "accepted") return sourceMaterial
+  const runtimeIdentity = snapshotDataBeforeObservation(
+    runtimeEnvelope.fields.identity,
+    meter,
+  )
+  if (runtimeIdentity.status !== "accepted") return runtimeIdentity
+  return {
+    status: "accepted",
+    input: {
+      request: request.value as VNextTextBlockTransitionEvidenceRequestV2,
+      sourceMaterial:
+        sourceMaterial.value as VNextTextBlockTransitionProducerSourceMaterialV2,
+      runtime: {
+        identity:
+          runtimeIdentity.value as VNextTextBlockTransitionProducerRuntimeIdentityV2,
+        shapeRange: runtimeEnvelope.fields.shapeRange as UnifiedIncrementalEvidenceInputV2["runtime"]["shapeRange"],
+        segmentRange: runtimeEnvelope.fields.segmentRange as UnifiedIncrementalEvidenceInputV2["runtime"]["segmentRange"],
+      },
+    },
+  }
 }
 
 function validRange(value: unknown): value is { readonly startRenderedUtf16: number; readonly endRenderedUtf16: number } {
@@ -446,13 +625,65 @@ export function createFlowDocTextEngineUnifiedIncrementalEvidenceV2(input: {
 }): FlowDocUnifiedIncrementalEvidenceResultV2
 export function createFlowDocTextEngineUnifiedIncrementalEvidenceV2(input: unknown): FlowDocUnifiedIncrementalEvidenceResultV2
 export function createFlowDocTextEngineUnifiedIncrementalEvidenceV2(value: unknown): FlowDocUnifiedIncrementalEvidenceResultV2 {
-  const input = snapshotAdapterInput(value)
-  if (input == null) {
-    const runtime = ownData(value, "runtime")
-    return invalidInputFailure({ request: ownData(value, "request"), sourceMaterial: ownData(value, "sourceMaterial"), runtimeIdentity: ownData(runtime, "identity") })
+  const rawRequest = ownData(value, "request")
+  const rawSourceMaterial = ownData(value, "sourceMaterial")
+  const rawRuntime = ownData(value, "runtime")
+  const rawRuntimeIdentity = ownData(rawRuntime, "identity")
+  const limit = producerResponseLimit(value)
+  if (limit == null) {
+    return invalidInputFailure({
+      request: rawRequest,
+      sourceMaterial: rawSourceMaterial,
+      runtimeIdentity: rawRuntimeIdentity,
+    })
   }
-  if (!validMaterial(input)) return invalidInputFailure({ request: input.request, sourceMaterial: input.sourceMaterial, runtimeIdentity: input.runtime.identity })
-  let work = baseWork(input.sourceMaterial)
+  const descriptorMeter = createResponseNodeMeter(limit)
+  const snapshot = snapshotAdapterInput(value, descriptorMeter)
+  if (snapshot.status === "ceiling") {
+    const rawInput = {
+      request: rawRequest,
+      sourceMaterial: rawSourceMaterial,
+      runtime: {
+        identity: rawRuntimeIdentity,
+        shapeRange: ownData(rawRuntime, "shapeRange"),
+        segmentRange: ownData(rawRuntime, "segmentRange"),
+      },
+    } as UnifiedIncrementalEvidenceInputV2
+    return failure({
+      ...rawInput,
+      code: "work-ceiling-before-visit",
+      work: {
+        ...baseWork(rawInput.sourceMaterial),
+        visitedEvidenceNodeCount: descriptorMeter.count,
+      },
+    })
+  }
+  if (snapshot.status !== "accepted") {
+    return invalidInputFailure({
+      request: rawRequest,
+      sourceMaterial: rawSourceMaterial,
+      runtimeIdentity: rawRuntimeIdentity,
+    })
+  }
+  const snapshotInput = snapshot.input
+  if (!validMaterial(snapshotInput)) {
+    return invalidInputFailure({
+      request: rawRequest,
+      sourceMaterial: rawSourceMaterial,
+      runtimeIdentity: rawRuntimeIdentity,
+    })
+  }
+  const input: UnifiedIncrementalEvidenceInputV2 = {
+    ...snapshotInput,
+    runtime: {
+      ...snapshotInput.runtime,
+      identity: rawRuntimeIdentity as VNextTextBlockTransitionProducerRuntimeIdentityV2,
+    },
+  }
+  let work = {
+    ...baseWork(input.sourceMaterial),
+    visitedEvidenceNodeCount: descriptorMeter.count,
+  }
   const text = composeCoverageText(input.sourceMaterial)
   if (text == null) return failure({ ...input, code: "invalid-request-scoped-material", work })
   const coverageStart = input.request.next.coverageRange.startRenderedUtf16
@@ -469,10 +700,10 @@ export function createFlowDocTextEngineUnifiedIncrementalEvidenceV2(value: unkno
   const segmentationBoundaryProofs: VNextTextBlockTransitionSegmentationBoundaryProofV2[] = []
   let consumedAtoms = 0
   let consumedClusters = 0
-  let visited = 0
+  let visited = descriptorMeter.count
   const visit = (): boolean => {
-    if (visited >= input.sourceMaterial.producerWorkCeilings.maximumVisitedEvidenceNodeCount) return false
-    visited += 1
+    if (!descriptorMeter.beforeObservation()) return false
+    visited = descriptorMeter.count
     return true
   }
   const inspectRuntimeIntegerArray = (value: unknown):
@@ -482,7 +713,6 @@ export function createFlowDocTextEngineUnifiedIncrementalEvidenceV2(value: unkno
     if (length == null) return { status: "invalid" }
     const values: number[] = []
     for (let index = 0; index < length; index += 1) {
-      if (!visit()) return { status: "ceiling" }
       const descriptor = Object.getOwnPropertyDescriptor(value, String(index))
       if (descriptor == null || !Object.hasOwn(descriptor, "value") || descriptor.enumerable !== true || !Number.isSafeInteger(descriptor.value)) return { status: "invalid" }
       values.push(descriptor.value as number)
@@ -540,13 +770,17 @@ export function createFlowDocTextEngineUnifiedIncrementalEvidenceV2(value: unkno
     } catch {
       return failure({ ...input, code: "pinned-font-unavailable", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
     }
+    const shapeSnapshot = snapshotDataBeforeObservation(shape, descriptorMeter)
+    visited = descriptorMeter.count
+    if (shapeSnapshot.status === "ceiling") return failure({ ...input, code: "work-ceiling-before-visit", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
+    if (shapeSnapshot.status !== "accepted") return failure({ ...input, code: "unsafe-runtime-arithmetic", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
+    shape = shapeSnapshot.value as FlowDocTextEngineMr1RangeShapeFactsV1
     if (!exactKeys(shape, ["contractVersion", "outputShapeVersion", "fullText", "fontFaceId", "fullTextByteLength", "fullTextScalarCount", "rangeStartByte", "rangeEndByte", "rangeStartUtf16", "rangeEndUtf16", "contextStartByte", "contextEndByte", "contextStartUtf16", "contextEndUtf16", "rangeText", "preContextText", "postContextText", "unitsPerEm", "ascentFontUnit", "descentFontUnit", "lineGapFontUnit", "glyphs", "summary"])) return failure({ ...input, code: "unsafe-runtime-arithmetic", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
     const returnedGlyphs = ownData(shape, "glyphs")
     const returnedGlyphCount = exactArrayLength(returnedGlyphs)
     if (returnedGlyphCount == null) return failure({ ...input, code: "unsafe-runtime-arithmetic", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
     const inspectedGlyphs: FlowDocTextEngineMr1RangeShapeFactsV1["glyphs"][number][] = []
     for (let glyphIndex = 0; glyphIndex < returnedGlyphCount; glyphIndex += 1) {
-      if (!visit()) return failure({ ...input, code: "work-ceiling-before-visit", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
       const descriptor = Object.getOwnPropertyDescriptor(returnedGlyphs, String(glyphIndex))
       if (descriptor == null || !Object.hasOwn(descriptor, "value") || descriptor.enumerable !== true || !safeDataTree(descriptor.value)) return failure({ ...input, code: "unsafe-runtime-arithmetic", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
       inspectedGlyphs.push(descriptor.value as FlowDocTextEngineMr1RangeShapeFactsV1["glyphs"][number])
@@ -609,6 +843,11 @@ export function createFlowDocTextEngineUnifiedIncrementalEvidenceV2(value: unkno
     } catch {
       return failure({ ...input, code: "segmentation-not-stable", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
     }
+    const segmentationSnapshot = snapshotDataBeforeObservation(facts, descriptorMeter)
+    visited = descriptorMeter.count
+    if (segmentationSnapshot.status === "ceiling") return failure({ ...input, code: "work-ceiling-before-visit", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
+    if (segmentationSnapshot.status !== "accepted") return failure({ ...input, code: "segmentation-not-stable", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
+    facts = segmentationSnapshot.value as FlowDocTextEngineMr1RangeSegmentationFactsV1
     if (!exactKeys(facts, ["contractVersion", "outputShapeVersion", "fullText", "fullTextByteLength", "fullTextScalarCount", "targetStartByte", "targetEndByte", "targetStartUtf16", "targetEndUtf16", "contextStartByte", "contextEndByte", "contextStartUtf16", "contextEndUtf16", "contextText", "contextBreakByteOffsets", "contextBreakUtf16Offsets", "targetBreakByteOffsets", "targetBreakUtf16Offsets", "summary"])) return failure({ ...input, code: "segmentation-not-stable", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
     const contextBreakByteOffsets = inspectRuntimeIntegerArray(ownData(facts, "contextBreakByteOffsets"))
     const contextBreakUtf16Offsets = contextBreakByteOffsets.status === "accepted" ? inspectRuntimeIntegerArray(ownData(facts, "contextBreakUtf16Offsets")) : contextBreakByteOffsets

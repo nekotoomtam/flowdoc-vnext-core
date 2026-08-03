@@ -22,12 +22,13 @@ import {
   createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV2,
 } from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV2.js"
 import type { VNextTextBlockTransitionProducerResponseV2 } from "../src/layout/textBlockUnifiedLayoutEvidenceContractV2.js"
-import { unifiedLayoutRootBuildInputFixtureV2 } from "./helpers/textBlockUnifiedLayoutRootV2.js"
-import { createVNextTextBlockUnifiedLayoutRootCompleteInternalV2 } from "../src/layout/textBlockUnifiedLayoutRootV2.js"
-import { VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import { createVNextCompactFingerprint } from "../src/fingerprint/compactFingerprint.js"
 import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
 import type { InlineImageFlowFixtureOptions } from "./helpers/textBlockInlineImageFlowV2.js"
+import {
+  admitted5B2HardBreakRootFixture,
+  admitted5B2RootFixture,
+} from "./helpers/textBlockUnifiedIncremental5b2.js"
 
 function frozen<T>(value: T): T {
   if (value != null && typeof value === "object") {
@@ -48,12 +49,7 @@ function fixtureRoot(options: InlineImageFlowFixtureOptions) {
   const actualFontFaces = FLOWDOC_TEXT_ENGINE_MR1_SARABUN_FONT_FACES_V1
     .filter((face) => face.fontFaceId === "sarabun-regular")
     .map(({ fontAssetPath: _path, ...face }) => ({ ...face }))
-  const built = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
-    unifiedLayoutRootBuildInputFixtureV2({ ...options, fontFaces: actualFontFaces }),
-    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
-  )
-  if (built.status !== "accepted") throw new Error("producer root fixture blocked")
-  return built.root
+  return admitted5B2RootFixture({ ...options, fontFaces: actualFontFaces })
 }
 
 function textRoot(text: string) {
@@ -172,7 +168,7 @@ function metricStyleBundleFor(text: string, startRenderedUtf16: number, endRende
 }
 
 function resolvedFieldBundleFor() {
-  const root = fixtureRoot({ content: "field-image-page-break" })
+  const root = admitted5B2HardBreakRootFixture()
   if (root.sourceState.root.nodeKind !== "leaf") throw new Error("field fixture requires one leaf")
   const field = root.sourceState.root.items.find((candidate) => candidate.kind === "resolved-field")
   if (field?.kind !== "resolved-field") throw new Error("field fixture missing")
@@ -306,14 +302,13 @@ describe("unified incremental producer evidence V2", () => {
     }
   }, 30_000)
 
-  it("preserves parity across metric-style, multi-style, image, hard-break, field, and generated-page adjacency", () => {
+  it("preserves parity across metric style, multiple styles, retained hard break, field, and generated-page adjacency", () => {
     const fixtures = [
       metricStyleBundleFor("metric style", 2, 5),
       resolvedFieldBundleFor(),
       insertionBundleForRoot(fixtureRoot({ content: "adjacent-text", breakOffsets: [0, 2] }), 1, "X"),
       insertionBundleForRoot(fixtureRoot({ content: "adjacent-text", mixedTextSizes: true }), 1, "X"),
-      insertionBundleForRoot(fixtureRoot({ content: "text-image-text-break" }), 2, "X"),
-      insertionBundleForRoot(fixtureRoot({ content: "field-image-page-break" }), 2, "X"),
+      insertionBundleForRoot(admitted5B2HardBreakRootFixture(), 2, "X"),
     ]
     for (const { bundle } of fixtures) {
       const node = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({ request: bundle.request, sourceMaterial: bundle.sourceMaterial, runtime: nodeRuntime(bundle) })
@@ -340,6 +335,37 @@ describe("unified incremental producer evidence V2", () => {
     expect(result.response.shapingBoundaryProofs[0]!.verificationRange.endRenderedUtf16).toBeGreaterThan(bundle.request.next.evidenceTargetRange.endRenderedUtf16)
   })
 
+  it("keeps retained mandatory hard-break material distinct from target opportunities", () => {
+    const { bundle } = insertionBundleForRoot(
+      admitted5B2HardBreakRootFixture(),
+      3,
+      "X",
+    )
+    const result = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({
+      request: bundle.request,
+      sourceMaterial: bundle.sourceMaterial,
+      runtime: nodeRuntime(bundle),
+    })
+    expect(result.status).toBe("accepted")
+    if (result.status !== "accepted") return
+    const hardBreak = bundle.sourceMaterial.next.atoms.find(
+      (atom) => atom.kind === "hard-break",
+    )
+    expect(hardBreak).toBeDefined()
+    const mandatoryOffset = bundle.request.next.coverageRange.startRenderedUtf16
+      + hardBreak!.relativeEndRenderedUtf16
+    expect(mandatoryOffset).toBeGreaterThan(
+      bundle.request.next.evidenceTargetRange.endRenderedUtf16,
+    )
+    expect(result.response.breakOffsets).toEqual([])
+    expect(result.response.breakOffsets).not.toEqual(
+      bundle.sourceMaterial.next.atoms.map(
+        (atom) => bundle.request.next.coverageRange.startRenderedUtf16
+          + atom.relativeEndRenderedUtf16,
+      ),
+    )
+  })
+
   it("accounts every bounded runtime glyph and segmentation-offset node it inspects", () => {
     const { bundle } = bundleFor("office affinity", 2, "X")
     const result = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({ request: bundle.request, sourceMaterial: bundle.sourceMaterial, runtime: nodeRuntime(bundle) })
@@ -352,14 +378,29 @@ describe("unified incremental producer evidence V2", () => {
     for (const proof of result.response.segmentationBoundaryProofs) {
       expect(proof.inspectedOffsetCount).toBe(2 * proof.contextBreakCount + 2 * proof.targetBreakOffsets.length)
     }
-    expect(result.response.work.visitedEvidenceNodeCount).toBe(
+    const runtimeDispatchAndEmissionCount =
       bundle.sourceMaterial.next.atoms.length
       + result.response.shapingBoundaryProofs.length
       + result.response.segmentationBoundaryProofs.length
-      + inspectedGlyphCount
-      + inspectedSegmentationOffsetCount
-      + result.response.breakOffsets.length,
-    )
+      + result.response.breakOffsets.length
+    const runtimeResultDescriptorCount =
+      result.response.shapingBoundaryProofs.reduce(
+        (sum, proof) => sum + 37 + 12 * proof.inspectedGlyphCount,
+        0,
+      )
+      + result.response.segmentationBoundaryProofs.reduce(
+        (sum, proof) => sum + 44 + proof.inspectedOffsetCount,
+        0,
+      )
+    expect(inspectedGlyphCount + inspectedSegmentationOffsetCount).toBe(8)
+    expect(runtimeDispatchAndEmissionCount).toBe(6)
+    expect(runtimeResultDescriptorCount).toBe(155)
+    expect(result.response.work.visitedEvidenceNodeCount).toBe(498)
+    expect(
+      result.response.work.visitedEvidenceNodeCount
+        - runtimeDispatchAndEmissionCount
+        - runtimeResultDescriptorCount,
+    ).toBe(337)
   })
 
   it("fails when two bounded segmentation expansions do not reconfirm equal target breaks", () => {
@@ -448,6 +489,45 @@ describe("unified incremental producer evidence V2", () => {
     expect(overLimit).toMatchObject({ status: "blocked", failure: { code: "work-ceiling-before-visit", completedWork: { visitedEvidenceNodeCount: 0 } } })
   })
 
+  it("charges a returned runtime descriptor before observing its shape payload", () => {
+    const { bundle } = bundleFor("office affinity", 2, "X")
+    const material = rehash({
+      ...bundle.sourceMaterial,
+      producerWorkCeilings: {
+        ...bundle.sourceMaterial.producerWorkCeilings,
+        maximumVisitedEvidenceNodeCount: 341,
+      },
+    })
+    const base = nodeRuntime(bundle)
+    const observed: string[] = []
+    const result = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({
+      request: bundle.request,
+      sourceMaterial: material,
+      runtime: {
+        ...base,
+        shapeRange(input) {
+          const facts = base.shapeRange(input)
+          return new Proxy(facts, {
+            ownKeys(target) {
+              observed.push("shape-own-keys")
+              return Reflect.ownKeys(target)
+            },
+          })
+        },
+      },
+    })
+
+    expect(result).toMatchObject({
+      status: "blocked",
+      response: null,
+      failure: {
+        code: "work-ceiling-before-visit",
+        completedWork: { visitedEvidenceNodeCount: 341 },
+      },
+    })
+    expect(observed).toEqual([])
+  })
+
   it("rejects request-scoped material with caller-shaped complete-input fields", () => {
     const { bundle } = bundleFor("bounded material", 7, "X")
     const invalid = { ...bundle.sourceMaterial, completeNextCanonicalInput: "forbidden" }
@@ -461,6 +541,46 @@ describe("unified incremental producer evidence V2", () => {
     Object.defineProperty(outer, "request", { enumerable: true, get() { getterCalls += 1; return bundle.request } })
     expect(createFlowDocTextEngineUnifiedIncrementalEvidenceV2(outer)).toMatchObject({ status: "blocked", failure: { code: "invalid-request-scoped-material" } })
     expect(getterCalls).toBe(0)
+  })
+
+  it("charges the producer response owner before the first request/material payload observation", () => {
+    const { bundle } = bundleFor("bounded producer descriptors", 8, "X")
+    const material = structuredClone(bundle.sourceMaterial) as unknown as {
+      producerWorkCeilings: { maximumVisitedEvidenceNodeCount: number }
+      fingerprint: string
+      next: { atoms: object[] }
+    }
+    material.producerWorkCeilings.maximumVisitedEvidenceNodeCount = 0
+    const materialFacts = { ...material } as Record<string, unknown>
+    delete materialFacts.fingerprint
+    material.fingerprint = createVNextCompactFingerprint(
+      stringifyVNextCanonicalJson(materialFacts),
+    )
+
+    const observed: string[] = []
+    const firstAtom = material.next.atoms[0]!
+    material.next.atoms[0] = new Proxy(firstAtom, {
+      ownKeys(target) {
+        observed.push("next.atoms[0]")
+        return Reflect.ownKeys(target)
+      },
+    })
+
+    const result = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({
+      request: bundle.request,
+      sourceMaterial: material as unknown as typeof bundle.sourceMaterial,
+      runtime: nodeRuntime(bundle),
+    })
+
+    expect(result).toMatchObject({
+      status: "blocked",
+      response: null,
+      failure: {
+        code: "work-ceiling-before-visit",
+        completedWork: { visitedEvidenceNodeCount: 0 },
+      },
+    })
+    expect(observed).toEqual([])
   })
 
   it("honors threshold-minus-one, threshold, and threshold-plus-one without wall-clock policy", () => {

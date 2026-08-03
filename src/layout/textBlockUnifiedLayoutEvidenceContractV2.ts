@@ -244,6 +244,13 @@ export type VNextTextBlockTransitionEvidenceAcceptanceResultV2 =
       readonly issues: readonly []
     }
   | {
+      readonly status: "fallback-required"
+      readonly evidence: null
+      readonly evaluatorOrProofAuthority: object
+      readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+      readonly issues: readonly []
+    }
+  | {
       readonly status: "blocked"
       readonly evidence: null
       readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
