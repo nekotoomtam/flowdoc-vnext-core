@@ -854,6 +854,17 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
     work: shaped.incrementalCandidateWork,
     reason: "unadmitted-root",
   })
+  if (shaped.change.kind === "authored-box-width-inset-change") {
+    return freeze({
+      status: "blocked" as const,
+      completedCandidateWork: shaped.incrementalCandidateWork,
+      issues: freeze([issue(
+        "inactive-work-policy-stage",
+        "change.kind",
+        "5B-2 does not admit authored-box mutation",
+      )]),
+    })
+  }
   const ordinaryText = shaped.change.kind === "text-insertion"
     || shaped.change.kind === "text-replacement"
     ? shaped.change.insertedText

@@ -81,11 +81,17 @@ import {
 import {
   markVNextTextBlockUnifiedLayout5B2CompleteKernelProfileInternalV1,
   registerVNextTextBlockUnifiedLayoutTrivialAdmissionInternalV1,
+  type VNextTextBlockUnifiedLayout5B2AuthoredBoxProfileInternalV1,
 } from "./textBlockUnifiedLayoutTrivialAdmissionInternalsV1.js"
 
 function fingerprint(value: unknown): string {
   return createVNextCompactFingerprint(stringifyVNextCanonicalJson(value))
 }
+
+const completeKernelAuthoredBoxProfiles = new WeakMap<
+  VNextTextBlockUnifiedLayoutRootV2,
+  VNextTextBlockUnifiedLayout5B2AuthoredBoxProfileInternalV1
+>()
 
 function exactRecord(
   value: unknown,
@@ -675,6 +681,15 @@ export function prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV
       }),
     ),
   })
+  completeKernelAuthoredBoxProfiles.set(root, Object.freeze({
+    heightPolicy:
+      geometry.contracts.fixedHeightPolicy === false
+        && geometry.contracts.autoHeightIncludesSpatialExtent === true
+        ? "auto-height"
+        : "fixed-height",
+    clippingPolicy: "none",
+    overflowPolicy: "none",
+  }))
   if (
     sourceEnvelope != null
     && sourceEnvelopeFacts != null
@@ -789,13 +804,18 @@ export function createVNextTextBlockUnifiedLayoutRoot5B2CompleteInternalV1(input
     prepared.completeBuildWork,
     issue("atomic-acceptance-failed", "atomic-acceptance", "root", registration.message),
   )
-  if (input.buildInput.spatialEntries.length === 0) {
+  const authoredBoxProfile = completeKernelAuthoredBoxProfiles.get(prepared.root)
+  if (
+    input.buildInput.spatialEntries.length === 0
+    && authoredBoxProfile != null
+  ) {
     markVNextTextBlockUnifiedLayout5B2CompleteKernelProfileInternalV1({
       root: prepared.root,
       source: prepared.root.sourceState,
       spatialState: prepared.root.spatialState,
       authoredBox: prepared.root.authoredBoxSummary,
       workPolicy: input.workPolicy,
+      authoredBoxProfile,
     })
   }
   registerVNextTextBlockUnifiedLayoutTrivialAdmissionInternalV1({

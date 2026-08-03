@@ -11,6 +11,12 @@ export interface VNextTextBlockUnifiedLayoutTrivialAdmissionAuthorityInternalV1 
   readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
 }
 
+export interface VNextTextBlockUnifiedLayout5B2AuthoredBoxProfileInternalV1 {
+  readonly heightPolicy: "auto-height" | "fixed-height"
+  readonly clippingPolicy: "none" | "clip"
+  readonly overflowPolicy: "none" | "allow"
+}
+
 const admissions = new WeakMap<
   VNextTextBlockUnifiedLayoutRootV2,
   VNextTextBlockUnifiedLayoutTrivialAdmissionAuthorityInternalV1
@@ -22,6 +28,8 @@ const completeKernelProfiles = new WeakMap<
     readonly spatialState: VNextTextBlockUnifiedSpatialStateV1
     readonly authoredBox: VNextTextBlockAuthoredBoxSummaryV2
     readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+    readonly authoredBoxProfile:
+      VNextTextBlockUnifiedLayout5B2AuthoredBoxProfileInternalV1
   }
 >()
 
@@ -32,6 +40,8 @@ export function markVNextTextBlockUnifiedLayout5B2CompleteKernelProfileInternalV
   readonly spatialState: VNextTextBlockUnifiedSpatialStateV1
   readonly authoredBox: VNextTextBlockAuthoredBoxSummaryV2
   readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+  readonly authoredBoxProfile:
+    VNextTextBlockUnifiedLayout5B2AuthoredBoxProfileInternalV1
 }): void {
   completeKernelProfiles.set(input.root, Object.freeze({ ...input }))
 }
@@ -62,6 +72,9 @@ export function registerVNextTextBlockUnifiedLayoutTrivialAdmissionInternalV1(in
     || kernelProfile.spatialState !== input.spatialState
     || kernelProfile.authoredBox !== input.authoredBox
     || kernelProfile.workPolicy !== input.workPolicy
+    || kernelProfile.authoredBoxProfile.heightPolicy !== "auto-height"
+    || kernelProfile.authoredBoxProfile.clippingPolicy !== "none"
+    || kernelProfile.authoredBoxProfile.overflowPolicy !== "none"
     || input.root.sourceState !== input.source
     || input.root.spatialState !== input.spatialState
     || input.root.authoredBoxSummary !== input.authoredBox
