@@ -81,6 +81,14 @@ describe("Text-block unified trivial admission V1", () => {
     expect(result.status).toBe("required")
   })
 
+  it("keeps an admitted equal-rendered provenance replacement out of true-no-op", () => {
+    const root = admitted5B2RootFixture({ content: "text-only", text: "A" })
+    const result = attemptPreflight({ root, change: replaceText(root, "A") })
+    expect(result.status).toBe("not-required")
+    if (result.status !== "not-required") return
+    expect(result.preflight.effectClassificationV2.effectClass).toBe("semantic-only")
+  })
+
   it("rejects an inline-image Root before evidence work", () => {
     const root = admitted5B2RootFixture({ content: "text-image-text" })
     const result = attemptPreflight({ root, change: replaceText(root, "C") })

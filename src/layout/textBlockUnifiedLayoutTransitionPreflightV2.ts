@@ -1,6 +1,6 @@
 import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint.js"
 import { stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
-import type { VNextTextBlockUnifiedLayoutChangeV1, VNextTextBlockSourceRangeV1 } from "./textBlockUnifiedLayoutChangeContractV1.js"
+import type { VNextTextBlockUnifiedLayoutChangeV1, VNextTextBlockSourceRangeV1, VNextTextBlockUnifiedLayoutEffectClassV2 } from "./textBlockUnifiedLayoutChangeContractV1.js"
 import type {
   VNextTextBlockBoundedSourceDeltaFactsInternalV2,
   VNextTextBlockBoundedSourceDeltaSpanInternalV2,
@@ -46,6 +46,7 @@ import type {
   VNextTextBlockUnifiedLayoutIssueV1,
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
 import type { VNextTextBlockUnifiedLayoutRootV2 } from "./textBlockUnifiedLayoutRootContractV2.js"
+import { inspectVNextTextBlockUnifiedLayoutRootV2 } from "./textBlockUnifiedLayoutRootV2.js"
 import {
   composeVNextTextBlockStageWorkLedgerInternalV1,
   evaluateVNextTextBlockStageWorkLimitInternalV1,
@@ -57,6 +58,7 @@ export interface VNextTextBlockUnifiedLayoutChangePreflightV2 {
   readonly eligibility: VNextTextBlockUnifiedLayoutEligibilityV1
   readonly boundedDelta: VNextTextBlockBoundedSourceDeltaFactsInternalV2
   readonly effectClassification: VNextTextBlockUnifiedLayoutEffectClassificationV1
+  readonly effectClassificationV2: { readonly effectClass: VNextTextBlockUnifiedLayoutEffectClassV2; readonly semanticIdentityChanged: boolean; readonly fingerprint: string }
   readonly producerEvidence: "required" | "not-required"
   readonly previousRanges: VNextTextBlockTransitionProducerLaneRangesV2
   readonly nextRanges: VNextTextBlockTransitionProducerLaneRangesV2
@@ -798,6 +800,19 @@ function effectClassificationFromBoundedDelta(
   })
 }
 
+function effectClassificationV2From(
+  classification: VNextTextBlockUnifiedLayoutEffectClassificationV1,
+): { readonly effectClass: VNextTextBlockUnifiedLayoutEffectClassV2; readonly semanticIdentityChanged: boolean; readonly fingerprint: string } {
+  const effectClass = classification.effectClass === "true-no-op"
+    ? "true-no-op" as const
+    : classification.effectClass === "semantic-only-change"
+      ? "semantic-only" as const
+      : classification.effectClass === "paint-affecting-change"
+        ? "paint-only" as const
+        : "metric-affecting" as const
+  return freeze({ effectClass, semanticIdentityChanged: classification.semanticIdentityChanged, fingerprint: fingerprint({ effectClass, classificationFingerprint: classification.fingerprint }) })
+}
+
 /** Private Core transition owner seam. It never accepts producer output or builds a next tree. */
 export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(input: {
   readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
@@ -814,6 +829,18 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
       issues: shaped.issues,
     })
   }
+  const rootInspection = inspectVNextTextBlockUnifiedLayoutRootV2(input.previousRoot)
+  if (rootInspection.status !== "valid") return freeze({ status: "blocked" as const, completedCandidateWork: shaped.incrementalCandidateWork, issues: freeze([issue("previous-root-authority-mismatch", "change", "preflight requires an exact registered Root")]) })
+  if (input.workPolicy !== input.previousRoot.workPolicy) return freeze({ status: "blocked" as const, completedCandidateWork: shaped.incrementalCandidateWork, issues: freeze([issue("invalid-work-policy", "change", "preflight requires the exact Root work policy")]) })
+  if (
+    shaped.change.documentId !== input.previousRoot.documentId
+    || shaped.change.sectionId !== input.previousRoot.sectionId
+    || shaped.change.textBlockId !== input.previousRoot.textBlockId
+  ) return freeze({ status: "blocked" as const, completedCandidateWork: shaped.incrementalCandidateWork, issues: freeze([issue("change-target-mismatch", "change", "preflight change does not target the exact registered Root")]) })
+  if (
+    shaped.change.expectedPreviousRootFingerprint !== input.previousRoot.fingerprint
+    || shaped.change.expectedPreviousSourceFingerprint !== input.previousRoot.sourceState.fingerprint
+  ) return freeze({ status: "blocked" as const, completedCandidateWork: shaped.incrementalCandidateWork, issues: freeze([issue("stale-previous-root", "change", "preflight change has stale Root expectations")]) })
   const admission = resolveVNextTextBlockUnifiedLayoutTrivialAdmissionInternalV1({
     root: input.previousRoot,
     workPolicy: input.workPolicy,
@@ -857,7 +884,8 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
     const boundedDelta = compatibilityBoundedDeltaFacts(
       validatedChange.effectClassification,
     )
-    const preflight = freeze({ change: validatedChange.change, eligibility: validatedChange.eligibility, boundedDelta, effectClassification: validatedChange.effectClassification, producerEvidence: validatedChange.producerEvidence, previousRanges: ranges, nextRanges: ranges, replacementItems: freeze([]), fingerprint: fingerprint({ changeFingerprint: validatedChange.fingerprint, ranges, boundedDelta, effectClassification: validatedChange.effectClassification }) })
+    const effectClassificationV2 = effectClassificationV2From(validatedChange.effectClassification)
+    const preflight = freeze({ change: validatedChange.change, eligibility: validatedChange.eligibility, boundedDelta, effectClassification: validatedChange.effectClassification, effectClassificationV2, producerEvidence: validatedChange.producerEvidence, previousRanges: ranges, nextRanges: ranges, replacementItems: freeze([]), fingerprint: fingerprint({ changeFingerprint: validatedChange.fingerprint, ranges, boundedDelta, effectClassification: validatedChange.effectClassification, effectClassificationV2 }) })
     registerPreflightTuple({
       preflight,
       request: null,
@@ -1124,7 +1152,8 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
       === "geometry-affecting-change"
     ? "required" as const
     : "not-required" as const
-  const preflight = freeze({ change: validatedChange.change, eligibility: validatedChange.eligibility, boundedDelta, effectClassification, producerEvidence, previousRanges, nextRanges, replacementItems, fingerprint: fingerprint({ changeFingerprint: validatedChange.fingerprint, previousRanges, nextRanges, boundedDelta, effectClassification, producerEvidence }) })
+  const effectClassificationV2 = effectClassificationV2From(effectClassification)
+  const preflight = freeze({ change: validatedChange.change, eligibility: validatedChange.eligibility, boundedDelta, effectClassification, effectClassificationV2, producerEvidence, previousRanges, nextRanges, replacementItems, fingerprint: fingerprint({ changeFingerprint: validatedChange.fingerprint, previousRanges, nextRanges, boundedDelta, effectClassification, effectClassificationV2, producerEvidence }) })
   const sourceReplacementFacts = {
     previousRange: previousRanges.changedSourceRange,
     nextItemFingerprints: replacementItems.map((item) => item.fingerprint),

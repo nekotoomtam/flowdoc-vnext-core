@@ -1035,14 +1035,14 @@ describe("Text-block unified transition preflight V2", () => {
         change,
         workPolicy: first.workPolicy,
         code: "previous-root-authority-mismatch",
-        status: "fallback-required",
+        status: "blocked",
       },
       {
         previousRoot: first,
         change,
         workPolicy: exactOwnDataClone(first.workPolicy),
         code: "invalid-work-policy",
-        status: "fallback-required",
+        status: "blocked",
       },
     ]
     for (const row of rows) {
