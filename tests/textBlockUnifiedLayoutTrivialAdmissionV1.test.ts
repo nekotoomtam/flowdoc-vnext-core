@@ -53,6 +53,26 @@ function replaceText(root: ReturnType<typeof admitted5B2RootFixture>, insertedTe
   })
 }
 
+function insertText(root: ReturnType<typeof admitted5B2RootFixture>, insertedText: string) {
+  const item = root.sourceState.root.nodeKind === "leaf"
+    ? root.sourceState.root.items.find((candidate) => candidate.kind === "text")
+    : null
+  if (item?.kind !== "text") throw new Error("text fixture missing")
+  return frozen({
+    source: "vnext-text-block-unified-layout-change-v1" as const,
+    contractVersion: 1 as const,
+    kind: "text-insertion" as const,
+    documentId: root.documentId, sectionId: root.sectionId, textBlockId: root.textBlockId,
+    expectedPreviousRootFingerprint: root.fingerprint,
+    expectedPreviousSourceFingerprint: root.sourceState.fingerprint,
+    atRenderedUtf16: 0,
+    insertedText,
+    insertedSource: { lineageId: "insert", sourceFingerprint: "insert-source", provenanceFingerprint: "insert-provenance" },
+    measurementStyleKey: item.style.measurementStyleKey,
+    effectiveShapingStyleKey: item.style.effectiveShapingStyleKey,
+  })
+}
+
 function attemptPreflight(input: {
   readonly root: ReturnType<typeof admitted5B2RootFixture>
   readonly change: ReturnType<typeof replaceText>
@@ -68,6 +88,11 @@ function evidenceRequestCount(result: ReturnType<typeof attemptPreflight>): numb
   return result.completedCandidateWork.evidence.requestCount
 }
 
+function expectNoEvidence(result: ReturnType<typeof attemptPreflight>) {
+  expect(evidenceRequestCount(result)).toBe(0)
+  expect(result.status === "fallback-required" ? result.issues : result.issues).toEqual([])
+}
+
 describe("Text-block unified trivial admission V1", () => {
   const rejectedOrdinaryText = ["\r", "\n", "\u2028", "\u2029", "\ufffc"] as const
 
@@ -78,6 +103,18 @@ describe("Text-block unified trivial admission V1", () => {
       const result = attemptPreflight({ root, change: replaceText(root, text) })
       expect(result.status).toBe("fallback-required")
       expect(evidenceRequestCount(result)).toBe(0)
+    },
+  )
+
+  it.each(rejectedOrdinaryText)(
+    "rejects ordinary insertion sentinel %j before Evidence request or producer material",
+    (text) => {
+      const root = admitted5B2RootFixture({ content: "text-only", text: "AB" })
+      const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+        previousRoot: root, change: insertText(root, text), workPolicy: FIVE_B2_TEST_POLICY,
+      })
+      expect(result).toMatchObject({ status: "fallback-required", reason: "unsupported-structural-change" })
+      expectNoEvidence(result as ReturnType<typeof attemptPreflight>)
     },
   )
 
@@ -131,5 +168,24 @@ describe("Text-block unified trivial admission V1", () => {
       authoredBox: root.authoredBoxSummary,
       workPolicy: root.workPolicy,
     })).toBeNull()
+  })
+
+  it("blocks an unknown text style before Evidence request or producer material", () => {
+    const root = admitted5B2RootFixture({ content: "text-only", text: "AB" })
+    const change = frozen({ ...insertText(root, "X"), measurementStyleKey: "unknown", effectiveShapingStyleKey: "unknown" })
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({ previousRoot: root, change, workPolicy: FIVE_B2_TEST_POLICY })
+    expect(result.status).toBe("blocked")
+    expect(result.completedCandidateWork.evidence.requestCount).toBe(0)
+  })
+
+  it("blocks the inactive generated-page mutation family before Evidence request", () => {
+    const root = admitted5B2RootFixture({ content: "text-only", text: "AB" })
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot: root,
+      change: frozen({ ...insertText(root, "X"), kind: "generated-page-number-mutation" }) as never,
+      workPolicy: FIVE_B2_TEST_POLICY,
+    })
+    expect(result.status).toBe("blocked")
+    expect(result.completedCandidateWork.evidence.requestCount).toBe(0)
   })
 })
