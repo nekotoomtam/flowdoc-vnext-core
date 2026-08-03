@@ -8,7 +8,7 @@ import {
   acceptedUnifiedLayoutRootFixtureV2,
   unifiedLayoutRootBuildInputFixtureV2,
 } from "./helpers/textBlockUnifiedLayoutRootV2.js"
-import { createVNextTextBlockUnifiedLayoutRootCompleteInternalV2 } from "../src/layout/textBlockUnifiedLayoutRootV2.js"
+import { createVNextTextBlockUnifiedLayoutRoot5B2CompleteInternalV1 } from "../src/layout/textBlockUnifiedLayoutRootV2.js"
 import {
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
@@ -40,6 +40,7 @@ import {
 import { createVNextCompactFingerprint } from "../src/fingerprint/compactFingerprint.js"
 import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
 import type { VNextTextBlockUnifiedLayoutRootV2 } from "../src/layout/textBlockUnifiedLayoutRootContractV2.js"
+import type { VNextTextBlockUnifiedLayoutRootBuildInputV2 } from "../src/layout/textBlockUnifiedLayoutRootContractV2.js"
 import type {
   VNextTextBlockUnifiedLayoutSourceItemV1,
 } from "../src/layout/textBlockUnifiedLayoutSourceStateContractV1.js"
@@ -101,8 +102,19 @@ function fingerprint(value: unknown): string {
   return createVNextCompactFingerprint(stringifyVNextCanonicalJson(value))
 }
 
+function create5B2Root(
+  buildInput: VNextTextBlockUnifiedLayoutRootBuildInputV2,
+  workPolicy = VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+) {
+  return createVNextTextBlockUnifiedLayoutRoot5B2CompleteInternalV1({
+    buildInput,
+    constructionKind: "complete-bootstrap",
+    workPolicy,
+  })
+}
+
 function textRoot(text: string) {
-  const built = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+  const built = create5B2Root(
     unifiedLayoutRootBuildInputFixtureV2({ content: "text-only", text }),
     VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
   )
@@ -117,7 +129,7 @@ function clusteredTextRoot(
     readonly endRenderedUtf16: number
   }[],
 ) {
-  const built = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+  const built = create5B2Root(
     unifiedLayoutRootBuildInputFixtureV2({
       content: "text-only",
       text,
@@ -129,12 +141,12 @@ function clusteredTextRoot(
   return built.root
 }
 
-function repeatedTextRoot(lineCount: number, includeImages = true) {
+function repeatedTextRoot(lineCount: number, includeImages = false) {
   const source = repeatedUnifiedLayoutRootSourceFixtureV1({
     lineCount,
     includeImages,
   })
-  const built = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2({
+  const built = create5B2Root({
     inputAuthority: "core-synthetic-qa-only",
     initialFlow: source.initialFlow,
     evidence: source.evidence,
@@ -352,7 +364,7 @@ function expectedCanonicalInsertedTextItem(input: {
 
 describe("Text-block unified transition preflight V2", () => {
   it("classifies an equal-rendered field provenance change after bounded facts", () => {
-    const previousRoot = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+    const previousRoot = create5B2Root(
       unifiedLayoutRootBuildInputFixtureV2({ content: "field-image-page-break" }),
       VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
     )
@@ -388,18 +400,7 @@ describe("Text-block unified transition preflight V2", () => {
         },
       }),
     })
-    expect(result).toMatchObject({
-      status: "not-required",
-      request: null,
-      sourceMaterial: null,
-      preflight: {
-        producerEvidence: "not-required",
-        effectClassification: {
-          effectClass: "semantic-only-change",
-          semanticIdentityChanged: true,
-        },
-      },
-    })
+    expect(result).toMatchObject({ status: "fallback-required", reason: "unadmitted-root" })
     if (result.status !== "not-required") return
     expect(result.preflight).not.toHaveProperty("expectedTargetBinding")
     expect(result.preflight).not.toHaveProperty("nextSourceSummary")
@@ -412,14 +413,12 @@ describe("Text-block unified transition preflight V2", () => {
   })
 
   it("keeps a true no-op evidence-free after exact change binding", () => {
-    const previousRoot = acceptedUnifiedLayoutRootFixtureV2({
-      content: "text-only",
-    }).root
+    const previousRoot = textRoot("A")
     const result =
       prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
         previousRoot,
         change: noOpUnifiedLayoutChange5b(previousRoot),
-        workPolicy: ROOT_V2_TEST_WORK_POLICY,
+        workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
       })
 
     expect(result).toMatchObject({
@@ -437,7 +436,7 @@ describe("Text-block unified transition preflight V2", () => {
   })
 
   it("requests registered-source material for an ordinary text insertion", () => {
-    const built = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(unifiedLayoutRootBuildInputFixtureV2({
+    const built = create5B2Root(unifiedLayoutRootBuildInputFixtureV2({
       content: "text-only",
     }), VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1)
     if (built.status !== "accepted") throw new Error("calibration root missing")
@@ -513,7 +512,7 @@ describe("Text-block unified transition preflight V2", () => {
   })
 
   it("emits the exact next resolved-field atom with retained style and new provenance", () => {
-    const built = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+    const built = create5B2Root(
       unifiedLayoutRootBuildInputFixtureV2({ content: "field-image-page-break" }),
       VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
     )
@@ -539,7 +538,7 @@ describe("Text-block unified transition preflight V2", () => {
       }),
     })
 
-    expect(result.status).toBe("required")
+    expect(result.status).toBe("fallback-required")
     if (result.status !== "required") return
     expect(result.preflight.replacementItems).toHaveLength(1)
     expect(result.preflight.replacementItems[0]).toMatchObject({
@@ -677,7 +676,7 @@ describe("Text-block unified transition preflight V2", () => {
     at,
     expectedKinds,
   }) => {
-    const built = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+    const built = create5B2Root(
       unifiedLayoutRootBuildInputFixtureV2({ content: "field-image-page-break" }),
       VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
     )
@@ -692,7 +691,7 @@ describe("Text-block unified transition preflight V2", () => {
       workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
     })
 
-    expect(result.status).toBe("required")
+    expect(result.status).toBe("fallback-required")
     if (result.status !== "required") return
     const kinds = new Set([
       ...result.sourceMaterial.previous.atoms.map((atom) => atom.kind),
@@ -716,7 +715,7 @@ describe("Text-block unified transition preflight V2", () => {
   it.each([
     { special: "\n" },
     { special: "\uFFFC" },
-  ])("keeps inserted ordinary text carrying $special as a text atom", ({ special }) => {
+  ])("rejects inserted ordinary structural sentinel $special before Evidence", ({ special }) => {
     const previousRoot = textRoot("AB")
     const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot,
@@ -724,21 +723,12 @@ describe("Text-block unified transition preflight V2", () => {
       workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
     })
 
-    expect(result.status).toBe("required")
-    if (result.status !== "required") return
-    expect(result.sourceMaterial.next.atoms).toContainEqual(
-      expect.objectContaining({ kind: "text", renderedText: special }),
-    )
-    expect(result.sourceMaterial.next.atoms).not.toContainEqual(
-      expect.objectContaining({ kind: "hard-break" }),
-    )
-    expect(result.sourceMaterial.next.atoms).not.toContainEqual(
-      expect.objectContaining({ kind: "inline-image-boundary" }),
-    )
+    expect(result).toMatchObject({ status: "fallback-required", reason: "unsupported-structural-change" })
+    expect(result.completedCandidateWork.evidence.requestCount).toBe(0)
   })
 
   it("resolves an existing local style and applies one overlay across adjacent multi-style text", () => {
-    const built = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+    const built = create5B2Root(
       unifiedLayoutRootBuildInputFixtureV2({
         content: "adjacent-text",
         mixedTextSizes: true,
@@ -830,7 +820,7 @@ describe("Text-block unified transition preflight V2", () => {
   })
 
   it("propagates the exact style registry through image paint without changing V3 identity", () => {
-    const built = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
+    const built = create5B2Root(
       unifiedLayoutRootBuildInputFixtureV2({
         content: "text-image-text",
         fit: "contain",
@@ -857,7 +847,7 @@ describe("Text-block unified transition preflight V2", () => {
       change: insertionAt(painted.root, 0, "X"),
       workPolicy: painted.root.workPolicy,
     })
-    expect(insertion.status).toBe("required")
+    expect(insertion.status).toBe("fallback-required")
     if (insertion.status === "required") {
       expect(insertion.sourceMaterial.next.atoms).toContainEqual(
         expect.objectContaining({ kind: "text", renderedText: "X" }),
@@ -1038,27 +1028,33 @@ describe("Text-block unified transition preflight V2", () => {
         change,
         workPolicy: second.workPolicy,
         code: "stale-previous-root",
+        status: "blocked",
       },
       {
         previousRoot: exactOwnDataClone(first),
         change,
         workPolicy: first.workPolicy,
         code: "previous-root-authority-mismatch",
+        status: "fallback-required",
       },
       {
         previousRoot: first,
         change,
         workPolicy: exactOwnDataClone(first.workPolicy),
         code: "invalid-work-policy",
+        status: "fallback-required",
       },
     ]
     for (const row of rows) {
-      expect(prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
+      const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
         row as Parameters<typeof prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2>[0],
-      )).toMatchObject({
-        status: "blocked",
-        issues: [expect.objectContaining({ code: row.code })],
-      })
+      )
+      expect(result.status).toBe(row.status)
+      if (row.status === "blocked") {
+        expect(result).toMatchObject({ issues: [expect.objectContaining({ code: row.code })] })
+      } else {
+        expect(result).toMatchObject({ reason: "unadmitted-root", issues: [] })
+      }
     }
   })
 

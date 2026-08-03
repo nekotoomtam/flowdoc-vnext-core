@@ -31,6 +31,14 @@ export type VNextTextBlockUnifiedLayoutChangeKindV1 =
   | "exclusion-resize"
   | "authored-box-width-inset-change"
 
+/** Closed 5B-2 preflight classification; V1 remains frozen for Attempt V1. */
+export type VNextTextBlockUnifiedLayoutEffectClassV2 =
+  | "true-no-op"
+  | "semantic-only"
+  | "paint-only"
+  | "equal-metric"
+  | "metric-affecting"
+
 export interface VNextTextBlockUnifiedLayoutChangeBaseV1 {
   readonly source: typeof VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_CHANGE_V1_SOURCE
   readonly contractVersion: typeof VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_CHANGE_V1_VERSION

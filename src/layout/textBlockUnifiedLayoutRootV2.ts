@@ -72,11 +72,15 @@ import type {
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
 import {
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
   evaluateVNextTextBlockSourceWorkEnvelopeInternalV1,
   isExactVNextTextBlockUnifiedLayoutWorkPolicyInternalV1,
   type VNextTextBlockSourceWorkEnvelopeEvaluationInternalV1,
   type VNextTextBlockUnifiedLayoutWorkPolicyV1,
 } from "./textBlockUnifiedLayoutWorkPolicyV1.js"
+import {
+  registerVNextTextBlockUnifiedLayoutTrivialAdmissionInternalV1,
+} from "./textBlockUnifiedLayoutTrivialAdmissionInternalsV1.js"
 
 function fingerprint(value: unknown): string {
   return createVNextCompactFingerprint(stringifyVNextCanonicalJson(value))
@@ -746,6 +750,51 @@ export function createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
       registration.message,
     ))
   }
+  return Object.freeze({
+    status: "accepted",
+    root: prepared.root,
+    persistentScene: prepared.persistentScene,
+    deliveryPlan: null,
+    completeBuildWork: prepared.completeBuildWork,
+    issues: Object.freeze([]) as readonly [],
+  })
+}
+
+/** Internal 5B-2 bootstrap scaffold. It deliberately leaves the V3 wrapper untouched. */
+export function createVNextTextBlockUnifiedLayoutRoot5B2CompleteInternalV1(input: {
+  readonly buildInput: VNextTextBlockUnifiedLayoutRootBuildInputV2
+  readonly constructionKind: "complete-bootstrap" | "complete-fallback"
+  readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+}): VNextTextBlockUnifiedLayoutRootResultV2 {
+  if (
+    input.workPolicy
+      !== VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1
+  ) return blocked(zeroWork(), issue(
+    "invalid-work-policy",
+    "change-gate",
+    "workPolicy",
+    "5B-2 complete scaffold requires the exact internal 5B-2 calibration policy",
+  ))
+  const prepared = prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2(
+    input.buildInput,
+    input.workPolicy,
+    input.constructionKind,
+  )
+  if (prepared.status !== "prepared") return prepared
+  const registration = registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2(
+    prepared.root,
+  )
+  if (registration.status !== "committed") return blocked(
+    prepared.completeBuildWork,
+    issue("atomic-acceptance-failed", "atomic-acceptance", "root", registration.message),
+  )
+  registerVNextTextBlockUnifiedLayoutTrivialAdmissionInternalV1({
+    root: prepared.root,
+    source: prepared.root.sourceState,
+    spatialState: prepared.root.spatialState,
+    authoredBox: prepared.root.authoredBoxSummary,
+    workPolicy: input.workPolicy,
+  })
   return Object.freeze({
     status: "accepted",
     root: prepared.root,

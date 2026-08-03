@@ -17,6 +17,12 @@ import {
   getVNextTextBlockLimitExceededAuthorityRecordInternalV1,
 } from "./textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
+  resolveVNextTextBlockUnifiedLayoutTrivialAdmissionInternalV1,
+} from "./textBlockUnifiedLayoutTrivialAdmissionInternalsV1.js"
+import {
+  validateVNextTextBlockUnifiedLayoutChangeShapeInternalV1,
+} from "./textBlockUnifiedLayoutTransitionChangeInternalsV1.js"
+import {
   createVNextTextBlockTransitionReplacementSourceItemInternalV1,
   registerVNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1,
   resolveVNextTextBlockRegisteredSourceStyleInternalV1,
@@ -59,7 +65,7 @@ export interface VNextTextBlockUnifiedLayoutChangePreflightV2 {
 }
 
 export type VNextTextBlockUnifiedLayoutOwnedStageFailureV1 =
-  | { readonly status: "fallback-required"; readonly evaluatorOrProofAuthority: object; readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1; readonly issues: readonly [] }
+  | { readonly status: "fallback-required"; readonly reason?: "unadmitted-root" | "unsupported-structural-change"; readonly evaluatorOrProofAuthority: object; readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1; readonly issues: readonly [] }
   | { readonly status: "blocked"; readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1; readonly issues: readonly VNextTextBlockUnifiedLayoutIssueV1[] }
 
 export type VNextTextBlockTransitionPreflightResultV2 =
@@ -490,6 +496,7 @@ function fallback(input: {
   readonly effectiveLimit: number
   readonly work: VNextTextBlockIncrementalCandidateWorkV1
   readonly evaluatorOrProofAuthority?: object | null
+  readonly reason?: "unadmitted-root" | "unsupported-structural-change"
 }): VNextTextBlockUnifiedLayoutOwnedStageFailureV1 {
   const evaluatorOrProofAuthority = input.evaluatorOrProofAuthority
     ?? freeze({})
@@ -504,6 +511,7 @@ function fallback(input: {
   }
   return freeze({
     status: "fallback-required" as const,
+    ...(input.reason == null ? {} : { reason: input.reason }),
     evaluatorOrProofAuthority,
     completedCandidateWork: input.work,
     issues: freeze([]),
@@ -796,6 +804,44 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
   readonly change: VNextTextBlockUnifiedLayoutChangeV1
   readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
 }): VNextTextBlockTransitionPreflightResultV2 {
+  const shaped = validateVNextTextBlockUnifiedLayoutChangeShapeInternalV1(
+    input.change,
+  )
+  if (shaped.status !== "accepted") {
+    return freeze({
+      status: "blocked" as const,
+      completedCandidateWork: shaped.incrementalCandidateWork,
+      issues: shaped.issues,
+    })
+  }
+  const admission = resolveVNextTextBlockUnifiedLayoutTrivialAdmissionInternalV1({
+    root: input.previousRoot,
+    workPolicy: input.workPolicy,
+  })
+  if (admission == null) return fallback({
+    previousRoot: input.previousRoot,
+    change: shaped.change,
+    workPolicy: input.workPolicy,
+    unit: "evidence-request-lookup-nodes",
+    effectiveLimit: 0,
+    work: shaped.incrementalCandidateWork,
+    reason: "unadmitted-root",
+  })
+  const ordinaryText = shaped.change.kind === "text-insertion"
+    || shaped.change.kind === "text-replacement"
+    ? shaped.change.insertedText
+    : null
+  if (ordinaryText != null && /[\r\n\u2028\u2029\ufffc]/u.test(ordinaryText)) {
+    return fallback({
+      previousRoot: input.previousRoot,
+      change: shaped.change,
+      workPolicy: input.workPolicy,
+      unit: "evidence-request-lookup-nodes",
+      effectiveLimit: 0,
+      work: shaped.incrementalCandidateWork,
+      reason: "unsupported-structural-change",
+    })
+  }
   const bound = bindVNextTextBlockUnifiedLayoutChangeInternalV1(input)
   if (bound.status !== "accepted") return freeze({ status: "blocked" as const, completedCandidateWork: bound.incrementalCandidateWork, issues: bound.issues })
   const { validatedChange } = bound
@@ -918,6 +964,22 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
       effectiveLimit: meter.failedEffectiveLimit,
       work: meter.completedCandidateWork,
       evaluatorOrProofAuthority: meter.failureAuthority,
+    })
+  }
+  if (sourceCoverage.fragments.some((fragment) => (
+    (fragment.item.kind === "hard-break" || fragment.item.kind === "inline-image")
+      && sourceRange.startRenderedUtf16 < fragment.itemAbsoluteEndRenderedUtf16
+      && sourceRange.endRenderedUtf16 > fragment.itemAbsoluteStartRenderedUtf16
+  ))) {
+    return fallback({
+      previousRoot: input.previousRoot,
+      change: input.change,
+      workPolicy: input.workPolicy,
+      unit: meter.failedUnit ?? "evidence-request-lookup-nodes",
+      effectiveLimit: meter.failedEffectiveLimit,
+      work: meter.completedCandidateWork,
+      evaluatorOrProofAuthority: meter.failureAuthority,
+      reason: "unsupported-structural-change",
     })
   }
   if (
