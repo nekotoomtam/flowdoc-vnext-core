@@ -79,6 +79,7 @@ import {
   type VNextTextBlockUnifiedLayoutWorkPolicyV1,
 } from "./textBlockUnifiedLayoutWorkPolicyV1.js"
 import {
+  markVNextTextBlockUnifiedLayout5B2CompleteKernelProfileInternalV1,
   registerVNextTextBlockUnifiedLayoutTrivialAdmissionInternalV1,
 } from "./textBlockUnifiedLayoutTrivialAdmissionInternalsV1.js"
 
@@ -788,6 +789,15 @@ export function createVNextTextBlockUnifiedLayoutRoot5B2CompleteInternalV1(input
     prepared.completeBuildWork,
     issue("atomic-acceptance-failed", "atomic-acceptance", "root", registration.message),
   )
+  if (input.buildInput.spatialEntries.length === 0) {
+    markVNextTextBlockUnifiedLayout5B2CompleteKernelProfileInternalV1({
+      root: prepared.root,
+      source: prepared.root.sourceState,
+      spatialState: prepared.root.spatialState,
+      authoredBox: prepared.root.authoredBoxSummary,
+      workPolicy: input.workPolicy,
+    })
+  }
   registerVNextTextBlockUnifiedLayoutTrivialAdmissionInternalV1({
     root: prepared.root,
     source: prepared.root.sourceState,

@@ -3,6 +3,12 @@ import {
   prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutTransitionPreflightV2.js"
 import {
+  registerVNextTextBlockUnifiedLayoutTrivialAdmissionInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutTrivialAdmissionInternalsV1.js"
+import {
+  acceptedUnifiedLayoutRootFixtureV2,
+} from "./helpers/textBlockUnifiedLayoutRootV2.js"
+import {
   FIVE_B2_TEST_POLICY,
   admitted5B2RootFixture,
 } from "./helpers/textBlockUnifiedIncremental5b2.js"
@@ -94,5 +100,36 @@ describe("Text-block unified trivial admission V1", () => {
     const result = attemptPreflight({ root, change: replaceText(root, "C") })
     expect(result.status).toBe("fallback-required")
     expect(evidenceRequestCount(result)).toBe(0)
+  })
+
+  it("rejects a nontrivial Spatial Root before evidence work", () => {
+    const root = admitted5B2RootFixture({
+      content: "text-only",
+      text: "AB",
+      entries: [{
+        objectId: "spatial-1",
+        geometryOwnerFingerprint: `sha256:${"a".repeat(64)}`,
+        xLayoutUnit: 0,
+        yLayoutUnit: 0,
+        widthLayoutUnit: 1_000_000,
+        heightLayoutUnit: 1_000_000,
+        clearance: { topLayoutUnit: 0, rightLayoutUnit: 0, bottomLayoutUnit: 0, leftLayoutUnit: 0 },
+        wrapPolicy: "rectangular-exclusion",
+      }],
+    })
+    const result = attemptPreflight({ root, change: replaceText(root, "C") })
+    expect(result).toMatchObject({ status: "fallback-required", reason: "unadmitted-root" })
+    expect(evidenceRequestCount(result)).toBe(0)
+  })
+
+  it("does not mint admission from a matching tuple outside the 5B-2 complete kernel", () => {
+    const root = acceptedUnifiedLayoutRootFixtureV2({ content: "text-only" }).root
+    expect(registerVNextTextBlockUnifiedLayoutTrivialAdmissionInternalV1({
+      root,
+      source: root.sourceState,
+      spatialState: root.spatialState,
+      authoredBox: root.authoredBoxSummary,
+      workPolicy: root.workPolicy,
+    })).toBeNull()
   })
 })
