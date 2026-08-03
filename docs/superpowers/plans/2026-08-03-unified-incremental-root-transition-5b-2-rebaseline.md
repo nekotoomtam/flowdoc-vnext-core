@@ -76,6 +76,32 @@ browser-Worker-WASM evidence runtimes, `npm run type-check`, and `npm test`.
 - Do not start 5B-3, Worker, Editor, Backend, production activation, fixed
   height, asset lifecycle, or V1 retirement.
 
+## Approved Execution Correction — Private 5B-2 Kernel Ordering
+
+Approved by the user on 2026-08-03 after the Task 2 pre-TDD gate found that the
+only existing complete Root creator belongs to the frozen V3 lane.
+
+- Task 2 creates the private 5B-2 complete-kernel scaffold before it creates
+  admission authority. It does not change or wrap the frozen V3 public
+  bootstrap.
+- The private kernel accepts an exact internal work-policy object and an exact
+  construction kind of `complete-bootstrap` or `complete-fallback`. Before
+  Task 10, tests may call it only with the exact internal 5B-2 calibration/test
+  policy.
+- The Task 2 test helper calls the private kernel directly. No public 5B-2
+  bootstrap, Attempt V2, fallback completion, manifest capability, or package
+  export is activated by Task 2.
+- Tasks 4, 5, 8, and 9A extend the same private kernel's atomic child/sidecar
+  registration as their owners become available. They do not create parallel
+  complete builders.
+- Task 9B calls this same private kernel with `complete-fallback`; it does not
+  introduce a second fallback builder.
+- Task 10 adds only the public
+  `createVNextTextBlockUnifiedLayoutRoot5B2V1(...)` bootstrap wrapper, binds the
+  exact active 5B-2 policy, and activates Attempt V2 atomically.
+- `createVNextTextBlockUnifiedLayoutRootV2(...)`, Attempt V1, V3 policy/runtime
+  facts/fingerprints, and V3 Root registration remain exact throughout.
+
 ## Execution Preflight and Recovery of the Unaccepted Task 6 Diff
 
 The reviewed plan commit is based on `d9e30f7`. Before implementation, inspect
@@ -278,6 +304,12 @@ export type VNextTextBlockUnifiedLayoutFinalLineResultInternalV1 =
       readonly completedWork: VNextTextBlockIncrementalCandidateWorkV1
     }
 
+export function createVNextTextBlockUnifiedLayoutRoot5B2CompleteInternalV1(input: {
+  readonly buildInput: VNextTextBlockUnifiedLayoutRootBuildInputV2
+  readonly constructionKind: "complete-bootstrap" | "complete-fallback"
+  readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+}): VNextTextBlockUnifiedLayoutRootResultV2
+
 export function createVNextTextBlockUnifiedLayoutRoot5B2V1(
   input: VNextTextBlockUnifiedLayoutRootBuildInputV2,
 ): VNextTextBlockUnifiedLayoutRootResultV2
@@ -311,18 +343,19 @@ open Critical or Important finding.
 
 - Create: `src/layout/textBlockUnifiedLayoutTrivialAdmissionInternalsV1.ts`
 - Create: `tests/textBlockUnifiedLayoutTrivialAdmissionV1.test.ts`
+- Create: `tests/helpers/textBlockUnifiedIncremental5b2.ts`
 - Modify: `src/layout/textBlockUnifiedLayoutTransitionPreflightV2.ts`
 - Modify: `src/layout/textBlockUnifiedLayoutChangeContractV1.ts`
 - Modify: `src/layout/textBlockUnifiedLayoutRootV2.ts`
 - Modify: `tests/textBlockUnifiedLayoutTransitionPreflightV2.test.ts`
-- Modify: `tests/helpers/textBlockUnifiedIncremental5b2.ts`
 
 **Interfaces:**
 
 - Consumes: exact registered 5B-2 Root, Source, trivial Spatial State, authored
   box, work policy, and V1 change object.
 - Produces: exact admission authority, corrected four-range preflight, exact
-  evidence-material tuple, or candidate-free fallback before producer work.
+  evidence-material tuple, private 5B-2 complete-kernel scaffold, or
+  candidate-free fallback before producer work.
 
 - [ ] **Step 1: Preserve and remove the unaccepted Task 6 working diff**
 
@@ -370,7 +403,32 @@ npx vitest run tests/textBlockUnifiedLayoutTrivialAdmissionV1.test.ts tests/text
 Expected: the new admission lookup and sentinel cases fail because the exact
 Root-bound authority and structural rejection do not exist.
 
-- [ ] **Step 4: Implement the exact admission registry**
+- [ ] **Step 4: Create the private 5B-2 complete-kernel scaffold**
+
+Add this internal-only seam in
+`src/layout/textBlockUnifiedLayoutRootV2.ts`:
+
+```ts
+export function createVNextTextBlockUnifiedLayoutRoot5B2CompleteInternalV1(input: {
+  readonly buildInput: VNextTextBlockUnifiedLayoutRootBuildInputV2
+  readonly constructionKind: "complete-bootstrap" | "complete-fallback"
+  readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+}): VNextTextBlockUnifiedLayoutRootResultV2
+```
+
+The function shares the existing complete candidate/construction kernel code
+without changing the V3 wrapper or V3 output. It rejects every policy except an
+exact registered internal 5B-2 policy, prepares the Root graph, registers the
+Task 2 admission sidecar before returning the accepted Root, and records the
+construction kind. Do not export it from `src/index.ts`. The Task 2 test helper
+may import this internal seam and pass the exact internal calibration/test
+policy with `constructionKind: "complete-bootstrap"`.
+
+The scaffold is intentionally incomplete only in owner availability: later
+tasks add Source-sidecar, Flow/Break, final-Line, Scene, and Delivery bindings
+to this same function. They must not fork its complete construction logic.
+
+- [ ] **Step 5: Implement the exact admission registry**
 
 Implement only these owner seams:
 
@@ -395,7 +453,7 @@ the Source during incremental lookup. Register only after the complete Root
 graph is accepted. A forced-equal fingerprint cannot substitute for any tuple
 member.
 
-- [ ] **Step 5: Make admission precede all preflight payload access**
+- [ ] **Step 6: Make admission precede all preflight payload access**
 
 At the top of V2 preflight, perform strict public-shape validation, exact Root
 registry lookup, cross-lane rejection, and admission lookup. Only an admitted
@@ -416,7 +474,7 @@ export type VNextTextBlockUnifiedLayoutEffectClassV2 =
 Rendered or geometric equality does not collapse a provenance change to
 `true-no-op`. True no-op requires exact semantic/source/change equivalence.
 
-- [ ] **Step 6: Correct structural ranges and first-observable work**
+- [ ] **Step 7: Correct structural ranges and first-observable work**
 
 Reject all five ordinary sentinels and any range that crosses a structural
 item. Keep the four half-open absolute UTF-16 ranges distinct. Charge coverage
@@ -424,7 +482,7 @@ node/item, descriptor, atom, style node/bucket/entry, comparison, scalar, and
 guard units before reading the corresponding payload. Limit exits retain
 factual attempted/completed work and no request authority.
 
-- [ ] **Step 7: Run Task 2 GREEN and regression gates**
+- [ ] **Step 8: Run Task 2 GREEN and regression gates**
 
 ```powershell
 npx vitest run tests/textBlockUnifiedLayoutTrivialAdmissionV1.test.ts tests/textBlockUnifiedLayoutTransitionPreflightV2.test.ts tests/textBlockUnifiedLayoutTransitionFoundationV1.test.ts tests/textBlockUnifiedLayoutWorkCalibrationV3.test.ts
@@ -435,7 +493,7 @@ git diff --check
 Expected: Task 2 fixtures pass; V3 bootstrap/Attempt V1 tests and exact V3
 policy/fingerprint assertions remain unchanged.
 
-- [ ] **Step 8: Commit Task 2**
+- [ ] **Step 9: Commit Task 2**
 
 ```powershell
 git add src/layout/textBlockUnifiedLayoutTrivialAdmissionInternalsV1.ts src/layout/textBlockUnifiedLayoutTransitionPreflightV2.ts src/layout/textBlockUnifiedLayoutChangeContractV1.ts src/layout/textBlockUnifiedLayoutRootV2.ts tests/textBlockUnifiedLayoutTrivialAdmissionV1.test.ts tests/textBlockUnifiedLayoutTransitionPreflightV2.test.ts tests/helpers/textBlockUnifiedIncremental5b2.ts
@@ -1463,11 +1521,13 @@ sanitized cause facts, and stopped incremental work. The public and private
 records contain no candidate target, local topology, range, summary, cover,
 reuse, Scene, or Delivery object.
 
-- [ ] **Step 4: Reuse the shared complete 5B-2 kernel**
+- [ ] **Step 4: Reuse the Task 2 private 5B-2 kernel**
 
-Bootstrap passes `constructionKind: "complete-bootstrap"`; fallback passes
-`constructionKind: "complete-fallback"`. Both call the same private kernel and
-receive the same sidecar schema. Fallback logical replay compares the requested
+The Task 2 internal/test bootstrap passes
+`constructionKind: "complete-bootstrap"`; fallback passes
+`constructionKind: "complete-fallback"`. Both call
+`createVNextTextBlockUnifiedLayoutRoot5B2CompleteInternalV1(...)` and receive
+the same current sidecar schema. Fallback logical replay compares the requested
 logical change target, not local incremental packing. Charge previous logical
 items, complete logical items, and logical spans separately from complete
 construction.
@@ -1628,7 +1688,7 @@ unbreakable and zero-advance-heavy lines, exact E suffix, translation fallback,
 forced collisions, three transitions, and fallback-root continuation. Each row
 must have positive calibration evidence or an exact inactive reason/version.
 
-- [ ] **Step 6: Add the version-honest public V2 lane**
+- [ ] **Step 6: Expose the version-honest public V2 lane over the private kernel**
 
 ```ts
 export type VNextTextBlockUnifiedLayoutTransitionInputV2 =
@@ -1646,7 +1706,9 @@ export type VNextTextBlockUnifiedLayoutTransitionInputV2 =
     }
 ```
 
-`createVNextTextBlockUnifiedLayoutRoot5B2V1(...)` binds the exact active 5B-2
+`createVNextTextBlockUnifiedLayoutRoot5B2V1(...)` is a narrow public wrapper
+over `createVNextTextBlockUnifiedLayoutRoot5B2CompleteInternalV1(...)` with
+`constructionKind: "complete-bootstrap"`; it binds the exact active 5B-2
 policy internally. Attempt V2 accepts only registered 5B-2 Roots. V3 Roots are
 accepted only by Attempt V1; cross-lane attempts reject before no-op. A same-
 lane true no-op returns the exact previous Root and creates no new authority.

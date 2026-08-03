@@ -28,6 +28,19 @@ Activate Tasks 10-11
 
 ยังไม่เริ่ม implementation จากการ commit แผน ผู้ใช้ต้องอนุมัติแผนใหม่แยกอีกครั้ง
 
+### Correction ที่อนุมัติระหว่าง pre-TDD
+
+ตอนเริ่ม Task 2 พบว่า complete Root creator ที่มีอยู่เป็น frozen V3 lane เท่านั้น
+จึงเพิ่มลำดับที่ผู้ใช้ออกอนุมัติเมื่อ 2026-08-03:
+
+- Task 2 สร้าง private 5B-2 complete-kernel scaffold และ internal test bootstrap
+- ก่อน Task 10 เรียกได้เฉพาะ exact internal 5B-2 calibration/test policy
+- ยังไม่ export public bootstrap, Attempt V2 หรือ manifest capability
+- Tasks 4/5/8/9A เติม sidecar/child owners เข้า kernel เดิม
+- Task 9B เรียก kernel เดิมด้วย `complete-fallback` ไม่สร้าง builder ที่สอง
+- Task 10 จึงเปิด public `createVNextTextBlockUnifiedLayoutRoot5B2V1(...)`
+- V3 bootstrap/Attempt V1/policy/fingerprint คง exact
+
 ## 2. การจัดการ Task 6 ที่ค้างอยู่
 
 working tree ปัจจุบันมี partial Task 6 ที่ยังรับไม่ได้ แผนกำหนดให้ตอนเริ่ม execute:
@@ -44,6 +57,7 @@ working tree ปัจจุบันมี partial Task 6 ที่ยังร
 
 ### Task 2
 
+- สร้าง private 5B-2 complete kernel สำหรับ test/bootstrap ภายในก่อน
 - เพิ่ม exact Root-bound admission authority
 - Attempt V2 รับเฉพาะ image-free, trivial Spatial, supported unchanged
   auto-height authored box
