@@ -247,6 +247,37 @@ const evidenceRecords = new WeakMap<object, RequestTupleV2>()
 const evidenceCompletedWorkRecords = new WeakMap<object, VNextTextBlockIncrementalCandidateWorkV1>()
 const failureAuthorities = new WeakMap<object, RequestTupleV2>()
 
+interface AuthorizedFallbackAuthorityRecordInternalV2 {
+  readonly terminal: Readonly<AuthorityRecordSnapshotV2>
+  readonly failureKind:
+    | "acceptance-work-limit"
+    | "producer-work-limit"
+    | "producer-proof-failed"
+  readonly producerFailureCode:
+    VNextTextBlockTransitionProducerFailureV2["code"] | null
+  readonly producerWork: VNextTextBlockTransitionProducerWorkV2
+  readonly acceptanceFailedEvaluation: Readonly<{
+    readonly unit: AuthorizedAcceptanceUnitV2
+    readonly attemptedWork: number
+    readonly completedWork: number
+    readonly effectiveLimit: number | null
+  }> | null
+  readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+}
+
+const authorizedFallbackAuthorityRecords = new WeakMap<
+  object,
+  Readonly<AuthorizedFallbackAuthorityRecordInternalV2>
+>()
+
+export function getVNextTextBlockUnifiedLayoutAuthorizedFallbackAuthorityRecordInternalV2(
+  value: unknown,
+): Readonly<AuthorizedFallbackAuthorityRecordInternalV2> | null {
+  return value != null && typeof value === "object"
+    ? authorizedFallbackAuthorityRecords.get(value as object) ?? null
+    : null
+}
+
 export function createVNextTextBlockTransitionProducerRuntimeIdentityInternalV2(
   input: Omit<VNextTextBlockTransitionProducerRuntimeIdentityV2, "source" | "contractVersion" | "fingerprint">,
 ): VNextTextBlockTransitionProducerRuntimeIdentityV2 {
@@ -901,6 +932,79 @@ function zeroAuthorizedProducerWork(
   }
 }
 
+function trustedFailureProducerWork(
+  terminal: Readonly<AuthorityRecordSnapshotV2>,
+): VNextTextBlockTransitionProducerWorkV2 {
+  const producerRan = terminal.terminalOutcome !== "producer-blocked"
+    || (
+      terminal.firstFailedEvaluation != null
+      && terminal.firstFailedEvaluation.unit !== "evidence-producer-descriptors"
+    )
+    || terminal.completedWork.some((row) =>
+      row.unit !== "evidence-producer-descriptors" && row.completedWork > 0
+    )
+  return freeze({
+    requestedAtomCount:
+      terminal.sourceMaterial.producerWorkCeilings.maximumRequestedAtomCount,
+    requestedClusterCount:
+      terminal.sourceMaterial.producerWorkCeilings.maximumRequestedClusterCount,
+    consumedAtomCount: producerRan
+      ? terminal.sourceMaterial.next.atoms.length
+      : 0,
+    consumedClusterCount: producerCompletedCount(terminal, "evidence-clusters"),
+    unusedCoverageRenderedUtf16Length: 0,
+    visitedEvidenceNodeCount: terminal.visitedEvidenceNodeCount,
+    completeNextInputTraversalCount: 0,
+    completeNextInputComparisonCount: 0,
+  })
+}
+
+function isExactZeroDescriptorProducerBlockedTerminal(
+  terminal: Readonly<AuthorityRecordSnapshotV2>,
+): boolean {
+  const failed = terminal.firstFailedEvaluation
+  return terminal.terminalOutcome === "producer-blocked"
+    && terminal.runtimeIdentity == null
+    && terminal.completedWork.length === 0
+    && terminal.visitedEvidenceNodeCount === 0
+    && failed != null
+    && failed.unit === "evidence-producer-descriptors"
+    && failed.attemptedWork === 1
+    && failed.completedWork === 0
+    && failed.effectiveLimit === 0
+}
+
+function trustedResponseProducerWork(
+  terminal: Readonly<AuthorityRecordSnapshotV2>,
+): VNextTextBlockTransitionProducerWorkV2 | null {
+  if (terminal.terminalOutcome !== "producer-response") return null
+  return freeze({
+    requestedAtomCount:
+      terminal.sourceMaterial.producerWorkCeilings.maximumRequestedAtomCount,
+    requestedClusterCount:
+      terminal.sourceMaterial.producerWorkCeilings.maximumRequestedClusterCount,
+    consumedAtomCount: terminal.sourceMaterial.next.atoms.length,
+    consumedClusterCount: producerCompletedCount(terminal, "evidence-clusters"),
+    // Exact Core requests require every segmentation context before success;
+    // their final context is the full coverage range (or the sole shape range
+    // when those ranges are equal), so a producer-response has no unused
+    // coverage. Keeping this as a terminal invariant avoids doing unmetered
+    // Source/style/range work while preserving exact fallback facts.
+    unusedCoverageRenderedUtf16Length: 0,
+    visitedEvidenceNodeCount: terminal.visitedEvidenceNodeCount,
+    completeNextInputTraversalCount: 0,
+    completeNextInputComparisonCount: 0,
+  })
+}
+
+function trustedTerminalProducerWork(
+  terminal: Readonly<AuthorityRecordSnapshotV2>,
+): VNextTextBlockTransitionProducerWorkV2 | null {
+  return terminal.terminalOutcome === "producer-response"
+    ? trustedResponseProducerWork(terminal)
+    : trustedFailureProducerWork(terminal)
+}
+
 function authorizedCompletedWork(
   tuple: RequestTupleV2,
   terminal: Readonly<AuthorityRecordSnapshotV2>,
@@ -955,6 +1059,7 @@ function authorizedEvidenceBlocked(
   terminal: Readonly<AuthorityRecordSnapshotV2> | null,
   meter: AuthorizedAcceptanceMeterV2 | null,
   message: string,
+  producerWork: VNextTextBlockTransitionProducerWorkV2 | null = null,
 ): VNextTextBlockTransitionEvidenceAcceptanceResultV2 {
   return freeze({
     status: "blocked" as const,
@@ -964,7 +1069,8 @@ function authorizedEvidenceBlocked(
       : authorizedCompletedWork(
           tuple,
           terminal,
-          zeroAuthorizedProducerWork(tuple),
+          producerWork ?? trustedTerminalProducerWork(terminal)
+            ?? zeroAuthorizedProducerWork(tuple),
           meter,
         ),
     issues: freeze([issue(message)]),
@@ -976,6 +1082,7 @@ function authorizedFailureBlocked(
   terminal: Readonly<AuthorityRecordSnapshotV2> | null,
   meter: AuthorizedAcceptanceMeterV2 | null,
   message: string,
+  producerWork: VNextTextBlockTransitionProducerWorkV2 | null = null,
 ): VNextTextBlockTransitionProducerFailureAcceptanceResultV2 {
   return freeze({
     status: "blocked" as const,
@@ -985,37 +1092,86 @@ function authorizedFailureBlocked(
       : authorizedCompletedWork(
           tuple,
           terminal,
-          zeroAuthorizedProducerWork(tuple),
+          producerWork ?? trustedTerminalProducerWork(terminal)
+            ?? zeroAuthorizedProducerWork(tuple),
           meter,
         ),
     issues: freeze([issue(message)]),
   })
 }
 
-function registerAuthorizedFallbackAuthority(
-  tuple: RequestTupleV2,
-): object {
+function registerAuthorizedFallbackAuthority(input: {
+  readonly tuple: RequestTupleV2
+  readonly terminal: Readonly<AuthorityRecordSnapshotV2>
+  readonly meter: AuthorizedAcceptanceMeterV2
+  readonly failureKind: AuthorizedFallbackAuthorityRecordInternalV2["failureKind"]
+  readonly producerFailureCode:
+    AuthorizedFallbackAuthorityRecordInternalV2["producerFailureCode"]
+  readonly producerWork: VNextTextBlockTransitionProducerWorkV2
+}):
+  | {
+      readonly status: "registered"
+      readonly authority: object
+      readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+    }
+  | {
+      readonly status: "registration-denied"
+      readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+    } {
+  const registration = input.meter.before("evidence-acceptance-registrations")
+  const completedCandidateWork = authorizedCompletedWork(
+    input.tuple,
+    input.terminal,
+    input.producerWork,
+    input.meter,
+  )
+  if (registration !== "charged") {
+    return freeze({ status: "registration-denied" as const, completedCandidateWork })
+  }
   const authority = freeze({})
-  failureAuthorities.set(authority, tuple)
-  return authority
+  const acceptanceFailedEvaluation = input.meter.failure == null
+    ? null
+    : freeze({ ...input.meter.failure })
+  const record = freeze({
+    terminal: input.terminal,
+    failureKind: input.failureKind,
+    producerFailureCode: input.producerFailureCode,
+    producerWork: freeze({ ...input.producerWork }),
+    acceptanceFailedEvaluation,
+    completedCandidateWork,
+  })
+  authorizedFallbackAuthorityRecords.set(authority, record)
+  return freeze({ status: "registered" as const, authority, completedCandidateWork })
 }
 
 function authorizedEvidenceLimitFallback(
   tuple: RequestTupleV2,
   terminal: Readonly<AuthorityRecordSnapshotV2>,
   meter: AuthorizedAcceptanceMeterV2,
-  producerWork = zeroAuthorizedProducerWork(tuple),
+  producerWork: VNextTextBlockTransitionProducerWorkV2,
 ): VNextTextBlockTransitionEvidenceAcceptanceResultV2 {
+  const registration = registerAuthorizedFallbackAuthority({
+    tuple,
+    terminal,
+    meter,
+    failureKind: "acceptance-work-limit",
+    producerFailureCode: null,
+    producerWork,
+  })
+  if (registration.status !== "registered") {
+    return authorizedEvidenceBlocked(
+      tuple,
+      terminal,
+      meter,
+      "fallback registration work limit was exceeded",
+      producerWork,
+    )
+  }
   return freeze({
     status: "fallback-required" as const,
     evidence: null,
-    evaluatorOrProofAuthority: registerAuthorizedFallbackAuthority(tuple),
-    completedCandidateWork: authorizedCompletedWork(
-      tuple,
-      terminal,
-      producerWork,
-      meter,
-    ),
+    evaluatorOrProofAuthority: registration.authority,
+    completedCandidateWork: registration.completedCandidateWork,
     issues: freeze([]),
   })
 }
@@ -1025,16 +1181,33 @@ function authorizedFailureLimitFallback(
   terminal: Readonly<AuthorityRecordSnapshotV2>,
   meter: AuthorizedAcceptanceMeterV2,
   producerWork: VNextTextBlockTransitionProducerWorkV2,
+  failureKind:
+    | "acceptance-work-limit"
+    | "producer-work-limit"
+    | "producer-proof-failed",
+  producerFailureCode: VNextTextBlockTransitionProducerFailureV2["code"] | null,
 ): VNextTextBlockTransitionProducerFailureAcceptanceResultV2 {
-  return freeze({
-    status: "fallback-required" as const,
-    evaluatorOrProofAuthority: registerAuthorizedFallbackAuthority(tuple),
-    completedCandidateWork: authorizedCompletedWork(
+  const registration = registerAuthorizedFallbackAuthority({
+    tuple,
+    terminal,
+    meter,
+    failureKind,
+    producerFailureCode,
+    producerWork,
+  })
+  if (registration.status !== "registered") {
+    return authorizedFailureBlocked(
       tuple,
       terminal,
-      producerWork,
       meter,
-    ),
+      "fallback registration work limit was exceeded",
+      producerWork,
+    )
+  }
+  return freeze({
+    status: "fallback-required" as const,
+    evaluatorOrProofAuthority: registration.authority,
+    completedCandidateWork: registration.completedCandidateWork,
     issues: freeze([]),
   })
 }
@@ -1070,6 +1243,252 @@ function authorizedComparison(
   } catch {
     return "mismatch"
   }
+}
+
+type AuthorizedSemanticOperationV2<T> =
+  | { readonly status: "accepted"; readonly value: T }
+  | { readonly status: "ceiling" | "meter-invalid" | "invalid" }
+
+function authorizedSemanticOperation<T>(
+  meter: AuthorizedAcceptanceMeterV2,
+  operation: () => T,
+): AuthorizedSemanticOperationV2<T> {
+  const charge = meter.before("evidence-acceptance-comparisons")
+  if (charge !== "charged") {
+    return { status: charge === "limit-exceeded" ? "ceiling" : "meter-invalid" }
+  }
+  try {
+    return { status: "accepted", value: operation() }
+  } catch {
+    return { status: "invalid" }
+  }
+}
+
+function authorizedSemanticStatus<T>(
+  operation: AuthorizedSemanticOperationV2<T>,
+  message: string,
+): Exclude<AuthorizedResponseValidationV2, { readonly status: "accepted" }> | null {
+  if (operation.status === "accepted") return null
+  if (operation.status === "invalid") return { status: "invalid", message }
+  return { status: operation.status }
+}
+
+function authorizedExactKeys(
+  meter: AuthorizedAcceptanceMeterV2,
+  value: unknown,
+  keys: readonly string[],
+): "match" | "mismatch" | "ceiling" | "meter-invalid" {
+  let checked = authorizedComparison(
+    meter,
+    () => value != null && typeof value === "object" && !Array.isArray(value),
+  )
+  if (checked !== "match") return checked
+  checked = authorizedComparison(
+    meter,
+    () => {
+      const prototype = Object.getPrototypeOf(value)
+      return prototype === Object.prototype || prototype === null
+    },
+  )
+  if (checked !== "match") return checked
+  checked = authorizedComparison(
+    meter,
+    () => Object.getOwnPropertySymbols(value).length === 0,
+  )
+  if (checked !== "match") return checked
+  const actualOperation = authorizedSemanticOperation(
+    meter,
+    () => Reflect.ownKeys(value as object),
+  )
+  if (actualOperation.status !== "accepted") {
+    return actualOperation.status === "invalid"
+      ? "mismatch"
+      : actualOperation.status
+  }
+  const actual = actualOperation.value
+  checked = authorizedComparison(meter, () => actual.length === keys.length)
+  if (checked !== "match") return checked
+  for (let index = 0; index < actual.length; index += 1) {
+    const key = actual[index]
+    checked = authorizedComparison(
+      meter,
+      () => typeof key === "string" && keys.includes(key),
+    )
+    if (checked !== "match") return checked
+    const descriptorOperation = authorizedSemanticOperation(
+      meter,
+      () => Object.getOwnPropertyDescriptor(value as object, key),
+    )
+    if (descriptorOperation.status !== "accepted") {
+      return descriptorOperation.status === "invalid"
+        ? "mismatch"
+        : descriptorOperation.status
+    }
+    const descriptor = descriptorOperation.value
+    checked = authorizedComparison(
+      meter,
+      () => descriptor != null
+        && Object.hasOwn(descriptor, "value")
+        && descriptor.enumerable === true,
+    )
+    if (checked !== "match") return checked
+  }
+  return "match"
+}
+
+function chargeAuthorizedSemanticTree(
+  meter: AuthorizedAcceptanceMeterV2,
+  value: unknown,
+  preserveExact: ReadonlySet<object> = new Set<object>(),
+): "match" | "mismatch" | "ceiling" | "meter-invalid" {
+  const charged = authorizedSemanticOperation(meter, () => value)
+  if (charged.status !== "accepted") {
+    return charged.status === "invalid" ? "mismatch" : charged.status
+  }
+  if (value == null || typeof value !== "object") return "match"
+  if (preserveExact.has(value)) return "match"
+  const keysOperation = authorizedSemanticOperation(
+    meter,
+    () => Reflect.ownKeys(value),
+  )
+  if (keysOperation.status !== "accepted") {
+    return keysOperation.status === "invalid" ? "mismatch" : keysOperation.status
+  }
+  for (const key of keysOperation.value) {
+    const descriptorOperation = authorizedSemanticOperation(
+      meter,
+      () => Object.getOwnPropertyDescriptor(value, key),
+    )
+    if (descriptorOperation.status !== "accepted") {
+      return descriptorOperation.status === "invalid"
+        ? "mismatch"
+        : descriptorOperation.status
+    }
+    const descriptor = descriptorOperation.value
+    if (descriptor == null || !Object.hasOwn(descriptor, "value")) return "mismatch"
+    const child = chargeAuthorizedSemanticTree(
+      meter,
+      descriptor.value,
+      preserveExact,
+    )
+    if (child !== "match") return child
+  }
+  return "match"
+}
+
+function authorizedCanonicalEqual(
+  meter: AuthorizedAcceptanceMeterV2,
+  left: unknown,
+  right: unknown,
+  preserveExact: ReadonlySet<object> = new Set<object>(),
+): "match" | "mismatch" | "ceiling" | "meter-invalid" {
+  const leftCharged = chargeAuthorizedSemanticTree(meter, left, preserveExact)
+  if (leftCharged !== "match") return leftCharged
+  const rightCharged = chargeAuthorizedSemanticTree(meter, right, preserveExact)
+  if (rightCharged !== "match") return rightCharged
+  return authorizedComparison(
+    meter,
+    () => stringifyVNextCanonicalJson(left) === stringifyVNextCanonicalJson(right),
+  )
+}
+
+function coveredUtf16LengthAuthorized(
+  meter: AuthorizedAcceptanceMeterV2,
+  ranges: readonly { startRenderedUtf16: number; endRenderedUtf16: number }[],
+): AuthorizedSemanticOperationV2<number> {
+  const ordered: Array<{
+    startRenderedUtf16: number
+    endRenderedUtf16: number
+  }> = []
+  for (let index = 0; index < ranges.length; index += 1) {
+    const rangeOperation = authorizedSemanticOperation(meter, () => ranges[index]!)
+    if (rangeOperation.status !== "accepted") return rangeOperation
+    const nonEmptyOperation = authorizedSemanticOperation(
+      meter,
+      () => rangeOperation.value.endRenderedUtf16
+        > rangeOperation.value.startRenderedUtf16,
+    )
+    if (nonEmptyOperation.status !== "accepted") return nonEmptyOperation
+    if (!nonEmptyOperation.value) continue
+    const appendOperation = authorizedSemanticOperation(
+      meter,
+      () => ordered.push({ ...rangeOperation.value }),
+    )
+    if (appendOperation.status !== "accepted") return appendOperation
+  }
+  for (let index = 1; index < ordered.length; index += 1) {
+    const currentOperation = authorizedSemanticOperation(meter, () => ordered[index]!)
+    if (currentOperation.status !== "accepted") return currentOperation
+    let position = index
+    while (position > 0) {
+      const previousOperation = authorizedSemanticOperation(
+        meter,
+        () => ordered[position - 1]!,
+      )
+      if (previousOperation.status !== "accepted") return previousOperation
+      const compareOperation = authorizedSemanticOperation(meter, () =>
+        previousOperation.value.startRenderedUtf16
+          > currentOperation.value.startRenderedUtf16
+        || (
+          previousOperation.value.startRenderedUtf16
+            === currentOperation.value.startRenderedUtf16
+          && previousOperation.value.endRenderedUtf16
+            > currentOperation.value.endRenderedUtf16
+        ))
+      if (compareOperation.status !== "accepted") return compareOperation
+      if (!compareOperation.value) break
+      const moveOperation = authorizedSemanticOperation(
+        meter,
+        () => { ordered[position] = previousOperation.value },
+      )
+      if (moveOperation.status !== "accepted") return moveOperation
+      position -= 1
+    }
+    const insertOperation = authorizedSemanticOperation(
+      meter,
+      () => { ordered[position] = currentOperation.value },
+    )
+    if (insertOperation.status !== "accepted") return insertOperation
+  }
+  let total = 0
+  let start = -1
+  let end = -1
+  for (let index = 0; index < ordered.length; index += 1) {
+    const rangeOperation = authorizedSemanticOperation(meter, () => ordered[index]!)
+    if (rangeOperation.status !== "accepted") return rangeOperation
+    const range = rangeOperation.value
+    if (start < 0) {
+      const initializeOperation = authorizedSemanticOperation(meter, () => {
+        start = range.startRenderedUtf16
+        end = range.endRenderedUtf16
+      })
+      if (initializeOperation.status !== "accepted") return initializeOperation
+      continue
+    }
+    const disjointOperation = authorizedSemanticOperation(
+      meter,
+      () => range.startRenderedUtf16 > end,
+    )
+    if (disjointOperation.status !== "accepted") return disjointOperation
+    if (disjointOperation.value) {
+      const accumulateOperation = authorizedSemanticOperation(meter, () => {
+        total += end - start
+        start = range.startRenderedUtf16
+        end = range.endRenderedUtf16
+      })
+      if (accumulateOperation.status !== "accepted") return accumulateOperation
+    } else {
+      const extendOperation = authorizedSemanticOperation(
+        meter,
+        () => { end = Math.max(end, range.endRenderedUtf16) },
+      )
+      if (extendOperation.status !== "accepted") return extendOperation
+    }
+  }
+  return authorizedSemanticOperation(
+    meter,
+    () => start < 0 ? 0 : total + end - start,
+  )
 }
 
 function runAuthorizedComparisons(
@@ -1119,10 +1538,7 @@ function validateAuthorizedResponse(
     "sourceTopologyFingerprint", "work", "contracts", "fingerprint",
   ]
   let compared = responseValidationResult(
-    runAuthorizedComparisons(meter, [
-      () => exactKeys(value, responseKeys),
-      () => safeDataTree(value),
-    ]),
+    authorizedExactKeys(meter, value, responseKeys),
     "producer response is not exact descriptor-safe data",
   )
   if (compared != null) return compared
@@ -1136,23 +1552,55 @@ function validateAuthorizedResponse(
       () => typed.runtimeIdentity === runtimeIdentity,
       () => typed.sourceTopologyFingerprint
         === terminal.sourceMaterial.sourceTopologyFingerprint,
-      () => stringifyVNextCanonicalJson(typed.nextEvidenceTargetRange)
-        === stringifyVNextCanonicalJson(terminal.request.next.evidenceTargetRange),
-      () => stringifyVNextCanonicalJson(typed.contracts)
-        === stringifyVNextCanonicalJson(CONTRACTS),
+    ]),
+    "producer response facts do not match the exact terminal authority",
+  )
+  if (compared != null) return compared
+  compared = responseValidationResult(
+    authorizedCanonicalEqual(
+      meter,
+      typed.nextEvidenceTargetRange,
+      terminal.request.next.evidenceTargetRange,
+    ),
+    "producer response facts do not match the exact terminal authority",
+  )
+  if (compared != null) return compared
+  compared = responseValidationResult(
+    authorizedCanonicalEqual(meter, typed.contracts, CONTRACTS),
+    "producer response facts do not match the exact terminal authority",
+  )
+  if (compared != null) return compared
+  compared = responseValidationResult(
+    chargeAuthorizedSemanticTree(meter, typed.work),
+    "producer response work is not exact data",
+  )
+  if (compared != null) return compared
+  compared = responseValidationResult(
+    runAuthorizedComparisons(meter, [
       () => workIsValid(typed.work, terminal.sourceMaterial),
       () => typed.work.visitedEvidenceNodeCount
         === terminal.visitedEvidenceNodeCount,
-      () => {
-        const facts = { ...typed } as Record<string, unknown>
-        delete facts.fingerprint
-        return typed.fingerprint === fingerprint(facts)
-      },
       () => Array.isArray(typed.shapingRuns),
       () => Array.isArray(typed.breakOffsets),
       () => Array.isArray(typed.shapingBoundaryProofs),
       () => Array.isArray(typed.segmentationBoundaryProofs),
     ]),
+    "producer response facts do not match the exact terminal authority",
+  )
+  if (compared != null) return compared
+  const facts = { ...typed } as Record<string, unknown>
+  delete facts.fingerprint
+  compared = responseValidationResult(
+    chargeAuthorizedSemanticTree(
+      meter,
+      facts,
+      new Set<object>([runtimeIdentity]),
+    ),
+    "producer response fingerprint facts are not exact data",
+  )
+  if (compared != null) return compared
+  compared = responseValidationResult(
+    authorizedComparison(meter, () => typed.fingerprint === fingerprint(facts)),
     "producer response facts do not match the exact terminal authority",
   )
   if (compared != null) return compared
@@ -1166,42 +1614,181 @@ function validateAuthorizedResponse(
   >
   type ResolvedStyle = StyledAtom["resolvedStyle"]
   const coverageStart = terminal.request.next.coverageRange.startRenderedUtf16
-  const coverageText = terminal.sourceMaterial.next.atoms
-    .map((atom) => atom.renderedText)
-    .join("")
+  let coverageText = ""
+  for (
+    let atomIndex = 0;
+    atomIndex < terminal.sourceMaterial.next.atoms.length;
+    atomIndex += 1
+  ) {
+    const atomOperation = authorizedSemanticOperation(
+      meter,
+      () => terminal.sourceMaterial.next.atoms[atomIndex]!,
+    )
+    if (atomOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        atomOperation,
+        "Source atom traversal is invalid",
+      )!
+    }
+    const appendOperation = authorizedSemanticOperation(
+      meter,
+      () => coverageText + atomOperation.value.renderedText,
+    )
+    if (appendOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        appendOperation,
+        "Source atom text composition is invalid",
+      )!
+    }
+    coverageText = appendOperation.value
+  }
   const partitions: Array<{
     start: number
     end: number
     style: ResolvedStyle
     atomFingerprints: string[]
   }> = []
-  for (const atom of terminal.sourceMaterial.next.atoms) {
-    if (atom.kind === "hard-break" || atom.kind === "inline-image-boundary") continue
-    const start = coverageStart + atom.relativeStartRenderedUtf16
-    const end = coverageStart + atom.relativeEndRenderedUtf16
-    const previous = partitions.at(-1)
-    if (
-      previous != null
-      && previous.end === start
-      && stringifyVNextCanonicalJson(previous.style)
-        === stringifyVNextCanonicalJson(atom.resolvedStyle)
-    ) {
-      previous.end = end
-      previous.atomFingerprints.push(atom.fingerprint)
-    } else {
+  for (
+    let atomIndex = 0;
+    atomIndex < terminal.sourceMaterial.next.atoms.length;
+    atomIndex += 1
+  ) {
+    const atomOperation = authorizedSemanticOperation(
+      meter,
+      () => terminal.sourceMaterial.next.atoms[atomIndex]!,
+    )
+    if (atomOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        atomOperation,
+        "Source atom partition traversal is invalid",
+      )!
+    }
+    const atom = atomOperation.value
+    const excludedOperation = authorizedSemanticOperation(
+      meter,
+      () => atom.kind === "hard-break" || atom.kind === "inline-image-boundary",
+    )
+    if (excludedOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        excludedOperation,
+        "Source atom partition classification is invalid",
+      )!
+    }
+    if (excludedOperation.value) continue
+    const styledAtom = atom as StyledAtom
+    const rangeOperation = authorizedSemanticOperation(meter, () => ({
+      start: coverageStart + styledAtom.relativeStartRenderedUtf16,
+      end: coverageStart + styledAtom.relativeEndRenderedUtf16,
+    }))
+    if (rangeOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        rangeOperation,
+        "Source atom partition range is invalid",
+      )!
+    }
+    const { start, end } = rangeOperation.value
+    const previousOperation = authorizedSemanticOperation(
+      meter,
+      () => partitions.at(-1),
+    )
+    if (previousOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        previousOperation,
+        "Source partition lookup is invalid",
+      )!
+    }
+    const previous = previousOperation.value
+    let extendsPrevious = false
+    if (previous != null) {
+      compared = responseValidationResult(
+        authorizedComparison(meter, () => previous.end === start),
+        "Source partition continuity is invalid",
+      )
+      if (compared?.status === "ceiling" || compared?.status === "meter-invalid") {
+        return compared
+      }
+      if (compared == null) {
+        const styleComparison = authorizedCanonicalEqual(
+          meter,
+          previous.style,
+          styledAtom.resolvedStyle,
+        )
+        if (styleComparison === "ceiling" || styleComparison === "meter-invalid") {
+          return { status: styleComparison }
+        }
+        extendsPrevious = styleComparison === "match"
+      }
+    }
+    const constructionOperation = authorizedSemanticOperation(meter, () => {
+      if (previous != null && extendsPrevious) {
+        previous.end = end
+        previous.atomFingerprints.push(styledAtom.fingerprint)
+        return
+      }
       partitions.push({
         start,
         end,
-        style: atom.resolvedStyle,
-        atomFingerprints: [atom.fingerprint],
+        style: styledAtom.resolvedStyle,
+        atomFingerprints: [styledAtom.fingerprint],
       })
+    })
+    if (constructionOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        constructionOperation,
+        "Source partition construction is invalid",
+      )!
     }
   }
-  const expected = partitions.flatMap((partition) => {
-    const start = Math.max(partition.start, targetStart)
-    const end = Math.min(partition.end, targetEnd)
-    return end <= start ? [] : [{ partition, start, end }]
-  })
+  const expected: Array<{
+    partition: (typeof partitions)[number]
+    start: number
+    end: number
+  }> = []
+  for (let partitionIndex = 0; partitionIndex < partitions.length; partitionIndex += 1) {
+    const partitionOperation = authorizedSemanticOperation(
+      meter,
+      () => partitions[partitionIndex]!,
+    )
+    if (partitionOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        partitionOperation,
+        "Source partition traversal is invalid",
+      )!
+    }
+    const partition = partitionOperation.value
+    const clipOperation = authorizedSemanticOperation(meter, () => ({
+      start: Math.max(partition.start, targetStart),
+      end: Math.min(partition.end, targetEnd),
+    }))
+    if (clipOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        clipOperation,
+        "Source partition clipping is invalid",
+      )!
+    }
+    compared = responseValidationResult(
+      authorizedComparison(
+        meter,
+        () => clipOperation.value.end > clipOperation.value.start,
+      ),
+      "Source partition clipping is empty",
+    )
+    if (compared?.status === "ceiling" || compared?.status === "meter-invalid") {
+      return compared
+    }
+    if (compared == null) {
+      const appendOperation = authorizedSemanticOperation(
+        meter,
+        () => expected.push({ partition, ...clipOperation.value }),
+      )
+      if (appendOperation.status !== "accepted") {
+        return authorizedSemanticStatus(
+          appendOperation,
+          "Source partition projection is invalid",
+        )!
+      }
+    }
+  }
   compared = responseValidationResult(
     runAuthorizedComparisons(meter, [
       () => runs.length === expected.length,
@@ -1213,21 +1800,42 @@ function validateAuthorizedResponse(
 
   let consumedClusterCount = 0
   for (let runIndex = 0; runIndex < runs.length; runIndex += 1) {
-    const run = runs[runIndex]!
-    const row = expected[runIndex]!
+    const runOperation = authorizedSemanticOperation(meter, () => runs[runIndex]!)
+    if (runOperation.status !== "accepted") {
+      return authorizedSemanticStatus(runOperation, "shaping run traversal is invalid")!
+    }
+    const rowOperation = authorizedSemanticOperation(
+      meter,
+      () => expected[runIndex]!,
+    )
+    if (rowOperation.status !== "accepted") {
+      return authorizedSemanticStatus(rowOperation, "Source partition traversal is invalid")!
+    }
+    const run = runOperation.value
+    const row = rowOperation.value
+    compared = responseValidationResult(
+      authorizedExactKeys(meter, run, [
+        "shapingRunId", "renderStartOffset", "renderEndOffset", "text",
+        "styleKey", "fontFaceId", "fontSizeLayoutUnit", "textColor",
+        "direction", "baselineShiftLayoutUnit", "features", "clusters",
+      ]),
+      "shaping run facts differ from exact bounded Source material",
+    )
+    if (compared != null) return compared
+    const shapingRunIdFacts = {
+      request: terminal.request.fingerprint,
+      atoms: row.partition.atomFingerprints,
+      runStart: row.start,
+      runEnd: row.end,
+    }
+    compared = responseValidationResult(
+      chargeAuthorizedSemanticTree(meter, shapingRunIdFacts),
+      "shaping run identity facts are invalid",
+    )
+    if (compared != null) return compared
     compared = responseValidationResult(
       runAuthorizedComparisons(meter, [
-        () => exactKeys(run, [
-          "shapingRunId", "renderStartOffset", "renderEndOffset", "text",
-          "styleKey", "fontFaceId", "fontSizeLayoutUnit", "textColor",
-          "direction", "baselineShiftLayoutUnit", "features", "clusters",
-        ]),
-        () => run.shapingRunId === fingerprint({
-          request: terminal.request.fingerprint,
-          atoms: row.partition.atomFingerprints,
-          runStart: row.start,
-          runEnd: row.end,
-        }),
+        () => run.shapingRunId === fingerprint(shapingRunIdFacts),
         () => run.renderStartOffset === row.start,
         () => run.renderEndOffset === row.end,
         () => run.text === coverageText.slice(
@@ -1240,20 +1848,36 @@ function validateAuthorizedResponse(
         () => run.textColor === row.partition.style.textColor,
         () => run.direction === "ltr",
         () => run.baselineShiftLayoutUnit === 0,
-        () => Array.isArray(run.features) && run.features.length === 0,
-        () => Array.isArray(run.clusters) && run.clusters.length > 0,
+        () => Array.isArray(run.features),
+        () => run.features.length === 0,
+        () => Array.isArray(run.clusters),
+        () => run.clusters.length > 0,
       ]),
       "shaping run facts differ from exact bounded Source material",
     )
     if (compared != null) return compared
     let clusterEnd = run.renderStartOffset
     for (let clusterIndex = 0; clusterIndex < run.clusters.length; clusterIndex += 1) {
-      const cluster = run.clusters[clusterIndex]!
+      const clusterOperation = authorizedSemanticOperation(
+        meter,
+        () => run.clusters[clusterIndex]!,
+      )
+      if (clusterOperation.status !== "accepted") {
+        return authorizedSemanticStatus(
+          clusterOperation,
+          "shaping cluster traversal is invalid",
+        )!
+      }
+      const cluster = clusterOperation.value
+      compared = responseValidationResult(
+        authorizedExactKeys(meter, cluster, [
+          "index", "renderStartOffset", "renderEndOffset", "advanceLayoutUnit",
+        ]),
+        "shaping cluster facts are invalid",
+      )
+      if (compared != null) return compared
       compared = responseValidationResult(
         runAuthorizedComparisons(meter, [
-          () => exactKeys(cluster, [
-            "index", "renderStartOffset", "renderEndOffset", "advanceLayoutUnit",
-          ]),
           () => cluster.index === clusterIndex,
           () => cluster.renderStartOffset === clusterEnd,
           () => cluster.renderEndOffset > cluster.renderStartOffset,
@@ -1273,9 +1897,29 @@ function validateAuthorizedResponse(
       "shaping clusters do not cover the exact run",
     )
     if (compared != null) return compared
-    consumedClusterCount += run.clusters.length
-    const proof = typed.shapingBoundaryProofs[runIndex]!
-    const expectedVerification = {
+    const consumedClusterOperation = authorizedSemanticOperation(
+      meter,
+      () => consumedClusterCount + run.clusters.length,
+    )
+    if (consumedClusterOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        consumedClusterOperation,
+        "consumed cluster aggregation is invalid",
+      )!
+    }
+    consumedClusterCount = consumedClusterOperation.value
+    const proofOperation = authorizedSemanticOperation(
+      meter,
+      () => typed.shapingBoundaryProofs[runIndex]!,
+    )
+    if (proofOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        proofOperation,
+        "shaping proof traversal is invalid",
+      )!
+    }
+    const proof = proofOperation.value
+    const expectedVerificationOperation = authorizedSemanticOperation(meter, () => ({
       startRenderedUtf16: Math.max(
         row.partition.start,
         terminal.request.next.shapeVerificationRange.startRenderedUtf16,
@@ -1284,46 +1928,105 @@ function validateAuthorizedResponse(
         row.partition.end,
         terminal.request.next.shapeVerificationRange.endRenderedUtf16,
       ),
+    }))
+    if (expectedVerificationOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        expectedVerificationOperation,
+        "shaping verification range construction is invalid",
+      )!
     }
-    const expectedLeft = row.start === row.partition.start || row.start === coverageStart
-      ? "exact-style-or-block-start"
-      : "safe-first-target-glyph"
-    const expectedRight = row.end === row.partition.end
-      || row.end === coverageStart + coverageText.length
-      ? "exact-style-or-block-end"
-      : "safe-first-right-guard-glyph"
+    const expectedVerification = expectedVerificationOperation.value
+    const expectedLeftOperation = authorizedSemanticOperation(
+      meter,
+      () => row.start === row.partition.start || row.start === coverageStart
+        ? "exact-style-or-block-start" as const
+        : "safe-first-target-glyph" as const,
+    )
+    if (expectedLeftOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        expectedLeftOperation,
+        "left shaping boundary construction is invalid",
+      )!
+    }
+    const expectedLeft = expectedLeftOperation.value
+    const expectedRightOperation = authorizedSemanticOperation(
+      meter,
+      () => row.end === row.partition.end
+        || row.end === coverageStart + coverageText.length
+        ? "exact-style-or-block-end" as const
+        : "safe-first-right-guard-glyph" as const,
+    )
+    if (expectedRightOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        expectedRightOperation,
+        "right shaping boundary construction is invalid",
+      )!
+    }
+    const expectedRight = expectedRightOperation.value
+    compared = responseValidationResult(
+      authorizedExactKeys(meter, proof, [
+        "targetRange", "verificationRange", "leftBoundary", "rightBoundary",
+        "guardGlyphCount", "inspectedGlyphCount", "fingerprint",
+      ]),
+      "shaping boundary proof differs from the exact partition",
+    )
+    if (compared != null) return compared
+    compared = responseValidationResult(
+      authorizedExactKeys(meter, proof.targetRange, [
+        "startRenderedUtf16", "endRenderedUtf16",
+      ]),
+      "shaping boundary proof differs from the exact partition",
+    )
+    if (compared != null) return compared
+    compared = responseValidationResult(
+      authorizedExactKeys(meter, proof.verificationRange, [
+        "startRenderedUtf16", "endRenderedUtf16",
+      ]),
+      "shaping boundary proof differs from the exact partition",
+    )
+    if (compared != null) return compared
+    compared = responseValidationResult(
+      authorizedCanonicalEqual(meter, proof.targetRange, {
+        startRenderedUtf16: row.start,
+        endRenderedUtf16: row.end,
+      }),
+      "shaping boundary proof differs from the exact partition",
+    )
+    if (compared != null) return compared
+    compared = responseValidationResult(
+      authorizedCanonicalEqual(meter, proof.verificationRange, expectedVerification),
+      "shaping boundary proof differs from the exact partition",
+    )
+    if (compared != null) return compared
     compared = responseValidationResult(
       runAuthorizedComparisons(meter, [
-        () => exactKeys(proof, [
-          "targetRange", "verificationRange", "leftBoundary", "rightBoundary",
-          "guardGlyphCount", "inspectedGlyphCount", "fingerprint",
-        ]),
-        () => exactKeys(proof.targetRange, [
-          "startRenderedUtf16", "endRenderedUtf16",
-        ]),
-        () => exactKeys(proof.verificationRange, [
-          "startRenderedUtf16", "endRenderedUtf16",
-        ]),
-        () => stringifyVNextCanonicalJson(proof.targetRange)
-          === stringifyVNextCanonicalJson({
-            startRenderedUtf16: row.start,
-            endRenderedUtf16: row.end,
-          }),
-        () => stringifyVNextCanonicalJson(proof.verificationRange)
-          === stringifyVNextCanonicalJson(expectedVerification),
         () => proof.leftBoundary === expectedLeft,
         () => proof.rightBoundary === expectedRight,
-        () => Number.isSafeInteger(proof.guardGlyphCount) && proof.guardGlyphCount >= 0,
-        () => Number.isSafeInteger(proof.inspectedGlyphCount)
-          && proof.inspectedGlyphCount >= run.clusters.length + proof.guardGlyphCount,
-        () => expectedRight !== "safe-first-right-guard-glyph"
-          || proof.guardGlyphCount >= 1,
-        () => {
-          const facts = { ...proof } as Record<string, unknown>
-          delete facts.fingerprint
-          return proof.fingerprint === fingerprint(facts)
-        },
+        () => Number.isSafeInteger(proof.guardGlyphCount),
+        () => proof.guardGlyphCount >= 0,
+        () => Number.isSafeInteger(proof.inspectedGlyphCount),
+        () => proof.inspectedGlyphCount
+          >= run.clusters.length + proof.guardGlyphCount,
       ]),
+      "shaping boundary proof differs from the exact partition",
+    )
+    if (compared != null) return compared
+    if (expectedRight === "safe-first-right-guard-glyph") {
+      compared = responseValidationResult(
+        authorizedComparison(meter, () => proof.guardGlyphCount >= 1),
+        "shaping boundary proof differs from the exact partition",
+      )
+    }
+    if (compared != null) return compared
+    const proofFacts = { ...proof } as Record<string, unknown>
+    delete proofFacts.fingerprint
+    compared = responseValidationResult(
+      chargeAuthorizedSemanticTree(meter, proofFacts),
+      "shaping boundary proof fingerprint facts are invalid",
+    )
+    if (compared != null) return compared
+    compared = responseValidationResult(
+      authorizedComparison(meter, () => proof.fingerprint === fingerprint(proofFacts)),
       "shaping boundary proof differs from the exact partition",
     )
     if (compared != null) return compared
@@ -1343,57 +2046,153 @@ function validateAuthorizedResponse(
     proofIndex < typed.segmentationBoundaryProofs.length;
     proofIndex += 1
   ) {
-    const proof = typed.segmentationBoundaryProofs[proofIndex]!
-    const expectedContext = terminal.request.nextSegmentationContextRanges[proofIndex]!
+    const proofOperation = authorizedSemanticOperation(
+      meter,
+      () => typed.segmentationBoundaryProofs[proofIndex]!,
+    )
+    if (proofOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        proofOperation,
+        "segmentation proof traversal is invalid",
+      )!
+    }
+    const contextOperation = authorizedSemanticOperation(
+      meter,
+      () => terminal.request.nextSegmentationContextRanges[proofIndex]!,
+    )
+    if (contextOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        contextOperation,
+        "segmentation context traversal is invalid",
+      )!
+    }
+    const proof = proofOperation.value
+    const expectedContext = contextOperation.value
     const previousBreaks = stableTargetBreaks
     compared = responseValidationResult(
-      runAuthorizedComparisons(meter, [
-        () => exactKeys(proof, [
-          "contextRange", "contextBreakCount", "targetBreakOffsets",
-          "inspectedOffsetCount", "fingerprint",
-        ]),
-        () => exactKeys(proof.contextRange, [
-          "startRenderedUtf16", "endRenderedUtf16",
-        ]),
-        () => Array.isArray(proof.targetBreakOffsets),
-        () => stringifyVNextCanonicalJson(proof.contextRange)
-          === stringifyVNextCanonicalJson(expectedContext),
-        () => Number.isSafeInteger(proof.contextBreakCount)
-          && proof.contextBreakCount >= proof.targetBreakOffsets.length,
-        () => proof.targetBreakOffsets.every((offset, index) =>
-          Number.isSafeInteger(offset)
-          && offset >= targetStart
-          && offset <= targetEnd
-          && (index === 0 || offset > proof.targetBreakOffsets[index - 1]!)
-        ),
-        () => Number.isSafeInteger(proof.inspectedOffsetCount)
-          && proof.inspectedOffsetCount
-            === 2 * proof.contextBreakCount + 2 * proof.targetBreakOffsets.length,
-        () => {
-          const facts = { ...proof } as Record<string, unknown>
-          delete facts.fingerprint
-          return proof.fingerprint === fingerprint(facts)
-        },
-        () => previousBreaks == null
-          || stringifyVNextCanonicalJson(proof.targetBreakOffsets)
-            === stringifyVNextCanonicalJson(previousBreaks),
+      authorizedExactKeys(meter, proof, [
+        "contextRange", "contextBreakCount", "targetBreakOffsets",
+        "inspectedOffsetCount", "fingerprint",
       ]),
       "segmentation proof differs from the exact bounded attempt",
     )
     if (compared != null) return compared
-    stableTargetBreaks = proof.targetBreakOffsets
+    compared = responseValidationResult(
+      authorizedExactKeys(meter, proof.contextRange, [
+        "startRenderedUtf16", "endRenderedUtf16",
+      ]),
+      "segmentation proof differs from the exact bounded attempt",
+    )
+    if (compared != null) return compared
+    compared = responseValidationResult(
+      authorizedCanonicalEqual(meter, proof.contextRange, expectedContext),
+      "segmentation proof differs from the exact bounded attempt",
+    )
+    if (compared != null) return compared
+    compared = responseValidationResult(
+      runAuthorizedComparisons(meter, [
+        () => Array.isArray(proof.targetBreakOffsets),
+        () => Number.isSafeInteger(proof.contextBreakCount),
+        () => proof.contextBreakCount >= proof.targetBreakOffsets.length,
+      ]),
+      "segmentation proof differs from the exact bounded attempt",
+    )
+    if (compared != null) return compared
+    for (
+      let offsetIndex = 0;
+      offsetIndex < proof.targetBreakOffsets.length;
+      offsetIndex += 1
+    ) {
+      const offsetOperation = authorizedSemanticOperation(
+        meter,
+        () => proof.targetBreakOffsets[offsetIndex]!,
+      )
+      if (offsetOperation.status !== "accepted") {
+        return authorizedSemanticStatus(
+          offsetOperation,
+          "segmentation offset traversal is invalid",
+        )!
+      }
+      const offset = offsetOperation.value
+      compared = responseValidationResult(
+        runAuthorizedComparisons(meter, [
+          () => Number.isSafeInteger(offset),
+          () => offset >= targetStart,
+          () => offset <= targetEnd,
+        ]),
+        "segmentation proof differs from the exact bounded attempt",
+      )
+      if (compared != null) return compared
+      if (offsetIndex > 0) {
+        const previousOffsetOperation = authorizedSemanticOperation(
+          meter,
+          () => proof.targetBreakOffsets[offsetIndex - 1]!,
+        )
+        if (previousOffsetOperation.status !== "accepted") {
+          return authorizedSemanticStatus(
+            previousOffsetOperation,
+            "previous segmentation offset traversal is invalid",
+          )!
+        }
+        compared = responseValidationResult(
+          authorizedComparison(
+            meter,
+            () => offset > previousOffsetOperation.value,
+          ),
+          "segmentation proof differs from the exact bounded attempt",
+        )
+        if (compared != null) return compared
+      }
+    }
+    compared = responseValidationResult(
+      runAuthorizedComparisons(meter, [
+        () => Number.isSafeInteger(proof.inspectedOffsetCount),
+        () => proof.inspectedOffsetCount
+          === 2 * proof.contextBreakCount + 2 * proof.targetBreakOffsets.length,
+      ]),
+      "segmentation proof differs from the exact bounded attempt",
+    )
+    if (compared != null) return compared
+    const proofFacts = { ...proof } as Record<string, unknown>
+    delete proofFacts.fingerprint
+    compared = responseValidationResult(
+      chargeAuthorizedSemanticTree(meter, proofFacts),
+      "segmentation proof fingerprint facts are invalid",
+    )
+    if (compared != null) return compared
+    compared = responseValidationResult(
+      authorizedComparison(meter, () => proof.fingerprint === fingerprint(proofFacts)),
+      "segmentation proof differs from the exact bounded attempt",
+    )
+    if (compared != null) return compared
+    if (previousBreaks != null) {
+      compared = responseValidationResult(
+        authorizedCanonicalEqual(
+          meter,
+          proof.targetBreakOffsets,
+          previousBreaks,
+        ),
+        "segmentation proof differs from the exact bounded attempt",
+      )
+      if (compared != null) return compared
+    }
+    const stableAssignment = authorizedSemanticOperation(
+      meter,
+      () => proof.targetBreakOffsets,
+    )
+    if (stableAssignment.status !== "accepted") {
+      return authorizedSemanticStatus(
+        stableAssignment,
+        "stable segmentation assignment is invalid",
+      )!
+    }
+    stableTargetBreaks = stableAssignment.value
   }
   compared = responseValidationResult(
     runAuthorizedComparisons(meter, [
       () => typed.segmentationBoundaryProofs.length
         >= terminal.request.requiredStableSegmentationExpansionCount,
       () => stableTargetBreaks != null,
-      () => typed.breakOffsets.every((offset, index) =>
-        Number.isSafeInteger(offset)
-        && offset >= targetStart
-        && offset <= targetEnd
-        && (index === 0 || offset > typed.breakOffsets[index - 1]!)
-      ),
     ]),
     "segmentation proofs or break offsets are invalid",
   )
@@ -1401,23 +2200,304 @@ function validateAuthorizedResponse(
   if (stableTargetBreaks == null) {
     return { status: "invalid", message: "segmentation proof is missing" }
   }
-  const hardBreaks = terminal.sourceMaterial.next.atoms
-    .filter((atom) => atom.kind === "hard-break")
-    .map((atom) => coverageStart + atom.relativeEndRenderedUtf16)
-    .filter((offset) => offset >= targetStart && offset <= targetEnd)
-  const expectedBreakOffsets = [...new Set([...stableTargetBreaks, ...hardBreaks])]
-    .sort((left, right) => left - right)
-  const exactUnusedCoverage =
-    terminal.request.next.coverageRange.endRenderedUtf16
-    - terminal.request.next.coverageRange.startRenderedUtf16
-    - coveredUtf16Length([
-      ...typed.shapingBoundaryProofs.map((proof) => proof.verificationRange),
-      ...terminal.request.nextSegmentationContextRanges,
-    ])
+  for (let offsetIndex = 0; offsetIndex < typed.breakOffsets.length; offsetIndex += 1) {
+    const offsetOperation = authorizedSemanticOperation(
+      meter,
+      () => typed.breakOffsets[offsetIndex]!,
+    )
+    if (offsetOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        offsetOperation,
+        "break offset traversal is invalid",
+      )!
+    }
+    const offset = offsetOperation.value
+    compared = responseValidationResult(
+      runAuthorizedComparisons(meter, [
+        () => Number.isSafeInteger(offset),
+        () => offset >= targetStart,
+        () => offset <= targetEnd,
+      ]),
+      "segmentation proofs or break offsets are invalid",
+    )
+    if (compared != null) return compared
+    if (offsetIndex > 0) {
+      const previousOffsetOperation = authorizedSemanticOperation(
+        meter,
+        () => typed.breakOffsets[offsetIndex - 1]!,
+      )
+      if (previousOffsetOperation.status !== "accepted") {
+        return authorizedSemanticStatus(
+          previousOffsetOperation,
+          "previous break offset traversal is invalid",
+        )!
+      }
+      compared = responseValidationResult(
+        authorizedComparison(meter, () => offset > previousOffsetOperation.value),
+        "segmentation proofs or break offsets are invalid",
+      )
+      if (compared != null) return compared
+    }
+  }
+  const hardBreaks: number[] = []
+  for (
+    let atomIndex = 0;
+    atomIndex < terminal.sourceMaterial.next.atoms.length;
+    atomIndex += 1
+  ) {
+    const atomOperation = authorizedSemanticOperation(
+      meter,
+      () => terminal.sourceMaterial.next.atoms[atomIndex]!,
+    )
+    if (atomOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        atomOperation,
+        "hard-break Source atom traversal is invalid",
+      )!
+    }
+    const hardBreakOperation = authorizedSemanticOperation(
+      meter,
+      () => atomOperation.value.kind === "hard-break",
+    )
+    if (hardBreakOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        hardBreakOperation,
+        "hard-break Source atom filtering is invalid",
+      )!
+    }
+    if (!hardBreakOperation.value) continue
+    const offsetOperation = authorizedSemanticOperation(
+      meter,
+      () => coverageStart + atomOperation.value.relativeEndRenderedUtf16,
+    )
+    if (offsetOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        offsetOperation,
+        "hard-break offset construction is invalid",
+      )!
+    }
+    const lowerBoundOperation = authorizedSemanticOperation(
+      meter,
+      () => offsetOperation.value >= targetStart,
+    )
+    if (lowerBoundOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        lowerBoundOperation,
+        "hard-break lower-bound filtering is invalid",
+      )!
+    }
+    if (!lowerBoundOperation.value) continue
+    const upperBoundOperation = authorizedSemanticOperation(
+      meter,
+      () => offsetOperation.value <= targetEnd,
+    )
+    if (upperBoundOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        upperBoundOperation,
+        "hard-break upper-bound filtering is invalid",
+      )!
+    }
+    if (!upperBoundOperation.value) continue
+    const appendOperation = authorizedSemanticOperation(
+      meter,
+      () => hardBreaks.push(offsetOperation.value),
+    )
+    if (appendOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        appendOperation,
+        "hard-break collection is invalid",
+      )!
+    }
+  }
+  const expectedBreakOffsets: number[] = []
+  const seenBreakOffsets = new Set<number>()
+  const breakSources = [stableTargetBreaks, hardBreaks] as const
+  for (let sourceIndex = 0; sourceIndex < breakSources.length; sourceIndex += 1) {
+    const sourceOperation = authorizedSemanticOperation(
+      meter,
+      () => breakSources[sourceIndex],
+    )
+    if (sourceOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        sourceOperation,
+        "break-offset source traversal is invalid",
+      )!
+    }
+    const source = sourceOperation.value
+    for (let offsetIndex = 0; offsetIndex < source.length; offsetIndex += 1) {
+      const offsetOperation = authorizedSemanticOperation(
+        meter,
+        () => source[offsetIndex]!,
+      )
+      if (offsetOperation.status !== "accepted") {
+        return authorizedSemanticStatus(
+          offsetOperation,
+          "break-offset set traversal is invalid",
+        )!
+      }
+      const presentOperation = authorizedSemanticOperation(
+        meter,
+        () => seenBreakOffsets.has(offsetOperation.value),
+      )
+      if (presentOperation.status !== "accepted") {
+        return authorizedSemanticStatus(
+          presentOperation,
+          "break-offset set lookup is invalid",
+        )!
+      }
+      if (presentOperation.value) continue
+      const addOperation = authorizedSemanticOperation(meter, () => {
+        seenBreakOffsets.add(offsetOperation.value)
+        expectedBreakOffsets.push(offsetOperation.value)
+      })
+      if (addOperation.status !== "accepted") {
+        return authorizedSemanticStatus(
+          addOperation,
+          "break-offset set insertion is invalid",
+        )!
+      }
+    }
+  }
+  for (let index = 1; index < expectedBreakOffsets.length; index += 1) {
+    const currentOperation = authorizedSemanticOperation(
+      meter,
+      () => expectedBreakOffsets[index]!,
+    )
+    if (currentOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        currentOperation,
+        "break-offset sort traversal is invalid",
+      )!
+    }
+    let position = index
+    while (position > 0) {
+      const previousOperation = authorizedSemanticOperation(
+        meter,
+        () => expectedBreakOffsets[position - 1]!,
+      )
+      if (previousOperation.status !== "accepted") {
+        return authorizedSemanticStatus(
+          previousOperation,
+          "break-offset sort comparison traversal is invalid",
+        )!
+      }
+      const orderedOperation = authorizedSemanticOperation(
+        meter,
+        () => previousOperation.value <= currentOperation.value,
+      )
+      if (orderedOperation.status !== "accepted") {
+        return authorizedSemanticStatus(
+          orderedOperation,
+          "break-offset sorting is invalid",
+        )!
+      }
+      if (orderedOperation.value) break
+      const moveOperation = authorizedSemanticOperation(
+        meter,
+        () => { expectedBreakOffsets[position] = previousOperation.value },
+      )
+      if (moveOperation.status !== "accepted") {
+        return authorizedSemanticStatus(
+          moveOperation,
+          "break-offset sorting is invalid",
+        )!
+      }
+      position -= 1
+    }
+    const insertOperation = authorizedSemanticOperation(
+      meter,
+      () => { expectedBreakOffsets[position] = currentOperation.value },
+    )
+    if (insertOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        insertOperation,
+        "break-offset sorting is invalid",
+      )!
+    }
+  }
+  const coverageRanges: Array<{
+    startRenderedUtf16: number
+    endRenderedUtf16: number
+  }> = []
+  for (
+    let proofIndex = 0;
+    proofIndex < typed.shapingBoundaryProofs.length;
+    proofIndex += 1
+  ) {
+    const rangeOperation = authorizedSemanticOperation(
+      meter,
+      () => typed.shapingBoundaryProofs[proofIndex]!.verificationRange,
+    )
+    if (rangeOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        rangeOperation,
+        "shaping coverage traversal is invalid",
+      )!
+    }
+    const appendOperation = authorizedSemanticOperation(
+      meter,
+      () => coverageRanges.push(rangeOperation.value),
+    )
+    if (appendOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        appendOperation,
+        "shaping coverage collection is invalid",
+      )!
+    }
+  }
+  for (
+    let contextIndex = 0;
+    contextIndex < terminal.request.nextSegmentationContextRanges.length;
+    contextIndex += 1
+  ) {
+    const rangeOperation = authorizedSemanticOperation(
+      meter,
+      () => terminal.request.nextSegmentationContextRanges[contextIndex]!,
+    )
+    if (rangeOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        rangeOperation,
+        "segmentation coverage traversal is invalid",
+      )!
+    }
+    const appendOperation = authorizedSemanticOperation(
+      meter,
+      () => coverageRanges.push(rangeOperation.value),
+    )
+    if (appendOperation.status !== "accepted") {
+      return authorizedSemanticStatus(
+        appendOperation,
+        "segmentation coverage collection is invalid",
+      )!
+    }
+  }
+  const coverageOperation = coveredUtf16LengthAuthorized(meter, coverageRanges)
+  if (coverageOperation.status !== "accepted") {
+    return authorizedSemanticStatus(
+      coverageOperation,
+      "coverage union is invalid",
+    )!
+  }
+  const exactUnusedCoverageOperation = authorizedSemanticOperation(
+    meter,
+    () => terminal.request.next.coverageRange.endRenderedUtf16
+      - terminal.request.next.coverageRange.startRenderedUtf16
+      - coverageOperation.value,
+  )
+  if (exactUnusedCoverageOperation.status !== "accepted") {
+    return authorizedSemanticStatus(
+      exactUnusedCoverageOperation,
+      "unused coverage calculation is invalid",
+    )!
+  }
+  const exactUnusedCoverage = exactUnusedCoverageOperation.value
+  compared = responseValidationResult(
+    authorizedCanonicalEqual(meter, typed.breakOffsets, expectedBreakOffsets),
+    "producer work does not match exact response/material facts",
+  )
+  if (compared != null) return compared
   compared = responseValidationResult(
     runAuthorizedComparisons(meter, [
-      () => stringifyVNextCanonicalJson(typed.breakOffsets)
-        === stringifyVNextCanonicalJson(expectedBreakOffsets),
       () => typed.work.consumedAtomCount
         === terminal.sourceMaterial.next.atoms.length,
       () => typed.work.consumedClusterCount === consumedClusterCount,
@@ -1441,16 +2521,16 @@ function validateAuthorizedFailure(
   value: unknown,
   terminal: Readonly<AuthorityRecordSnapshotV2>,
   runtimeIdentity: VNextTextBlockTransitionProducerRuntimeIdentityV2,
-  tuple: RequestTupleV2,
   meter: AuthorizedAcceptanceMeterV2,
 ): AuthorizedFailureValidationV2 {
-  const zeroWork = zeroAuthorizedProducerWork(tuple)
+  const trustedWork = trustedFailureProducerWork(terminal)
   if (terminal.terminalOutcome === "producer-blocked") {
     const failed = terminal.firstFailedEvaluation
     const compared = failureValidationResult(
       runAuthorizedComparisons(meter, [
         () => value == null,
         () => terminal.runtimeIdentity == null,
+        () => terminal.completedWork.length === 0,
         () => terminal.visitedEvidenceNodeCount === 0,
         () => failed != null,
         () => failed?.unit === "evidence-producer-descriptors",
@@ -1460,7 +2540,7 @@ function validateAuthorizedFailure(
       ]),
       "producer-blocked terminal is not the exact zero-descriptor ceiling",
     )
-    return compared ?? { status: "accepted", failure: null, work: zeroWork }
+    return compared ?? { status: "accepted", failure: null, work: trustedWork }
   }
   const snapshot = snapshotAuthorizedAcceptancePayload(
     value,
@@ -1477,13 +2557,10 @@ function validateAuthorizedFailure(
   }
   const failure = snapshot.value
   let compared = failureValidationResult(
-    runAuthorizedComparisons(meter, [
-      () => exactKeys(failure, [
-        "source", "contractVersion", "requestFingerprint",
-        "sourceMaterialFingerprint", "runtimeIdentity", "code", "completedWork",
-        "contracts", "fingerprint",
-      ]),
-      () => safeDataTree(failure),
+    authorizedExactKeys(meter, failure, [
+      "source", "contractVersion", "requestFingerprint",
+      "sourceMaterialFingerprint", "runtimeIdentity", "code", "completedWork",
+      "contracts", "fingerprint",
     ]),
     "producer failure is not exact descriptor-safe data",
   )
@@ -1495,6 +2572,21 @@ function validateAuthorizedFailure(
     "missing-glyph", "unsafe-runtime-arithmetic", "work-ceiling-before-visit",
   ]
   compared = failureValidationResult(
+    authorizedExactKeys(meter, typed.completedWork, [
+      "requestedAtomCount", "requestedClusterCount", "consumedAtomCount",
+      "consumedClusterCount", "unusedCoverageRenderedUtf16Length",
+      "visitedEvidenceNodeCount", "completeNextInputTraversalCount",
+      "completeNextInputComparisonCount",
+    ]),
+    "producer failure work is not exact data",
+  )
+  if (compared != null) return compared
+  compared = failureValidationResult(
+    chargeAuthorizedSemanticTree(meter, typed.completedWork),
+    "producer failure work is not exact data",
+  )
+  if (compared != null) return compared
+  compared = failureValidationResult(
     runAuthorizedComparisons(meter, [
       () => typed.source === "vnext-text-block-transition-producer-failure-v2",
       () => typed.contractVersion === 2,
@@ -1503,17 +2595,48 @@ function validateAuthorizedFailure(
       () => typed.runtimeIdentity === runtimeIdentity,
       () => codes.includes(typed.code),
       () => workIsValid(typed.completedWork, terminal.sourceMaterial),
+      () => typed.completedWork.requestedAtomCount
+        === trustedWork.requestedAtomCount,
+      () => typed.completedWork.requestedClusterCount
+        === trustedWork.requestedClusterCount,
+      () => typed.completedWork.consumedAtomCount
+        === trustedWork.consumedAtomCount,
+      () => typed.completedWork.consumedClusterCount
+        === trustedWork.consumedClusterCount,
+      () => typed.completedWork.unusedCoverageRenderedUtf16Length
+        === trustedWork.unusedCoverageRenderedUtf16Length,
       () => typed.completedWork.visitedEvidenceNodeCount
-        === terminal.visitedEvidenceNodeCount,
-      () => stringifyVNextCanonicalJson(typed.contracts)
-        === stringifyVNextCanonicalJson(CONTRACTS),
-      () => {
-        const facts = { ...typed } as Record<string, unknown>
-        delete facts.fingerprint
-        return typed.fingerprint === fingerprint(facts)
-      },
+        === trustedWork.visitedEvidenceNodeCount,
+      () => typed.completedWork.completeNextInputTraversalCount
+        === trustedWork.completeNextInputTraversalCount,
+      () => typed.completedWork.completeNextInputComparisonCount
+        === trustedWork.completeNextInputComparisonCount,
       () => typed.code !== "invalid-request-scoped-material",
     ]),
+    "producer failure facts do not match the exact terminal authority",
+  )
+  if (compared != null) return compared
+  compared = failureValidationResult(
+    authorizedCanonicalEqual(meter, typed.contracts, CONTRACTS),
+    "producer failure facts do not match the exact terminal authority",
+  )
+  if (compared != null) return compared
+  const failureFacts = { ...typed } as Record<string, unknown>
+  delete failureFacts.fingerprint
+  compared = failureValidationResult(
+    chargeAuthorizedSemanticTree(
+      meter,
+      failureFacts,
+      new Set<object>([runtimeIdentity]),
+    ),
+    "producer failure fingerprint facts are not exact data",
+  )
+  if (compared != null) return compared
+  compared = failureValidationResult(
+    authorizedComparison(
+      meter,
+      () => typed.fingerprint === fingerprint(failureFacts),
+    ),
     "producer failure facts do not match the exact terminal authority",
   )
   if (compared != null) return compared
@@ -1539,7 +2662,7 @@ function validateAuthorizedFailure(
       "non-ceiling failure cannot impersonate a work-limit terminal",
     )
   }
-  return compared ?? { status: "accepted", failure: typed, work: typed.completedWork }
+  return compared ?? { status: "accepted", failure: typed, work: trustedWork }
 }
 
 function consumeAuthorizedProducerTerminal(
@@ -1609,9 +2732,9 @@ function exactAuthorizedAcceptanceContext(
       message: "producer invocation authority is not the exact terminal Core record",
     }
   }
-  const tuple = exactAuthorizedTuple(terminal)
   const meter = createAuthorizedAcceptanceMeter(terminal)
   const descriptorCharge = meter.before("evidence-acceptance-descriptors")
+  const tuple = exactAuthorizedTuple(terminal)
   if (tuple == null) {
     return {
       status: "rejected",
@@ -1688,10 +2811,20 @@ export function acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInt
     )
   }
   if (context.status === "ceiling") {
+    const producerWork = trustedResponseProducerWork(context.terminal)
+    if (producerWork == null) {
+      return authorizedEvidenceBlocked(
+        context.tuple,
+        context.terminal,
+        context.meter,
+        "consumed response terminal has no exact producer work facts",
+      )
+    }
     return authorizedEvidenceLimitFallback(
       context.tuple,
       context.terminal,
       context.meter,
+      producerWork,
     )
   }
   if (context.status === "meter-invalid") {
@@ -1709,10 +2842,20 @@ export function acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInt
     context.meter,
   )
   if (validation.status === "ceiling") {
+    const producerWork = trustedResponseProducerWork(context.terminal)
+    if (producerWork == null) {
+      return authorizedEvidenceBlocked(
+        context.tuple,
+        context.terminal,
+        context.meter,
+        "consumed response terminal has no exact producer work facts",
+      )
+    }
     return authorizedEvidenceLimitFallback(
       context.tuple,
       context.terminal,
       context.meter,
+      producerWork,
     )
   }
   if (validation.status === "meter-invalid") {
@@ -1729,14 +2872,16 @@ export function acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInt
       context.terminal,
       context.meter,
       validation.message,
+      trustedResponseProducerWork(context.terminal),
     )
   }
   const registration = context.meter.before("evidence-acceptance-registrations")
   if (registration === "limit-exceeded") {
-    return authorizedEvidenceLimitFallback(
+    return authorizedEvidenceBlocked(
       context.tuple,
       context.terminal,
       context.meter,
+      "Evidence registration work limit was exceeded",
       validation.response.work,
     )
   }
@@ -1800,11 +2945,27 @@ export function acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureIntern
     )
   }
   if (context.status === "ceiling") {
+    if (
+      context.terminal.terminalOutcome === "producer-blocked"
+      && !isExactZeroDescriptorProducerBlockedTerminal(context.terminal)
+    ) {
+      return authorizedFailureBlocked(
+        context.tuple,
+        context.terminal,
+        context.meter,
+        "producer-blocked terminal is not the exact zero-descriptor ceiling",
+        trustedFailureProducerWork(context.terminal),
+      )
+    }
     return authorizedFailureLimitFallback(
       context.tuple,
       context.terminal,
       context.meter,
-      zeroAuthorizedProducerWork(context.tuple),
+      trustedFailureProducerWork(context.terminal),
+      "acceptance-work-limit",
+      context.terminal.terminalOutcome === "producer-blocked"
+        ? "work-ceiling-before-visit"
+        : null,
     )
   }
   if (context.status === "meter-invalid") {
@@ -1819,15 +2980,30 @@ export function acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureIntern
     input.responseOrFailure,
     context.terminal,
     input.producerRuntimeIdentity,
-    context.tuple,
     context.meter,
   )
   if (validation.status === "ceiling") {
+    if (
+      context.terminal.terminalOutcome === "producer-blocked"
+      && !isExactZeroDescriptorProducerBlockedTerminal(context.terminal)
+    ) {
+      return authorizedFailureBlocked(
+        context.tuple,
+        context.terminal,
+        context.meter,
+        "producer-blocked terminal is not the exact zero-descriptor ceiling",
+        trustedFailureProducerWork(context.terminal),
+      )
+    }
     return authorizedFailureLimitFallback(
       context.tuple,
       context.terminal,
       context.meter,
-      zeroAuthorizedProducerWork(context.tuple),
+      trustedFailureProducerWork(context.terminal),
+      "acceptance-work-limit",
+      context.terminal.terminalOutcome === "producer-blocked"
+        ? "work-ceiling-before-visit"
+        : null,
     )
   }
   if (validation.status === "meter-invalid") {
@@ -1844,23 +3020,7 @@ export function acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureIntern
       context.terminal,
       context.meter,
       validation.message,
-    )
-  }
-  const registration = context.meter.before("evidence-acceptance-registrations")
-  if (registration === "limit-exceeded") {
-    return authorizedFailureLimitFallback(
-      context.tuple,
-      context.terminal,
-      context.meter,
-      validation.work,
-    )
-  }
-  if (registration !== "charged") {
-    return authorizedFailureBlocked(
-      context.tuple,
-      context.terminal,
-      context.meter,
-      "fallback registration policy is unavailable",
+      trustedFailureProducerWork(context.terminal),
     )
   }
   return authorizedFailureLimitFallback(
@@ -1868,5 +3028,10 @@ export function acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureIntern
     context.terminal,
     context.meter,
     validation.work,
+    validation.failure?.code === "work-ceiling-before-visit"
+      || context.terminal.terminalOutcome === "producer-blocked"
+      ? "producer-work-limit"
+      : "producer-proof-failed",
+    validation.failure?.code ?? "work-ceiling-before-visit",
   )
 }

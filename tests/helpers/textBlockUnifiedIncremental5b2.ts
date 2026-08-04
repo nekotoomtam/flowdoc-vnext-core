@@ -247,6 +247,7 @@ export function authorizedEvidenceRequestBundle5B2(input: {
 
 export function authorizedProducerTerminalFixture5B2(input: {
   readonly insertedText?: string
+  readonly producerInsertedText?: string
   readonly limits?: Parameters<
     typeof createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2
   >[0]
@@ -255,7 +256,7 @@ export function authorizedProducerTerminalFixture5B2(input: {
 } = {}) {
   const fixtureLabel = input.insertedText ?? "X"
   const bundle = authorizedEvidenceRequestBundle5B2({
-    insertedText: "X",
+    insertedText: input.producerInsertedText ?? "X",
     policy: createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2(
       input.limits ?? {},
     ),

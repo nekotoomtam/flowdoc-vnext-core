@@ -17,6 +17,7 @@ import {
   createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV2,
   hasVNextTextBlockUnifiedLayoutTransitionEvidenceBindingInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV2.js"
+import * as transitionEvidenceV2Internals from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV2.js"
 import { noOpUnifiedLayoutChange5b } from "./helpers/textBlockUnifiedIncremental5b.js"
 import { createVNextCompactFingerprint } from "../src/fingerprint/compactFingerprint.js"
 import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
@@ -104,6 +105,108 @@ function workCount(
   unit: string,
 ) {
   return work.stageWork.find((row) => row.unit === unit)?.count ?? -1
+}
+
+type AuthorizedFallbackRecordTestV2 = {
+  readonly terminal: {
+    readonly state: string
+    readonly terminalOutcome: string | null
+    readonly request: unknown
+    readonly sourceMaterial: unknown
+    readonly runtimeIdentity: unknown
+    readonly completedWork: readonly {
+      readonly unit: string
+      readonly completedWork: number
+    }[]
+    readonly firstFailedEvaluation: unknown
+    readonly visitedEvidenceNodeCount: number
+  }
+  readonly failureKind:
+    | "acceptance-work-limit"
+    | "producer-work-limit"
+    | "producer-proof-failed"
+  readonly producerFailureCode: string | null
+  readonly acceptanceFailedEvaluation: {
+    readonly unit: string
+    readonly attemptedWork: number
+    readonly completedWork: number
+    readonly effectiveLimit: number | null
+  } | null
+  readonly producerWork: {
+    readonly requestedAtomCount: number
+    readonly requestedClusterCount: number
+    readonly consumedAtomCount: number
+    readonly consumedClusterCount: number
+    readonly unusedCoverageRenderedUtf16Length: number
+    readonly visitedEvidenceNodeCount: number
+    readonly completeNextInputTraversalCount: number
+    readonly completeNextInputComparisonCount: number
+  }
+  readonly completedCandidateWork: unknown
+}
+
+function getAuthorizedFallbackRecord(
+  authority: unknown,
+): AuthorizedFallbackRecordTestV2 | null {
+  const module = transitionEvidenceV2Internals as unknown as {
+    readonly getVNextTextBlockUnifiedLayoutAuthorizedFallbackAuthorityRecordInternalV2:
+      (value: unknown) => AuthorizedFallbackRecordTestV2 | null
+  }
+  return module
+    .getVNextTextBlockUnifiedLayoutAuthorizedFallbackAuthorityRecordInternalV2(
+      authority,
+    )
+}
+
+function acceptanceWorkCount(
+  work: { readonly stageWork: readonly { readonly unit: string; readonly count: number }[] },
+) {
+  return [
+    "evidence-acceptance-descriptors",
+    "evidence-acceptance-comparisons",
+    "evidence-acceptance-registrations",
+  ].reduce((sum, unit) => sum + workCount(work, unit), 0)
+}
+
+function expectExactProducerSemanticCounters(
+  actual: {
+    readonly evidence: {
+      readonly requestedAtomCount: number
+      readonly requestedClusterCount: number
+      readonly consumedAtomCount: number
+      readonly consumedClusterCount: number
+      readonly unusedCoverageRenderedUtf16Length: number
+      readonly visitedEvidenceNodeCount: number
+    }
+    readonly completeNextInputTraversalCount: number
+    readonly completeNextInputComparisonCount: number
+    readonly stageWork: readonly { readonly unit: string; readonly count: number }[]
+  },
+  expected: {
+    readonly requestedAtomCount: number
+    readonly requestedClusterCount: number
+    readonly consumedAtomCount: number
+    readonly consumedClusterCount: number
+    readonly unusedCoverageRenderedUtf16Length: number
+    readonly visitedEvidenceNodeCount: number
+    readonly completeNextInputTraversalCount: number
+    readonly completeNextInputComparisonCount: number
+  },
+) {
+  expect(actual.evidence).toMatchObject({
+    requestedAtomCount: expected.requestedAtomCount,
+    requestedClusterCount: expected.requestedClusterCount,
+    consumedAtomCount: expected.consumedAtomCount,
+    consumedClusterCount: expected.consumedClusterCount,
+    unusedCoverageRenderedUtf16Length:
+      expected.unusedCoverageRenderedUtf16Length,
+    visitedEvidenceNodeCount:
+      expected.visitedEvidenceNodeCount + acceptanceWorkCount(actual),
+  })
+  expect(actual.completeNextInputTraversalCount)
+    .toBe(expected.completeNextInputTraversalCount)
+  expect(actual.completeNextInputComparisonCount)
+    .toBe(expected.completeNextInputComparisonCount)
 }
 
 function hostileObject(label: string, observed: string[]): object {
@@ -415,6 +518,10 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     }
     expect(workCount(result.completedCandidateWork, "evidence-acceptance-descriptors"))
       .toBeGreaterThan(0)
+    expectExactProducerSemanticCounters(
+      result.completedCandidateWork,
+      fixture.result.response.work,
+    )
     expect(result.completedCandidateWork.completeNextInputTraversalCount).toBe(0)
     expect(result.completedCandidateWork.flow.completeTreeRebuildCount).toBe(0)
     expect(result.completedCandidateWork.flow.completeSuffixTraversalCount).toBe(0)
@@ -424,8 +531,7 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
   it.each([
     "evidence-acceptance-descriptors",
     "evidence-acceptance-comparisons",
-    "evidence-acceptance-registrations",
-  ] as const)("authorized acceptance stops before a zero %s operation and admits no partial candidate", (unit) => {
+  ] as const)("authorized acceptance stops before a zero %s operation, registers once, and backs fallback by the exact terminal", (unit) => {
     const fixture = authorizedFixture({ insertedText: unit, limits: { [unit]: 0 } })
     expect(fixture.result.status).toBe("accepted")
     if (fixture.result.status !== "accepted") return
@@ -450,9 +556,134 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
       issues: [],
     })
     expect(workCount(result.completedCandidateWork, unit)).toBe(0)
+    expect(workCount(
+      result.completedCandidateWork,
+      "evidence-acceptance-registrations",
+    )).toBe(1)
     expect(result.completedCandidateWork.completeNextInputTraversalCount).toBe(0)
     expect(result.completedCandidateWork.completeSceneTraversalCount).toBe(0)
     if (unit === "evidence-acceptance-descriptors") expect(observed).toEqual([])
+    if (result.status !== "fallback-required") return
+    const record = getAuthorizedFallbackRecord(result.evaluatorOrProofAuthority)
+    expect(record).toMatchObject({
+      terminal: {
+        state: "acceptance-consumed",
+        terminalOutcome: "producer-response",
+        request: fixture.request,
+        sourceMaterial: fixture.sourceMaterial,
+        runtimeIdentity: fixture.producerRuntimeIdentity,
+      },
+      failureKind: "acceptance-work-limit",
+      producerFailureCode: null,
+      acceptanceFailedEvaluation: {
+        unit,
+        attemptedWork: 1,
+        completedWork: 0,
+        effectiveLimit: 0,
+      },
+      producerWork: fixture.result.response.work,
+      completedCandidateWork: result.completedCandidateWork,
+    })
+    expect(Object.isFrozen(record)).toBe(true)
+    expect(Object.isFrozen(record?.terminal)).toBe(true)
+    expect(Object.isFrozen(record?.producerWork)).toBe(true)
+    expect(Object.isFrozen(record?.acceptanceFailedEvaluation)).toBe(true)
+  })
+
+  it("blocks a denied fallback registration without minting authority", () => {
+    const fixture = authorizedFixture({
+      insertedText: "RegistrationDenied",
+      limits: {
+        "evidence-acceptance-descriptors": 0,
+        "evidence-acceptance-registrations": 0,
+      },
+    })
+    expect(fixture.result.status).toBe("accepted")
+    if (fixture.result.status !== "accepted") return
+
+    const result =
+      acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInternalV2({
+        previousRoot: fixture.previousRoot,
+        change: fixture.change,
+        request: fixture.request,
+        sourceMaterial: fixture.sourceMaterial,
+        producerInvocationAuthority: fixture.producerInvocationAuthority,
+        producerRuntimeIdentity: fixture.producerRuntimeIdentity,
+        responseOrFailure: hostileObject("registration-denied-response", []),
+      })
+
+    expect(result).toMatchObject({ status: "blocked", evidence: null })
+    expect("evaluatorOrProofAuthority" in result).toBe(false)
+    expect(workCount(
+      result.completedCandidateWork,
+      "evidence-acceptance-registrations",
+    )).toBe(0)
+  })
+
+  it.each([
+    "evidence-acceptance-descriptors",
+    "evidence-acceptance-comparisons",
+  ] as const)("failure acceptance stops at a zero %s ceiling, registers once, and retains exact producer facts", (unit) => {
+    const fixture = authorizedFixture({
+      insertedText: `Failure-${unit}`,
+      runtimeFailure: "shape",
+      limits: { [unit]: 0 },
+    })
+    expect(fixture.result.status).toBe("blocked")
+    if (fixture.result.status !== "blocked") return
+    const result =
+      acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureInternalV2({
+        previousRoot: fixture.previousRoot,
+        change: fixture.change,
+        request: fixture.request,
+        sourceMaterial: fixture.sourceMaterial,
+        producerInvocationAuthority: fixture.producerInvocationAuthority,
+        producerRuntimeIdentity: fixture.producerRuntimeIdentity,
+        responseOrFailure: fixture.result.failure,
+      })
+
+    expect(result).toMatchObject({
+      status: "fallback-required",
+      evaluatorOrProofAuthority: expect.any(Object),
+      issues: [],
+    })
+    expect(workCount(result.completedCandidateWork, unit)).toBe(0)
+    expect(workCount(
+      result.completedCandidateWork,
+      "evidence-acceptance-registrations",
+    )).toBe(1)
+    expectExactProducerSemanticCounters(
+      result.completedCandidateWork,
+      fixture.result.failure.completedWork,
+    )
+    if (result.status === "fallback-required") {
+      const record = getAuthorizedFallbackRecord(
+        result.evaluatorOrProofAuthority,
+      )
+      expect(record).toMatchObject({
+        terminal: {
+          state: "acceptance-consumed",
+          terminalOutcome: "producer-failure",
+          request: fixture.request,
+          sourceMaterial: fixture.sourceMaterial,
+          runtimeIdentity: fixture.producerRuntimeIdentity,
+        },
+        failureKind: "acceptance-work-limit",
+        producerFailureCode: null,
+        acceptanceFailedEvaluation: {
+          unit,
+          attemptedWork: 1,
+          completedWork: 0,
+          effectiveLimit: 0,
+        },
+        producerWork: fixture.result.failure.completedWork,
+        completedCandidateWork: result.completedCandidateWork,
+      })
+      expect(Object.isFrozen(record)).toBe(true)
+      expect(Object.isFrozen(record?.terminal)).toBe(true)
+      expect(Object.isFrozen(record?.producerWork)).toBe(true)
+      expect(Object.isFrozen(record?.acceptanceFailedEvaluation)).toBe(true)
+    }
   })
 
   it.each([
@@ -493,11 +724,17 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
         producerRuntimeIdentity: below.producerRuntimeIdentity,
         responseOrFailure: below.result.response,
       })
-    expect(belowAcceptance).toMatchObject({
-      status: "fallback-required",
-      evidence: null,
-      issues: [],
-    })
+    expect(belowAcceptance).toMatchObject(unit === "evidence-acceptance-registrations"
+      ? {
+          status: "blocked",
+          evidence: null,
+          issues: expect.any(Array),
+        }
+      : {
+          status: "fallback-required",
+          evidence: null,
+          issues: [],
+        })
     expect(workCount(belowAcceptance.completedCandidateWork, unit))
       .toBe(exactCompleted - 1)
 
@@ -519,6 +756,59 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
       })
     expect(atAcceptance.status).toBe("accepted")
     expect(workCount(atAcceptance.completedCandidateWork, unit)).toBe(exactCompleted)
+  })
+
+  it("charges each semantic element and stops at a hand-derived low limit before a late invalid offset", () => {
+    const comparisonLimitBeforeLateOffset = 80
+    const fixture = authorizedFixture({
+      insertedText: "LateOffset",
+      limits: {
+        "evidence-acceptance-comparisons": comparisonLimitBeforeLateOffset,
+      },
+    })
+    expect(fixture.result.status).toBe("accepted")
+    if (fixture.result.status !== "accepted") return
+    const response = structuredClone(fixture.result.response)
+    const secondProof = response.segmentationBoundaryProofs[1]
+    if (secondProof == null) throw new Error("late-offset fixture requires two proofs")
+    const invalidSecondProof = rehash({
+      ...secondProof,
+      targetBreakOffsets: [0, 0],
+    })
+    const lateInvalid = rehash({
+      ...response,
+      segmentationBoundaryProofs: [
+        response.segmentationBoundaryProofs[0]!,
+        invalidSecondProof,
+      ],
+      runtimeIdentity: fixture.producerRuntimeIdentity,
+    })
+
+    const result =
+      acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInternalV2({
+        previousRoot: fixture.previousRoot,
+        change: fixture.change,
+        request: fixture.request,
+        sourceMaterial: fixture.sourceMaterial,
+        producerInvocationAuthority: fixture.producerInvocationAuthority,
+        producerRuntimeIdentity: fixture.producerRuntimeIdentity,
+        responseOrFailure: lateInvalid,
+      })
+
+    expect(result).toMatchObject({
+      status: "fallback-required",
+      evidence: null,
+      evaluatorOrProofAuthority: expect.any(Object),
+      issues: [],
+    })
+    expect(workCount(
+      result.completedCandidateWork,
+      "evidence-acceptance-comparisons",
+    )).toBe(comparisonLimitBeforeLateOffset)
+    expect(workCount(
+      result.completedCandidateWork,
+      "evidence-acceptance-registrations",
+    )).toBe(1)
   })
 
   it("vertical authority zero-limit producer failure preserves attempted/completed facts and mints candidate-free work-limit fallback", () => {
@@ -572,6 +862,39 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     })
     expect(workCount(accepted.completedCandidateWork, "evidence-producer-descriptors"))
       .toBe(0)
+    expect(workCount(
+      accepted.completedCandidateWork,
+      "evidence-acceptance-registrations",
+    )).toBe(1)
+    if (accepted.status === "fallback-required") {
+      expect(getAuthorizedFallbackRecord(
+        accepted.evaluatorOrProofAuthority,
+      )).toMatchObject({
+        terminal: {
+          state: "acceptance-consumed",
+          terminalOutcome: "producer-blocked",
+          firstFailedEvaluation: {
+            unit: "evidence-producer-descriptors",
+            attemptedWork: 1,
+            completedWork: 0,
+            effectiveLimit: 0,
+          },
+        },
+        failureKind: "producer-work-limit",
+        producerFailureCode: "work-ceiling-before-visit",
+        producerWork: {
+          requestedAtomCount: 3,
+          requestedClusterCount: 3,
+          consumedAtomCount: 0,
+          consumedClusterCount: 0,
+          unusedCoverageRenderedUtf16Length: 0,
+          visitedEvidenceNodeCount: 0,
+          completeNextInputTraversalCount: 0,
+          completeNextInputComparisonCount: 0,
+        },
+        completedCandidateWork: accepted.completedCandidateWork,
+      })
+    }
     expect(inspectVNextTextBlockTransitionProducerInvocationAuthorityInternalV2(
       fixture.producerInvocationAuthority,
     )).toMatchObject({
@@ -584,16 +907,187 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     })
   })
 
-  it("vertical authority exact cluster ceiling retains emitted clusters and rejects a forged non-ceiling work-limit failure", () => {
+  it("blocks a late producer-blocked terminal before acceptance fallback and retains its exact producer rows", () => {
+    const fixture = authorizedFixture({
+      insertedText: "LateProducerBlocked",
+      limits: {
+        "evidence-response-facts": 0,
+        "evidence-acceptance-descriptors": 0,
+      },
+    })
+    expect(fixture.result).toMatchObject({
+      status: "not-invoked",
+      response: null,
+      failure: null,
+    })
+    const terminal =
+      inspectVNextTextBlockTransitionProducerInvocationAuthorityInternalV2(
+        fixture.producerInvocationAuthority,
+      )
+    expect(terminal).toMatchObject({
+      state: "producer-blocked",
+      terminalOutcome: "producer-blocked",
+      firstFailedEvaluation: {
+        unit: "evidence-response-facts",
+        attemptedWork: 1,
+        completedWork: 0,
+        effectiveLimit: 0,
+      },
+    })
+    const exactClusterCount = terminal?.completedWork.find(
+      (row) => row.unit === "evidence-clusters",
+    )?.completedWork ?? 0
+    expect(exactClusterCount).toBeGreaterThan(0)
+
+    const accepted =
+      acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureInternalV2({
+        previousRoot: fixture.previousRoot,
+        change: fixture.change,
+        request: fixture.request,
+        sourceMaterial: fixture.sourceMaterial,
+        producerInvocationAuthority: fixture.producerInvocationAuthority,
+        producerRuntimeIdentity: fixture.producerRuntimeIdentity,
+        responseOrFailure: fixture.result.failure,
+      })
+
+    expect(accepted).toMatchObject({
+      status: "blocked",
+      evaluatorOrProofAuthority: null,
+      completedCandidateWork: {
+        evidence: {
+          consumedAtomCount: fixture.sourceMaterial.next.atoms.length,
+          consumedClusterCount: exactClusterCount,
+        },
+      },
+    })
+    expect(workCount(
+      accepted.completedCandidateWork,
+      "evidence-acceptance-descriptors",
+    )).toBe(0)
+    expect(workCount(
+      accepted.completedCandidateWork,
+      "evidence-acceptance-registrations",
+    )).toBe(0)
+  })
+
+  it("retains consumed atoms when a late runtime-output descriptor ceiling becomes producer-blocked", () => {
+    const calibration = authorizedFixture({ insertedText: "DescriptorCalibration" })
+    expect(calibration.result.status).toBe("accepted")
+    const calibrationTerminal =
+      inspectVNextTextBlockTransitionProducerInvocationAuthorityInternalV2(
+        calibration.producerInvocationAuthority,
+      )
+    const exactDescriptorCount = calibrationTerminal?.completedWork.find(
+      (row) => row.unit === "evidence-producer-descriptors",
+    )?.completedWork ?? 0
+    expect(exactDescriptorCount).toBeGreaterThan(1)
+
+    const fixture = authorizedFixture({
+      insertedText: "LateDescriptorProducerBlocked",
+      limits: {
+        "evidence-producer-descriptors": exactDescriptorCount - 1,
+        "evidence-response-facts": 0,
+        "evidence-acceptance-descriptors": 0,
+      },
+    })
+    expect(fixture.result).toMatchObject({
+      status: "not-invoked",
+      response: null,
+      failure: null,
+    })
+    const terminal =
+      inspectVNextTextBlockTransitionProducerInvocationAuthorityInternalV2(
+        fixture.producerInvocationAuthority,
+      )
+    expect(terminal).toMatchObject({
+      state: "producer-blocked",
+      terminalOutcome: "producer-blocked",
+      firstFailedEvaluation: {
+        unit: "evidence-producer-descriptors",
+        attemptedWork: exactDescriptorCount,
+        completedWork: exactDescriptorCount - 1,
+        effectiveLimit: exactDescriptorCount - 1,
+      },
+    })
+    expect(terminal?.completedWork.some((row) =>
+      row.unit !== "evidence-producer-descriptors" && row.completedWork > 0
+    )).toBe(true)
+    const exactClusterCount = terminal?.completedWork.find(
+      (row) => row.unit === "evidence-clusters",
+    )?.completedWork ?? 0
+
+    const accepted =
+      acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureInternalV2({
+        previousRoot: fixture.previousRoot,
+        change: fixture.change,
+        request: fixture.request,
+        sourceMaterial: fixture.sourceMaterial,
+        producerInvocationAuthority: fixture.producerInvocationAuthority,
+        producerRuntimeIdentity: fixture.producerRuntimeIdentity,
+        responseOrFailure: fixture.result.failure,
+      })
+
+    expect(accepted).toMatchObject({
+      status: "blocked",
+      evaluatorOrProofAuthority: null,
+      completedCandidateWork: {
+        evidence: {
+          consumedAtomCount: fixture.sourceMaterial.next.atoms.length,
+          consumedClusterCount: exactClusterCount,
+        },
+      },
+    })
+    expect(workCount(
+      accepted.completedCandidateWork,
+      "evidence-acceptance-registrations",
+    )).toBe(0)
+  })
+
+  it("blocks exact producer failure when its fallback registration is denied", () => {
+    const fixture = authorizedFixture({
+      insertedText: "FailureRegistrationDenied",
+      runtimeFailure: "shape",
+      limits: { "evidence-acceptance-registrations": 0 },
+    })
+    expect(fixture.result.status).toBe("blocked")
+    if (fixture.result.status !== "blocked") return
+
+    const result =
+      acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureInternalV2({
+        previousRoot: fixture.previousRoot,
+        change: fixture.change,
+        request: fixture.request,
+        sourceMaterial: fixture.sourceMaterial,
+        producerInvocationAuthority: fixture.producerInvocationAuthority,
+        producerRuntimeIdentity: fixture.producerRuntimeIdentity,
+        responseOrFailure: fixture.result.failure,
+      })
+
+    expect(result).toMatchObject({
+      status: "blocked",
+      evaluatorOrProofAuthority: null,
+    })
+    expect(workCount(
+      result.completedCandidateWork,
+      "evidence-acceptance-registrations",
+    )).toBe(0)
+    expectExactProducerSemanticCounters(
+      result.completedCandidateWork,
+      fixture.result.failure.completedWork,
+    )
+  })
+
+  it("vertical authority exact denied-next cluster retains one emitted cluster and rejects a rehashed non-ceiling work-limit forgery", () => {
     const ceiling = authorizedFixture({
       insertedText: "ClusterCeiling",
-      limits: { "evidence-clusters": 0 },
+      producerInsertedText: "AA",
+      limits: { "evidence-clusters": 1 },
     })
     expect(ceiling.result).toMatchObject({
       status: "blocked",
       failure: {
         code: "work-ceiling-before-visit",
-        completedWork: { consumedClusterCount: 0 },
+        completedWork: { consumedClusterCount: 1 },
       },
     })
     if (ceiling.result.status !== "blocked") return
@@ -608,9 +1102,23 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     })
     expect(accepted).toMatchObject({
       status: "fallback-required",
-      completedCandidateWork: { evidence: { consumedClusterCount: 0 } },
+      completedCandidateWork: { evidence: { consumedClusterCount: 1 } },
       issues: [],
     })
+    expectExactProducerSemanticCounters(
+      accepted.completedCandidateWork,
+      ceiling.result.failure.completedWork,
+    )
+    if (accepted.status === "fallback-required") {
+      expect(getAuthorizedFallbackRecord(
+        accepted.evaluatorOrProofAuthority,
+      )).toMatchObject({
+        failureKind: "producer-work-limit",
+        producerFailureCode: "work-ceiling-before-visit",
+        producerWork: ceiling.result.failure.completedWork,
+        completedCandidateWork: accepted.completedCandidateWork,
+      })
+    }
 
     const exactNonCeiling = authorizedFixture({
       insertedText: "ExactNonCeiling",
@@ -621,7 +1129,8 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
       failure: { code: "pinned-font-unavailable" },
     })
     if (exactNonCeiling.result.status !== "blocked") return
-    expect(acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureInternalV2({
+    const exactNonCeilingAcceptance =
+      acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureInternalV2({
       previousRoot: exactNonCeiling.previousRoot,
       change: exactNonCeiling.change,
       request: exactNonCeiling.request,
@@ -629,11 +1138,43 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
       producerInvocationAuthority: exactNonCeiling.producerInvocationAuthority,
       producerRuntimeIdentity: exactNonCeiling.producerRuntimeIdentity,
       responseOrFailure: exactNonCeiling.result.failure,
-    })).toMatchObject({
+    })
+    expect(exactNonCeilingAcceptance).toMatchObject({
       status: "fallback-required",
       evaluatorOrProofAuthority: expect.any(Object),
       issues: [],
     })
+    expectExactProducerSemanticCounters(
+      exactNonCeilingAcceptance.completedCandidateWork,
+      exactNonCeiling.result.failure.completedWork,
+    )
+    expect(workCount(
+      exactNonCeilingAcceptance.completedCandidateWork,
+      "evidence-acceptance-registrations",
+    )).toBe(1)
+    if (exactNonCeilingAcceptance.status === "fallback-required") {
+      expect(getAuthorizedFallbackRecord(
+        exactNonCeilingAcceptance.evaluatorOrProofAuthority,
+      )).toMatchObject({
+        failureKind: "producer-proof-failed",
+        producerFailureCode: "pinned-font-unavailable",
+        producerWork: exactNonCeiling.result.failure.completedWork,
+      })
+    }
+    const replayObserved: string[] = []
+    expect(acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureInternalV2({
+      previousRoot: hostileObject("failure-replay-root", replayObserved) as never,
+      change: hostileObject("failure-replay-change", replayObserved) as never,
+      request: exactNonCeiling.request,
+      sourceMaterial: exactNonCeiling.sourceMaterial,
+      producerInvocationAuthority: exactNonCeiling.producerInvocationAuthority,
+      producerRuntimeIdentity: hostileObject(
+        "failure-replay-runtime",
+        replayObserved,
+      ) as never,
+      responseOrFailure: hostileObject("failure-replay-payload", replayObserved),
+    })).toMatchObject({ status: "blocked", evaluatorOrProofAuthority: null })
+    expect(replayObserved).toEqual([])
 
     const nonCeiling = authorizedFixture({
       insertedText: "ForgedNonCeiling",
@@ -641,12 +1182,11 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     })
     expect(nonCeiling.result.status).toBe("blocked")
     if (nonCeiling.result.status !== "blocked") return
-    const forged = {
+    const forged = rehash({
       ...structuredClone(nonCeiling.result.failure),
       runtimeIdentity: nonCeiling.producerRuntimeIdentity,
       code: "work-ceiling-before-visit" as const,
-      fingerprint: nonCeiling.result.failure.fingerprint,
-    }
+    })
     expect(acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureInternalV2({
       previousRoot: nonCeiling.previousRoot,
       change: nonCeiling.change,
@@ -658,6 +1198,9 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     })).toMatchObject({
       status: "blocked",
       evaluatorOrProofAuthority: null,
+      issues: [{
+        message: "work-limit failure does not match the exact failed terminal evaluation",
+      }],
     })
   })
 
@@ -694,6 +1237,53 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     })
     expect(observed).toEqual([])
     expect(accessorCalls).toBe(0)
+  })
+
+  it.each([
+    ["requestedAtomCount", 2],
+    ["requestedClusterCount", 2],
+    ["consumedAtomCount", 1],
+    ["consumedClusterCount", 1],
+    ["unusedCoverageRenderedUtf16Length", 1],
+    ["visitedEvidenceNodeCount", 334],
+    ["completeNextInputTraversalCount", 1],
+    ["completeNextInputComparisonCount", 1],
+  ] as const)("rejects a rehashed failure mutation of exact semantic counter %s and retains trusted producer facts", (field, replacement) => {
+    const fixture = authorizedFixture({
+      insertedText: `FailureCounter-${field}`,
+      runtimeFailure: "shape",
+    })
+    expect(fixture.result.status).toBe("blocked")
+    if (fixture.result.status !== "blocked") return
+    const mutatedWork = {
+      ...structuredClone(fixture.result.failure.completedWork),
+      [field]: replacement,
+    }
+    const mutatedFailure = rehash({
+      ...structuredClone(fixture.result.failure),
+      runtimeIdentity: fixture.producerRuntimeIdentity,
+      completedWork: mutatedWork,
+    })
+
+    const result =
+      acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureInternalV2({
+        previousRoot: fixture.previousRoot,
+        change: fixture.change,
+        request: fixture.request,
+        sourceMaterial: fixture.sourceMaterial,
+        producerInvocationAuthority: fixture.producerInvocationAuthority,
+        producerRuntimeIdentity: fixture.producerRuntimeIdentity,
+        responseOrFailure: mutatedFailure,
+      })
+
+    expect(result).toMatchObject({
+      status: "blocked",
+      evaluatorOrProofAuthority: null,
+    })
+    expectExactProducerSemanticCounters(
+      result.completedCandidateWork,
+      fixture.result.failure.completedWork,
+    )
   })
 })
 
