@@ -29,10 +29,8 @@ import {
   inspectVNextTextBlockTransitionProducerInvocationAuthorityInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutProducerInvocationAuthorityV2.js"
 import type {
-  VNextTextBlockTransitionEvidenceRequestV2,
   VNextTextBlockTransitionProducerResponseV2,
   VNextTextBlockTransitionProducerRuntimeIdentityV2,
-  VNextTextBlockTransitionProducerSourceMaterialV2,
 } from "../src/layout/textBlockUnifiedLayoutEvidenceContractV2.js"
 
 function frozen<T>(value: T): T {
@@ -215,283 +213,111 @@ function expectExactProducerSemanticCounters(
     .toBe(expected.completeNextInputComparisonCount)
 }
 
-function handSemanticTreeComparisonChargeCount(
-  value: unknown,
-  preserveExact: ReadonlySet<object> = new Set<object>(),
-): number {
-  // One charge reads each value. Containers then charge own-key reflection and
-  // one descriptor read per own key before descending into that exact value.
-  let count = 1
-  if (value == null || typeof value !== "object" || preserveExact.has(value)) {
-    return count
-  }
-  count += 1
-  for (const key of Reflect.ownKeys(value)) {
-    const descriptor = Object.getOwnPropertyDescriptor(value, key)
-    if (descriptor == null || !Object.hasOwn(descriptor, "value")) {
-      throw new Error("hand-derived semantic tree requires exact data fields")
-    }
-    count += 1 + handSemanticTreeComparisonChargeCount(
-      descriptor.value,
-      preserveExact,
-    )
-  }
-  return count
-}
+const LATE_OFFSET_FIXTURE_COMPARISON_LEDGER = Object.freeze({
+  // Fixed response envelope: 14 exact keys, six authority checks, two
+  // canonical fixed trees, the eight-field work tree, array/header checks,
+  // and the exact response fingerprint tree/equality.
+  responseExactKeyChecks: 47,
+  responseAuthorityHeaderChecks: 6,
+  targetRangeCanonicalChecks: 13,
+  contractsTreeChecks: 33,
+  producerWorkTreeChecks: 18,
+  workAndResponseArrayChecks: 6,
+  responseFingerprintTreeChecks: 198,
+  responseFingerprintEquality: 1,
 
-function handExactKeysComparisonChargeCount(keyCount: number): number {
-  // Object kind, prototype, symbols, own-key reflection, key-count equality,
-  // then membership/descriptor/data-property checks for every exact key.
-  return 5 + 3 * keyCount
-}
+  // Fixed Source fixture: two text atoms merge into one style partition.
+  sourceCoverageAtomReadsAndCompositions: 4,
+  sourcePartitionAtomTraversalAndClassification: 4,
+  sourcePartitionRangesAndPreviousLookups: 4,
+  sourceFirstPartitionConstruction: 1,
+  sourcePartitionContinuity: 1,
+  sourceStyleCanonicalTreeAndEquality: 53,
+  sourceSecondPartitionConstruction: 1,
+  sourceProjectionTraversalClipNonemptyAndAppend: 4,
 
-function handCanonicalComparisonChargeCount(
-  left: unknown,
-  right: unknown,
-  preserveExact: ReadonlySet<object> = new Set<object>(),
-): number {
-  return handSemanticTreeComparisonChargeCount(left, preserveExact)
-    + handSemanticTreeComparisonChargeCount(right, preserveExact)
-    + 1
-}
+  // Fixed response: one shaping run, one cluster, and one boundary proof.
+  shapingRunAndProofCardinality: 2,
+  shapingRunAndSourceRowTraversal: 2,
+  shapingRunExactKeyChecks: 41,
+  shapingRunIdentityTreeChecks: 17,
+  shapingRunScalarChecks: 14,
+  clusterTraversalExactKeyAndScalarChecks: 24,
+  clusterCoverageAggregationAndProofTraversal: 3,
+  shapingBoundaryConstructions: 3,
+  shapingProofExactKeyChecks: 26,
+  shapingProofRangeExactKeyChecks: 22,
+  shapingProofRangeCanonicalChecks: 26,
+  shapingProofScalarAndRightGuardChecks: 7,
+  shapingProofFingerprintTreeAndEquality: 25,
 
-function handDerivedComparisonBoundaryBeforeLateOffset(input: {
-  readonly response: VNextTextBlockTransitionProducerResponseV2
-  readonly request: VNextTextBlockTransitionEvidenceRequestV2
-  readonly sourceMaterial: VNextTextBlockTransitionProducerSourceMaterialV2
-  readonly runtimeIdentity: VNextTextBlockTransitionProducerRuntimeIdentityV2
-}): {
-  readonly limit: number
-  readonly ledger: readonly { readonly phase: string; readonly count: number }[]
-} {
-  const ledger: Array<{ phase: string; count: number }> = []
-  const charge = (phase: string, count: number) => {
-    ledger.push({ phase, count })
-  }
-  const preserveRuntime = new Set<object>([input.runtimeIdentity])
+  // Fixed segmentation fixture: cardinality, the complete first proof, then
+  // the second proof through its first offset. The next operation is traversal
+  // of the targeted second offset.
+  segmentationProofCardinality: 1,
+  firstProofAndContextTraversal: 2,
+  firstProofExactKeyChecks: 20,
+  firstContextExactKeyChecks: 11,
+  firstContextCanonicalChecks: 13,
+  firstProofHeaderChecks: 3,
+  firstOffsetTraversalAndScalarChecks: 4,
+  firstInspectedOffsetChecks: 2,
+  firstProofFingerprintTreeAndEquality: 21,
+  firstStableAssignment: 1,
+  secondProofAndContextTraversal: 2,
+  secondProofExactKeyChecks: 20,
+  secondContextExactKeyChecks: 11,
+  secondContextCanonicalChecks: 13,
+  secondProofHeaderChecks: 3,
+  secondFirstOffsetTraversalAndScalarChecks: 4,
+})
 
-  charge("response exact keys", handExactKeysComparisonChargeCount(14))
-  charge("response authority facts", 6)
-  charge(
-    "target range canonical equality",
-    handCanonicalComparisonChargeCount(
-      input.response.nextEvidenceTargetRange,
-      input.request.next.evidenceTargetRange,
-    ),
-  )
-  charge(
-    "contracts canonical equality",
-    handCanonicalComparisonChargeCount(
-      input.response.contracts,
-      input.response.contracts,
-    ),
-  )
-  charge(
-    "producer work semantic tree",
-    handSemanticTreeComparisonChargeCount(input.response.work),
-  )
-  charge("work and response-array facts", 6)
-  const responseFacts = { ...input.response } as Record<string, unknown>
-  delete responseFacts.fingerprint
-  charge(
-    "response fingerprint semantic tree",
-    handSemanticTreeComparisonChargeCount(responseFacts, preserveRuntime),
-  )
-  charge("response fingerprint equality", 1)
-
-  type StyledAtom = Extract<
-    (typeof input.sourceMaterial.next.atoms)[number],
-    { readonly resolvedStyle: unknown }
-  >
-  const coverageStart = input.request.next.coverageRange.startRenderedUtf16
-  let coverageText = ""
-  for (const atom of input.sourceMaterial.next.atoms) {
-    charge("Source atom text traversal/composition", 2)
-    coverageText += atom.renderedText
-  }
-  const partitions: Array<{
-    start: number
-    end: number
-    style: StyledAtom["resolvedStyle"]
-    atomFingerprints: string[]
-  }> = []
-  for (const atom of input.sourceMaterial.next.atoms) {
-    charge("Source partition atom traversal/classification", 2)
-    if (atom.kind === "hard-break" || atom.kind === "inline-image-boundary") {
-      continue
-    }
-    const styledAtom = atom as StyledAtom
-    const start = coverageStart + styledAtom.relativeStartRenderedUtf16
-    const end = coverageStart + styledAtom.relativeEndRenderedUtf16
-    charge("Source partition range/previous lookup", 2)
-    const previous = partitions.at(-1)
-    let extendsPrevious = false
-    if (previous != null) {
-      charge("Source partition continuity", 1)
-      if (previous.end === start) {
-        charge(
-          "Source partition style canonical equality",
-          handCanonicalComparisonChargeCount(
-            previous.style,
-            styledAtom.resolvedStyle,
-          ),
-        )
-        extendsPrevious = stringifyVNextCanonicalJson(previous.style)
-          === stringifyVNextCanonicalJson(styledAtom.resolvedStyle)
-      }
-    }
-    charge("Source partition construction", 1)
-    if (previous != null && extendsPrevious) {
-      previous.end = end
-      previous.atomFingerprints.push(styledAtom.fingerprint)
-    } else {
-      partitions.push({
-        start,
-        end,
-        style: styledAtom.resolvedStyle,
-        atomFingerprints: [styledAtom.fingerprint],
-      })
-    }
-  }
-
-  const targetStart = input.response.nextEvidenceTargetRange.startRenderedUtf16
-  const targetEnd = input.response.nextEvidenceTargetRange.endRenderedUtf16
-  const expected = partitions.flatMap((partition) => {
-    charge("Source partition traversal/clip/nonempty", 3)
-    const start = Math.max(partition.start, targetStart)
-    const end = Math.min(partition.end, targetEnd)
-    if (end <= start) return []
-    charge("Source partition projection", 1)
-    return [{ partition, start, end }]
-  })
-  charge("shaping run/proof cardinality", 2)
-
-  for (let runIndex = 0; runIndex < input.response.shapingRuns.length; runIndex += 1) {
-    const run = input.response.shapingRuns[runIndex]!
-    const row = expected[runIndex]!
-    const proof = input.response.shapingBoundaryProofs[runIndex]!
-    charge("shaping run and Source row traversal", 2)
-    charge("shaping run exact keys", handExactKeysComparisonChargeCount(12))
-    charge(
-      "shaping run identity semantic tree",
-      handSemanticTreeComparisonChargeCount({
-        request: input.request.fingerprint,
-        atoms: row.partition.atomFingerprints,
-        runStart: row.start,
-        runEnd: row.end,
-      }),
-    )
-    charge("shaping run facts", 14)
-    for (const _cluster of run.clusters) {
-      charge("cluster traversal", 1)
-      charge("cluster exact keys", handExactKeysComparisonChargeCount(4))
-      charge("cluster facts", 6)
-    }
-    charge("cluster coverage/aggregation/proof traversal", 3)
-    charge("shaping boundary constructions", 3)
-    charge("shaping proof exact keys", handExactKeysComparisonChargeCount(7))
-    charge("shaping target range exact keys", handExactKeysComparisonChargeCount(2))
-    charge(
-      "shaping verification range exact keys",
-      handExactKeysComparisonChargeCount(2),
-    )
-    charge(
-      "shaping target canonical equality",
-      handCanonicalComparisonChargeCount(proof.targetRange, {
-        startRenderedUtf16: row.start,
-        endRenderedUtf16: row.end,
-      }),
-    )
-    const expectedVerification = {
-      startRenderedUtf16: Math.max(
-        row.partition.start,
-        input.request.next.shapeVerificationRange.startRenderedUtf16,
-      ),
-      endRenderedUtf16: Math.min(
-        row.partition.end,
-        input.request.next.shapeVerificationRange.endRenderedUtf16,
-      ),
-    }
-    charge(
-      "shaping verification canonical equality",
-      handCanonicalComparisonChargeCount(
-        proof.verificationRange,
-        expectedVerification,
-      ),
-    )
-    charge("shaping proof scalar facts", 6)
-    const expectedRight = row.end === row.partition.end
-      || row.end === coverageStart + coverageText.length
-      ? "exact-style-or-block-end"
-      : "safe-first-right-guard-glyph"
-    if (expectedRight === "safe-first-right-guard-glyph") {
-      charge("right guard proof", 1)
-    }
-    const proofFacts = { ...proof } as Record<string, unknown>
-    delete proofFacts.fingerprint
-    charge(
-      "shaping proof fingerprint semantic tree",
-      handSemanticTreeComparisonChargeCount(proofFacts),
-    )
-    charge("shaping proof fingerprint equality", 1)
-  }
-
-  charge("segmentation proof cardinality", 1)
-  let previousBreaks: readonly number[] | null = null
-  for (
-    let proofIndex = 0;
-    proofIndex < input.response.segmentationBoundaryProofs.length;
-    proofIndex += 1
-  ) {
-    const proof = input.response.segmentationBoundaryProofs[proofIndex]!
-    const expectedContext = input.request.nextSegmentationContextRanges[proofIndex]!
-    charge("segmentation proof/context traversal", 2)
-    charge("segmentation proof exact keys", handExactKeysComparisonChargeCount(5))
-    charge("segmentation context exact keys", handExactKeysComparisonChargeCount(2))
-    charge(
-      "segmentation context canonical equality",
-      handCanonicalComparisonChargeCount(proof.contextRange, expectedContext),
-    )
-    charge("segmentation proof header facts", 3)
-    for (
-      let offsetIndex = 0;
-      offsetIndex < proof.targetBreakOffsets.length;
-      offsetIndex += 1
-    ) {
-      if (proofIndex === 1 && offsetIndex === 1) {
-        return {
-          limit: ledger.reduce((sum, row) => sum + row.count, 0),
-          ledger: Object.freeze(ledger.map((row) => Object.freeze({ ...row }))),
-        }
-      }
-      charge("segmentation offset traversal", 1)
-      charge("segmentation offset scalar facts", 3)
-      if (offsetIndex > 0) {
-        charge("previous segmentation offset traversal/comparison", 2)
-      }
-    }
-    charge("segmentation inspected-offset facts", 2)
-    const proofFacts = { ...proof } as Record<string, unknown>
-    delete proofFacts.fingerprint
-    charge(
-      "segmentation proof fingerprint semantic tree",
-      handSemanticTreeComparisonChargeCount(proofFacts),
-    )
-    charge("segmentation proof fingerprint equality", 1)
-    if (previousBreaks != null) {
-      charge(
-        "stable segmentation canonical equality",
-        handCanonicalComparisonChargeCount(
-          proof.targetBreakOffsets,
-          previousBreaks,
-        ),
-      )
-    }
-    charge("stable segmentation assignment", 1)
-    previousBreaks = proof.targetBreakOffsets
-  }
-  throw new Error("hand-derived fixture is missing the targeted late offset")
-}
+const LATE_OFFSET_FIXTURE_COMPARISON_BOUNDARY =
+  LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.responseExactKeyChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.responseAuthorityHeaderChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.targetRangeCanonicalChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.contractsTreeChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.producerWorkTreeChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.workAndResponseArrayChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.responseFingerprintTreeChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.responseFingerprintEquality
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.sourceCoverageAtomReadsAndCompositions
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.sourcePartitionAtomTraversalAndClassification
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.sourcePartitionRangesAndPreviousLookups
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.sourceFirstPartitionConstruction
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.sourcePartitionContinuity
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.sourceStyleCanonicalTreeAndEquality
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.sourceSecondPartitionConstruction
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.sourceProjectionTraversalClipNonemptyAndAppend
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.shapingRunAndProofCardinality
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.shapingRunAndSourceRowTraversal
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.shapingRunExactKeyChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.shapingRunIdentityTreeChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.shapingRunScalarChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.clusterTraversalExactKeyAndScalarChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.clusterCoverageAggregationAndProofTraversal
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.shapingBoundaryConstructions
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.shapingProofExactKeyChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.shapingProofRangeExactKeyChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.shapingProofRangeCanonicalChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.shapingProofScalarAndRightGuardChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.shapingProofFingerprintTreeAndEquality
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.segmentationProofCardinality
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.firstProofAndContextTraversal
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.firstProofExactKeyChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.firstContextExactKeyChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.firstContextCanonicalChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.firstProofHeaderChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.firstOffsetTraversalAndScalarChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.firstInspectedOffsetChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.firstProofFingerprintTreeAndEquality
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.firstStableAssignment
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.secondProofAndContextTraversal
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.secondProofExactKeyChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.secondContextExactKeyChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.secondContextCanonicalChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.secondProofHeaderChecks
+  + LATE_OFFSET_FIXTURE_COMPARISON_LEDGER.secondFirstOffsetTraversalAndScalarChecks
 
 function hostileObject(label: string, observed: string[]): object {
   return new Proxy(Object.create(null) as object, {
@@ -1129,18 +955,7 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
         highLateInvalidFixture.duplicateOffset,
         highLateInvalidFixture.duplicateOffset,
       ])
-    const handBoundary = handDerivedComparisonBoundaryBeforeLateOffset({
-      response: highLateInvalid,
-      request: high.request,
-      sourceMaterial: high.sourceMaterial,
-      runtimeIdentity: high.producerRuntimeIdentity,
-    })
-    expect(handBoundary.limit).toBe(737)
-    expect(handBoundary.limit).toBeGreaterThan(80)
-    expect(handBoundary.ledger.at(-1)).toMatchObject({
-      phase: "segmentation offset scalar facts",
-      count: 3,
-    })
+    expect(LATE_OFFSET_FIXTURE_COMPARISON_BOUNDARY).toBe(737)
 
     const exactSafeInteger = Number.isSafeInteger
     const highObserved = acceptTrackingOffsetSafeIntegerChecks(
@@ -1160,7 +975,7 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     expect(workCount(
       highObserved.result.completedCandidateWork,
       "evidence-acceptance-comparisons",
-    )).toBe(handBoundary.limit + 6)
+    )).toBe(LATE_OFFSET_FIXTURE_COMPARISON_BOUNDARY + 6)
     expect(workCount(
       highObserved.result.completedCandidateWork,
       "evidence-acceptance-registrations",
@@ -1173,7 +988,8 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     const low = authorizedFixture({
       insertedText: "LateOffsetLowBoundary",
       limits: {
-        "evidence-acceptance-comparisons": handBoundary.limit,
+        "evidence-acceptance-comparisons":
+          LATE_OFFSET_FIXTURE_COMPARISON_BOUNDARY,
       },
     })
     expect(low.result.status).toBe("accepted")
@@ -1185,13 +1001,6 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     const lowLateInvalid = lowLateInvalidFixture.response
     expect(lowLateInvalidFixture.duplicateOffset)
       .toBe(highLateInvalidFixture.duplicateOffset)
-    const lowBoundary = handDerivedComparisonBoundaryBeforeLateOffset({
-      response: lowLateInvalid,
-      request: low.request,
-      sourceMaterial: low.sourceMaterial,
-      runtimeIdentity: low.producerRuntimeIdentity,
-    })
-    expect(lowBoundary.limit).toBe(handBoundary.limit)
 
     const lowObserved = acceptTrackingOffsetSafeIntegerChecks(
       low,
@@ -1208,7 +1017,7 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     expect(workCount(
       lowObserved.result.completedCandidateWork,
       "evidence-acceptance-comparisons",
-    )).toBe(handBoundary.limit)
+    )).toBe(LATE_OFFSET_FIXTURE_COMPARISON_BOUNDARY)
     expect(workCount(
       lowObserved.result.completedCandidateWork,
       "evidence-acceptance-registrations",
@@ -1236,9 +1045,9 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
         producerWork: low.result.response.work,
         acceptanceFailedEvaluation: {
           unit: "evidence-acceptance-comparisons",
-          attemptedWork: handBoundary.limit + 1,
-          completedWork: handBoundary.limit,
-          effectiveLimit: handBoundary.limit,
+          attemptedWork: LATE_OFFSET_FIXTURE_COMPARISON_BOUNDARY + 1,
+          completedWork: LATE_OFFSET_FIXTURE_COMPARISON_BOUNDARY,
+          effectiveLimit: LATE_OFFSET_FIXTURE_COMPARISON_BOUNDARY,
         },
         completedCandidateWork: lowObserved.result.completedCandidateWork,
       })
