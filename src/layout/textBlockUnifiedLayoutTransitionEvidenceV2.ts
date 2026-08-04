@@ -8,6 +8,7 @@ import type {
   VNextTextBlockTransitionEvidenceV2,
   VNextTextBlockTransitionProducerFailureAcceptanceResultV2,
   VNextTextBlockTransitionProducerFailureV2,
+  VNextTextBlockTransitionProducerInvocationAuthorityV2,
   VNextTextBlockTransitionProducerResponseV2,
   VNextTextBlockTransitionProducerRuntimeIdentityV2,
   VNextTextBlockTransitionProducerSourceMaterialV2,
@@ -24,8 +25,10 @@ import {
 } from "./textBlockUnifiedLayoutTransitionPreflightV2.js"
 import {
   createVNextTextBlockTransitionProducerInvocationAuthorityInternalV2,
+  consumeVNextTextBlockTransitionProducerInvocationAuthorityInternalV2,
   hasRegisteredVNextTextBlockTransitionProducerRuntimeIdentityInternalV2,
   registerVNextTextBlockTransitionProducerRuntimeIdentityInternalV2,
+  type AuthorityRecordSnapshotV2,
 } from "./textBlockUnifiedLayoutProducerInvocationAuthorityV2.js"
 import {
   composeVNextTextBlockStageWorkLedgerInternalV1,
@@ -361,17 +364,18 @@ function coveredUtf16Length(ranges: readonly { startRenderedUtf16: number; endRe
   return start < 0 ? 0 : total + end - start
 }
 
-function exactDescriptorObservationCount(value: unknown): number {
+/* Task 5 removes this compatibility-only count when the public raw path delegates. */
+function legacyPublicDescriptorObservationCount(value: unknown): number {
   if (value == null || typeof value !== "object") return 0
   if (Array.isArray(value)) {
     return 4 + value.length + value.reduce<number>(
-      (sum, item) => sum + exactDescriptorObservationCount(item),
+      (sum, item) => sum + legacyPublicDescriptorObservationCount(item),
       0,
     )
   }
   const values = Object.values(value as Record<string, unknown>)
   return 3 + values.length + values.reduce<number>(
-    (sum, item) => sum + exactDescriptorObservationCount(item),
+    (sum, item) => sum + legacyPublicDescriptorObservationCount(item),
     0,
   )
 }
@@ -638,11 +642,11 @@ export function acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2(input: {
     ...typed.shapingBoundaryProofs.map((proof) => proof.verificationRange),
     ...input.request.nextSegmentationContextRanges,
   ])
-  const exactProducerInputDescriptorCount = 12
-    + exactDescriptorObservationCount(input.request)
-    + exactDescriptorObservationCount(input.sourceMaterial)
-    + exactDescriptorObservationCount(input.producerRuntimeIdentity)
-  const exactVisitedEvidenceNodeCount = exactProducerInputDescriptorCount
+  const legacyPublicProducerInputDescriptorCount = 12
+    + legacyPublicDescriptorObservationCount(input.request)
+    + legacyPublicDescriptorObservationCount(input.sourceMaterial)
+    + legacyPublicDescriptorObservationCount(input.producerRuntimeIdentity)
+  const legacyPublicVisitedEvidenceNodeCount = legacyPublicProducerInputDescriptorCount
     + input.sourceMaterial.next.atoms.length
     + runs.length
     + input.request.nextSegmentationContextRanges.length
@@ -655,7 +659,7 @@ export function acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2(input: {
       0,
     )
     + typed.breakOffsets.length
-  if (typed.work.consumedAtomCount !== input.sourceMaterial.next.atoms.length || typed.work.consumedClusterCount !== consumedClusterCount || typed.work.unusedCoverageRenderedUtf16Length !== exactUnusedCoverage || typed.work.visitedEvidenceNodeCount !== exactVisitedEvidenceNodeCount) return block("producer work does not match exact response/material facts")
+  if (typed.work.consumedAtomCount !== input.sourceMaterial.next.atoms.length || typed.work.consumedClusterCount !== consumedClusterCount || typed.work.unusedCoverageRenderedUtf16Length !== exactUnusedCoverage || typed.work.visitedEvidenceNodeCount !== legacyPublicVisitedEvidenceNodeCount) return block("producer work does not match exact response/material facts")
   const evidenceFacts = {
     source: "vnext-text-block-transition-evidence-v2" as const,
     contractVersion: 2 as const,
@@ -784,4 +788,1085 @@ export function acceptVNextTextBlockUnifiedLayoutProducerFailureV2(input: {
   const authority = freeze({})
   failureAuthorities.set(authority, tuple)
   return freeze({ status: "fallback-required" as const, evaluatorOrProofAuthority: authority, completedCandidateWork: completedWork(tuple, typed.completedWork, meter.count), issues: freeze([]) })
+}
+
+type AuthorizedAcceptanceUnitV2 =
+  | "evidence-acceptance-descriptors"
+  | "evidence-acceptance-comparisons"
+  | "evidence-acceptance-registrations"
+
+interface AuthorizedAcceptanceMeterV2 {
+  readonly counts: Record<AuthorizedAcceptanceUnitV2, number>
+  failure: {
+    readonly status: "limit-exceeded" | "invalid"
+    readonly unit: AuthorizedAcceptanceUnitV2
+    readonly attemptedWork: number
+    readonly completedWork: number
+    readonly effectiveLimit: number | null
+  } | null
+  readonly before: (
+    unit: AuthorizedAcceptanceUnitV2,
+  ) => "charged" | "limit-exceeded" | "invalid"
+}
+
+interface AuthorizedAcceptanceInputV2 {
+  readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+  readonly change: VNextTextBlockUnifiedLayoutChangeV1
+  readonly request: VNextTextBlockTransitionEvidenceRequestV2
+  readonly sourceMaterial: VNextTextBlockTransitionProducerSourceMaterialV2
+  readonly producerInvocationAuthority:
+    VNextTextBlockTransitionProducerInvocationAuthorityV2
+  readonly producerRuntimeIdentity: VNextTextBlockTransitionProducerRuntimeIdentityV2
+  readonly responseOrFailure: unknown
+}
+
+type AuthorizedResponseValidationV2 =
+  | {
+      readonly status: "accepted"
+      readonly response: VNextTextBlockTransitionProducerResponseV2
+    }
+  | { readonly status: "invalid"; readonly message: string }
+  | { readonly status: "ceiling" }
+  | { readonly status: "meter-invalid" }
+
+type AuthorizedFailureValidationV2 =
+  | {
+      readonly status: "accepted"
+      readonly failure: VNextTextBlockTransitionProducerFailureV2 | null
+      readonly work: VNextTextBlockTransitionProducerWorkV2
+    }
+  | { readonly status: "invalid"; readonly message: string }
+  | { readonly status: "ceiling" }
+  | { readonly status: "meter-invalid" }
+
+function createAuthorizedAcceptanceMeter(
+  terminal: Readonly<AuthorityRecordSnapshotV2>,
+): AuthorizedAcceptanceMeterV2 {
+  const counts: Record<AuthorizedAcceptanceUnitV2, number> = {
+    "evidence-acceptance-descriptors": 0,
+    "evidence-acceptance-comparisons": 0,
+    "evidence-acceptance-registrations": 0,
+  }
+  const meter: AuthorizedAcceptanceMeterV2 = {
+    counts,
+    failure: null,
+    before(unit) {
+      const completedWork = counts[unit]
+      const evaluation = evaluateVNextTextBlockStageWorkLimitInternalV1({
+        policy: terminal.workPolicy,
+        stage: "evidence",
+        unit,
+        previousSummaryBase: terminal.previousRoot.sourceState.summary.itemCount,
+        exactValidatedChangeDelta: 1,
+        attemptedWork: completedWork + 1,
+      })
+      if (evaluation.status !== "within-limit") {
+        meter.failure = {
+          status: evaluation.status === "limit-exceeded"
+            ? "limit-exceeded"
+            : "invalid",
+          unit,
+          attemptedWork: evaluation.attemptedWork,
+          completedWork,
+          effectiveLimit: evaluation.effectiveLimit,
+        }
+        return meter.failure.status
+      }
+      counts[unit] = evaluation.attemptedWork
+      return "charged"
+    },
+  }
+  return meter
+}
+
+function producerCompletedCount(
+  terminal: Readonly<AuthorityRecordSnapshotV2>,
+  unit: string,
+): number {
+  return terminal.completedWork.find((row) => row.unit === unit)?.completedWork ?? 0
+}
+
+function zeroAuthorizedProducerWork(
+  tuple: RequestTupleV2,
+): VNextTextBlockTransitionProducerWorkV2 {
+  return {
+    requestedAtomCount: tuple.completedCandidateWork.evidence.requestedAtomCount,
+    requestedClusterCount: tuple.completedCandidateWork.evidence.requestedClusterCount,
+    consumedAtomCount: 0,
+    consumedClusterCount: 0,
+    unusedCoverageRenderedUtf16Length: 0,
+    visitedEvidenceNodeCount: 0,
+    completeNextInputTraversalCount: 0,
+    completeNextInputComparisonCount: 0,
+  }
+}
+
+function authorizedCompletedWork(
+  tuple: RequestTupleV2,
+  terminal: Readonly<AuthorityRecordSnapshotV2>,
+  producerWork: VNextTextBlockTransitionProducerWorkV2,
+  meter: AuthorizedAcceptanceMeterV2,
+): VNextTextBlockIncrementalCandidateWorkV1 {
+  const base = tuple.completedCandidateWork
+  const overrides = new Map<string, number>()
+  for (const row of terminal.completedWork) overrides.set(row.unit, row.completedWork)
+  for (const [unit, count] of Object.entries(meter.counts)) overrides.set(unit, count)
+  const producerVisitedEvidenceNodeCount = terminal.completedWork.reduce(
+    (sum, row) => sum + row.completedWork,
+    0,
+  )
+  const acceptanceVisitedEvidenceNodeCount = Object.values(meter.counts).reduce(
+    (sum, count) => sum + count,
+    0,
+  )
+  return freeze({
+    ...base,
+    evidence: {
+      ...base.evidence,
+      consumedAtomCount: producerWork.consumedAtomCount,
+      consumedClusterCount: producerWork.consumedClusterCount,
+      unusedCoverageRenderedUtf16Length:
+        producerWork.unusedCoverageRenderedUtf16Length,
+      visitedEvidenceNodeCount:
+        producerVisitedEvidenceNodeCount + acceptanceVisitedEvidenceNodeCount,
+    },
+    stageWork: base.stageWork.map((row) => freeze({
+      ...row,
+      count: overrides.get(row.unit) ?? row.count,
+    })),
+  })
+}
+
+function exactAuthorizedTuple(
+  terminal: Readonly<AuthorityRecordSnapshotV2>,
+): RequestTupleV2 | null {
+  const tuple = requests.get(terminal.request)
+  return tuple != null
+      && tuple.previousRoot === terminal.previousRoot
+      && tuple.change === terminal.change
+      && tuple.request === terminal.request
+      && tuple.sourceMaterial === terminal.sourceMaterial
+    ? tuple
+    : null
+}
+
+function authorizedEvidenceBlocked(
+  tuple: RequestTupleV2 | null,
+  terminal: Readonly<AuthorityRecordSnapshotV2> | null,
+  meter: AuthorizedAcceptanceMeterV2 | null,
+  message: string,
+): VNextTextBlockTransitionEvidenceAcceptanceResultV2 {
+  return freeze({
+    status: "blocked" as const,
+    evidence: null,
+    completedCandidateWork: tuple == null || terminal == null || meter == null
+      ? createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1()
+      : authorizedCompletedWork(
+          tuple,
+          terminal,
+          zeroAuthorizedProducerWork(tuple),
+          meter,
+        ),
+    issues: freeze([issue(message)]),
+  })
+}
+
+function authorizedFailureBlocked(
+  tuple: RequestTupleV2 | null,
+  terminal: Readonly<AuthorityRecordSnapshotV2> | null,
+  meter: AuthorizedAcceptanceMeterV2 | null,
+  message: string,
+): VNextTextBlockTransitionProducerFailureAcceptanceResultV2 {
+  return freeze({
+    status: "blocked" as const,
+    evaluatorOrProofAuthority: null,
+    completedCandidateWork: tuple == null || terminal == null || meter == null
+      ? createEmptyVNextTextBlockIncrementalCandidateWorkInternalV1()
+      : authorizedCompletedWork(
+          tuple,
+          terminal,
+          zeroAuthorizedProducerWork(tuple),
+          meter,
+        ),
+    issues: freeze([issue(message)]),
+  })
+}
+
+function registerAuthorizedFallbackAuthority(
+  tuple: RequestTupleV2,
+): object {
+  const authority = freeze({})
+  failureAuthorities.set(authority, tuple)
+  return authority
+}
+
+function authorizedEvidenceLimitFallback(
+  tuple: RequestTupleV2,
+  terminal: Readonly<AuthorityRecordSnapshotV2>,
+  meter: AuthorizedAcceptanceMeterV2,
+  producerWork = zeroAuthorizedProducerWork(tuple),
+): VNextTextBlockTransitionEvidenceAcceptanceResultV2 {
+  return freeze({
+    status: "fallback-required" as const,
+    evidence: null,
+    evaluatorOrProofAuthority: registerAuthorizedFallbackAuthority(tuple),
+    completedCandidateWork: authorizedCompletedWork(
+      tuple,
+      terminal,
+      producerWork,
+      meter,
+    ),
+    issues: freeze([]),
+  })
+}
+
+function authorizedFailureLimitFallback(
+  tuple: RequestTupleV2,
+  terminal: Readonly<AuthorityRecordSnapshotV2>,
+  meter: AuthorizedAcceptanceMeterV2,
+  producerWork: VNextTextBlockTransitionProducerWorkV2,
+): VNextTextBlockTransitionProducerFailureAcceptanceResultV2 {
+  return freeze({
+    status: "fallback-required" as const,
+    evaluatorOrProofAuthority: registerAuthorizedFallbackAuthority(tuple),
+    completedCandidateWork: authorizedCompletedWork(
+      tuple,
+      terminal,
+      producerWork,
+      meter,
+    ),
+    issues: freeze([]),
+  })
+}
+
+function snapshotAuthorizedAcceptancePayload(
+  value: unknown,
+  meter: AuthorizedAcceptanceMeterV2,
+  preserveExact: ReadonlySet<object>,
+): AcceptanceSnapshotV2 {
+  const descriptorMeter: AcceptanceMeterV2 = {
+    count: 0,
+    failureEvaluation: null,
+    beforeObservation: () =>
+      meter.before("evidence-acceptance-descriptors") === "charged",
+  }
+  return snapshotAcceptanceDataBeforeObservation(
+    value,
+    descriptorMeter,
+    preserveExact,
+  )
+}
+
+function authorizedComparison(
+  meter: AuthorizedAcceptanceMeterV2,
+  comparison: () => boolean,
+): "match" | "mismatch" | "ceiling" | "meter-invalid" {
+  const charge = meter.before("evidence-acceptance-comparisons")
+  if (charge !== "charged") {
+    return charge === "limit-exceeded" ? "ceiling" : "meter-invalid"
+  }
+  try {
+    return comparison() ? "match" : "mismatch"
+  } catch {
+    return "mismatch"
+  }
+}
+
+function runAuthorizedComparisons(
+  meter: AuthorizedAcceptanceMeterV2,
+  comparisons: readonly (() => boolean)[],
+): "match" | "mismatch" | "ceiling" | "meter-invalid" {
+  for (const comparison of comparisons) {
+    const result = authorizedComparison(meter, comparison)
+    if (result !== "match") return result
+  }
+  return "match"
+}
+
+function responseValidationResult(
+  result: "match" | "mismatch" | "ceiling" | "meter-invalid",
+  message: string,
+): Exclude<AuthorizedResponseValidationV2, { readonly status: "accepted" }> | null {
+  if (result === "match") return null
+  if (result === "mismatch") return { status: "invalid", message }
+  return { status: result }
+}
+
+function validateAuthorizedResponse(
+  response: unknown,
+  terminal: Readonly<AuthorityRecordSnapshotV2>,
+  runtimeIdentity: VNextTextBlockTransitionProducerRuntimeIdentityV2,
+  meter: AuthorizedAcceptanceMeterV2,
+): AuthorizedResponseValidationV2 {
+  const snapshot = snapshotAuthorizedAcceptancePayload(
+    response,
+    meter,
+    new Set<object>([runtimeIdentity]),
+  )
+  if (snapshot.status === "ceiling") {
+    return meter.failure?.status === "limit-exceeded"
+      ? { status: "ceiling" }
+      : { status: "meter-invalid" }
+  }
+  if (snapshot.status !== "accepted") {
+    return { status: "invalid", message: "producer response is not exact descriptor-safe data" }
+  }
+  const value = snapshot.value
+  const responseKeys = [
+    "source", "contractVersion", "requestFingerprint", "sourceMaterialFingerprint",
+    "runtimeIdentity", "nextEvidenceTargetRange", "shapingRuns", "breakOffsets",
+    "shapingBoundaryProofs", "segmentationBoundaryProofs",
+    "sourceTopologyFingerprint", "work", "contracts", "fingerprint",
+  ]
+  let compared = responseValidationResult(
+    runAuthorizedComparisons(meter, [
+      () => exactKeys(value, responseKeys),
+      () => safeDataTree(value),
+    ]),
+    "producer response is not exact descriptor-safe data",
+  )
+  if (compared != null) return compared
+  const typed = value as unknown as VNextTextBlockTransitionProducerResponseV2
+  compared = responseValidationResult(
+    runAuthorizedComparisons(meter, [
+      () => typed.source === "vnext-text-block-transition-producer-response-v2",
+      () => typed.contractVersion === 2,
+      () => typed.requestFingerprint === terminal.request.fingerprint,
+      () => typed.sourceMaterialFingerprint === terminal.sourceMaterial.fingerprint,
+      () => typed.runtimeIdentity === runtimeIdentity,
+      () => typed.sourceTopologyFingerprint
+        === terminal.sourceMaterial.sourceTopologyFingerprint,
+      () => stringifyVNextCanonicalJson(typed.nextEvidenceTargetRange)
+        === stringifyVNextCanonicalJson(terminal.request.next.evidenceTargetRange),
+      () => stringifyVNextCanonicalJson(typed.contracts)
+        === stringifyVNextCanonicalJson(CONTRACTS),
+      () => workIsValid(typed.work, terminal.sourceMaterial),
+      () => typed.work.visitedEvidenceNodeCount
+        === terminal.visitedEvidenceNodeCount,
+      () => {
+        const facts = { ...typed } as Record<string, unknown>
+        delete facts.fingerprint
+        return typed.fingerprint === fingerprint(facts)
+      },
+      () => Array.isArray(typed.shapingRuns),
+      () => Array.isArray(typed.breakOffsets),
+      () => Array.isArray(typed.shapingBoundaryProofs),
+      () => Array.isArray(typed.segmentationBoundaryProofs),
+    ]),
+    "producer response facts do not match the exact terminal authority",
+  )
+  if (compared != null) return compared
+
+  const targetStart = typed.nextEvidenceTargetRange.startRenderedUtf16
+  const targetEnd = typed.nextEvidenceTargetRange.endRenderedUtf16
+  const runs = typed.shapingRuns as readonly VNextTextBlockResolvedShapingRunV1[]
+  type StyledAtom = Extract<
+    (typeof terminal.sourceMaterial.next.atoms)[number],
+    { readonly resolvedStyle: unknown }
+  >
+  type ResolvedStyle = StyledAtom["resolvedStyle"]
+  const coverageStart = terminal.request.next.coverageRange.startRenderedUtf16
+  const coverageText = terminal.sourceMaterial.next.atoms
+    .map((atom) => atom.renderedText)
+    .join("")
+  const partitions: Array<{
+    start: number
+    end: number
+    style: ResolvedStyle
+    atomFingerprints: string[]
+  }> = []
+  for (const atom of terminal.sourceMaterial.next.atoms) {
+    if (atom.kind === "hard-break" || atom.kind === "inline-image-boundary") continue
+    const start = coverageStart + atom.relativeStartRenderedUtf16
+    const end = coverageStart + atom.relativeEndRenderedUtf16
+    const previous = partitions.at(-1)
+    if (
+      previous != null
+      && previous.end === start
+      && stringifyVNextCanonicalJson(previous.style)
+        === stringifyVNextCanonicalJson(atom.resolvedStyle)
+    ) {
+      previous.end = end
+      previous.atomFingerprints.push(atom.fingerprint)
+    } else {
+      partitions.push({
+        start,
+        end,
+        style: atom.resolvedStyle,
+        atomFingerprints: [atom.fingerprint],
+      })
+    }
+  }
+  const expected = partitions.flatMap((partition) => {
+    const start = Math.max(partition.start, targetStart)
+    const end = Math.min(partition.end, targetEnd)
+    return end <= start ? [] : [{ partition, start, end }]
+  })
+  compared = responseValidationResult(
+    runAuthorizedComparisons(meter, [
+      () => runs.length === expected.length,
+      () => typed.shapingBoundaryProofs.length === expected.length,
+    ]),
+    "shaping partitions do not match exact bounded Source styles",
+  )
+  if (compared != null) return compared
+
+  let consumedClusterCount = 0
+  for (let runIndex = 0; runIndex < runs.length; runIndex += 1) {
+    const run = runs[runIndex]!
+    const row = expected[runIndex]!
+    compared = responseValidationResult(
+      runAuthorizedComparisons(meter, [
+        () => exactKeys(run, [
+          "shapingRunId", "renderStartOffset", "renderEndOffset", "text",
+          "styleKey", "fontFaceId", "fontSizeLayoutUnit", "textColor",
+          "direction", "baselineShiftLayoutUnit", "features", "clusters",
+        ]),
+        () => run.shapingRunId === fingerprint({
+          request: terminal.request.fingerprint,
+          atoms: row.partition.atomFingerprints,
+          runStart: row.start,
+          runEnd: row.end,
+        }),
+        () => run.renderStartOffset === row.start,
+        () => run.renderEndOffset === row.end,
+        () => run.text === coverageText.slice(
+          row.start - coverageStart,
+          row.end - coverageStart,
+        ),
+        () => run.styleKey === row.partition.style.measurementStyleKey,
+        () => run.fontFaceId === row.partition.style.fontFaceId,
+        () => run.fontSizeLayoutUnit === row.partition.style.fontSizeLayoutUnit,
+        () => run.textColor === row.partition.style.textColor,
+        () => run.direction === "ltr",
+        () => run.baselineShiftLayoutUnit === 0,
+        () => Array.isArray(run.features) && run.features.length === 0,
+        () => Array.isArray(run.clusters) && run.clusters.length > 0,
+      ]),
+      "shaping run facts differ from exact bounded Source material",
+    )
+    if (compared != null) return compared
+    let clusterEnd = run.renderStartOffset
+    for (let clusterIndex = 0; clusterIndex < run.clusters.length; clusterIndex += 1) {
+      const cluster = run.clusters[clusterIndex]!
+      compared = responseValidationResult(
+        runAuthorizedComparisons(meter, [
+          () => exactKeys(cluster, [
+            "index", "renderStartOffset", "renderEndOffset", "advanceLayoutUnit",
+          ]),
+          () => cluster.index === clusterIndex,
+          () => cluster.renderStartOffset === clusterEnd,
+          () => cluster.renderEndOffset > cluster.renderStartOffset,
+          () => cluster.renderEndOffset <= run.renderEndOffset,
+          () => Number.isSafeInteger(cluster.advanceLayoutUnit),
+          () => cluster.advanceLayoutUnit >= 0,
+        ]),
+        "shaping cluster facts are invalid",
+      )
+      if (compared != null) return compared
+      clusterEnd = cluster.renderEndOffset
+    }
+    compared = responseValidationResult(
+      runAuthorizedComparisons(meter, [
+        () => clusterEnd === run.renderEndOffset,
+      ]),
+      "shaping clusters do not cover the exact run",
+    )
+    if (compared != null) return compared
+    consumedClusterCount += run.clusters.length
+    const proof = typed.shapingBoundaryProofs[runIndex]!
+    const expectedVerification = {
+      startRenderedUtf16: Math.max(
+        row.partition.start,
+        terminal.request.next.shapeVerificationRange.startRenderedUtf16,
+      ),
+      endRenderedUtf16: Math.min(
+        row.partition.end,
+        terminal.request.next.shapeVerificationRange.endRenderedUtf16,
+      ),
+    }
+    const expectedLeft = row.start === row.partition.start || row.start === coverageStart
+      ? "exact-style-or-block-start"
+      : "safe-first-target-glyph"
+    const expectedRight = row.end === row.partition.end
+      || row.end === coverageStart + coverageText.length
+      ? "exact-style-or-block-end"
+      : "safe-first-right-guard-glyph"
+    compared = responseValidationResult(
+      runAuthorizedComparisons(meter, [
+        () => exactKeys(proof, [
+          "targetRange", "verificationRange", "leftBoundary", "rightBoundary",
+          "guardGlyphCount", "inspectedGlyphCount", "fingerprint",
+        ]),
+        () => exactKeys(proof.targetRange, [
+          "startRenderedUtf16", "endRenderedUtf16",
+        ]),
+        () => exactKeys(proof.verificationRange, [
+          "startRenderedUtf16", "endRenderedUtf16",
+        ]),
+        () => stringifyVNextCanonicalJson(proof.targetRange)
+          === stringifyVNextCanonicalJson({
+            startRenderedUtf16: row.start,
+            endRenderedUtf16: row.end,
+          }),
+        () => stringifyVNextCanonicalJson(proof.verificationRange)
+          === stringifyVNextCanonicalJson(expectedVerification),
+        () => proof.leftBoundary === expectedLeft,
+        () => proof.rightBoundary === expectedRight,
+        () => Number.isSafeInteger(proof.guardGlyphCount) && proof.guardGlyphCount >= 0,
+        () => Number.isSafeInteger(proof.inspectedGlyphCount)
+          && proof.inspectedGlyphCount >= run.clusters.length + proof.guardGlyphCount,
+        () => expectedRight !== "safe-first-right-guard-glyph"
+          || proof.guardGlyphCount >= 1,
+        () => {
+          const facts = { ...proof } as Record<string, unknown>
+          delete facts.fingerprint
+          return proof.fingerprint === fingerprint(facts)
+        },
+      ]),
+      "shaping boundary proof differs from the exact partition",
+    )
+    if (compared != null) return compared
+  }
+
+  compared = responseValidationResult(
+    runAuthorizedComparisons(meter, [
+      () => typed.segmentationBoundaryProofs.length
+        === terminal.request.nextSegmentationContextRanges.length,
+    ]),
+    "segmentation proofs do not cover the exact requested contexts",
+  )
+  if (compared != null) return compared
+  let stableTargetBreaks: readonly number[] | null = null
+  for (
+    let proofIndex = 0;
+    proofIndex < typed.segmentationBoundaryProofs.length;
+    proofIndex += 1
+  ) {
+    const proof = typed.segmentationBoundaryProofs[proofIndex]!
+    const expectedContext = terminal.request.nextSegmentationContextRanges[proofIndex]!
+    const previousBreaks = stableTargetBreaks
+    compared = responseValidationResult(
+      runAuthorizedComparisons(meter, [
+        () => exactKeys(proof, [
+          "contextRange", "contextBreakCount", "targetBreakOffsets",
+          "inspectedOffsetCount", "fingerprint",
+        ]),
+        () => exactKeys(proof.contextRange, [
+          "startRenderedUtf16", "endRenderedUtf16",
+        ]),
+        () => Array.isArray(proof.targetBreakOffsets),
+        () => stringifyVNextCanonicalJson(proof.contextRange)
+          === stringifyVNextCanonicalJson(expectedContext),
+        () => Number.isSafeInteger(proof.contextBreakCount)
+          && proof.contextBreakCount >= proof.targetBreakOffsets.length,
+        () => proof.targetBreakOffsets.every((offset, index) =>
+          Number.isSafeInteger(offset)
+          && offset >= targetStart
+          && offset <= targetEnd
+          && (index === 0 || offset > proof.targetBreakOffsets[index - 1]!)
+        ),
+        () => Number.isSafeInteger(proof.inspectedOffsetCount)
+          && proof.inspectedOffsetCount
+            === 2 * proof.contextBreakCount + 2 * proof.targetBreakOffsets.length,
+        () => {
+          const facts = { ...proof } as Record<string, unknown>
+          delete facts.fingerprint
+          return proof.fingerprint === fingerprint(facts)
+        },
+        () => previousBreaks == null
+          || stringifyVNextCanonicalJson(proof.targetBreakOffsets)
+            === stringifyVNextCanonicalJson(previousBreaks),
+      ]),
+      "segmentation proof differs from the exact bounded attempt",
+    )
+    if (compared != null) return compared
+    stableTargetBreaks = proof.targetBreakOffsets
+  }
+  compared = responseValidationResult(
+    runAuthorizedComparisons(meter, [
+      () => typed.segmentationBoundaryProofs.length
+        >= terminal.request.requiredStableSegmentationExpansionCount,
+      () => stableTargetBreaks != null,
+      () => typed.breakOffsets.every((offset, index) =>
+        Number.isSafeInteger(offset)
+        && offset >= targetStart
+        && offset <= targetEnd
+        && (index === 0 || offset > typed.breakOffsets[index - 1]!)
+      ),
+    ]),
+    "segmentation proofs or break offsets are invalid",
+  )
+  if (compared != null) return compared
+  if (stableTargetBreaks == null) {
+    return { status: "invalid", message: "segmentation proof is missing" }
+  }
+  const hardBreaks = terminal.sourceMaterial.next.atoms
+    .filter((atom) => atom.kind === "hard-break")
+    .map((atom) => coverageStart + atom.relativeEndRenderedUtf16)
+    .filter((offset) => offset >= targetStart && offset <= targetEnd)
+  const expectedBreakOffsets = [...new Set([...stableTargetBreaks, ...hardBreaks])]
+    .sort((left, right) => left - right)
+  const exactUnusedCoverage =
+    terminal.request.next.coverageRange.endRenderedUtf16
+    - terminal.request.next.coverageRange.startRenderedUtf16
+    - coveredUtf16Length([
+      ...typed.shapingBoundaryProofs.map((proof) => proof.verificationRange),
+      ...terminal.request.nextSegmentationContextRanges,
+    ])
+  compared = responseValidationResult(
+    runAuthorizedComparisons(meter, [
+      () => stringifyVNextCanonicalJson(typed.breakOffsets)
+        === stringifyVNextCanonicalJson(expectedBreakOffsets),
+      () => typed.work.consumedAtomCount
+        === terminal.sourceMaterial.next.atoms.length,
+      () => typed.work.consumedClusterCount === consumedClusterCount,
+      () => typed.work.unusedCoverageRenderedUtf16Length === exactUnusedCoverage,
+    ]),
+    "producer work does not match exact response/material facts",
+  )
+  return compared ?? { status: "accepted", response: typed }
+}
+
+function failureValidationResult(
+  result: "match" | "mismatch" | "ceiling" | "meter-invalid",
+  message: string,
+): Exclude<AuthorizedFailureValidationV2, { readonly status: "accepted" }> | null {
+  if (result === "match") return null
+  if (result === "mismatch") return { status: "invalid", message }
+  return { status: result }
+}
+
+function validateAuthorizedFailure(
+  value: unknown,
+  terminal: Readonly<AuthorityRecordSnapshotV2>,
+  runtimeIdentity: VNextTextBlockTransitionProducerRuntimeIdentityV2,
+  tuple: RequestTupleV2,
+  meter: AuthorizedAcceptanceMeterV2,
+): AuthorizedFailureValidationV2 {
+  const zeroWork = zeroAuthorizedProducerWork(tuple)
+  if (terminal.terminalOutcome === "producer-blocked") {
+    const failed = terminal.firstFailedEvaluation
+    const compared = failureValidationResult(
+      runAuthorizedComparisons(meter, [
+        () => value == null,
+        () => terminal.runtimeIdentity == null,
+        () => terminal.visitedEvidenceNodeCount === 0,
+        () => failed != null,
+        () => failed?.unit === "evidence-producer-descriptors",
+        () => failed?.attemptedWork === 1,
+        () => failed?.completedWork === 0,
+        () => failed?.effectiveLimit === 0,
+      ]),
+      "producer-blocked terminal is not the exact zero-descriptor ceiling",
+    )
+    return compared ?? { status: "accepted", failure: null, work: zeroWork }
+  }
+  const snapshot = snapshotAuthorizedAcceptancePayload(
+    value,
+    meter,
+    new Set<object>([runtimeIdentity]),
+  )
+  if (snapshot.status === "ceiling") {
+    return meter.failure?.status === "limit-exceeded"
+      ? { status: "ceiling" }
+      : { status: "meter-invalid" }
+  }
+  if (snapshot.status !== "accepted") {
+    return { status: "invalid", message: "producer failure is not exact descriptor-safe data" }
+  }
+  const failure = snapshot.value
+  let compared = failureValidationResult(
+    runAuthorizedComparisons(meter, [
+      () => exactKeys(failure, [
+        "source", "contractVersion", "requestFingerprint",
+        "sourceMaterialFingerprint", "runtimeIdentity", "code", "completedWork",
+        "contracts", "fingerprint",
+      ]),
+      () => safeDataTree(failure),
+    ]),
+    "producer failure is not exact descriptor-safe data",
+  )
+  if (compared != null) return compared
+  const typed = failure as unknown as VNextTextBlockTransitionProducerFailureV2
+  const codes = [
+    "invalid-request-scoped-material", "pinned-font-unavailable",
+    "pinned-font-mismatch", "unsafe-shaping-boundary", "segmentation-not-stable",
+    "missing-glyph", "unsafe-runtime-arithmetic", "work-ceiling-before-visit",
+  ]
+  compared = failureValidationResult(
+    runAuthorizedComparisons(meter, [
+      () => typed.source === "vnext-text-block-transition-producer-failure-v2",
+      () => typed.contractVersion === 2,
+      () => typed.requestFingerprint === terminal.request.fingerprint,
+      () => typed.sourceMaterialFingerprint === terminal.sourceMaterial.fingerprint,
+      () => typed.runtimeIdentity === runtimeIdentity,
+      () => codes.includes(typed.code),
+      () => workIsValid(typed.completedWork, terminal.sourceMaterial),
+      () => typed.completedWork.visitedEvidenceNodeCount
+        === terminal.visitedEvidenceNodeCount,
+      () => stringifyVNextCanonicalJson(typed.contracts)
+        === stringifyVNextCanonicalJson(CONTRACTS),
+      () => {
+        const facts = { ...typed } as Record<string, unknown>
+        delete facts.fingerprint
+        return typed.fingerprint === fingerprint(facts)
+      },
+      () => typed.code !== "invalid-request-scoped-material",
+    ]),
+    "producer failure facts do not match the exact terminal authority",
+  )
+  if (compared != null) return compared
+  const failed = terminal.firstFailedEvaluation
+  if (typed.code === "work-ceiling-before-visit") {
+    compared = failureValidationResult(
+      runAuthorizedComparisons(meter, [
+        () => failed != null,
+        () => failed?.attemptedWork === (failed?.completedWork ?? -2) + 1,
+        () => failed?.effectiveLimit === failed?.completedWork,
+        () => failed == null
+          || producerCompletedCount(terminal, failed.unit) === failed.completedWork,
+      ]),
+      "work-limit failure does not match the exact failed terminal evaluation",
+    )
+  } else {
+    compared = failureValidationResult(
+      runAuthorizedComparisons(meter, [
+        () => failed == null,
+        () => typed.completedWork.consumedAtomCount
+          === terminal.sourceMaterial.next.atoms.length,
+      ]),
+      "non-ceiling failure cannot impersonate a work-limit terminal",
+    )
+  }
+  return compared ?? { status: "accepted", failure: typed, work: typed.completedWork }
+}
+
+function consumeAuthorizedProducerTerminal(
+  input: AuthorizedAcceptanceInputV2,
+  expected:
+    | "producer-response"
+    | "producer-failure-or-blocked",
+): Readonly<AuthorityRecordSnapshotV2> | null {
+  if (expected === "producer-response") {
+    const consumed =
+      consumeVNextTextBlockTransitionProducerInvocationAuthorityInternalV2({
+        authority: input.producerInvocationAuthority,
+        request: input.request,
+        sourceMaterial: input.sourceMaterial,
+        expectedTerminal: "producer-response",
+      })
+    return consumed.status === "consumed" ? consumed.snapshot : null
+  }
+  const failure =
+    consumeVNextTextBlockTransitionProducerInvocationAuthorityInternalV2({
+      authority: input.producerInvocationAuthority,
+      request: input.request,
+      sourceMaterial: input.sourceMaterial,
+      expectedTerminal: "producer-failure",
+    })
+  if (failure.status === "consumed") return failure.snapshot
+  const blocked =
+    consumeVNextTextBlockTransitionProducerInvocationAuthorityInternalV2({
+      authority: input.producerInvocationAuthority,
+      request: input.request,
+      sourceMaterial: input.sourceMaterial,
+      expectedTerminal: "producer-blocked",
+    })
+  return blocked.status === "consumed" ? blocked.snapshot : null
+}
+
+function exactAuthorizedAcceptanceContext(
+  input: AuthorizedAcceptanceInputV2,
+  expected: "producer-response" | "producer-failure-or-blocked",
+):
+  | {
+      readonly status: "accepted"
+      readonly terminal: Readonly<AuthorityRecordSnapshotV2>
+      readonly tuple: RequestTupleV2
+      readonly meter: AuthorizedAcceptanceMeterV2
+    }
+  | {
+      readonly status: "rejected"
+      readonly terminal: Readonly<AuthorityRecordSnapshotV2> | null
+      readonly tuple: RequestTupleV2 | null
+      readonly meter: AuthorizedAcceptanceMeterV2 | null
+      readonly message: string
+    }
+  | {
+      readonly status: "ceiling" | "meter-invalid"
+      readonly terminal: Readonly<AuthorityRecordSnapshotV2>
+      readonly tuple: RequestTupleV2
+      readonly meter: AuthorizedAcceptanceMeterV2
+    } {
+  const terminal = consumeAuthorizedProducerTerminal(input, expected)
+  if (terminal == null) {
+    return {
+      status: "rejected",
+      terminal: null,
+      tuple: null,
+      meter: null,
+      message: "producer invocation authority is not the exact terminal Core record",
+    }
+  }
+  const tuple = exactAuthorizedTuple(terminal)
+  const meter = createAuthorizedAcceptanceMeter(terminal)
+  const descriptorCharge = meter.before("evidence-acceptance-descriptors")
+  if (tuple == null) {
+    return {
+      status: "rejected",
+      terminal,
+      tuple: null,
+      meter,
+      message: "consumed producer authority has no exact Core request tuple",
+    }
+  }
+  if (descriptorCharge !== "charged") {
+    return {
+      status: descriptorCharge === "limit-exceeded" ? "ceiling" : "meter-invalid",
+      terminal,
+      tuple,
+      meter,
+    }
+  }
+  if (
+    terminal.previousRoot !== input.previousRoot
+    || terminal.change !== input.change
+    || terminal.request !== input.request
+    || terminal.sourceMaterial !== input.sourceMaterial
+  ) {
+    return {
+      status: "rejected",
+      terminal,
+      tuple,
+      meter,
+      message: "acceptance tuple differs from the consumed terminal authority",
+    }
+  }
+  if (terminal.runtimeIdentity != null) {
+    if (terminal.runtimeIdentity !== input.producerRuntimeIdentity) {
+      return {
+        status: "rejected",
+        terminal,
+        tuple,
+        meter,
+        message: "producer runtime differs from the consumed terminal authority",
+      }
+    }
+  } else if (
+    !hasRegisteredVNextTextBlockTransitionProducerRuntimeIdentityInternalV2(
+      input.producerRuntimeIdentity,
+    )
+    || input.producerRuntimeIdentity.unitPolicyFingerprint
+      !== terminal.request.layoutUnitPolicyFingerprint
+    || input.producerRuntimeIdentity.fontStyleUnitDependencyFingerprint
+      !== terminal.request.fontStyleUnitDependencyFingerprint
+    || input.producerRuntimeIdentity.producerRuntimeRequirementFingerprint
+      !== terminal.request.producerRuntimeRequirementFingerprint
+  ) {
+    return {
+      status: "rejected",
+      terminal,
+      tuple,
+      meter,
+      message: "producer runtime cannot accompany the pre-bind terminal authority",
+    }
+  }
+  return { status: "accepted", terminal, tuple, meter }
+}
+
+export function acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInternalV2(
+  input: AuthorizedAcceptanceInputV2,
+): VNextTextBlockTransitionEvidenceAcceptanceResultV2 {
+  const context = exactAuthorizedAcceptanceContext(input, "producer-response")
+  if (context.status === "rejected") {
+    return authorizedEvidenceBlocked(
+      context.tuple,
+      context.terminal,
+      context.meter,
+      context.message,
+    )
+  }
+  if (context.status === "ceiling") {
+    return authorizedEvidenceLimitFallback(
+      context.tuple,
+      context.terminal,
+      context.meter,
+    )
+  }
+  if (context.status === "meter-invalid") {
+    return authorizedEvidenceBlocked(
+      context.tuple,
+      context.terminal,
+      context.meter,
+      "acceptance descriptor policy is unavailable",
+    )
+  }
+  const validation = validateAuthorizedResponse(
+    input.responseOrFailure,
+    context.terminal,
+    input.producerRuntimeIdentity,
+    context.meter,
+  )
+  if (validation.status === "ceiling") {
+    return authorizedEvidenceLimitFallback(
+      context.tuple,
+      context.terminal,
+      context.meter,
+    )
+  }
+  if (validation.status === "meter-invalid") {
+    return authorizedEvidenceBlocked(
+      context.tuple,
+      context.terminal,
+      context.meter,
+      "acceptance comparison policy is unavailable",
+    )
+  }
+  if (validation.status === "invalid") {
+    return authorizedEvidenceBlocked(
+      context.tuple,
+      context.terminal,
+      context.meter,
+      validation.message,
+    )
+  }
+  const registration = context.meter.before("evidence-acceptance-registrations")
+  if (registration === "limit-exceeded") {
+    return authorizedEvidenceLimitFallback(
+      context.tuple,
+      context.terminal,
+      context.meter,
+      validation.response.work,
+    )
+  }
+  if (registration !== "charged") {
+    return authorizedEvidenceBlocked(
+      context.tuple,
+      context.terminal,
+      context.meter,
+      "Evidence registration policy is unavailable",
+    )
+  }
+  const evidenceFacts = {
+    source: "vnext-text-block-transition-evidence-v2" as const,
+    contractVersion: 2 as const,
+    requestFingerprint: context.terminal.request.fingerprint,
+    sourceMaterialFingerprint: context.terminal.sourceMaterial.fingerprint,
+    previousRootFingerprint: context.terminal.previousRoot.fingerprint,
+    changeFingerprint: context.terminal.request.changeFingerprint,
+    runtimeIdentityFingerprint: input.producerRuntimeIdentity.fingerprint,
+    nextEvidenceTargetRange: validation.response.nextEvidenceTargetRange,
+    shapingRuns: validation.response.shapingRuns,
+    breakOffsets: validation.response.breakOffsets,
+    shapingBoundaryProofs: validation.response.shapingBoundaryProofs,
+    segmentationBoundaryProofs: validation.response.segmentationBoundaryProofs,
+    sourceTopologyFingerprint: validation.response.sourceTopologyFingerprint,
+    work: validation.response.work,
+  }
+  const evidence: VNextTextBlockTransitionEvidenceV2 = freeze({
+    ...evidenceFacts,
+    fingerprint: fingerprint(evidenceFacts),
+  })
+  const acceptedWork = authorizedCompletedWork(
+    context.tuple,
+    context.terminal,
+    validation.response.work,
+    context.meter,
+  )
+  evidenceRecords.set(evidence, context.tuple)
+  evidenceCompletedWorkRecords.set(evidence, acceptedWork)
+  return freeze({
+    status: "accepted" as const,
+    evidence,
+    completedCandidateWork: acceptedWork,
+    issues: freeze([]),
+  })
+}
+
+export function acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureInternalV2(
+  input: AuthorizedAcceptanceInputV2,
+): VNextTextBlockTransitionProducerFailureAcceptanceResultV2 {
+  const context = exactAuthorizedAcceptanceContext(
+    input,
+    "producer-failure-or-blocked",
+  )
+  if (context.status === "rejected") {
+    return authorizedFailureBlocked(
+      context.tuple,
+      context.terminal,
+      context.meter,
+      context.message,
+    )
+  }
+  if (context.status === "ceiling") {
+    return authorizedFailureLimitFallback(
+      context.tuple,
+      context.terminal,
+      context.meter,
+      zeroAuthorizedProducerWork(context.tuple),
+    )
+  }
+  if (context.status === "meter-invalid") {
+    return authorizedFailureBlocked(
+      context.tuple,
+      context.terminal,
+      context.meter,
+      "failure acceptance descriptor policy is unavailable",
+    )
+  }
+  const validation = validateAuthorizedFailure(
+    input.responseOrFailure,
+    context.terminal,
+    input.producerRuntimeIdentity,
+    context.tuple,
+    context.meter,
+  )
+  if (validation.status === "ceiling") {
+    return authorizedFailureLimitFallback(
+      context.tuple,
+      context.terminal,
+      context.meter,
+      zeroAuthorizedProducerWork(context.tuple),
+    )
+  }
+  if (validation.status === "meter-invalid") {
+    return authorizedFailureBlocked(
+      context.tuple,
+      context.terminal,
+      context.meter,
+      "failure acceptance comparison policy is unavailable",
+    )
+  }
+  if (validation.status === "invalid") {
+    return authorizedFailureBlocked(
+      context.tuple,
+      context.terminal,
+      context.meter,
+      validation.message,
+    )
+  }
+  const registration = context.meter.before("evidence-acceptance-registrations")
+  if (registration === "limit-exceeded") {
+    return authorizedFailureLimitFallback(
+      context.tuple,
+      context.terminal,
+      context.meter,
+      validation.work,
+    )
+  }
+  if (registration !== "charged") {
+    return authorizedFailureBlocked(
+      context.tuple,
+      context.terminal,
+      context.meter,
+      "fallback registration policy is unavailable",
+    )
+  }
+  return authorizedFailureLimitFallback(
+    context.tuple,
+    context.terminal,
+    context.meter,
+    validation.work,
+  )
 }

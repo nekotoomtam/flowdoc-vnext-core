@@ -4,6 +4,7 @@ import {
   inspectVNextTextBlockTransitionProducerInvocationAuthorityInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutProducerInvocationAuthorityV2.js"
 import {
+  acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInternalV2,
   createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV2,
   createVNextTextBlockTransitionProducerRuntimeIdentityInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV2.js"
@@ -12,6 +13,7 @@ import {
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import {
   authorizedEvidenceRequestBundle5B2,
+  authorizedProducerTerminalFixture5B2,
   admitted5B2AuthorityRootFixture,
 } from "./helpers/textBlockUnifiedIncremental5b2.js"
 import {
@@ -251,5 +253,47 @@ describe("Phase 5B-2 producer invocation authority", () => {
     expect(acceptsAuthority(
       authorizedEvidenceRequestBundle5B2().producerInvocationAuthority,
     )).toBe("vnext-text-block-transition-producer-invocation-authority-v2")
+  })
+
+  it("hands the exact terminal record to Core acceptance once without replay authority", () => {
+    const fixture = authorizedProducerTerminalFixture5B2({
+      insertedText: "authority-consumer",
+    })
+    expect(fixture.result.status).toBe("accepted")
+    if (fixture.result.status !== "accepted") return
+
+    const accepted =
+      acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInternalV2({
+        previousRoot: fixture.previousRoot,
+        change: fixture.change,
+        request: fixture.request,
+        sourceMaterial: fixture.sourceMaterial,
+        producerInvocationAuthority: fixture.producerInvocationAuthority,
+        producerRuntimeIdentity: fixture.producerRuntimeIdentity,
+        responseOrFailure: fixture.result.response,
+      })
+
+    expect(accepted.status).toBe("accepted")
+    expect(inspectVNextTextBlockTransitionProducerInvocationAuthorityInternalV2(
+      fixture.producerInvocationAuthority,
+    )).toMatchObject({
+      state: "acceptance-consumed",
+      terminalOutcome: "producer-response",
+    })
+    expect(consumeVNextTextBlockTransitionProducerInvocationAuthorityInternalV2({
+      authority: fixture.producerInvocationAuthority,
+      request: fixture.request,
+      sourceMaterial: fixture.sourceMaterial,
+      expectedTerminal: "producer-response",
+    })).toEqual({ status: "rejected" })
+    expect(acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInternalV2({
+      previousRoot: fixture.previousRoot,
+      change: fixture.change,
+      request: fixture.request,
+      sourceMaterial: fixture.sourceMaterial,
+      producerInvocationAuthority: fixture.producerInvocationAuthority,
+      producerRuntimeIdentity: fixture.producerRuntimeIdentity,
+      responseOrFailure: fixture.result.response,
+    })).toMatchObject({ status: "blocked", evidence: null })
   })
 })

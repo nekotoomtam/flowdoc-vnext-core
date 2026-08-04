@@ -16,6 +16,7 @@ import {
   type VNextTextBlockUnifiedLayoutWorkPolicyV1,
 } from "../../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import {
+  createVNextTextBlockTransitionProducerRuntimeIdentityInternalV2,
   createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV2,
 } from "../../src/layout/textBlockUnifiedLayoutTransitionEvidenceV2.js"
 import {
@@ -50,6 +51,13 @@ import type {
   VNextTextBlockTransitionProducerInvocationAuthorityV2,
   VNextTextBlockTransitionProducerOwnedWorkUnitV2,
 } from "../../src/layout/textBlockUnifiedLayoutEvidenceContractV2.js"
+import {
+  runFlowDocTextEngineNodeMr1RangeSegmentationV1,
+  runFlowDocTextEngineNodeMr1RangeShapeV1,
+} from "../../packages/text-engine-rust-wasm/src/node.js"
+import {
+  createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2,
+} from "../../packages/text-engine-rust-wasm/src/unifiedIncrementalEvidenceV2.js"
 
 export type ProducerInvocationAuthorityEvent5B2 =
   | {
@@ -233,6 +241,97 @@ export function authorizedEvidenceRequestBundle5B2(input: {
     request: result.request,
     sourceMaterial: result.sourceMaterial,
     producerInvocationAuthority: result.producerInvocationAuthority,
+    result,
+  }
+}
+
+export function authorizedProducerTerminalFixture5B2(input: {
+  readonly insertedText?: string
+  readonly limits?: Parameters<
+    typeof createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2
+  >[0]
+  readonly runtimeFailure?: "shape" | "segment"
+  readonly extraProducerDescriptorCharge?: boolean
+} = {}) {
+  const fixtureLabel = input.insertedText ?? "X"
+  const bundle = authorizedEvidenceRequestBundle5B2({
+    insertedText: "X",
+    policy: createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2(
+      input.limits ?? {},
+    ),
+  })
+  const producerRuntimeIdentity =
+    createVNextTextBlockTransitionProducerRuntimeIdentityInternalV2({
+      runtime: "node-native-mr1-range",
+      engineBuildFingerprint: `engine-authorized-${fixtureLabel}`,
+      fontBackendFingerprint: `font-authorized-${fixtureLabel}`,
+      unitPolicyFingerprint: bundle.request.layoutUnitPolicyFingerprint,
+      fontStyleUnitDependencyFingerprint:
+        bundle.request.fontStyleUnitDependencyFingerprint,
+      producerRuntimeRequirementFingerprint:
+        bundle.request.producerRuntimeRequirementFingerprint,
+    })
+  const producerInvocationAuthority = input.extraProducerDescriptorCharge
+    ? Object.freeze({
+        source: bundle.producerInvocationAuthority.source,
+        contractVersion: bundle.producerInvocationAuthority.contractVersion,
+        begin: bundle.producerInvocationAuthority.begin.bind(
+          bundle.producerInvocationAuthority,
+        ),
+        charge(unit: VNextTextBlockTransitionProducerOwnedWorkUnitV2) {
+          const charged = bundle.producerInvocationAuthority.charge(unit)
+          if (unit === "evidence-producer-descriptors" && charged.status === "charged") {
+            const extra = bundle.producerInvocationAuthority.charge(unit)
+            if (extra.status !== "charged") return extra
+          }
+          return charged
+        },
+        bindRuntimeIdentity: bundle.producerInvocationAuthority.bindRuntimeIdentity.bind(
+          bundle.producerInvocationAuthority,
+        ),
+        close: bundle.producerInvocationAuthority.close.bind(
+          bundle.producerInvocationAuthority,
+        ),
+      })
+    : bundle.producerInvocationAuthority
+  const result = createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+    producerInvocationAuthority,
+    bundle.request,
+    bundle.sourceMaterial,
+    {
+      identity: producerRuntimeIdentity,
+      shapeRange(shapeInput) {
+        if (input.runtimeFailure === "shape") throw new Error("shape unavailable")
+        const face = FLOWDOC_TEXT_ENGINE_MR1_SARABUN_FONT_FACES_V1.find(
+          (candidate) => candidate.fontFaceId === shapeInput.fontFaceId,
+        )
+        if (face == null) throw new Error("font unavailable")
+        return runFlowDocTextEngineNodeMr1RangeShapeV1({
+          text: shapeInput.text,
+          fontId: face.fontFaceId,
+          fontAssetPath: face.fontAssetPath,
+          fontSha256: face.fontSha256,
+          rangeStartUtf16: shapeInput.rangeStartUtf16,
+          rangeEndUtf16: shapeInput.rangeEndUtf16,
+          contextStartUtf16: shapeInput.contextStartUtf16,
+          contextEndUtf16: shapeInput.contextEndUtf16,
+        })
+      },
+      segmentRange(segmentInput) {
+        if (input.runtimeFailure === "segment") {
+          throw new Error("segment unavailable")
+        }
+        return runFlowDocTextEngineNodeMr1RangeSegmentationV1(segmentInput)
+      },
+    },
+  )
+  return {
+    previousRoot: bundle.root,
+    change: bundle.change,
+    request: bundle.request,
+    sourceMaterial: bundle.sourceMaterial,
+    producerInvocationAuthority: bundle.producerInvocationAuthority,
+    producerRuntimeIdentity,
     result,
   }
 }
