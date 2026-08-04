@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import { FLOWDOC_TEXT_ENGINE_MR1_SARABUN_FONT_FACES_V1 } from "../packages/text-engine-rust-wasm/src/mr1FontFaces.js"
 import {
   runFlowDocTextEngineNodeMr1RangeSegmentationV1,
@@ -28,6 +28,12 @@ import {
 import {
   inspectVNextTextBlockTransitionProducerInvocationAuthorityInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutProducerInvocationAuthorityV2.js"
+import type {
+  VNextTextBlockTransitionEvidenceRequestV2,
+  VNextTextBlockTransitionProducerResponseV2,
+  VNextTextBlockTransitionProducerRuntimeIdentityV2,
+  VNextTextBlockTransitionProducerSourceMaterialV2,
+} from "../src/layout/textBlockUnifiedLayoutEvidenceContractV2.js"
 
 function frozen<T>(value: T): T {
   if (value != null && typeof value === "object") {
@@ -207,6 +213,284 @@ function expectExactProducerSemanticCounters(
     .toBe(expected.completeNextInputTraversalCount)
   expect(actual.completeNextInputComparisonCount)
     .toBe(expected.completeNextInputComparisonCount)
+}
+
+function handSemanticTreeComparisonChargeCount(
+  value: unknown,
+  preserveExact: ReadonlySet<object> = new Set<object>(),
+): number {
+  // One charge reads each value. Containers then charge own-key reflection and
+  // one descriptor read per own key before descending into that exact value.
+  let count = 1
+  if (value == null || typeof value !== "object" || preserveExact.has(value)) {
+    return count
+  }
+  count += 1
+  for (const key of Reflect.ownKeys(value)) {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key)
+    if (descriptor == null || !Object.hasOwn(descriptor, "value")) {
+      throw new Error("hand-derived semantic tree requires exact data fields")
+    }
+    count += 1 + handSemanticTreeComparisonChargeCount(
+      descriptor.value,
+      preserveExact,
+    )
+  }
+  return count
+}
+
+function handExactKeysComparisonChargeCount(keyCount: number): number {
+  // Object kind, prototype, symbols, own-key reflection, key-count equality,
+  // then membership/descriptor/data-property checks for every exact key.
+  return 5 + 3 * keyCount
+}
+
+function handCanonicalComparisonChargeCount(
+  left: unknown,
+  right: unknown,
+  preserveExact: ReadonlySet<object> = new Set<object>(),
+): number {
+  return handSemanticTreeComparisonChargeCount(left, preserveExact)
+    + handSemanticTreeComparisonChargeCount(right, preserveExact)
+    + 1
+}
+
+function handDerivedComparisonBoundaryBeforeLateOffset(input: {
+  readonly response: VNextTextBlockTransitionProducerResponseV2
+  readonly request: VNextTextBlockTransitionEvidenceRequestV2
+  readonly sourceMaterial: VNextTextBlockTransitionProducerSourceMaterialV2
+  readonly runtimeIdentity: VNextTextBlockTransitionProducerRuntimeIdentityV2
+}): {
+  readonly limit: number
+  readonly ledger: readonly { readonly phase: string; readonly count: number }[]
+} {
+  const ledger: Array<{ phase: string; count: number }> = []
+  const charge = (phase: string, count: number) => {
+    ledger.push({ phase, count })
+  }
+  const preserveRuntime = new Set<object>([input.runtimeIdentity])
+
+  charge("response exact keys", handExactKeysComparisonChargeCount(14))
+  charge("response authority facts", 6)
+  charge(
+    "target range canonical equality",
+    handCanonicalComparisonChargeCount(
+      input.response.nextEvidenceTargetRange,
+      input.request.next.evidenceTargetRange,
+    ),
+  )
+  charge(
+    "contracts canonical equality",
+    handCanonicalComparisonChargeCount(
+      input.response.contracts,
+      input.response.contracts,
+    ),
+  )
+  charge(
+    "producer work semantic tree",
+    handSemanticTreeComparisonChargeCount(input.response.work),
+  )
+  charge("work and response-array facts", 6)
+  const responseFacts = { ...input.response } as Record<string, unknown>
+  delete responseFacts.fingerprint
+  charge(
+    "response fingerprint semantic tree",
+    handSemanticTreeComparisonChargeCount(responseFacts, preserveRuntime),
+  )
+  charge("response fingerprint equality", 1)
+
+  type StyledAtom = Extract<
+    (typeof input.sourceMaterial.next.atoms)[number],
+    { readonly resolvedStyle: unknown }
+  >
+  const coverageStart = input.request.next.coverageRange.startRenderedUtf16
+  let coverageText = ""
+  for (const atom of input.sourceMaterial.next.atoms) {
+    charge("Source atom text traversal/composition", 2)
+    coverageText += atom.renderedText
+  }
+  const partitions: Array<{
+    start: number
+    end: number
+    style: StyledAtom["resolvedStyle"]
+    atomFingerprints: string[]
+  }> = []
+  for (const atom of input.sourceMaterial.next.atoms) {
+    charge("Source partition atom traversal/classification", 2)
+    if (atom.kind === "hard-break" || atom.kind === "inline-image-boundary") {
+      continue
+    }
+    const styledAtom = atom as StyledAtom
+    const start = coverageStart + styledAtom.relativeStartRenderedUtf16
+    const end = coverageStart + styledAtom.relativeEndRenderedUtf16
+    charge("Source partition range/previous lookup", 2)
+    const previous = partitions.at(-1)
+    let extendsPrevious = false
+    if (previous != null) {
+      charge("Source partition continuity", 1)
+      if (previous.end === start) {
+        charge(
+          "Source partition style canonical equality",
+          handCanonicalComparisonChargeCount(
+            previous.style,
+            styledAtom.resolvedStyle,
+          ),
+        )
+        extendsPrevious = stringifyVNextCanonicalJson(previous.style)
+          === stringifyVNextCanonicalJson(styledAtom.resolvedStyle)
+      }
+    }
+    charge("Source partition construction", 1)
+    if (previous != null && extendsPrevious) {
+      previous.end = end
+      previous.atomFingerprints.push(styledAtom.fingerprint)
+    } else {
+      partitions.push({
+        start,
+        end,
+        style: styledAtom.resolvedStyle,
+        atomFingerprints: [styledAtom.fingerprint],
+      })
+    }
+  }
+
+  const targetStart = input.response.nextEvidenceTargetRange.startRenderedUtf16
+  const targetEnd = input.response.nextEvidenceTargetRange.endRenderedUtf16
+  const expected = partitions.flatMap((partition) => {
+    charge("Source partition traversal/clip/nonempty", 3)
+    const start = Math.max(partition.start, targetStart)
+    const end = Math.min(partition.end, targetEnd)
+    if (end <= start) return []
+    charge("Source partition projection", 1)
+    return [{ partition, start, end }]
+  })
+  charge("shaping run/proof cardinality", 2)
+
+  for (let runIndex = 0; runIndex < input.response.shapingRuns.length; runIndex += 1) {
+    const run = input.response.shapingRuns[runIndex]!
+    const row = expected[runIndex]!
+    const proof = input.response.shapingBoundaryProofs[runIndex]!
+    charge("shaping run and Source row traversal", 2)
+    charge("shaping run exact keys", handExactKeysComparisonChargeCount(12))
+    charge(
+      "shaping run identity semantic tree",
+      handSemanticTreeComparisonChargeCount({
+        request: input.request.fingerprint,
+        atoms: row.partition.atomFingerprints,
+        runStart: row.start,
+        runEnd: row.end,
+      }),
+    )
+    charge("shaping run facts", 14)
+    for (const _cluster of run.clusters) {
+      charge("cluster traversal", 1)
+      charge("cluster exact keys", handExactKeysComparisonChargeCount(4))
+      charge("cluster facts", 6)
+    }
+    charge("cluster coverage/aggregation/proof traversal", 3)
+    charge("shaping boundary constructions", 3)
+    charge("shaping proof exact keys", handExactKeysComparisonChargeCount(7))
+    charge("shaping target range exact keys", handExactKeysComparisonChargeCount(2))
+    charge(
+      "shaping verification range exact keys",
+      handExactKeysComparisonChargeCount(2),
+    )
+    charge(
+      "shaping target canonical equality",
+      handCanonicalComparisonChargeCount(proof.targetRange, {
+        startRenderedUtf16: row.start,
+        endRenderedUtf16: row.end,
+      }),
+    )
+    const expectedVerification = {
+      startRenderedUtf16: Math.max(
+        row.partition.start,
+        input.request.next.shapeVerificationRange.startRenderedUtf16,
+      ),
+      endRenderedUtf16: Math.min(
+        row.partition.end,
+        input.request.next.shapeVerificationRange.endRenderedUtf16,
+      ),
+    }
+    charge(
+      "shaping verification canonical equality",
+      handCanonicalComparisonChargeCount(
+        proof.verificationRange,
+        expectedVerification,
+      ),
+    )
+    charge("shaping proof scalar facts", 6)
+    const expectedRight = row.end === row.partition.end
+      || row.end === coverageStart + coverageText.length
+      ? "exact-style-or-block-end"
+      : "safe-first-right-guard-glyph"
+    if (expectedRight === "safe-first-right-guard-glyph") {
+      charge("right guard proof", 1)
+    }
+    const proofFacts = { ...proof } as Record<string, unknown>
+    delete proofFacts.fingerprint
+    charge(
+      "shaping proof fingerprint semantic tree",
+      handSemanticTreeComparisonChargeCount(proofFacts),
+    )
+    charge("shaping proof fingerprint equality", 1)
+  }
+
+  charge("segmentation proof cardinality", 1)
+  let previousBreaks: readonly number[] | null = null
+  for (
+    let proofIndex = 0;
+    proofIndex < input.response.segmentationBoundaryProofs.length;
+    proofIndex += 1
+  ) {
+    const proof = input.response.segmentationBoundaryProofs[proofIndex]!
+    const expectedContext = input.request.nextSegmentationContextRanges[proofIndex]!
+    charge("segmentation proof/context traversal", 2)
+    charge("segmentation proof exact keys", handExactKeysComparisonChargeCount(5))
+    charge("segmentation context exact keys", handExactKeysComparisonChargeCount(2))
+    charge(
+      "segmentation context canonical equality",
+      handCanonicalComparisonChargeCount(proof.contextRange, expectedContext),
+    )
+    charge("segmentation proof header facts", 3)
+    for (
+      let offsetIndex = 0;
+      offsetIndex < proof.targetBreakOffsets.length;
+      offsetIndex += 1
+    ) {
+      if (proofIndex === 1 && offsetIndex === 1) {
+        return {
+          limit: ledger.reduce((sum, row) => sum + row.count, 0),
+          ledger: Object.freeze(ledger.map((row) => Object.freeze({ ...row }))),
+        }
+      }
+      charge("segmentation offset traversal", 1)
+      charge("segmentation offset scalar facts", 3)
+      if (offsetIndex > 0) {
+        charge("previous segmentation offset traversal/comparison", 2)
+      }
+    }
+    charge("segmentation inspected-offset facts", 2)
+    const proofFacts = { ...proof } as Record<string, unknown>
+    delete proofFacts.fingerprint
+    charge(
+      "segmentation proof fingerprint semantic tree",
+      handSemanticTreeComparisonChargeCount(proofFacts),
+    )
+    charge("segmentation proof fingerprint equality", 1)
+    if (previousBreaks != null) {
+      charge(
+        "stable segmentation canonical equality",
+        handCanonicalComparisonChargeCount(
+          proof.targetBreakOffsets,
+          previousBreaks,
+        ),
+      )
+    }
+    charge("stable segmentation assignment", 1)
+    previousBreaks = proof.targetBreakOffsets
+  }
+  throw new Error("hand-derived fixture is missing the targeted late offset")
 }
 
 function hostileObject(label: string, observed: string[]): object {
@@ -758,58 +1042,208 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     expect(workCount(atAcceptance.completedCandidateWork, unit)).toBe(exactCompleted)
   })
 
-  it("charges each semantic element and stops at a hand-derived low limit before a late invalid offset", () => {
-    const comparisonLimitBeforeLateOffset = 80
-    const fixture = authorizedFixture({
-      insertedText: "LateOffset",
+  it("uses a high control to reach a late invalid offset and a hand-derived boundary to stop before observing it", () => {
+    const duplicateLateOffsetResponse = (
+      response: VNextTextBlockTransitionProducerResponseV2,
+      runtimeIdentity: VNextTextBlockTransitionProducerRuntimeIdentityV2,
+    ) => {
+      const copy = structuredClone(response)
+      const secondProof = copy.segmentationBoundaryProofs[1]
+      if (secondProof == null) {
+        throw new Error("late-offset fixture requires two proofs")
+      }
+      const duplicateOffset = secondProof.targetBreakOffsets[0]
+      if (duplicateOffset == null) {
+        throw new Error("late-offset fixture requires one valid target offset")
+      }
+      const invalidSecondProof = rehash({
+        ...secondProof,
+        targetBreakOffsets: [duplicateOffset, duplicateOffset],
+      })
+      return {
+        duplicateOffset,
+        response: rehash({
+          ...copy,
+          segmentationBoundaryProofs: [
+            copy.segmentationBoundaryProofs[0]!,
+            invalidSecondProof,
+          ],
+          runtimeIdentity,
+        }),
+      }
+    }
+    const acceptTrackingOffsetSafeIntegerChecks = (
+      fixture: ReturnType<typeof authorizedFixture>,
+      response: VNextTextBlockTransitionProducerResponseV2,
+      trackedOffset: number,
+    ) => {
+      let semanticOffsetSafeIntegerCheckCount = 0
+      const original = Number.isSafeInteger
+      const spy = vi.spyOn(Number, "isSafeInteger").mockImplementation((value) => {
+        if (value === trackedOffset) {
+          const firstLayoutFrame = new Error().stack
+            ?.split("\n")
+            .find((line) =>
+              line.includes("src/layout/") || line.includes("src\\layout\\")
+            )
+          if (firstLayoutFrame?.includes(
+            "textBlockUnifiedLayoutTransitionEvidenceV2.ts",
+          )) {
+            semanticOffsetSafeIntegerCheckCount += 1
+          }
+        }
+        return original(value)
+      })
+      try {
+        return {
+          result:
+            acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInternalV2({
+              previousRoot: fixture.previousRoot,
+              change: fixture.change,
+              request: fixture.request,
+              sourceMaterial: fixture.sourceMaterial,
+              producerInvocationAuthority: fixture.producerInvocationAuthority,
+              producerRuntimeIdentity: fixture.producerRuntimeIdentity,
+              responseOrFailure: response,
+            }),
+          semanticOffsetSafeIntegerCheckCount,
+        }
+      } finally {
+        spy.mockRestore()
+      }
+    }
+
+    const high = authorizedFixture({
+      insertedText: "LateOffsetHighControl",
+      limits: { "evidence-acceptance-comparisons": 8192 },
+    })
+    expect(high.result.status).toBe("accepted")
+    if (high.result.status !== "accepted") return
+    const highLateInvalidFixture = duplicateLateOffsetResponse(
+      high.result.response,
+      high.producerRuntimeIdentity,
+    )
+    const highLateInvalid = highLateInvalidFixture.response
+    expect(highLateInvalid.segmentationBoundaryProofs[1]?.targetBreakOffsets)
+      .toEqual([
+        highLateInvalidFixture.duplicateOffset,
+        highLateInvalidFixture.duplicateOffset,
+      ])
+    const handBoundary = handDerivedComparisonBoundaryBeforeLateOffset({
+      response: highLateInvalid,
+      request: high.request,
+      sourceMaterial: high.sourceMaterial,
+      runtimeIdentity: high.producerRuntimeIdentity,
+    })
+    expect(handBoundary.limit).toBe(737)
+    expect(handBoundary.limit).toBeGreaterThan(80)
+    expect(handBoundary.ledger.at(-1)).toMatchObject({
+      phase: "segmentation offset scalar facts",
+      count: 3,
+    })
+
+    const exactSafeInteger = Number.isSafeInteger
+    const highObserved = acceptTrackingOffsetSafeIntegerChecks(
+      high,
+      highLateInvalid,
+      highLateInvalidFixture.duplicateOffset,
+    )
+    expect(Number.isSafeInteger).toBe(exactSafeInteger)
+    expect(highObserved.result).toMatchObject({
+      status: "blocked",
+      evidence: null,
+      issues: [{
+        message: "segmentation proof differs from the exact bounded attempt",
+      }],
+    })
+    expect("evaluatorOrProofAuthority" in highObserved.result).toBe(false)
+    expect(workCount(
+      highObserved.result.completedCandidateWork,
+      "evidence-acceptance-comparisons",
+    )).toBe(handBoundary.limit + 6)
+    expect(workCount(
+      highObserved.result.completedCandidateWork,
+      "evidence-acceptance-registrations",
+    )).toBe(0)
+    expectExactProducerSemanticCounters(
+      highObserved.result.completedCandidateWork,
+      high.result.response.work,
+    )
+
+    const low = authorizedFixture({
+      insertedText: "LateOffsetLowBoundary",
       limits: {
-        "evidence-acceptance-comparisons": comparisonLimitBeforeLateOffset,
+        "evidence-acceptance-comparisons": handBoundary.limit,
       },
     })
-    expect(fixture.result.status).toBe("accepted")
-    if (fixture.result.status !== "accepted") return
-    const response = structuredClone(fixture.result.response)
-    const secondProof = response.segmentationBoundaryProofs[1]
-    if (secondProof == null) throw new Error("late-offset fixture requires two proofs")
-    const invalidSecondProof = rehash({
-      ...secondProof,
-      targetBreakOffsets: [0, 0],
+    expect(low.result.status).toBe("accepted")
+    if (low.result.status !== "accepted") return
+    const lowLateInvalidFixture = duplicateLateOffsetResponse(
+      low.result.response,
+      low.producerRuntimeIdentity,
+    )
+    const lowLateInvalid = lowLateInvalidFixture.response
+    expect(lowLateInvalidFixture.duplicateOffset)
+      .toBe(highLateInvalidFixture.duplicateOffset)
+    const lowBoundary = handDerivedComparisonBoundaryBeforeLateOffset({
+      response: lowLateInvalid,
+      request: low.request,
+      sourceMaterial: low.sourceMaterial,
+      runtimeIdentity: low.producerRuntimeIdentity,
     })
-    const lateInvalid = rehash({
-      ...response,
-      segmentationBoundaryProofs: [
-        response.segmentationBoundaryProofs[0]!,
-        invalidSecondProof,
-      ],
-      runtimeIdentity: fixture.producerRuntimeIdentity,
-    })
+    expect(lowBoundary.limit).toBe(handBoundary.limit)
 
-    const result =
-      acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInternalV2({
-        previousRoot: fixture.previousRoot,
-        change: fixture.change,
-        request: fixture.request,
-        sourceMaterial: fixture.sourceMaterial,
-        producerInvocationAuthority: fixture.producerInvocationAuthority,
-        producerRuntimeIdentity: fixture.producerRuntimeIdentity,
-        responseOrFailure: lateInvalid,
-      })
-
-    expect(result).toMatchObject({
+    const lowObserved = acceptTrackingOffsetSafeIntegerChecks(
+      low,
+      lowLateInvalid,
+      lowLateInvalidFixture.duplicateOffset,
+    )
+    expect(Number.isSafeInteger).toBe(exactSafeInteger)
+    expect(lowObserved.result).toMatchObject({
       status: "fallback-required",
       evidence: null,
       evaluatorOrProofAuthority: expect.any(Object),
       issues: [],
     })
     expect(workCount(
-      result.completedCandidateWork,
+      lowObserved.result.completedCandidateWork,
       "evidence-acceptance-comparisons",
-    )).toBe(comparisonLimitBeforeLateOffset)
+    )).toBe(handBoundary.limit)
     expect(workCount(
-      result.completedCandidateWork,
+      lowObserved.result.completedCandidateWork,
       "evidence-acceptance-registrations",
     )).toBe(1)
-  })
+    expect(highObserved.semanticOffsetSafeIntegerCheckCount)
+      .toBe(lowObserved.semanticOffsetSafeIntegerCheckCount + 1)
+    expectExactProducerSemanticCounters(
+      lowObserved.result.completedCandidateWork,
+      low.result.response.work,
+    )
+    if (lowObserved.result.status === "fallback-required") {
+      const record = getAuthorizedFallbackRecord(
+        lowObserved.result.evaluatorOrProofAuthority,
+      )
+      expect(record).toMatchObject({
+        terminal: {
+          state: "acceptance-consumed",
+          terminalOutcome: "producer-response",
+          request: low.request,
+          sourceMaterial: low.sourceMaterial,
+          runtimeIdentity: low.producerRuntimeIdentity,
+        },
+        failureKind: "acceptance-work-limit",
+        producerFailureCode: null,
+        producerWork: low.result.response.work,
+        acceptanceFailedEvaluation: {
+          unit: "evidence-acceptance-comparisons",
+          attemptedWork: handBoundary.limit + 1,
+          completedWork: handBoundary.limit,
+          effectiveLimit: handBoundary.limit,
+        },
+        completedCandidateWork: lowObserved.result.completedCandidateWork,
+      })
+    }
+  }, 15_000)
 
   it("vertical authority zero-limit producer failure preserves attempted/completed facts and mints candidate-free work-limit fallback", () => {
     const fixture = authorizedFixture({
