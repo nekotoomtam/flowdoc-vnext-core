@@ -52,6 +52,9 @@ import {
   evaluateVNextTextBlockStageWorkLimitInternalV1,
   type VNextTextBlockUnifiedLayoutWorkPolicyV1,
 } from "./textBlockUnifiedLayoutWorkPolicyV1.js"
+import {
+  deriveVNextTextBlockTransitionProducerAggregateWorkCeilingInternalV2,
+} from "./textBlockUnifiedLayoutProducerInvocationAuthorityV2.js"
 
 export interface VNextTextBlockUnifiedLayoutChangePreflightV2 {
   readonly change: VNextTextBlockUnifiedLayoutChangeV1
@@ -106,7 +109,12 @@ const failureAuthorities = new WeakMap<object, {
   readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
   readonly change: VNextTextBlockUnifiedLayoutChangeV1
   readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
-  readonly unit: "evidence-request-lookup-nodes" | "evidence-context-atoms" | "evidence-response-nodes"
+  readonly unit:
+    | "evidence-request-lookup-nodes"
+    | "evidence-request-descriptors"
+    | "evidence-context-atoms"
+    | "evidence-material-descriptors"
+    | "evidence-response-nodes"
   readonly effectiveLimit: number
 }>()
 
@@ -390,14 +398,27 @@ function atomFromItem(
   return freeze({ ...base, ...variant, fingerprint: fingerprint({ ...base, ...variant }) }) as VNextTextBlockTransitionProducerSourceAtomV2
 }
 
-function meteredWork(base: VNextTextBlockIncrementalCandidateWorkV1, policy: VNextTextBlockUnifiedLayoutWorkPolicyV1, lookup: number, atoms: number): VNextTextBlockIncrementalCandidateWorkV1 {
+function meteredWork(base: VNextTextBlockIncrementalCandidateWorkV1, policy: VNextTextBlockUnifiedLayoutWorkPolicyV1, requestDescriptors: number, atoms: number, materialDescriptors: number): VNextTextBlockIncrementalCandidateWorkV1 {
+  const hasAuthorityRows = policy.stages.some((row) =>
+    row.stage === "evidence" && row.unit === "evidence-request-descriptors"
+  )
+  const requestUnit = hasAuthorityRows
+    ? "evidence-request-descriptors" as const
+    : "evidence-request-lookup-nodes" as const
+  const factualCounts = hasAuthorityRows
+    ? [
+        { stage: "evidence" as const, unit: requestUnit, count: requestDescriptors },
+        { stage: "evidence" as const, unit: "evidence-context-atoms" as const, count: atoms },
+        { stage: "evidence" as const, unit: "evidence-material-descriptors" as const, count: materialDescriptors },
+      ]
+    : [
+        { stage: "evidence" as const, unit: requestUnit, count: requestDescriptors },
+        { stage: "evidence" as const, unit: "evidence-context-atoms" as const, count: atoms },
+      ]
   return freeze({
     ...base,
-    evidence: { ...base.evidence, visitedRequestLookupNodeCount: lookup, materializedContextAtomCount: atoms },
-    stageWork: composeVNextTextBlockStageWorkLedgerInternalV1({ policy, factualCounts: [
-      { stage: "evidence", unit: "evidence-request-lookup-nodes", count: lookup },
-      { stage: "evidence", unit: "evidence-context-atoms", count: atoms },
-    ] }),
+    evidence: { ...base.evidence, visitedRequestLookupNodeCount: requestDescriptors, materializedContextAtomCount: atoms },
+    stageWork: composeVNextTextBlockStageWorkLedgerInternalV1({ policy, factualCounts }),
   })
 }
 
@@ -417,23 +438,33 @@ function registeredRequestWork(
   })
 }
 
-function evaluatedLimit(policy: VNextTextBlockUnifiedLayoutWorkPolicyV1, root: VNextTextBlockUnifiedLayoutRootV2, unit: "evidence-request-lookup-nodes" | "evidence-context-atoms" | "evidence-response-nodes", attempted: number) {
+type PreflightEvidenceWorkUnitInternalV2 =
+  | "evidence-request-lookup-nodes"
+  | "evidence-request-descriptors"
+  | "evidence-context-atoms"
+  | "evidence-material-descriptors"
+  | "evidence-response-nodes"
+
+function evaluatedLimit(policy: VNextTextBlockUnifiedLayoutWorkPolicyV1, root: VNextTextBlockUnifiedLayoutRootV2, unit: PreflightEvidenceWorkUnitInternalV2, attempted: number) {
   return evaluateVNextTextBlockStageWorkLimitInternalV1({ policy, stage: "evidence", unit, previousSummaryBase: root.sourceState.summary.itemCount, exactValidatedChangeDelta: 1, attemptedWork: attempted })
 }
 
 interface PreflightWorkMeterInternalV2 {
   visitedNodeCount: number
   materializedAtomCount: number
-  failedUnit: "evidence-request-lookup-nodes" | "evidence-context-atoms" | null
+  materialDescriptorCount: number
+  failedUnit: PreflightEvidenceWorkUnitInternalV2 | null
   failedEffectiveLimit: number
   failureAuthority: object | null
   completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
   readonly beforeVisitNode: () => boolean
   readonly beforeMaterialAtom: () => boolean
+  readonly beforeMaterialDescriptor: () => boolean
 }
 
 function workMeter(
   policy: VNextTextBlockUnifiedLayoutWorkPolicyV1,
+  previousRoot: VNextTextBlockUnifiedLayoutRootV2,
   validatedChange: Parameters<
     typeof evaluateNextVNextTextBlockStageVisitInternalV1
   >[0]["validatedChange"],
@@ -441,51 +472,86 @@ function workMeter(
 ): PreflightWorkMeterInternalV2 {
   const before = (
     meter: PreflightWorkMeterInternalV2,
-    unit: "evidence-request-lookup-nodes" | "evidence-context-atoms",
+    unit:
+      | "evidence-request-lookup-nodes"
+      | "evidence-request-descriptors"
+      | "evidence-context-atoms"
+      | "evidence-material-descriptors",
   ): boolean => {
-    const completedWork = unit === "evidence-request-lookup-nodes"
-      ? meter.visitedNodeCount
-      : meter.materializedAtomCount
-    const evaluation = evaluateNextVNextTextBlockStageVisitInternalV1({
-      validatedChange,
-      stage: "evidence",
-      unit,
-      completedWork,
-      completedCandidateWork: meter.completedCandidateWork,
-    })
-    if (evaluation.status !== "accepted") {
-      meter.failedUnit = unit
-      meter.failedEffectiveLimit = evaluation.effectiveLimit
-      meter.failureAuthority = evaluation.status === "limit-exceeded"
-        ? evaluation.evaluatorAuthority
-        : null
-      return false
-    }
-    if (unit === "evidence-request-lookup-nodes") {
-      meter.visitedNodeCount = evaluation.attemptedWork
+    const completedWork = unit === "evidence-context-atoms"
+      ? meter.materializedAtomCount
+      : unit === "evidence-material-descriptors"
+        ? meter.materialDescriptorCount
+        : meter.visitedNodeCount
+    const usesAuthorityRows = unit !== "evidence-request-lookup-nodes"
+      && policy.stages.some((row) =>
+        row.stage === "evidence" && row.unit === "evidence-request-descriptors"
+      )
+    let attemptedWork: number
+    if (usesAuthorityRows) {
+      const evaluation = evaluatedLimit(
+        policy,
+        previousRoot,
+        unit,
+        completedWork + 1,
+      )
+      if (evaluation.status !== "within-limit") {
+        meter.failedUnit = unit
+        meter.failedEffectiveLimit = evaluation.effectiveLimit ?? 0
+        meter.failureAuthority = null
+        return false
+      }
+      attemptedWork = evaluation.attemptedWork
     } else {
-      meter.materializedAtomCount = evaluation.attemptedWork
+      const evaluation = evaluateNextVNextTextBlockStageVisitInternalV1({
+        validatedChange,
+        stage: "evidence",
+        unit,
+        completedWork,
+        completedCandidateWork: meter.completedCandidateWork,
+      })
+      if (evaluation.status !== "accepted") {
+        meter.failedUnit = unit
+        meter.failedEffectiveLimit = evaluation.effectiveLimit
+        meter.failureAuthority = evaluation.status === "limit-exceeded"
+          ? evaluation.evaluatorAuthority
+          : null
+        return false
+      }
+      attemptedWork = evaluation.attemptedWork
+    }
+    if (unit === "evidence-request-lookup-nodes" || unit === "evidence-request-descriptors") {
+      meter.visitedNodeCount = attemptedWork
+    } else if (unit === "evidence-context-atoms") {
+      meter.materializedAtomCount = attemptedWork
+    } else {
+      meter.materialDescriptorCount = attemptedWork
     }
     meter.completedCandidateWork = meteredWork(
       meter.completedCandidateWork,
       policy,
       meter.visitedNodeCount,
       meter.materializedAtomCount,
+      meter.materialDescriptorCount,
     )
     return true
   }
   const meter: PreflightWorkMeterInternalV2 = {
     visitedNodeCount: 0,
     materializedAtomCount: 0,
+    materialDescriptorCount: 0,
     failedUnit: null,
     failedEffectiveLimit: 0,
     failureAuthority: null,
     completedCandidateWork: baseWork,
-    beforeVisitNode: () => before(
-      meter,
-      "evidence-request-lookup-nodes",
-    ),
+    beforeVisitNode: () => before(meter, policy.stages.some((row) =>
+      row.stage === "evidence" && row.unit === "evidence-request-descriptors"
+    ) ? "evidence-request-descriptors" : "evidence-request-lookup-nodes"),
     beforeMaterialAtom: () => before(meter, "evidence-context-atoms"),
+    beforeMaterialDescriptor: () => before(
+      meter,
+      "evidence-material-descriptors",
+    ),
   }
   return meter
 }
@@ -494,7 +560,7 @@ function fallback(input: {
   readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
   readonly change: VNextTextBlockUnifiedLayoutChangeV1
   readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
-  readonly unit: "evidence-request-lookup-nodes" | "evidence-context-atoms" | "evidence-response-nodes"
+  readonly unit: PreflightEvidenceWorkUnitInternalV2
   readonly effectiveLimit: number
   readonly work: VNextTextBlockIncrementalCandidateWorkV1
   readonly evaluatorOrProofAuthority?: object | null
@@ -912,8 +978,12 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
   }
   const meter = workMeter(
     input.workPolicy,
+    input.previousRoot,
     validatedChange,
     bound.incrementalCandidateWork,
+  )
+  const usesAuthorityEvidenceRows = input.workPolicy.stages.some((row) =>
+    row.stage === "evidence" && row.unit === "evidence-request-descriptors"
   )
   const sourceLookup = sourceRangeForChange(
     input.previousRoot,
@@ -1032,6 +1102,7 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
         input.workPolicy,
         meter.visitedNodeCount,
         meter.materializedAtomCount,
+        meter.materialDescriptorCount,
       ),
       issues: freeze([issue(
         "invalid-change-range",
@@ -1247,6 +1318,17 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
     })
   }
   const lane = (ranges: VNextTextBlockTransitionProducerLaneRangesV2, atoms: readonly VNextTextBlockTransitionProducerSourceAtomV2[]): VNextTextBlockTransitionProducerLaneMaterialV2 => freeze({ ranges, atoms: freeze([...atoms]), fingerprint: fingerprint({ ranges, atoms }) })
+  if (usesAuthorityEvidenceRows && !meter.beforeMaterialDescriptor()) {
+    return fallback({
+      previousRoot: input.previousRoot,
+      change: input.change,
+      workPolicy: input.workPolicy,
+      unit: "evidence-material-descriptors",
+      effectiveLimit: meter.failedEffectiveLimit,
+      work: meter.completedCandidateWork,
+      evaluatorOrProofAuthority: meter.failureAuthority,
+    })
+  }
   const previous = lane(previousRanges, previousAtoms)
   const nextAtoms: VNextTextBlockTransitionProducerSourceAtomV2[] = []
   const append = (inputAtom: {
@@ -1332,6 +1414,17 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
   nextAtoms.sort((left, right) =>
     left.relativeStartRenderedUtf16 - right.relativeStartRenderedUtf16
   )
+  if (usesAuthorityEvidenceRows && !meter.beforeMaterialDescriptor()) {
+    return fallback({
+      previousRoot: input.previousRoot,
+      change: input.change,
+      workPolicy: input.workPolicy,
+      unit: "evidence-material-descriptors",
+      effectiveLimit: meter.failedEffectiveLimit,
+      work: meter.completedCandidateWork,
+      evaluatorOrProofAuthority: meter.failureAuthority,
+    })
+  }
   const next = lane(nextRanges, nextAtoms)
   const requestedAtomCount = previous.atoms.length + next.atoms.length
   const requestedClusterCount = scalarCountInRange(
@@ -1339,21 +1432,54 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
     nextRanges.coverageRange.startRenderedUtf16,
     nextRanges.shapeVerificationRange,
   )
-  const responseLimit = evaluatedLimit(input.workPolicy, input.previousRoot, "evidence-response-nodes", 0)
-  if (responseLimit.status !== "within-limit") {
+  const aggregateProducerCeiling = usesAuthorityEvidenceRows
+    ? deriveVNextTextBlockTransitionProducerAggregateWorkCeilingInternalV2({
+        policy: input.workPolicy,
+        previousSummaryBase: input.previousRoot.sourceState.summary.itemCount,
+      })
+    : null
+  const responseLimit = usesAuthorityEvidenceRows
+    ? null
+    : evaluatedLimit(input.workPolicy, input.previousRoot, "evidence-response-nodes", 0)
+  if (
+    (usesAuthorityEvidenceRows && aggregateProducerCeiling == null)
+    || (!usesAuthorityEvidenceRows && responseLimit?.status !== "within-limit")
+  ) {
     return fallback({
       previousRoot: input.previousRoot,
       change: input.change,
       workPolicy: input.workPolicy,
       unit: "evidence-response-nodes",
-      effectiveLimit: responseLimit.effectiveLimit ?? 0,
+      effectiveLimit: responseLimit?.effectiveLimit ?? 0,
       work: meter.completedCandidateWork,
     })
   }
   const nextSegmentationContextRanges = stringifyVNextCanonicalJson(nextRanges.shapeVerificationRange) === stringifyVNextCanonicalJson(nextRanges.coverageRange)
     ? freeze([nextRanges.shapeVerificationRange])
     : freeze([nextRanges.shapeVerificationRange, nextRanges.coverageRange])
+  if (usesAuthorityEvidenceRows && !meter.beforeVisitNode()) {
+    return fallback({
+      previousRoot: input.previousRoot,
+      change: input.change,
+      workPolicy: input.workPolicy,
+      unit: "evidence-request-descriptors",
+      effectiveLimit: meter.failedEffectiveLimit,
+      work: meter.completedCandidateWork,
+      evaluatorOrProofAuthority: meter.failureAuthority,
+    })
+  }
   const requestFacts = { source: "vnext-text-block-transition-evidence-request-v2" as const, contractVersion: 2 as const, previousRootFingerprint: input.previousRoot.fingerprint, changeFingerprint: validatedChange.fingerprint, documentId: input.previousRoot.documentId, sectionId: input.previousRoot.sectionId, textBlockId: input.previousRoot.textBlockId, previous: previousRanges, next: nextRanges, nextSegmentationContextRanges, requiredStableSegmentationExpansionCount: nextSegmentationContextRanges.length, fontStyleUnitDependencyFingerprint: input.previousRoot.sourceState.producerRequirements.fontStyleUnitDependencyFingerprint, producerRuntimeRequirementFingerprint: input.previousRoot.sourceState.producerRequirements.producerRuntimeRequirementFingerprint, layoutUnitPolicyFingerprint: input.previousRoot.sourceState.producerRequirements.layoutUnitPolicyFingerprint, workPolicyFingerprint: input.workPolicy.fingerprint }
+  if (usesAuthorityEvidenceRows && !meter.beforeMaterialDescriptor()) {
+    return fallback({
+      previousRoot: input.previousRoot,
+      change: input.change,
+      workPolicy: input.workPolicy,
+      unit: "evidence-material-descriptors",
+      effectiveLimit: meter.failedEffectiveLimit,
+      work: meter.completedCandidateWork,
+      evaluatorOrProofAuthority: meter.failureAuthority,
+    })
+  }
   const evidenceMaterial = exactEvidenceMaterialTuple({
     previousRoot: input.previousRoot,
     change: input.change,
@@ -1363,7 +1489,7 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
         ...requestFacts,
         fingerprint: fingerprint(requestFacts),
       })
-      const materialFacts = { source: "vnext-text-block-transition-producer-source-material-v2" as const, contractVersion: 2 as const, requestFingerprint: request.fingerprint, previous, next, paragraphStyleKey, fontFaces: input.previousRoot.sourceState.producerRequirements.fontFaces, layoutUnitPolicyFingerprint: input.previousRoot.sourceState.producerRequirements.layoutUnitPolicyFingerprint, sourceTopologyFingerprint: input.previousRoot.sourceState.summary.sourceFingerprint, producerWorkCeilings: { maximumVisitedEvidenceNodeCount: responseLimit.effectiveLimit, maximumRequestedAtomCount: requestedAtomCount, maximumRequestedClusterCount: requestedClusterCount } }
+      const materialFacts = { source: "vnext-text-block-transition-producer-source-material-v2" as const, contractVersion: 2 as const, requestFingerprint: request.fingerprint, previous, next, paragraphStyleKey, fontFaces: input.previousRoot.sourceState.producerRequirements.fontFaces, layoutUnitPolicyFingerprint: input.previousRoot.sourceState.producerRequirements.layoutUnitPolicyFingerprint, sourceTopologyFingerprint: input.previousRoot.sourceState.summary.sourceFingerprint, producerWorkCeilings: { maximumVisitedEvidenceNodeCount: aggregateProducerCeiling ?? responseLimit?.effectiveLimit ?? 0, maximumRequestedAtomCount: requestedAtomCount, maximumRequestedClusterCount: requestedClusterCount } }
       const sourceMaterial = freeze({
         ...materialFacts,
         fingerprint: fingerprint(materialFacts),

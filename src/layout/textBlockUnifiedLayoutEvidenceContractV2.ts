@@ -132,6 +132,61 @@ export interface VNextTextBlockTransitionProducerRuntimeIdentityV2 {
   readonly fingerprint: string
 }
 
+export type VNextTextBlockTransitionProducerOwnedWorkUnitV2 =
+  | "evidence-producer-descriptors"
+  | "evidence-runtime-invocations"
+  | "evidence-runtime-input-scalars"
+  | "evidence-glyphs"
+  | "evidence-clusters"
+  | "evidence-breaks"
+  | "evidence-guards"
+  | "evidence-proof-facts"
+  | "evidence-response-facts"
+
+export type VNextTextBlockTransitionProducerChargeResultV2 =
+  | {
+      readonly status: "charged"
+      readonly unit: VNextTextBlockTransitionProducerOwnedWorkUnitV2
+      readonly completedWork: number
+      readonly effectiveLimit: number
+    }
+  | {
+      readonly status: "limit-exceeded"
+      readonly unit: VNextTextBlockTransitionProducerOwnedWorkUnitV2
+      readonly attemptedWork: number
+      readonly completedWork: number
+      readonly effectiveLimit: number
+    }
+  | {
+      readonly status: "invalid-state"
+      readonly unit: VNextTextBlockTransitionProducerOwnedWorkUnitV2
+    }
+
+export interface VNextTextBlockTransitionProducerInvocationAuthorityV2 {
+  readonly source: "vnext-text-block-transition-producer-invocation-authority-v2"
+  readonly contractVersion: 2
+  readonly begin: (
+    this: VNextTextBlockTransitionProducerInvocationAuthorityV2,
+    request: VNextTextBlockTransitionEvidenceRequestV2,
+    sourceMaterial: VNextTextBlockTransitionProducerSourceMaterialV2,
+  ) => { readonly status: "started" | "rejected" }
+  readonly charge: (
+    this: VNextTextBlockTransitionProducerInvocationAuthorityV2,
+    unit: VNextTextBlockTransitionProducerOwnedWorkUnitV2,
+  ) => VNextTextBlockTransitionProducerChargeResultV2
+  readonly bindRuntimeIdentity: (
+    this: VNextTextBlockTransitionProducerInvocationAuthorityV2,
+    identity: VNextTextBlockTransitionProducerRuntimeIdentityV2,
+  ) => { readonly status: "bound" | "rejected" }
+  readonly close: (
+    this: VNextTextBlockTransitionProducerInvocationAuthorityV2,
+    outcome: "producer-response" | "producer-failure" | "producer-blocked",
+  ) => {
+    readonly status: "closed" | "rejected"
+    readonly visitedEvidenceNodeCount: number
+  }
+}
+
 export interface VNextTextBlockTransitionProducerWorkV2 {
   readonly requestedAtomCount: number
   readonly requestedClusterCount: number
@@ -272,7 +327,7 @@ export type VNextTextBlockTransitionProducerFailureAcceptanceResultV2 =
     }
 
 export type VNextTextBlockTransitionEvidenceRequestResultV2 =
-  | { readonly status: "required"; readonly request: VNextTextBlockTransitionEvidenceRequestV2; readonly sourceMaterial: VNextTextBlockTransitionProducerSourceMaterialV2; readonly evaluatorOrProofAuthority: null; readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1; readonly issues: readonly [] }
-  | { readonly status: "not-required"; readonly request: null; readonly sourceMaterial: null; readonly evaluatorOrProofAuthority: null; readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1; readonly issues: readonly [] }
-  | { readonly status: "fallback-required"; readonly request: null; readonly sourceMaterial: null; readonly evaluatorOrProofAuthority: object; readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1; readonly issues: readonly [] }
-  | { readonly status: "blocked"; readonly request: null; readonly sourceMaterial: null; readonly evaluatorOrProofAuthority: null; readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1; readonly issues: readonly VNextTextBlockUnifiedLayoutIssueV1[] }
+  | { readonly status: "required"; readonly request: VNextTextBlockTransitionEvidenceRequestV2; readonly sourceMaterial: VNextTextBlockTransitionProducerSourceMaterialV2; readonly producerInvocationAuthority: VNextTextBlockTransitionProducerInvocationAuthorityV2; readonly evaluatorOrProofAuthority: null; readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1; readonly issues: readonly [] }
+  | { readonly status: "not-required"; readonly request: null; readonly sourceMaterial: null; readonly producerInvocationAuthority: null; readonly evaluatorOrProofAuthority: null; readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1; readonly issues: readonly [] }
+  | { readonly status: "fallback-required"; readonly request: null; readonly sourceMaterial: null; readonly producerInvocationAuthority: null; readonly evaluatorOrProofAuthority: object; readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1; readonly issues: readonly [] }
+  | { readonly status: "blocked"; readonly request: null; readonly sourceMaterial: null; readonly producerInvocationAuthority: null; readonly evaluatorOrProofAuthority: null; readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1; readonly issues: readonly VNextTextBlockUnifiedLayoutIssueV1[] }

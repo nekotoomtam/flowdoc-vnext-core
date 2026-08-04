@@ -23,6 +23,11 @@ import {
   prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2,
 } from "./textBlockUnifiedLayoutTransitionPreflightV2.js"
 import {
+  createVNextTextBlockTransitionProducerInvocationAuthorityInternalV2,
+  hasRegisteredVNextTextBlockTransitionProducerRuntimeIdentityInternalV2,
+  registerVNextTextBlockTransitionProducerRuntimeIdentityInternalV2,
+} from "./textBlockUnifiedLayoutProducerInvocationAuthorityV2.js"
+import {
   composeVNextTextBlockStageWorkLedgerInternalV1,
   evaluateVNextTextBlockStageWorkLimitInternalV1,
   type VNextTextBlockStageWorkLimitEvaluationV1,
@@ -235,14 +240,6 @@ const acceptanceEvaluators = new WeakMap<
   object,
   (attemptedWork: number) => VNextTextBlockStageWorkLimitEvaluationV1
 >()
-/*
- * A registered runtime identity is the private process-local bearer
- * capability for factual engine output. Core independently recomputes every
- * Source/range/style/topology/work fact available in the V2 payload; numeric
- * glyph advances remain producer facts because this contract intentionally
- * carries no complete glyph oracle.
- */
-const runtimeIdentities = new WeakSet<object>()
 const evidenceRecords = new WeakMap<object, RequestTupleV2>()
 const evidenceCompletedWorkRecords = new WeakMap<object, VNextTextBlockIncrementalCandidateWorkV1>()
 const failureAuthorities = new WeakMap<object, RequestTupleV2>()
@@ -260,7 +257,7 @@ export function createVNextTextBlockTransitionProducerRuntimeIdentityInternalV2(
     ...input,
   }
   const identity = freeze({ ...facts, fingerprint: fingerprint(facts) })
-  runtimeIdentities.add(identity)
+  registerVNextTextBlockTransitionProducerRuntimeIdentityInternalV2(identity)
   return identity
 }
 
@@ -292,11 +289,19 @@ export function createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV2(inp
       sourceMaterial: result.sourceMaterial,
       completedCandidateWork: result.completedCandidateWork,
     }))
-    return freeze({ status: "required" as const, request: result.request, sourceMaterial: result.sourceMaterial, evaluatorOrProofAuthority: null, completedCandidateWork: result.completedCandidateWork, issues: freeze([]) })
+    const producerInvocationAuthority =
+      createVNextTextBlockTransitionProducerInvocationAuthorityInternalV2({
+        previousRoot: input.previousRoot,
+        change: input.change,
+        request: result.request,
+        sourceMaterial: result.sourceMaterial,
+        workPolicy,
+      })
+    return freeze({ status: "required" as const, request: result.request, sourceMaterial: result.sourceMaterial, producerInvocationAuthority, evaluatorOrProofAuthority: null, completedCandidateWork: result.completedCandidateWork, issues: freeze([]) })
   }
-  if (result.status === "not-required") return freeze({ status: "not-required" as const, request: null, sourceMaterial: null, evaluatorOrProofAuthority: null, completedCandidateWork: result.completedCandidateWork, issues: freeze([]) })
-  if (result.status === "fallback-required") return freeze({ status: "fallback-required" as const, request: null, sourceMaterial: null, evaluatorOrProofAuthority: result.evaluatorOrProofAuthority, completedCandidateWork: result.completedCandidateWork, issues: freeze([]) })
-  return freeze({ status: "blocked" as const, request: null, sourceMaterial: null, evaluatorOrProofAuthority: null, completedCandidateWork: result.completedCandidateWork, issues: result.issues })
+  if (result.status === "not-required") return freeze({ status: "not-required" as const, request: null, sourceMaterial: null, producerInvocationAuthority: null, evaluatorOrProofAuthority: null, completedCandidateWork: result.completedCandidateWork, issues: freeze([]) })
+  if (result.status === "fallback-required") return freeze({ status: "fallback-required" as const, request: null, sourceMaterial: null, producerInvocationAuthority: null, evaluatorOrProofAuthority: result.evaluatorOrProofAuthority, completedCandidateWork: result.completedCandidateWork, issues: freeze([]) })
+  return freeze({ status: "blocked" as const, request: null, sourceMaterial: null, producerInvocationAuthority: null, evaluatorOrProofAuthority: null, completedCandidateWork: result.completedCandidateWork, issues: result.issues })
 }
 
 function tupleFor(input: {
@@ -311,7 +316,9 @@ function tupleFor(input: {
       && tuple.previousRoot === input.previousRoot
       && tuple.change === input.change
       && tuple.sourceMaterial === input.sourceMaterial
-      && runtimeIdentities.has(input.producerRuntimeIdentity)
+      && hasRegisteredVNextTextBlockTransitionProducerRuntimeIdentityInternalV2(
+        input.producerRuntimeIdentity,
+      )
       && input.producerRuntimeIdentity.fontStyleUnitDependencyFingerprint === input.request.fontStyleUnitDependencyFingerprint
       && input.producerRuntimeIdentity.producerRuntimeRequirementFingerprint === input.request.producerRuntimeRequirementFingerprint
       && input.producerRuntimeIdentity.unitPolicyFingerprint === input.request.layoutUnitPolicyFingerprint

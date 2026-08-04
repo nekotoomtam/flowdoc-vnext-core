@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest"
 import * as core from "../src/index.js"
 import { acceptedInlineImageEvidenceFixture } from "./helpers/textBlockInlineImageFlowV2.js"
+import type {
+  VNextTextBlockTransitionProducerInvocationAuthorityV2,
+} from "../src/index.js"
 
 const reviewedUnifiedRuntimeExports = [
   "VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_ROOT_V1_SOURCE",
@@ -41,6 +44,10 @@ const privilegedRuntimeNames = [
   "createVNextTextBlockUnifiedLayoutRootCompleteInternalV2",
   "attemptVNextTextBlockUnifiedLayoutRootTransitionInternalV1",
   "evaluateVNextTextBlockStageWorkLimitInternalV1",
+  "createVNextTextBlockTransitionProducerInvocationAuthorityInternalV2",
+  "registerVNextTextBlockTransitionProducerRuntimeIdentityInternalV2",
+  "inspectVNextTextBlockTransitionProducerInvocationAuthorityInternalV2",
+  "consumeVNextTextBlockTransitionProducerInvocationAuthorityInternalV2",
   "canonicalRootFacts",
   "rootFingerprintFacts",
   "roots",
@@ -58,6 +65,22 @@ function publicRootInput() {
 }
 
 describe("Live Draft MR1 unified TextBlock root Phase 5A public boundary", () => {
+  it("keeps the authority value private while exposing its TypeScript contract", () => {
+    const acceptsAuthorityType = (
+      _authority: VNextTextBlockTransitionProducerInvocationAuthorityV2,
+    ): true => true
+
+    expect(acceptsAuthorityType).toEqual(expect.any(Function))
+    for (const name of [
+      "createVNextTextBlockTransitionProducerInvocationAuthorityInternalV2",
+      "registerVNextTextBlockTransitionProducerRuntimeIdentityInternalV2",
+      "inspectVNextTextBlockTransitionProducerInvocationAuthorityInternalV2",
+      "consumeVNextTextBlockTransitionProducerInvocationAuthorityInternalV2",
+    ]) {
+      expect(name in core, name).toBe(false)
+    }
+  })
+
   it("exposes exactly the reviewed unified runtime surface and no privileged helper", () => {
     const unifiedRuntimeExports = Object.keys(core)
       .filter((name) => (

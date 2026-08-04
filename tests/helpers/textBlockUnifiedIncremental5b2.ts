@@ -7,11 +7,17 @@ import {
 } from "../../src/layout/textBlockUnifiedLayoutRootAuthorityInternalsV2.js"
 import {
   markVNextTextBlockUnifiedLayout5B2CompleteKernelProfileInternalV1,
+  registerVNextTextBlockUnifiedLayoutTrivialAdmissionInternalV1,
   type VNextTextBlockUnifiedLayout5B2AuthoredBoxProfileInternalV1,
 } from "../../src/layout/textBlockUnifiedLayoutTrivialAdmissionInternalsV1.js"
 import {
+  createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+  type VNextTextBlockUnifiedLayoutWorkPolicyV1,
 } from "../../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
+import {
+  createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV2,
+} from "../../src/layout/textBlockUnifiedLayoutTransitionEvidenceV2.js"
 import {
   unifiedLayoutRootBuildInputFixtureV2,
 } from "./textBlockUnifiedLayoutRootV2.js"
@@ -58,6 +64,104 @@ export function admitted5B2RootFixture(input: Parameters<
 
 export const FIVE_B2_TEST_POLICY =
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1
+
+export function admitted5B2AuthorityRootFixture(input: {
+  readonly policy?: VNextTextBlockUnifiedLayoutWorkPolicyV1
+  readonly text?: string
+} = {}) {
+  const policy = input.policy
+    ?? createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({})
+  const prepared = prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2(
+    unifiedLayoutRootBuildInputFixtureV2({
+      content: "text-only",
+      text: input.text ?? "ABCD",
+    }),
+    policy,
+    "complete-bootstrap",
+  )
+  if (prepared.status !== "prepared") {
+    throw new Error(`5B-2 authority Root fixture blocked: ${JSON.stringify(prepared.issues)}`)
+  }
+  const registration =
+    registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2(prepared.root)
+  if (registration.status !== "committed") {
+    throw new Error(`5B-2 authority Root registration blocked: ${registration.message}`)
+  }
+  markVNextTextBlockUnifiedLayout5B2CompleteKernelProfileInternalV1({
+    root: prepared.root,
+    source: prepared.root.sourceState,
+    spatialState: prepared.root.spatialState,
+    authoredBox: prepared.root.authoredBoxSummary,
+    workPolicy: policy,
+    authoredBoxProfile: {
+      heightPolicy: "auto-height",
+      clippingPolicy: "none",
+      overflowPolicy: "none",
+    },
+  })
+  const admission = registerVNextTextBlockUnifiedLayoutTrivialAdmissionInternalV1({
+    root: prepared.root,
+    source: prepared.root.sourceState,
+    spatialState: prepared.root.spatialState,
+    authoredBox: prepared.root.authoredBoxSummary,
+    workPolicy: policy,
+  })
+  if (admission == null) {
+    throw new Error("5B-2 authority Root admission blocked")
+  }
+  return prepared.root
+}
+
+export function authorizedEvidenceRequestBundle5B2(input: {
+  readonly policy?: VNextTextBlockUnifiedLayoutWorkPolicyV1
+  readonly insertedText?: string
+} = {}) {
+  const root = admitted5B2AuthorityRootFixture({ policy: input.policy })
+  if (root.sourceState.root.nodeKind !== "leaf") {
+    throw new Error("5B-2 authority fixture requires one Source leaf")
+  }
+  const textItem = root.sourceState.root.items.find((item) => item.kind === "text")
+  if (textItem == null || textItem.kind !== "text") {
+    throw new Error("5B-2 authority fixture requires one text Source item")
+  }
+  const change = Object.freeze({
+    source: "vnext-text-block-unified-layout-change-v1" as const,
+    contractVersion: 1 as const,
+    kind: "text-insertion" as const,
+    documentId: root.documentId,
+    sectionId: root.sectionId,
+    textBlockId: root.textBlockId,
+    expectedPreviousRootFingerprint: root.fingerprint,
+    expectedPreviousSourceFingerprint: root.sourceState.fingerprint,
+    atRenderedUtf16: 0,
+    insertedText: input.insertedText ?? "X",
+    insertedSource: Object.freeze({
+      lineageId: `authority-insert-${input.insertedText ?? "X"}`,
+      sourceFingerprint: `authority-source-${input.insertedText ?? "X"}`,
+      provenanceFingerprint: `authority-provenance-${input.insertedText ?? "X"}`,
+    }),
+    measurementStyleKey: textItem.style.measurementStyleKey,
+    effectiveShapingStyleKey: textItem.style.effectiveShapingStyleKey,
+  })
+  const result = createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV2({
+    previousRoot: root,
+    change,
+  })
+  if (result.status !== "required") {
+    throw new Error(`5B-2 authority request fixture ${result.status}: ${JSON.stringify({
+      completedCandidateWork: result.completedCandidateWork,
+      issues: result.issues,
+    })}`)
+  }
+  return {
+    root,
+    change,
+    request: result.request,
+    sourceMaterial: result.sourceMaterial,
+    producerInvocationAuthority: result.producerInvocationAuthority,
+    result,
+  }
+}
 
 function acceptedCompleteText5B2SourceFixture(input: {
   readonly outerWidthPt: number

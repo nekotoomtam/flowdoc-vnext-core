@@ -1,9 +1,11 @@
 import { readFileSync } from "node:fs"
 import { resolve } from "node:path"
+import * as ts from "typescript"
 import { describe, expect, it } from "vitest"
 import {
   resolveTypeScriptRootExports,
   type TypeScriptModuleSourceLoader,
+  type TypeScriptRootExportResolution,
 } from "./helpers/typescriptExportResolver.js"
 
 const read = (path: string): string => readFileSync(resolve(path), "utf8")
@@ -203,6 +205,64 @@ const isPhase4BRootModule = (modulePath: string): boolean =>
   modulePath === "./layout/textBlockInlineImageLineBoxV1.js"
   || /^\.\/layout\/.*V2\.js$/iu.test(modulePath)
 
+const producerInvocationAuthorityType =
+  "VNextTextBlockTransitionProducerInvocationAuthorityV2"
+const producerInvocationAuthorityTypeModule =
+  "./layout/textBlockUnifiedLayoutEvidenceContractV2.js"
+
+const hasExactTypeOnlyNamedReExport = (
+  index: string,
+  modulePath: string,
+  symbol: string,
+): boolean => {
+  const sourceFile = ts.createSourceFile(
+    "index.ts",
+    index,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TS,
+  )
+  return sourceFile.statements.some((statement) => {
+    if (
+      !ts.isExportDeclaration(statement)
+      || statement.moduleSpecifier == null
+      || !ts.isStringLiteralLike(statement.moduleSpecifier)
+      || statement.moduleSpecifier.text !== modulePath
+      || statement.exportClause == null
+      || !ts.isNamedExports(statement.exportClause)
+    ) return false
+    return statement.exportClause.elements.some((element) =>
+      element.name.text === symbol
+      && (statement.isTypeOnly || element.isTypeOnly))
+  })
+}
+
+const assertNoPrivilegedPhase4BExport = (
+  index: string,
+  exports: TypeScriptRootExportResolution,
+): void => {
+  const privileged = /(?:kernel|internals|authority|token|registry|private)/iu
+  for (const modulePath of exports.rootModulePaths) {
+    if (modulePath.startsWith("./layout/")) expect(modulePath).not.toMatch(privileged)
+  }
+  for (const modulePath of exports.traversedModulePaths) {
+    expect(modulePath).not.toMatch(privileged)
+  }
+  for (const symbol of exports.rootLocalSymbols) expect(symbol).not.toMatch(privileged)
+  for (const [modulePath, symbols] of exports.resolvedSymbolsByRootModule) {
+    for (const symbol of symbols) {
+      if (
+        modulePath === producerInvocationAuthorityTypeModule
+        && symbol === producerInvocationAuthorityType
+      ) {
+        expect(hasExactTypeOnlyNamedReExport(index, modulePath, symbol)).toBe(true)
+      } else {
+        expect(symbol).not.toMatch(privileged)
+      }
+    }
+  }
+}
+
 const assertPhase4BExports = (
   index: string,
   loadModuleSource: TypeScriptModuleSourceLoader,
@@ -223,17 +283,7 @@ const assertPhase4BExports = (
     const actual = [...exports.resolvedSymbolsByRootModule.get(module) ?? []]
     expect(actual.sort()).toEqual([...expectedSymbols].sort())
   }
-  const privileged = /(?:kernel|internals|authority|token|registry|private)/iu
-  for (const modulePath of exports.rootModulePaths) {
-    if (modulePath.startsWith("./layout/")) expect(modulePath).not.toMatch(privileged)
-  }
-  for (const modulePath of exports.traversedModulePaths) {
-    expect(modulePath).not.toMatch(privileged)
-  }
-  for (const symbol of exports.rootLocalSymbols) expect(symbol).not.toMatch(privileged)
-  for (const symbols of exports.resolvedSymbolsByRootModule.values()) {
-    for (const symbol of symbols) expect(symbol).not.toMatch(privileged)
-  }
+  assertNoPrivilegedPhase4BExport(index, exports)
 }
 
 const assertUniversalFalseCapabilityFlags = (section: string): void => {
@@ -395,6 +445,38 @@ describe("Live Draft MR1 inline-image geometry 4B handoff", () => {
 
   it("maps the complete public Phase 4B exports to their intended modules", () => {
     assertPhase4BExports(read("src/index.ts"), loadPhase4BModuleSource)
+  }, phase4BExportGraphTimeoutMs)
+
+  it("allows only the reviewed type-only producer authority export", () => {
+    const resolveFixture = (index: string, moduleSource: string) => {
+      const loadFixture: TypeScriptModuleSourceLoader = (modulePath) => {
+        if (modulePath !== producerInvocationAuthorityTypeModule) {
+          throw new Error(`Missing authority export fixture ${modulePath}`)
+        }
+        return moduleSource
+      }
+      return resolveTypeScriptRootExports(index, loadFixture)
+    }
+    const typeOnlyIndex = `export type { ${producerInvocationAuthorityType} } from "${producerInvocationAuthorityTypeModule}"\n`
+    const runtimeIndex = `export { ${producerInvocationAuthorityType} } from "${producerInvocationAuthorityTypeModule}"\n`
+    const typeModule = `export interface ${producerInvocationAuthorityType} { readonly source: string }\n`
+    const runtimeModule = `export const ${producerInvocationAuthorityType} = Object.freeze({})\n`
+    const otherPrivilegedSymbol = "VNextTextBlockTransitionProducerRegistryV2"
+    const otherPrivilegedIndex = `export type { ${otherPrivilegedSymbol} } from "${producerInvocationAuthorityTypeModule}"\n`
+    const otherPrivilegedModule = `export interface ${otherPrivilegedSymbol} {}\n`
+
+    expect(() => assertNoPrivilegedPhase4BExport(
+      typeOnlyIndex,
+      resolveFixture(typeOnlyIndex, typeModule),
+    )).not.toThrow()
+    expect(() => assertNoPrivilegedPhase4BExport(
+      runtimeIndex,
+      resolveFixture(runtimeIndex, runtimeModule),
+    )).toThrow()
+    expect(() => assertNoPrivilegedPhase4BExport(
+      otherPrivilegedIndex,
+      resolveFixture(otherPrivilegedIndex, otherPrivilegedModule),
+    )).toThrow()
   }, phase4BExportGraphTimeoutMs)
 
   it("resolves declarations, aliases, defaults, repeated exports, and cycles", () => {

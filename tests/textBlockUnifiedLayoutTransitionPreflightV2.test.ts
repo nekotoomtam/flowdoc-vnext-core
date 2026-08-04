@@ -10,6 +10,7 @@ import {
 } from "./helpers/textBlockUnifiedLayoutRootV2.js"
 import { createVNextTextBlockUnifiedLayoutRoot5B2CompleteInternalV1 } from "../src/layout/textBlockUnifiedLayoutRootV2.js"
 import {
+  createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
@@ -18,6 +19,9 @@ import {
   noOpUnifiedLayoutChange5b,
   acceptedRepeatedUnifiedLayoutRootFixture5b,
 } from "./helpers/textBlockUnifiedIncremental5b.js"
+import {
+  admitted5B2AuthorityRootFixture,
+} from "./helpers/textBlockUnifiedIncremental5b2.js"
 import {
   repeatedUnifiedLayoutRootSourceFixtureV1,
 } from "./helpers/textBlockUnifiedLayoutRootV1.js"
@@ -363,6 +367,58 @@ function expectedCanonicalInsertedTextItem(input: {
 }
 
 describe("Text-block unified transition preflight V2", () => {
+  it("meters the Core-owned request and material rows while producer rows remain zero", () => {
+    const workPolicy =
+      createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({})
+    const previousRoot = admitted5B2AuthorityRootFixture({ policy: workPolicy })
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      change: insertionAt(previousRoot, 0, "X"),
+      workPolicy,
+    })
+
+    expect(
+      result.status,
+      JSON.stringify(result.completedCandidateWork),
+    ).toBe("required")
+    if (result.status !== "required") return
+    const evidenceRows = new Map(result.completedCandidateWork.stageWork
+      .filter((row) => row.stage === "evidence")
+      .map((row) => [row.unit, row.count]))
+    expect(evidenceRows.get("evidence-request-descriptors")).toBe(
+      result.completedCandidateWork.evidence.visitedRequestLookupNodeCount,
+    )
+    expect(evidenceRows.get("evidence-request-descriptors")).toBeGreaterThan(0)
+    expect(evidenceRows.get("evidence-context-atoms")).toBe(
+      result.completedCandidateWork.evidence.materializedContextAtomCount,
+    )
+    expect(evidenceRows.get("evidence-material-descriptors")).toBeGreaterThan(0)
+    for (const unit of [
+      "evidence-producer-descriptors",
+      "evidence-runtime-invocations",
+      "evidence-runtime-input-scalars",
+      "evidence-glyphs",
+      "evidence-clusters",
+      "evidence-breaks",
+      "evidence-guards",
+      "evidence-proof-facts",
+      "evidence-response-facts",
+      "evidence-acceptance-descriptors",
+      "evidence-acceptance-comparisons",
+      "evidence-acceptance-registrations",
+    ] as const) {
+      expect(evidenceRows.get(unit), unit).toBe(0)
+    }
+    expect(result.sourceMaterial.producerWorkCeilings).toEqual({
+      maximumVisitedEvidenceNodeCount: 73_728,
+      maximumRequestedAtomCount:
+        result.sourceMaterial.previous.atoms.length
+        + result.sourceMaterial.next.atoms.length,
+      maximumRequestedClusterCount:
+        result.completedCandidateWork.evidence.requestedClusterCount,
+    })
+  })
+
   it("classifies an equal-rendered field provenance change after bounded facts", () => {
     const previousRoot = create5B2Root(
       unifiedLayoutRootBuildInputFixtureV2({ content: "field-image-page-break" }),
