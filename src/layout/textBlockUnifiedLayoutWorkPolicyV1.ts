@@ -530,6 +530,10 @@ export function createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInt
     VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2A_EVIDENCE_OWNER_ROWS_INTERNAL_V2
       .map((row) => row.unit),
   )
+  const capturedLimits = new Map<
+    VNextTextBlockUnifiedLayout5B2AEvidenceUnitInternalV2,
+    number
+  >()
   for (const [unit, limit] of Object.entries(limits)) {
     if (!units.has(unit)) {
       throw new TypeError(`unknown evidence calibration unit ${unit}`)
@@ -537,12 +541,16 @@ export function createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInt
     if (!Number.isSafeInteger(limit) || limit < 0) {
       throw new RangeError(`evidence calibration limit for ${unit} is invalid`)
     }
+    capturedLimits.set(
+      unit as VNextTextBlockUnifiedLayout5B2AEvidenceUnitInternalV2,
+      limit,
+    )
   }
   const stages = Object.freeze([
     ...VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2A_EVIDENCE_OWNER_ROWS_INTERNAL_V2
       .map((row) => authorityEvidenceCalibrationStageLimit(
         row.unit,
-        limits[row.unit] ?? 8_192,
+        capturedLimits.get(row.unit) ?? 8_192,
       )),
     ...policy5b1V3Stages,
   ])

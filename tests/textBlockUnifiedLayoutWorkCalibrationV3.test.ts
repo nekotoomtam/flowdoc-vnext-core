@@ -544,4 +544,82 @@ describe("Phase 5B-2A authority evidence calibration", () => {
       })
     ).toThrow(RangeError)
   })
+
+  it("captures a changing own accessor once before calibration construction", () => {
+    let readCount = 0
+    const limits = {} as {
+      readonly "evidence-glyphs"?: number
+    }
+    Object.defineProperty(limits, "evidence-glyphs", {
+      enumerable: true,
+      get: () => {
+        readCount += 1
+        return readCount === 1 ? 3 : -1
+      },
+    })
+
+    const policy =
+      createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2(
+        limits,
+      )
+    const glyphs = policy.stages.find((row) =>
+      row.stage === "evidence" && row.unit === "evidence-glyphs"
+    )
+
+    expect(readCount).toBe(1)
+    expect(glyphs).toMatchObject({
+      smallBlockFloor: 3,
+      absoluteStageLimit: 3,
+      relativeNumerator: 0,
+      relativeDenominator: 1,
+    })
+  })
+
+  it("ignores inherited evidence limits and retains the default", () => {
+    const limits = Object.create({ "evidence-glyphs": 3 }) as Record<
+      string,
+      number
+    >
+    const policy =
+      createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2(
+        limits,
+      )
+    const glyphs = policy.stages.find((row) =>
+      row.stage === "evidence" && row.unit === "evidence-glyphs"
+    )
+
+    expect(glyphs).toMatchObject({
+      smallBlockFloor: 8_192,
+      absoluteStageLimit: 8_192,
+    })
+  })
+
+  it("enforces an exact zero limit without changing unspecified defaults", () => {
+    const policy =
+      createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({
+        "evidence-glyphs": 0,
+      })
+    const evaluate = (unit: "evidence-glyphs" | "evidence-breaks", attemptedWork: number) =>
+      evaluateVNextTextBlockStageWorkLimitInternalV1({
+        policy,
+        stage: "evidence",
+        unit,
+        previousSummaryBase: 99,
+        exactValidatedChangeDelta: 1,
+        attemptedWork,
+      })
+
+    expect(evaluate("evidence-glyphs", 0)).toMatchObject({
+      status: "within-limit",
+      effectiveLimit: 0,
+    })
+    expect(evaluate("evidence-glyphs", 1)).toMatchObject({
+      status: "limit-exceeded",
+      effectiveLimit: 0,
+    })
+    expect(evaluate("evidence-breaks", 8_192)).toMatchObject({
+      status: "within-limit",
+      effectiveLimit: 8_192,
+    })
+  })
 })
