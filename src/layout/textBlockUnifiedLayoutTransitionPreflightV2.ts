@@ -105,7 +105,7 @@ const evidenceMaterialByRoot = new WeakMap<
     >
   >
 >()
-const failureAuthorities = new WeakMap<object, {
+interface PreflightFailureAuthorityRecordInternalV2 {
   readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
   readonly change: VNextTextBlockUnifiedLayoutChangeV1
   readonly workPolicy: VNextTextBlockUnifiedLayoutWorkPolicyV1
@@ -115,8 +115,22 @@ const failureAuthorities = new WeakMap<object, {
     | "evidence-context-atoms"
     | "evidence-material-descriptors"
     | "evidence-response-nodes"
+  readonly attemptedWork: number
+  readonly completedWork: number
   readonly effectiveLimit: number
-}>()
+}
+const failureAuthorities = new WeakMap<
+  object,
+  Readonly<PreflightFailureAuthorityRecordInternalV2>
+>()
+
+export function getVNextTextBlockTransitionPreflightFailureAuthorityRecordInternalV2(
+  value: unknown,
+): Readonly<PreflightFailureAuthorityRecordInternalV2> | null {
+  return value != null && typeof value === "object"
+    ? failureAuthorities.get(value as object) ?? null
+    : null
+}
 
 export function inspectVNextTextBlockTransitionPreflightFailureAuthorityInternalV2(
   value: unknown,
@@ -399,12 +413,8 @@ function atomFromItem(
 }
 
 function meteredWork(base: VNextTextBlockIncrementalCandidateWorkV1, policy: VNextTextBlockUnifiedLayoutWorkPolicyV1, requestDescriptors: number, atoms: number, materialDescriptors: number): VNextTextBlockIncrementalCandidateWorkV1 {
-  const hasAuthorityRows = policy.stages.some((row) =>
-    row.stage === "evidence" && row.unit === "evidence-request-descriptors"
-  )
-  const requestUnit = hasAuthorityRows
-    ? "evidence-request-descriptors" as const
-    : "evidence-request-lookup-nodes" as const
+  const requestUnit = evidenceRequestWorkUnit(policy)
+  const hasAuthorityRows = requestUnit === "evidence-request-descriptors"
   const factualCounts = hasAuthorityRows
     ? [
         { stage: "evidence" as const, unit: requestUnit, count: requestDescriptors },
@@ -445,6 +455,16 @@ type PreflightEvidenceWorkUnitInternalV2 =
   | "evidence-material-descriptors"
   | "evidence-response-nodes"
 
+function evidenceRequestWorkUnit(
+  policy: VNextTextBlockUnifiedLayoutWorkPolicyV1,
+): "evidence-request-lookup-nodes" | "evidence-request-descriptors" {
+  return policy.stages.some((row) =>
+      row.stage === "evidence" && row.unit === "evidence-request-descriptors"
+    )
+    ? "evidence-request-descriptors"
+    : "evidence-request-lookup-nodes"
+}
+
 function evaluatedLimit(policy: VNextTextBlockUnifiedLayoutWorkPolicyV1, root: VNextTextBlockUnifiedLayoutRootV2, unit: PreflightEvidenceWorkUnitInternalV2, attempted: number) {
   return evaluateVNextTextBlockStageWorkLimitInternalV1({ policy, stage: "evidence", unit, previousSummaryBase: root.sourceState.summary.itemCount, exactValidatedChangeDelta: 1, attemptedWork: attempted })
 }
@@ -454,6 +474,8 @@ interface PreflightWorkMeterInternalV2 {
   materializedAtomCount: number
   materialDescriptorCount: number
   failedUnit: PreflightEvidenceWorkUnitInternalV2 | null
+  failedAttemptedWork: number
+  failedCompletedWork: number
   failedEffectiveLimit: number
   failureAuthority: object | null
   completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
@@ -497,6 +519,8 @@ function workMeter(
       )
       if (evaluation.status !== "within-limit") {
         meter.failedUnit = unit
+        meter.failedAttemptedWork = evaluation.attemptedWork
+        meter.failedCompletedWork = completedWork
         meter.failedEffectiveLimit = evaluation.effectiveLimit ?? 0
         meter.failureAuthority = null
         return false
@@ -512,6 +536,8 @@ function workMeter(
       })
       if (evaluation.status !== "accepted") {
         meter.failedUnit = unit
+        meter.failedAttemptedWork = evaluation.attemptedWork
+        meter.failedCompletedWork = completedWork
         meter.failedEffectiveLimit = evaluation.effectiveLimit
         meter.failureAuthority = evaluation.status === "limit-exceeded"
           ? evaluation.evaluatorAuthority
@@ -541,12 +567,12 @@ function workMeter(
     materializedAtomCount: 0,
     materialDescriptorCount: 0,
     failedUnit: null,
+    failedAttemptedWork: 0,
+    failedCompletedWork: 0,
     failedEffectiveLimit: 0,
     failureAuthority: null,
     completedCandidateWork: baseWork,
-    beforeVisitNode: () => before(meter, policy.stages.some((row) =>
-      row.stage === "evidence" && row.unit === "evidence-request-descriptors"
-    ) ? "evidence-request-descriptors" : "evidence-request-lookup-nodes"),
+    beforeVisitNode: () => before(meter, evidenceRequestWorkUnit(policy)),
     beforeMaterialAtom: () => before(meter, "evidence-context-atoms"),
     beforeMaterialDescriptor: () => before(
       meter,
@@ -563,19 +589,23 @@ function fallback(input: {
   readonly unit: PreflightEvidenceWorkUnitInternalV2
   readonly effectiveLimit: number
   readonly work: VNextTextBlockIncrementalCandidateWorkV1
+  readonly attemptedWork?: number
+  readonly completedWork?: number
   readonly evaluatorOrProofAuthority?: object | null
   readonly reason?: "unadmitted-root" | "unsupported-structural-change"
 }): VNextTextBlockUnifiedLayoutOwnedStageFailureV1 {
   const evaluatorOrProofAuthority = input.evaluatorOrProofAuthority
     ?? freeze({})
   if (input.evaluatorOrProofAuthority == null) {
-    failureAuthorities.set(evaluatorOrProofAuthority, {
+    failureAuthorities.set(evaluatorOrProofAuthority, freeze({
       previousRoot: input.previousRoot,
       change: input.change,
       workPolicy: input.workPolicy,
       unit: input.unit,
+      attemptedWork: input.attemptedWork ?? 0,
+      completedWork: input.completedWork ?? 0,
       effectiveLimit: input.effectiveLimit,
-    })
+    }))
   }
   return freeze({
     status: "fallback-required" as const,
@@ -915,7 +945,7 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
     previousRoot: input.previousRoot,
     change: shaped.change,
     workPolicy: input.workPolicy,
-    unit: "evidence-request-lookup-nodes",
+    unit: evidenceRequestWorkUnit(input.workPolicy),
     effectiveLimit: 0,
     work: shaped.incrementalCandidateWork,
     reason: "unadmitted-root",
@@ -940,7 +970,7 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
       previousRoot: input.previousRoot,
       change: shaped.change,
       workPolicy: input.workPolicy,
-      unit: "evidence-request-lookup-nodes",
+      unit: evidenceRequestWorkUnit(input.workPolicy),
       effectiveLimit: 0,
       work: shaped.incrementalCandidateWork,
       reason: "unsupported-structural-change",
@@ -982,9 +1012,9 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
     validatedChange,
     bound.incrementalCandidateWork,
   )
-  const usesAuthorityEvidenceRows = input.workPolicy.stages.some((row) =>
-    row.stage === "evidence" && row.unit === "evidence-request-descriptors"
-  )
+  const requestWorkUnit = evidenceRequestWorkUnit(input.workPolicy)
+  const usesAuthorityEvidenceRows =
+    requestWorkUnit === "evidence-request-descriptors"
   const sourceLookup = sourceRangeForChange(
     input.previousRoot,
     validatedChange.change,
@@ -996,7 +1026,9 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
       previousRoot: input.previousRoot,
       change: input.change,
       workPolicy: input.workPolicy,
-      unit: "evidence-request-lookup-nodes",
+      unit: meter.failedUnit ?? requestWorkUnit,
+      attemptedWork: meter.failedAttemptedWork,
+      completedWork: meter.failedCompletedWork,
       effectiveLimit: meter.failedEffectiveLimit,
       work: meter.completedCandidateWork,
       evaluatorOrProofAuthority: meter.failureAuthority,
@@ -1018,7 +1050,9 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
       previousRoot: input.previousRoot,
       change: input.change,
       workPolicy: input.workPolicy,
-      unit: meter.failedUnit ?? "evidence-request-lookup-nodes",
+      unit: meter.failedUnit ?? requestWorkUnit,
+      attemptedWork: meter.failedAttemptedWork,
+      completedWork: meter.failedCompletedWork,
       effectiveLimit: meter.failedEffectiveLimit,
       work: meter.completedCandidateWork,
       evaluatorOrProofAuthority: meter.failureAuthority,
@@ -1069,7 +1103,9 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
       previousRoot: input.previousRoot,
       change: input.change,
       workPolicy: input.workPolicy,
-      unit: meter.failedUnit ?? "evidence-request-lookup-nodes",
+      unit: meter.failedUnit ?? requestWorkUnit,
+      attemptedWork: meter.failedAttemptedWork,
+      completedWork: meter.failedCompletedWork,
       effectiveLimit: meter.failedEffectiveLimit,
       work: meter.completedCandidateWork,
       evaluatorOrProofAuthority: meter.failureAuthority,
@@ -1084,7 +1120,7 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
       previousRoot: input.previousRoot,
       change: input.change,
       workPolicy: input.workPolicy,
-      unit: meter.failedUnit ?? "evidence-request-lookup-nodes",
+      unit: meter.failedUnit ?? requestWorkUnit,
       effectiveLimit: meter.failedEffectiveLimit,
       work: meter.completedCandidateWork,
       evaluatorOrProofAuthority: meter.failureAuthority,
@@ -1312,6 +1348,8 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
       change: input.change,
       workPolicy: input.workPolicy,
       unit: meter.failedUnit,
+      attemptedWork: meter.failedAttemptedWork,
+      completedWork: meter.failedCompletedWork,
       effectiveLimit: meter.failedEffectiveLimit,
       work: meter.completedCandidateWork,
       evaluatorOrProofAuthority: meter.failureAuthority,
@@ -1324,6 +1362,8 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
       change: input.change,
       workPolicy: input.workPolicy,
       unit: "evidence-material-descriptors",
+      attemptedWork: meter.failedAttemptedWork,
+      completedWork: meter.failedCompletedWork,
       effectiveLimit: meter.failedEffectiveLimit,
       work: meter.completedCandidateWork,
       evaluatorOrProofAuthority: meter.failureAuthority,
@@ -1406,6 +1446,8 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
       change: input.change,
       workPolicy: input.workPolicy,
       unit: meter.failedUnit,
+      attemptedWork: meter.failedAttemptedWork,
+      completedWork: meter.failedCompletedWork,
       effectiveLimit: meter.failedEffectiveLimit,
       work: meter.completedCandidateWork,
       evaluatorOrProofAuthority: meter.failureAuthority,
@@ -1420,6 +1462,8 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
       change: input.change,
       workPolicy: input.workPolicy,
       unit: "evidence-material-descriptors",
+      attemptedWork: meter.failedAttemptedWork,
+      completedWork: meter.failedCompletedWork,
       effectiveLimit: meter.failedEffectiveLimit,
       work: meter.completedCandidateWork,
       evaluatorOrProofAuthority: meter.failureAuthority,
@@ -1463,6 +1507,8 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
       change: input.change,
       workPolicy: input.workPolicy,
       unit: "evidence-request-descriptors",
+      attemptedWork: meter.failedAttemptedWork,
+      completedWork: meter.failedCompletedWork,
       effectiveLimit: meter.failedEffectiveLimit,
       work: meter.completedCandidateWork,
       evaluatorOrProofAuthority: meter.failureAuthority,
@@ -1475,6 +1521,8 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
       change: input.change,
       workPolicy: input.workPolicy,
       unit: "evidence-material-descriptors",
+      attemptedWork: meter.failedAttemptedWork,
+      completedWork: meter.failedCompletedWork,
       effectiveLimit: meter.failedEffectiveLimit,
       work: meter.completedCandidateWork,
       evaluatorOrProofAuthority: meter.failureAuthority,

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import {
+  getVNextTextBlockTransitionPreflightFailureAuthorityRecordInternalV2,
   inspectVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2,
   prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutTransitionPreflightV2.js"
@@ -416,6 +417,67 @@ describe("Text-block unified transition preflight V2", () => {
         + result.sourceMaterial.next.atoms.length,
       maximumRequestedClusterCount:
         result.completedCandidateWork.evidence.requestedClusterCount,
+    })
+  })
+
+  it("attributes a zero-limit authority request attempt without completing its ledger row", () => {
+    const workPolicy =
+      createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({
+        "evidence-request-descriptors": 0,
+      })
+    const previousRoot = admitted5B2AuthorityRootFixture({ policy: workPolicy })
+    const change = insertionAt(previousRoot, 0, "X")
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      change,
+      workPolicy,
+    })
+
+    expect(result.status).toBe("fallback-required")
+    if (result.status !== "fallback-required") return
+    expect(result.completedCandidateWork.stageWork.find((row) =>
+      row.stage === "evidence" && row.unit === "evidence-request-descriptors"
+    )?.count).toBe(0)
+    expect(result.completedCandidateWork.evidence.visitedRequestLookupNodeCount).toBe(0)
+    expect(getVNextTextBlockTransitionPreflightFailureAuthorityRecordInternalV2(
+      result.evaluatorOrProofAuthority,
+    )).toMatchObject({
+      previousRoot,
+      change,
+      workPolicy,
+      unit: "evidence-request-descriptors",
+      attemptedWork: 1,
+      completedWork: 0,
+      effectiveLimit: 0,
+    })
+  })
+
+  it("attributes an authority-policy structural fallback to the request descriptor lane", () => {
+    const workPolicy =
+      createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({})
+    const previousRoot = admitted5B2AuthorityRootFixture({ policy: workPolicy })
+    const change = insertionAt(previousRoot, 0, "\n")
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      change,
+      workPolicy,
+    })
+
+    expect(result).toMatchObject({
+      status: "fallback-required",
+      reason: "unsupported-structural-change",
+    })
+    if (result.status !== "fallback-required") return
+    expect(getVNextTextBlockTransitionPreflightFailureAuthorityRecordInternalV2(
+      result.evaluatorOrProofAuthority,
+    )).toMatchObject({
+      previousRoot,
+      change,
+      workPolicy,
+      unit: "evidence-request-descriptors",
+      attemptedWork: 0,
+      completedWork: 0,
+      effectiveLimit: 0,
     })
   })
 

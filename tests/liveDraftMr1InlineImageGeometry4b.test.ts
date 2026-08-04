@@ -222,7 +222,7 @@ const hasExactTypeOnlyNamedReExport = (
     true,
     ts.ScriptKind.TS,
   )
-  return sourceFile.statements.some((statement) => {
+  const matches = sourceFile.statements.flatMap((statement) => {
     if (
       !ts.isExportDeclaration(statement)
       || statement.moduleSpecifier == null
@@ -230,11 +230,12 @@ const hasExactTypeOnlyNamedReExport = (
       || statement.moduleSpecifier.text !== modulePath
       || statement.exportClause == null
       || !ts.isNamedExports(statement.exportClause)
-    ) return false
-    return statement.exportClause.elements.some((element) =>
-      element.name.text === symbol
-      && (statement.isTypeOnly || element.isTypeOnly))
+    ) return []
+    return statement.exportClause.elements
+      .filter((element) => element.name.text === symbol)
+      .map((element) => statement.isTypeOnly || element.isTypeOnly)
   })
+  return matches.length === 1 && matches.every(Boolean)
 }
 
 const assertNoPrivilegedPhase4BExport = (
@@ -459,6 +460,7 @@ describe("Live Draft MR1 inline-image geometry 4B handoff", () => {
     }
     const typeOnlyIndex = `export type { ${producerInvocationAuthorityType} } from "${producerInvocationAuthorityTypeModule}"\n`
     const runtimeIndex = `export { ${producerInvocationAuthorityType} } from "${producerInvocationAuthorityTypeModule}"\n`
+    const mixedTypeAndRuntimeIndex = `${typeOnlyIndex}${runtimeIndex}`
     const typeModule = `export interface ${producerInvocationAuthorityType} { readonly source: string }\n`
     const runtimeModule = `export const ${producerInvocationAuthorityType} = Object.freeze({})\n`
     const otherPrivilegedSymbol = "VNextTextBlockTransitionProducerRegistryV2"
@@ -472,6 +474,10 @@ describe("Live Draft MR1 inline-image geometry 4B handoff", () => {
     expect(() => assertNoPrivilegedPhase4BExport(
       runtimeIndex,
       resolveFixture(runtimeIndex, runtimeModule),
+    )).toThrow()
+    expect(() => assertNoPrivilegedPhase4BExport(
+      mixedTypeAndRuntimeIndex,
+      resolveFixture(mixedTypeAndRuntimeIndex, typeModule),
     )).toThrow()
     expect(() => assertNoPrivilegedPhase4BExport(
       otherPrivilegedIndex,
