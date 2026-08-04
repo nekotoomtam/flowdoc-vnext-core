@@ -1,7 +1,8 @@
 import { readFileSync } from "node:fs"
 import { resolve } from "node:path"
-import { beforeAll, describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it, vi } from "vitest"
 import {
+  createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2,
   createFlowDocTextEngineUnifiedIncrementalEvidenceV2,
   type FlowDocUnifiedIncrementalEvidenceRuntimeV2,
 } from "../packages/text-engine-rust-wasm/src/unifiedIncrementalEvidenceV2.js"
@@ -21,13 +22,26 @@ import {
 import {
   createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV2,
 } from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV2.js"
-import type { VNextTextBlockTransitionProducerResponseV2 } from "../src/layout/textBlockUnifiedLayoutEvidenceContractV2.js"
+import {
+  inspectVNextTextBlockTransitionProducerInvocationAuthorityInternalV2,
+} from "../src/layout/textBlockUnifiedLayoutProducerInvocationAuthorityV2.js"
+import {
+  createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2,
+} from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
+import type {
+  VNextTextBlockTransitionEvidenceRequestV2,
+  VNextTextBlockTransitionProducerInvocationAuthorityV2,
+  VNextTextBlockTransitionProducerOwnedWorkUnitV2,
+  VNextTextBlockTransitionProducerResponseV2,
+} from "../src/layout/textBlockUnifiedLayoutEvidenceContractV2.js"
 import { createVNextCompactFingerprint } from "../src/fingerprint/compactFingerprint.js"
 import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
 import type { InlineImageFlowFixtureOptions } from "./helpers/textBlockInlineImageFlowV2.js"
 import {
   admitted5B2HardBreakRootFixture,
   admitted5B2RootFixture,
+  authorizedEvidenceRequestBundle5B2,
+  recordProducerInvocationAuthority5B2,
 } from "./helpers/textBlockUnifiedIncremental5b2.js"
 
 function frozen<T>(value: T): T {
@@ -206,6 +220,20 @@ function identity(
   })
 }
 
+function identityForRequest(
+  request: VNextTextBlockTransitionEvidenceRequestV2,
+  runtime: "node-native-mr1-range" | "browser-worker-wasm-mr1-range",
+) {
+  return createVNextTextBlockTransitionProducerRuntimeIdentityInternalV2({
+    runtime,
+    engineBuildFingerprint: `engine-${runtime}`,
+    fontBackendFingerprint: `font-backend-${runtime}`,
+    unitPolicyFingerprint: request.layoutUnitPolicyFingerprint,
+    fontStyleUnitDependencyFingerprint: request.fontStyleUnitDependencyFingerprint,
+    producerRuntimeRequirementFingerprint: request.producerRuntimeRequirementFingerprint,
+  })
+}
+
 function nodeRuntime(bundle: ReturnType<typeof bundleFor>["bundle"]): FlowDocUnifiedIncrementalEvidenceRuntimeV2 {
   return {
     identity: identity(bundle, "node-native-mr1-range"),
@@ -224,6 +252,34 @@ function nodeRuntime(bundle: ReturnType<typeof bundleFor>["bundle"]): FlowDocUni
       })
     },
     segmentRange: runFlowDocTextEngineNodeMr1RangeSegmentationV1,
+  }
+}
+
+function nodeRuntimeForRequest(
+  request: VNextTextBlockTransitionEvidenceRequestV2,
+  executionEvents: string[] = [],
+): FlowDocUnifiedIncrementalEvidenceRuntimeV2 {
+  return {
+    identity: identityForRequest(request, "node-native-mr1-range"),
+    shapeRange(input) {
+      executionEvents.push("runtime:shape-range")
+      const face = FLOWDOC_TEXT_ENGINE_MR1_SARABUN_FONT_FACES_V1.find((candidate) => candidate.fontFaceId === input.fontFaceId)
+      if (face == null) throw new Error("font face unavailable")
+      return runFlowDocTextEngineNodeMr1RangeShapeV1({
+        text: input.text,
+        fontId: face.fontFaceId,
+        fontAssetPath: face.fontAssetPath,
+        fontSha256: face.fontSha256,
+        rangeStartUtf16: input.rangeStartUtf16,
+        rangeEndUtf16: input.rangeEndUtf16,
+        contextStartUtf16: input.contextStartUtf16,
+        contextEndUtf16: input.contextEndUtf16,
+      })
+    },
+    segmentRange(input) {
+      executionEvents.push("runtime:segment-range")
+      return runFlowDocTextEngineNodeMr1RangeSegmentationV1(input)
+    },
   }
 }
 
@@ -246,6 +302,19 @@ function rehash<T extends object>(value: T): T & { fingerprint: string } {
 }
 
 let wasm: FlowDocTextEngineMr1RangeWorkerRuntimeV1
+
+async function initializeWasmRuntime() {
+  const wasmPath = resolve(process.cwd(), "packages/text-engine-rust-wasm/pkg-live-draft-mr1-range/flowdoc_text_engine_mr1_range_bg.wasm")
+  wasm = await createFlowDocTextEngineMr1RangeWorkerRuntimeV1({
+    measurementProfileId: "measurement-profile-unified-evidence-v2",
+    wasmSha256: FLOWDOC_TEXT_ENGINE_MR1_RANGE_WASM_SHA256,
+    wasmBytes: arrayBuffer(readFileSync(wasmPath)),
+    fonts: FLOWDOC_TEXT_ENGINE_MR1_SARABUN_FONT_FACES_V1.map((face) => ({
+      face: structuredClone(face),
+      bytes: arrayBuffer(readFileSync(resolve(process.cwd(), face.fontAssetPath))),
+    })),
+  })
+}
 
 describe("unified incremental producer evidence V2", () => {
   beforeAll(async () => {
@@ -600,4 +669,529 @@ describe("unified incremental producer evidence V2", () => {
     expect(at.status).toBe("accepted")
     expect(above.status).toBe("accepted")
   })
+})
+
+describe("authorized producer execution and factual work V2", () => {
+  beforeAll(async () => {
+    await initializeWasmRuntime()
+  }, 30_000)
+
+  const notInvoked = {
+    status: "not-invoked",
+    response: null,
+    failure: null,
+    issues: ["missing-or-mismatched-invocation-authority"],
+  } as const
+
+  function hostilePayload(label: string, observed: string[]): object {
+    return new Proxy(Object.create(null) as object, {
+      get(_target, key) {
+        observed.push(`${label}:get:${String(key)}`)
+        throw new Error(`${label} get must not run`)
+      },
+      getOwnPropertyDescriptor(_target, key) {
+        observed.push(`${label}:descriptor:${String(key)}`)
+        throw new Error(`${label} descriptor must not run`)
+      },
+      getPrototypeOf() {
+        observed.push(`${label}:prototype`)
+        throw new Error(`${label} prototype must not run`)
+      },
+      ownKeys() {
+        observed.push(`${label}:ownKeys`)
+        throw new Error(`${label} ownKeys must not run`)
+      },
+    })
+  }
+
+  function successfulLookalike(): VNextTextBlockTransitionProducerInvocationAuthorityV2 {
+    const completed = new Map<VNextTextBlockTransitionProducerOwnedWorkUnitV2, number>()
+    return Object.freeze({
+      source: "vnext-text-block-transition-producer-invocation-authority-v2" as const,
+      contractVersion: 2 as const,
+      begin() {
+        return { status: "started" as const }
+      },
+      charge(unit: VNextTextBlockTransitionProducerOwnedWorkUnitV2) {
+        const completedWork = (completed.get(unit) ?? 0) + 1
+        completed.set(unit, completedWork)
+        return {
+          status: "charged" as const,
+          unit,
+          completedWork,
+          effectiveLimit: 8_192,
+        }
+      },
+      bindRuntimeIdentity() {
+        return { status: "bound" as const }
+      },
+      close() {
+        return {
+          status: "closed" as const,
+          visitedEvidenceNodeCount: [...completed.values()].reduce(
+            (sum, count) => sum + count,
+            0,
+          ),
+        }
+      },
+    })
+  }
+
+  function successfulChargeEvents(
+    events: ReturnType<typeof recordProducerInvocationAuthority5B2>["events"],
+    unit: VNextTextBlockTransitionProducerOwnedWorkUnitV2,
+  ) {
+    return events.filter((event) =>
+      event.control === "charge"
+      && event.unit === unit
+      && event.status === "charged"
+    )
+  }
+
+  it("returns one constant not-invoked result for missing, malformed, copied, stale, or cross-tuple authority without payload observation", () => {
+    const copiedBundle = authorizedEvidenceRequestBundle5B2({ insertedText: "C" })
+    const copied = Object.freeze({ ...copiedBundle.producerInvocationAuthority })
+    const staleBundle = authorizedEvidenceRequestBundle5B2({ insertedText: "S" })
+    expect(staleBundle.producerInvocationAuthority.begin(
+      staleBundle.request,
+      staleBundle.sourceMaterial,
+    )).toEqual({ status: "started" })
+    const crossBundle = authorizedEvidenceRequestBundle5B2({ insertedText: "T" })
+    let authorityGetterCalls = 0
+    const accessorAuthority = Object.create(null) as Record<string, unknown>
+    Object.defineProperty(accessorAuthority, "begin", {
+      enumerable: true,
+      get() {
+        authorityGetterCalls += 1
+        throw new Error("authority getter must not run")
+      },
+    })
+    const cases: readonly { readonly label: string; readonly authority: unknown }[] = [
+      { label: "missing", authority: null },
+      { label: "malformed", authority: Object.freeze({}) },
+      { label: "accessor", authority: accessorAuthority },
+      { label: "copied receiver", authority: copied },
+      { label: "stale", authority: staleBundle.producerInvocationAuthority },
+      { label: "cross tuple", authority: crossBundle.producerInvocationAuthority },
+    ]
+    let firstResult: unknown = null
+    for (const row of cases) {
+      const observed: string[] = []
+      const result = createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+        row.authority as VNextTextBlockTransitionProducerInvocationAuthorityV2,
+        hostilePayload(`${row.label}:request`, observed) as VNextTextBlockTransitionEvidenceRequestV2,
+        hostilePayload(`${row.label}:material`, observed) as never,
+        hostilePayload(`${row.label}:runtime`, observed) as FlowDocUnifiedIncrementalEvidenceRuntimeV2,
+      )
+      expect(result, row.label).toEqual(notInvoked)
+      expect(observed, row.label).toEqual([])
+      if (firstResult == null) firstResult = result
+      else expect(result, row.label).toBe(firstResult)
+    }
+    expect(authorityGetterCalls).toBe(0)
+    expect(Object.isFrozen(firstResult)).toBe(true)
+    expect(Object.isFrozen((firstResult as typeof notInvoked).issues)).toBe(true)
+  })
+
+  it("keeps a caller-authored successful lookalike in the raw adapter lane without a Core authority record", () => {
+    const bundle = authorizedEvidenceRequestBundle5B2({ insertedText: "L" })
+    const runtime = nodeRuntimeForRequest(bundle.request)
+    const raw = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({
+      request: bundle.request,
+      sourceMaterial: bundle.sourceMaterial,
+      runtime,
+    })
+    const lookalike = successfulLookalike()
+    const structurallyAuthorized =
+      createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+        lookalike,
+        bundle.request,
+        bundle.sourceMaterial,
+        runtime,
+      )
+
+    expect(raw.status).toBe("accepted")
+    expect(structurallyAuthorized.status).toBe("accepted")
+    expect(inspectVNextTextBlockTransitionProducerInvocationAuthorityInternalV2(
+      lookalike,
+    )).toBeNull()
+  })
+
+  it("stops an exact zero descriptor authority before the first payload observation and retains attempted one completed zero", () => {
+    const policy =
+      createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({
+        "evidence-producer-descriptors": 0,
+      })
+    const bundle = authorizedEvidenceRequestBundle5B2({ policy, insertedText: "Z" })
+    const recorded = recordProducerInvocationAuthority5B2(
+      bundle.producerInvocationAuthority,
+    )
+    const runtime = nodeRuntimeForRequest(bundle.request)
+    const watched = new Set<object>([
+      bundle.request,
+      bundle.sourceMaterial,
+      runtime,
+    ])
+    const observed: string[] = []
+    const originalOwnKeys = Reflect.ownKeys
+    const originalGetOwnPropertyDescriptor = Object.getOwnPropertyDescriptor
+    const originalGetPrototypeOf = Object.getPrototypeOf
+    const originalGetOwnPropertySymbols = Object.getOwnPropertySymbols
+    const ownKeys = vi.spyOn(Reflect, "ownKeys").mockImplementation((target) => {
+      if (watched.has(target)) observed.push("ownKeys")
+      return originalOwnKeys(target)
+    })
+    const descriptor = vi.spyOn(Object, "getOwnPropertyDescriptor")
+      .mockImplementation((target, key) => {
+        if (watched.has(target)) observed.push(`descriptor:${String(key)}`)
+        return originalGetOwnPropertyDescriptor(target, key)
+      })
+    const prototype = vi.spyOn(Object, "getPrototypeOf").mockImplementation((target) => {
+      if (watched.has(target)) observed.push("prototype")
+      return originalGetPrototypeOf(target)
+    })
+    const symbols = vi.spyOn(Object, "getOwnPropertySymbols").mockImplementation((target) => {
+      if (watched.has(target)) observed.push("symbols")
+      return originalGetOwnPropertySymbols(target)
+    })
+    try {
+      const result =
+        createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+          recorded.authority,
+          bundle.request,
+          bundle.sourceMaterial,
+          runtime,
+        )
+      expect(result).toEqual(notInvoked)
+    } finally {
+      ownKeys.mockRestore()
+      descriptor.mockRestore()
+      prototype.mockRestore()
+      symbols.mockRestore()
+    }
+
+    expect(observed).toEqual([])
+    expect(recorded.events).toEqual([
+      { control: "begin", status: "started" },
+      {
+        control: "charge",
+        status: "limit-exceeded",
+        unit: "evidence-producer-descriptors",
+        attemptedWork: 1,
+        completedWork: 0,
+        effectiveLimit: 0,
+      },
+      {
+        control: "close",
+        outcome: "producer-blocked",
+        status: "closed",
+        visitedEvidenceNodeCount: 0,
+      },
+    ])
+    expect(inspectVNextTextBlockTransitionProducerInvocationAuthorityInternalV2(
+      bundle.producerInvocationAuthority,
+    )).toMatchObject({
+      state: "producer-blocked",
+      firstFailedEvaluation: {
+        unit: "evidence-producer-descriptors",
+        attemptedWork: 1,
+        completedWork: 0,
+        effectiveLimit: 0,
+      },
+      visitedEvidenceNodeCount: 0,
+    })
+  })
+
+  it("charges Unicode scalar slots and the invocation immediately before each runtime call", () => {
+    const executionEvents: string[] = []
+    const bundle = authorizedEvidenceRequestBundle5B2({ insertedText: "X" })
+    const recorded = recordProducerInvocationAuthority5B2(
+      bundle.producerInvocationAuthority,
+      executionEvents,
+    )
+    const result =
+      createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+        recorded.authority,
+        bundle.request,
+        bundle.sourceMaterial,
+        nodeRuntimeForRequest(bundle.request, executionEvents),
+      )
+
+    expect(result.status).toBe("accepted")
+    const calls = executionEvents
+      .map((event, index) => ({ event, index }))
+      .filter(({ event }) => event.startsWith("runtime:"))
+    expect(calls.map(({ event }) => event)).toEqual([
+      "runtime:shape-range",
+      "runtime:segment-range",
+      "runtime:segment-range",
+    ])
+    const expectedScalarCharges = [19, 4, 4]
+    for (let callIndex = 0; callIndex < calls.length; callIndex += 1) {
+      const call = calls[callIndex]!
+      expect(executionEvents[call.index - 1]).toBe(
+        "authority:charge:evidence-runtime-invocations:charged",
+      )
+      let scalarCharges = 0
+      for (let index = call.index - 2;
+        executionEvents[index]
+          === "authority:charge:evidence-runtime-input-scalars:charged";
+        index -= 1) scalarCharges += 1
+      expect(scalarCharges, call.event).toBe(expectedScalarCharges[callIndex])
+    }
+  })
+
+  it("counts astral runtime inputs by Unicode scalar rather than UTF-16 code unit", () => {
+    const executionEvents: string[] = []
+    const bundle = authorizedEvidenceRequestBundle5B2({ insertedText: "😀😀" })
+    const recorded = recordProducerInvocationAuthority5B2(
+      bundle.producerInvocationAuthority,
+      executionEvents,
+    )
+    createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+      recorded.authority,
+      bundle.request,
+      bundle.sourceMaterial,
+      nodeRuntimeForRequest(bundle.request, executionEvents),
+    )
+
+    const callIndex = executionEvents.indexOf("runtime:shape-range")
+    expect(callIndex).toBeGreaterThan(0)
+    expect(executionEvents[callIndex - 1]).toBe(
+      "authority:charge:evidence-runtime-invocations:charged",
+    )
+    let scalarCharges = 0
+    for (let index = callIndex - 2;
+      executionEvents[index]
+        === "authority:charge:evidence-runtime-input-scalars:charged";
+      index -= 1) scalarCharges += 1
+    expect(scalarCharges).toBe(20)
+  })
+
+  it("charges distinct semantic units for returned facts and uses the Core close aggregate", () => {
+    const bundle = authorizedEvidenceRequestBundle5B2({ insertedText: "X" })
+    const recorded = recordProducerInvocationAuthority5B2(
+      bundle.producerInvocationAuthority,
+    )
+    const result =
+      createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+        recorded.authority,
+        bundle.request,
+        bundle.sourceMaterial,
+        nodeRuntimeForRequest(bundle.request),
+      )
+
+    expect(
+      result.status,
+      result.status === "blocked" ? result.failure.code : "",
+    ).toBe("accepted")
+    if (result.status !== "accepted") return
+    const chargedUnits = new Set(recorded.events.flatMap((event) =>
+      event.control === "charge" && event.status === "charged"
+        ? [event.unit]
+        : []
+    ))
+    expect(chargedUnits).toEqual(new Set<VNextTextBlockTransitionProducerOwnedWorkUnitV2>([
+      "evidence-producer-descriptors",
+      "evidence-runtime-invocations",
+      "evidence-runtime-input-scalars",
+      "evidence-glyphs",
+      "evidence-clusters",
+      "evidence-breaks",
+      "evidence-guards",
+      "evidence-proof-facts",
+      "evidence-response-facts",
+    ]))
+    expect(successfulChargeEvents(recorded.events, "evidence-glyphs")).toHaveLength(
+      result.response.shapingBoundaryProofs.reduce(
+        (sum, proof) => sum + proof.inspectedGlyphCount,
+        0,
+      ),
+    )
+    expect(successfulChargeEvents(recorded.events, "evidence-clusters")).toHaveLength(
+      result.response.shapingRuns.reduce(
+        (sum, run) => sum + run.clusters.length,
+        0,
+      ),
+    )
+    expect(successfulChargeEvents(recorded.events, "evidence-guards")).toHaveLength(
+      result.response.shapingBoundaryProofs.reduce(
+        (sum, proof) => sum + proof.guardGlyphCount,
+        0,
+      ),
+    )
+    expect(successfulChargeEvents(recorded.events, "evidence-proof-facts")).toHaveLength(
+      result.response.shapingBoundaryProofs.length
+        + result.response.segmentationBoundaryProofs.length,
+    )
+    expect(successfulChargeEvents(recorded.events, "evidence-response-facts"))
+      .toHaveLength(14)
+    expect(successfulChargeEvents(recorded.events, "evidence-breaks").length)
+      .toBeGreaterThanOrEqual(result.response.breakOffsets.length)
+    const close = recorded.events.at(-1)
+    expect(close).toMatchObject({
+      control: "close",
+      outcome: "producer-response",
+      status: "closed",
+      visitedEvidenceNodeCount: result.response.work.visitedEvidenceNodeCount,
+    })
+    expect(result.response.work.completeNextInputTraversalCount).toBe(0)
+    expect(result.response.work.completeNextInputComparisonCount).toBe(0)
+  })
+
+  it("retains the next attempted cluster without clamping or fabricating completed clusters", () => {
+    const below = authorizedEvidenceRequestBundle5B2({
+      policy:
+        createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({
+          "evidence-clusters": 0,
+        }),
+      insertedText: "K",
+    })
+    const belowRecorded = recordProducerInvocationAuthority5B2(
+      below.producerInvocationAuthority,
+    )
+    const belowResult =
+      createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+        belowRecorded.authority,
+        below.request,
+        below.sourceMaterial,
+        nodeRuntimeForRequest(below.request),
+      )
+
+    expect(belowResult).toMatchObject({
+      status: "blocked",
+      failure: {
+        code: "work-ceiling-before-visit",
+        completedWork: { consumedClusterCount: 0 },
+      },
+    })
+    expect(inspectVNextTextBlockTransitionProducerInvocationAuthorityInternalV2(
+      below.producerInvocationAuthority,
+    )).toMatchObject({
+      state: "producer-failure",
+      firstFailedEvaluation: {
+        unit: "evidence-clusters",
+        attemptedWork: 1,
+        completedWork: 0,
+        effectiveLimit: 0,
+      },
+    })
+    expect(belowRecorded.events).toContainEqual({
+      control: "charge",
+      status: "limit-exceeded",
+      unit: "evidence-clusters",
+      attemptedWork: 1,
+      completedWork: 0,
+      effectiveLimit: 0,
+    })
+
+    const at = authorizedEvidenceRequestBundle5B2({
+      policy:
+        createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({
+          "evidence-clusters": 1,
+        }),
+      insertedText: "K",
+    })
+    const atResult =
+      createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+        at.producerInvocationAuthority,
+        at.request,
+        at.sourceMaterial,
+        nodeRuntimeForRequest(at.request),
+      )
+    expect(atResult.status).toBe("accepted")
+  })
+
+  it("retains completed producer facts when a charged runtime glyph is malformed", () => {
+    const bundle = authorizedEvidenceRequestBundle5B2({ insertedText: "M" })
+    const recorded = recordProducerInvocationAuthority5B2(
+      bundle.producerInvocationAuthority,
+    )
+    const base = nodeRuntimeForRequest(bundle.request)
+    const result =
+      createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+        recorded.authority,
+        bundle.request,
+        bundle.sourceMaterial,
+        {
+          ...base,
+          shapeRange(input) {
+            const facts = base.shapeRange(input)
+            return {
+              ...facts,
+              glyphs: facts.glyphs.map((glyph, index) =>
+                index === 0
+                  ? { ...glyph, xAdvance: Number.MAX_SAFE_INTEGER }
+                  : glyph
+              ),
+            }
+          },
+        },
+      )
+
+    expect(result).toMatchObject({
+      status: "blocked",
+      failure: {
+        code: "unsafe-runtime-arithmetic",
+        completedWork: {
+          consumedAtomCount: bundle.sourceMaterial.next.atoms.length,
+          consumedClusterCount: 0,
+        },
+      },
+    })
+    if (result.status !== "blocked") return
+    expect(successfulChargeEvents(recorded.events, "evidence-runtime-invocations"))
+      .toHaveLength(1)
+    expect(successfulChargeEvents(recorded.events, "evidence-runtime-input-scalars").length)
+      .toBeGreaterThan(0)
+    expect(successfulChargeEvents(recorded.events, "evidence-glyphs").length)
+      .toBeGreaterThan(0)
+    expect(recorded.events.at(-1)).toMatchObject({
+      control: "close",
+      outcome: "producer-failure",
+      status: "closed",
+      visitedEvidenceNodeCount: result.failure.completedWork.visitedEvidenceNodeCount,
+    })
+  })
+
+  it("keeps authorized Node and WASM detached responses equal with zero complete-next counters", () => {
+    const nodeBundle = authorizedEvidenceRequestBundle5B2({ insertedText: "X" })
+    const wasmBundle = authorizedEvidenceRequestBundle5B2({ insertedText: "X" })
+    const nodeResult =
+      createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+        nodeBundle.producerInvocationAuthority,
+        nodeBundle.request,
+        nodeBundle.sourceMaterial,
+        nodeRuntimeForRequest(nodeBundle.request),
+      )
+    const wasmResult =
+      createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+        wasmBundle.producerInvocationAuthority,
+        wasmBundle.request,
+        wasmBundle.sourceMaterial,
+        {
+          identity: identityForRequest(
+            wasmBundle.request,
+            "browser-worker-wasm-mr1-range",
+          ),
+          shapeRange: wasm.shapeRange,
+          segmentRange: wasm.segmentRange,
+        },
+      )
+
+    expect(
+      nodeResult.status,
+      nodeResult.status === "blocked" ? nodeResult.failure.code : "",
+    ).toBe("accepted")
+    expect(
+      wasmResult.status,
+      wasmResult.status === "blocked" ? wasmResult.failure.code : "",
+    ).toBe("accepted")
+    if (nodeResult.status !== "accepted" || wasmResult.status !== "accepted") return
+    expect(comparable(nodeResult.response)).toEqual(comparable(wasmResult.response))
+    expect(nodeResult.response.work).toMatchObject({
+      completeNextInputTraversalCount: 0,
+      completeNextInputComparisonCount: 0,
+    })
+  }, 30_000)
 })

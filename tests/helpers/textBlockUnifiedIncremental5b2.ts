@@ -46,6 +46,73 @@ import {
 import {
   FLOWDOC_TEXT_ENGINE_MR1_SARABUN_FONT_FACES_V1,
 } from "../../packages/text-engine-rust-wasm/src/mr1FontFaces.js"
+import type {
+  VNextTextBlockTransitionProducerInvocationAuthorityV2,
+  VNextTextBlockTransitionProducerOwnedWorkUnitV2,
+} from "../../src/layout/textBlockUnifiedLayoutEvidenceContractV2.js"
+
+export type ProducerInvocationAuthorityEvent5B2 =
+  | {
+      readonly control: "begin"
+      readonly status: "started" | "rejected"
+    }
+  | {
+      readonly control: "charge"
+      readonly unit: VNextTextBlockTransitionProducerOwnedWorkUnitV2
+      readonly status: "charged" | "limit-exceeded" | "invalid-state"
+      readonly attemptedWork?: number
+      readonly completedWork?: number
+      readonly effectiveLimit?: number
+    }
+  | {
+      readonly control: "bind-runtime"
+      readonly status: "bound" | "rejected"
+    }
+  | {
+      readonly control: "close"
+      readonly outcome: "producer-response" | "producer-failure" | "producer-blocked"
+      readonly status: "closed" | "rejected"
+      readonly visitedEvidenceNodeCount: number
+    }
+
+export function recordProducerInvocationAuthority5B2(
+  exactAuthority: VNextTextBlockTransitionProducerInvocationAuthorityV2,
+  executionEvents: string[] = [],
+): {
+  readonly authority: VNextTextBlockTransitionProducerInvocationAuthorityV2
+  readonly events: ProducerInvocationAuthorityEvent5B2[]
+} {
+  const events: ProducerInvocationAuthorityEvent5B2[] = []
+  const authority: VNextTextBlockTransitionProducerInvocationAuthorityV2 = {
+    source: "vnext-text-block-transition-producer-invocation-authority-v2",
+    contractVersion: 2,
+    begin(request, sourceMaterial) {
+      const result = exactAuthority.begin(request, sourceMaterial)
+      events.push({ control: "begin", status: result.status })
+      executionEvents.push(`authority:begin:${result.status}`)
+      return result
+    },
+    charge(unit) {
+      const result = exactAuthority.charge(unit)
+      events.push({ control: "charge", ...result })
+      executionEvents.push(`authority:charge:${unit}:${result.status}`)
+      return result
+    },
+    bindRuntimeIdentity(identity) {
+      const result = exactAuthority.bindRuntimeIdentity(identity)
+      events.push({ control: "bind-runtime", status: result.status })
+      executionEvents.push(`authority:bind-runtime:${result.status}`)
+      return result
+    },
+    close(outcome) {
+      const result = exactAuthority.close(outcome)
+      events.push({ control: "close", outcome, ...result })
+      executionEvents.push(`authority:close:${outcome}:${result.status}`)
+      return result
+    },
+  }
+  return { authority: Object.freeze(authority), events }
+}
 
 export function admitted5B2RootFixture(input: Parameters<
   typeof unifiedLayoutRootBuildInputFixtureV2
@@ -65,6 +132,12 @@ export function admitted5B2RootFixture(input: Parameters<
 export const FIVE_B2_TEST_POLICY =
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1
 
+function actualSarabunRegularFaces5B2() {
+  return FLOWDOC_TEXT_ENGINE_MR1_SARABUN_FONT_FACES_V1
+    .filter((face) => face.fontFaceId === "sarabun-regular")
+    .map(({ fontAssetPath: _fontAssetPath, ...face }) => ({ ...face }))
+}
+
 export function admitted5B2AuthorityRootFixture(input: {
   readonly policy?: VNextTextBlockUnifiedLayoutWorkPolicyV1
   readonly text?: string
@@ -75,6 +148,7 @@ export function admitted5B2AuthorityRootFixture(input: {
     unifiedLayoutRootBuildInputFixtureV2({
       content: "text-only",
       text: input.text ?? "ABCD",
+      fontFaces: actualSarabunRegularFaces5B2(),
     }),
     policy,
     "complete-bootstrap",

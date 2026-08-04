@@ -6,6 +6,8 @@ import {
   type VNextTextBlockTransitionProducerContractsV2,
   type VNextTextBlockTransitionProducerFailureCodeV2,
   type VNextTextBlockTransitionProducerFailureV2,
+  type VNextTextBlockTransitionProducerInvocationAuthorityV2,
+  type VNextTextBlockTransitionProducerOwnedWorkUnitV2,
   type VNextTextBlockTransitionProducerResponseV2,
   type VNextTextBlockTransitionProducerRuntimeIdentityV2,
   type VNextTextBlockTransitionProducerSourceMaterialV2,
@@ -31,6 +33,25 @@ export interface FlowDocUnifiedIncrementalEvidenceRuntimeV2 {
 export type FlowDocUnifiedIncrementalEvidenceResultV2 =
   | { readonly status: "accepted"; readonly response: VNextTextBlockTransitionProducerResponseV2; readonly failure: null; readonly issues: readonly [] }
   | { readonly status: "blocked"; readonly response: null; readonly failure: VNextTextBlockTransitionProducerFailureV2; readonly issues: readonly [] }
+
+export type FlowDocUnifiedIncrementalEvidenceAuthorizedResultV2 =
+  | FlowDocUnifiedIncrementalEvidenceResultV2
+  | {
+      readonly status: "not-invoked"
+      readonly response: null
+      readonly failure: null
+      readonly issues: readonly ["missing-or-mismatched-invocation-authority"]
+    }
+
+const NOT_INVOKED: FlowDocUnifiedIncrementalEvidenceAuthorizedResultV2 =
+  Object.freeze({
+    status: "not-invoked" as const,
+    response: null,
+    failure: null,
+    issues: Object.freeze([
+      "missing-or-mismatched-invocation-authority",
+    ] as const),
+  })
 
 const CONTRACTS: VNextTextBlockTransitionProducerContractsV2 = Object.freeze({
   producerSelectsDirtyRange: false,
@@ -122,13 +143,25 @@ function byteByUtf16(text: string): Map<number, number> {
   const output = new Map<number, number>([[0, 0]])
   let byte = 0
   let utf16 = 0
-  for (const scalar of text) {
-    const codePoint = scalar.codePointAt(0)!
+  while (utf16 < text.length) {
+    const codePoint = text.codePointAt(utf16)
+    if (codePoint == null) break
     byte += codePoint <= 0x7f ? 1 : codePoint <= 0x7ff ? 2 : codePoint <= 0xffff ? 3 : 4
-    utf16 += scalar.length
+    utf16 += codePoint > 0xffff ? 2 : 1
     output.set(utf16, byte)
   }
   return output
+}
+
+function unicodeScalarCount(text: string): number {
+  let count = 0
+  for (let offset = 0; offset < text.length;) {
+    const codePoint = text.codePointAt(offset)
+    if (codePoint == null) return -1
+    offset += codePoint > 0xffff ? 2 : 1
+    count += 1
+  }
+  return count
 }
 
 function utf16ByByte(text: string): Map<number, number> {
@@ -618,6 +651,170 @@ function clustersFromShape(input: {
   return output.length > 0 && output[0]!.renderStartOffset === input.globalCoverageStart + input.targetStartLocal && output.at(-1)!.renderEndOffset === input.globalCoverageStart + input.targetEndLocal ? output : null
 }
 
+interface ProducerAuthorityControlsV2 {
+  readonly receiver: VNextTextBlockTransitionProducerInvocationAuthorityV2
+  readonly begin: VNextTextBlockTransitionProducerInvocationAuthorityV2["begin"]
+  readonly charge: VNextTextBlockTransitionProducerInvocationAuthorityV2["charge"]
+  readonly bindRuntimeIdentity: VNextTextBlockTransitionProducerInvocationAuthorityV2["bindRuntimeIdentity"]
+  readonly close: VNextTextBlockTransitionProducerInvocationAuthorityV2["close"]
+}
+
+function producerAuthorityControls(
+  value: unknown,
+): ProducerAuthorityControlsV2 | null {
+  if (value == null || (typeof value !== "object" && typeof value !== "function")) {
+    return null
+  }
+  try {
+    const method = (key: "begin" | "charge" | "bindRuntimeIdentity" | "close") => {
+      const descriptor = Object.getOwnPropertyDescriptor(value, key)
+      return descriptor != null
+        && Object.hasOwn(descriptor, "value")
+        && typeof descriptor.value === "function"
+        ? descriptor.value
+        : null
+    }
+    const begin = method("begin")
+    const charge = method("charge")
+    const bindRuntimeIdentity = method("bindRuntimeIdentity")
+    const close = method("close")
+    return begin == null || charge == null || bindRuntimeIdentity == null || close == null
+      ? null
+      : {
+          receiver: value as VNextTextBlockTransitionProducerInvocationAuthorityV2,
+          begin,
+          charge,
+          bindRuntimeIdentity,
+          close,
+        }
+  } catch {
+    return null
+  }
+}
+
+function invokeProducerAuthorityControl<T>(callback: () => T): T | null {
+  try {
+    return callback()
+  } catch {
+    return null
+  }
+}
+
+function snapshotAuthorizedAdapterInput(
+  request: unknown,
+  sourceMaterial: unknown,
+  runtime: unknown,
+  meter: ResponseNodeMeterV2,
+): {
+  readonly status: "accepted"
+  readonly input: UnifiedIncrementalEvidenceInputV2
+  readonly runtimeIdentity: VNextTextBlockTransitionProducerRuntimeIdentityV2
+} | { readonly status: "invalid" | "ceiling" } {
+  const runtimeEnvelope = exactDataFieldsBeforeObservation(
+    runtime,
+    ["identity", "shapeRange", "segmentRange"],
+    meter,
+  )
+  if (runtimeEnvelope.status !== "accepted") return runtimeEnvelope
+  if (
+    typeof runtimeEnvelope.fields.shapeRange !== "function"
+    || typeof runtimeEnvelope.fields.segmentRange !== "function"
+  ) return { status: "invalid" }
+  const requestSnapshot = snapshotDataBeforeObservation(request, meter)
+  if (requestSnapshot.status !== "accepted") return requestSnapshot
+  const materialSnapshot = snapshotDataBeforeObservation(sourceMaterial, meter)
+  if (materialSnapshot.status !== "accepted") return materialSnapshot
+  const runtimeIdentity = runtimeEnvelope.fields.identity
+  const identitySnapshot = snapshotDataBeforeObservation(runtimeIdentity, meter)
+  if (identitySnapshot.status !== "accepted") return identitySnapshot
+  return {
+    status: "accepted",
+    input: {
+      request:
+        requestSnapshot.value as VNextTextBlockTransitionEvidenceRequestV2,
+      sourceMaterial:
+        materialSnapshot.value as VNextTextBlockTransitionProducerSourceMaterialV2,
+      runtime: {
+        identity:
+          identitySnapshot.value as VNextTextBlockTransitionProducerRuntimeIdentityV2,
+        shapeRange: runtimeEnvelope.fields.shapeRange as UnifiedIncrementalEvidenceInputV2["runtime"]["shapeRange"],
+        segmentRange: runtimeEnvelope.fields.segmentRange as UnifiedIncrementalEvidenceInputV2["runtime"]["segmentRange"],
+      },
+    },
+    runtimeIdentity:
+      runtimeIdentity as VNextTextBlockTransitionProducerRuntimeIdentityV2,
+  }
+}
+
+type AuthorizedClusterResultV2 =
+  | {
+      readonly status: "accepted"
+      readonly clusters: VNextTextBlockResolvedShapingRunV1["clusters"]
+    }
+  | { readonly status: "invalid" | "ceiling" }
+
+function clustersFromShapeAuthorized(input: {
+  readonly shape: FlowDocTextEngineMr1RangeShapeFactsV1
+  readonly targetStartLocal: number
+  readonly targetEndLocal: number
+  readonly globalCoverageStart: number
+  readonly fontSizeLayoutUnit: number
+  readonly beforeCluster: () => boolean
+  readonly onClusterCompleted: () => void
+}): AuthorizedClusterResultV2 {
+  const utf16Offsets = utf16ByByte(input.shape.fullText)
+  const targetStartByte = byteByUtf16(input.shape.fullText)
+    .get(input.targetStartLocal)
+  const targetEndByte = byteByUtf16(input.shape.fullText)
+    .get(input.targetEndLocal)
+  if (targetStartByte == null || targetEndByte == null) {
+    return { status: "invalid" }
+  }
+  const advanceByCluster = new Map<number, number>()
+  for (const glyph of input.shape.glyphs) {
+    const next = (advanceByCluster.get(glyph.cluster) ?? 0) + glyph.xAdvance
+    if (!Number.isSafeInteger(next) || next < 0) return { status: "invalid" }
+    advanceByCluster.set(glyph.cluster, next)
+  }
+  const starts = [...advanceByCluster.keys()].sort((left, right) => left - right)
+  const output: VNextTextBlockResolvedShapingRunV1["clusters"] = []
+  for (let index = 0; index < starts.length; index += 1) {
+    const startByte = starts[index]!
+    const endByte = starts[index + 1] ?? input.shape.rangeEndByte
+    if (startByte < targetStartByte || startByte >= targetEndByte) continue
+    if (endByte > targetEndByte) return { status: "invalid" }
+    const start = utf16Offsets.get(startByte)
+    const end = utf16Offsets.get(endByte)
+    const advance = advanceByCluster.get(startByte)
+    if (start == null || end == null || end <= start || advance == null) {
+      return { status: "invalid" }
+    }
+    const scaled = scaleVNextFontMetricToLayoutUnitV1({
+      fontMetric: advance,
+      fontSizeLayoutUnit: input.fontSizeLayoutUnit,
+      unitsPerEm: input.shape.unitsPerEm,
+    })
+    if (scaled.status !== "accepted" || scaled.layoutUnit < 0) {
+      return { status: "invalid" }
+    }
+    if (!input.beforeCluster()) return { status: "ceiling" }
+    output.push({
+      index: output.length,
+      renderStartOffset: input.globalCoverageStart + start,
+      renderEndOffset: input.globalCoverageStart + end,
+      advanceLayoutUnit: scaled.layoutUnit,
+    })
+    input.onClusterCompleted()
+  }
+  return output.length > 0
+    && output[0]!.renderStartOffset
+      === input.globalCoverageStart + input.targetStartLocal
+    && output.at(-1)!.renderEndOffset
+      === input.globalCoverageStart + input.targetEndLocal
+    ? { status: "accepted", clusters: output }
+    : { status: "invalid" }
+}
+
 export function createFlowDocTextEngineUnifiedIncrementalEvidenceV2(input: {
   readonly request: VNextTextBlockTransitionEvidenceRequestV2
   readonly sourceMaterial: VNextTextBlockTransitionProducerSourceMaterialV2
@@ -915,4 +1112,575 @@ export function createFlowDocTextEngineUnifiedIncrementalEvidenceV2(value: unkno
   }
   const response = freeze({ ...facts, fingerprint: fingerprint(facts) })
   return freeze({ status: "accepted" as const, response, failure: null, issues: freeze([]) })
+}
+
+export function createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+  authority: VNextTextBlockTransitionProducerInvocationAuthorityV2,
+  request: VNextTextBlockTransitionEvidenceRequestV2,
+  sourceMaterial: VNextTextBlockTransitionProducerSourceMaterialV2,
+  runtime: FlowDocUnifiedIncrementalEvidenceRuntimeV2,
+): FlowDocUnifiedIncrementalEvidenceAuthorizedResultV2 {
+  const controls = producerAuthorityControls(authority)
+  if (controls == null) return NOT_INVOKED
+  const begun = invokeProducerAuthorityControl(() => Reflect.apply(
+    controls.begin,
+    controls.receiver,
+    [request, sourceMaterial],
+  ))
+  if (begun?.status !== "started") return NOT_INVOKED
+
+  const close = (
+    outcome: "producer-response" | "producer-failure" | "producer-blocked",
+  ) => invokeProducerAuthorityControl(() => Reflect.apply(
+    controls.close,
+    controls.receiver,
+    [outcome],
+  ))
+  const blockedNotInvoked = (): FlowDocUnifiedIncrementalEvidenceAuthorizedResultV2 => {
+    close("producer-blocked")
+    return NOT_INVOKED
+  }
+  const before = (
+    unit: VNextTextBlockTransitionProducerOwnedWorkUnitV2,
+  ): boolean => invokeProducerAuthorityControl(() => Reflect.apply(
+    controls.charge,
+    controls.receiver,
+    [unit],
+  ))?.status === "charged"
+
+  const descriptorMeter: ResponseNodeMeterV2 = {
+    limit: Number.MAX_SAFE_INTEGER,
+    count: 0,
+    beforeObservation() {
+      if (!before("evidence-producer-descriptors")) return false
+      descriptorMeter.count += 1
+      return true
+    },
+  }
+  const snapshot = snapshotAuthorizedAdapterInput(
+    request,
+    sourceMaterial,
+    runtime,
+    descriptorMeter,
+  )
+  if (snapshot.status !== "accepted") return blockedNotInvoked()
+  const bound = invokeProducerAuthorityControl(() => Reflect.apply(
+    controls.bindRuntimeIdentity,
+    controls.receiver,
+    [snapshot.runtimeIdentity],
+  ))
+  if (bound?.status !== "bound") return blockedNotInvoked()
+
+  const input: UnifiedIncrementalEvidenceInputV2 = {
+    ...snapshot.input,
+    runtime: {
+      ...snapshot.input.runtime,
+      identity: snapshot.runtimeIdentity,
+    },
+  }
+  if (!validMaterial(snapshot.input)) return blockedNotInvoked()
+
+  const requestedWork = baseWork(input.sourceMaterial)
+  let consumedAtomCount = 0
+  let consumedClusterCount = 0
+  let unusedCoverageRenderedUtf16Length = 0
+  const completedWork = (
+    visitedEvidenceNodeCount: number,
+  ): VNextTextBlockTransitionProducerWorkV2 => freeze({
+    ...requestedWork,
+    consumedAtomCount,
+    consumedClusterCount,
+    unusedCoverageRenderedUtf16Length,
+    visitedEvidenceNodeCount,
+  })
+  const emitTopLevelFacts = (fieldCount: number): boolean => {
+    for (let index = 0; index < fieldCount; index += 1) {
+      if (!before("evidence-response-facts")) return false
+    }
+    return true
+  }
+  const finishFailure = (
+    code: VNextTextBlockTransitionProducerFailureCodeV2,
+  ): FlowDocUnifiedIncrementalEvidenceAuthorizedResultV2 => {
+    if (!emitTopLevelFacts(9)) return blockedNotInvoked()
+    const receipt = close("producer-failure")
+    if (receipt?.status !== "closed") return NOT_INVOKED
+    return failure({
+      ...input,
+      code,
+      work: completedWork(receipt.visitedEvidenceNodeCount),
+    })
+  }
+  const ceilingFailure = () => finishFailure("work-ceiling-before-visit")
+  const chargeRuntimeInputString = (
+    text: string,
+  ): "charged" | "ceiling" | "invalid" => {
+    for (let offset = 0; offset < text.length;) {
+      if (!before("evidence-runtime-input-scalars")) return "ceiling"
+      const codePoint = text.codePointAt(offset)
+      if (codePoint == null) return "invalid"
+      offset += codePoint > 0xffff ? 2 : 1
+    }
+    return "charged"
+  }
+
+  const text = composeCoverageText(input.sourceMaterial)
+  if (text == null) return finishFailure("invalid-request-scoped-material")
+  const coverageStart = input.request.next.coverageRange.startRenderedUtf16
+  const target = input.request.next.evidenceTargetRange
+  const targetStartLocal = target.startRenderedUtf16 - coverageStart
+  const targetEndLocal = target.endRenderedUtf16 - coverageStart
+  const shapeRange = input.request.next.shapeVerificationRange
+  const shapeStartLocal = shapeRange.startRenderedUtf16 - coverageStart
+  const shapeEndLocal = shapeRange.endRenderedUtf16 - coverageStart
+  if (
+    targetStartLocal < 0
+    || targetEndLocal < targetStartLocal
+    || shapeStartLocal < 0
+    || shapeStartLocal > targetStartLocal
+    || shapeEndLocal < targetEndLocal
+    || shapeEndLocal > text.length
+  ) return finishFailure("invalid-request-scoped-material")
+
+  const shapingRuns: VNextTextBlockResolvedShapingRunV1[] = []
+  const shapingBoundaryProofs: VNextTextBlockTransitionShapingBoundaryProofV2[] = []
+  const segmentationBoundaryProofs: VNextTextBlockTransitionSegmentationBoundaryProofV2[] = []
+  type StyledAtom = Extract<
+    (typeof input.sourceMaterial.next.atoms)[number],
+    { readonly resolvedStyle: unknown }
+  >
+  type ResolvedStyle = StyledAtom["resolvedStyle"]
+  const partitions: Array<{
+    start: number
+    end: number
+    style: ResolvedStyle
+    atomFingerprints: string[]
+  }> = []
+  for (const atom of input.sourceMaterial.next.atoms) {
+    if (atom.kind === "hard-break" || atom.kind === "inline-image-boundary") {
+      consumedAtomCount += 1
+      continue
+    }
+    const atomStart = coverageStart + atom.relativeStartRenderedUtf16
+    const atomEnd = coverageStart + atom.relativeEndRenderedUtf16
+    const previous = partitions.at(-1)
+    if (
+      previous != null
+      && previous.end === atomStart
+      && canonical(previous.style) === canonical(atom.resolvedStyle)
+    ) {
+      previous.end = atomEnd
+      previous.atomFingerprints.push(atom.fingerprint)
+    } else {
+      partitions.push({
+        start: atomStart,
+        end: atomEnd,
+        style: atom.resolvedStyle,
+        atomFingerprints: [atom.fingerprint],
+      })
+    }
+    consumedAtomCount += 1
+  }
+
+  for (const partition of partitions) {
+    const runStart = Math.max(partition.start, target.startRenderedUtf16)
+    const runEnd = Math.min(partition.end, target.endRenderedUtf16)
+    if (runEnd <= runStart) continue
+    const verificationStart = Math.max(
+      partition.start,
+      shapeRange.startRenderedUtf16,
+    )
+    const verificationEnd = Math.min(
+      partition.end,
+      shapeRange.endRenderedUtf16,
+    )
+    const face = input.sourceMaterial.fontFaces.find(
+      (candidate) => candidate.fontFaceId === partition.style.fontFaceId,
+    )
+    if (face == null) return finishFailure("pinned-font-unavailable")
+    const shapeScalarInputs = [text, face.fontFaceId]
+    for (const runtimeInput of shapeScalarInputs) {
+      const charge = chargeRuntimeInputString(runtimeInput)
+      if (charge === "ceiling") return ceilingFailure()
+      if (charge === "invalid") return finishFailure("unsafe-runtime-arithmetic")
+    }
+    if (!before("evidence-runtime-invocations")) return ceilingFailure()
+    let shape: FlowDocTextEngineMr1RangeShapeFactsV1
+    try {
+      shape = input.runtime.shapeRange({
+        text,
+        fontFaceId: face.fontFaceId,
+        rangeStartUtf16: runStart - coverageStart,
+        rangeEndUtf16: verificationEnd - coverageStart,
+        contextStartUtf16: verificationStart - coverageStart,
+        contextEndUtf16: verificationEnd - coverageStart,
+      })
+    } catch {
+      return finishFailure("pinned-font-unavailable")
+    }
+    const shapeSnapshot = snapshotDataBeforeObservation(shape, descriptorMeter)
+    if (shapeSnapshot.status === "ceiling") return ceilingFailure()
+    if (shapeSnapshot.status !== "accepted") {
+      return finishFailure("unsafe-runtime-arithmetic")
+    }
+    shape = shapeSnapshot.value as FlowDocTextEngineMr1RangeShapeFactsV1
+    if (!exactKeys(shape, [
+      "contractVersion", "outputShapeVersion", "fullText", "fontFaceId",
+      "fullTextByteLength", "fullTextScalarCount", "rangeStartByte",
+      "rangeEndByte", "rangeStartUtf16", "rangeEndUtf16", "contextStartByte",
+      "contextEndByte", "contextStartUtf16", "contextEndUtf16", "rangeText",
+      "preContextText", "postContextText", "unitsPerEm", "ascentFontUnit",
+      "descentFontUnit", "lineGapFontUnit", "glyphs", "summary",
+    ])) return finishFailure("unsafe-runtime-arithmetic")
+    const returnedGlyphCount = exactArrayLength(shape.glyphs)
+    if (returnedGlyphCount == null) return finishFailure("unsafe-runtime-arithmetic")
+    const inspectedGlyphs: FlowDocTextEngineMr1RangeShapeFactsV1["glyphs"][number][] = []
+    for (let glyphIndex = 0; glyphIndex < returnedGlyphCount; glyphIndex += 1) {
+      if (!before("evidence-glyphs")) return ceilingFailure()
+      const glyph = shape.glyphs[glyphIndex]
+      if (
+        !exactKeys(glyph, [
+          "index", "glyphId", "cluster", "xAdvance", "yAdvance", "xOffset",
+          "yOffset", "unsafeToBreak",
+        ])
+        || !safeDataTree(glyph)
+      ) return finishFailure("unsafe-runtime-arithmetic")
+      inspectedGlyphs.push(glyph as FlowDocTextEngineMr1RangeShapeFactsV1["glyphs"][number])
+    }
+    const { glyphs: _uninspectedGlyphs, ...shapeHeader } = shape
+    if (!safeDataTree(shapeHeader)) return finishFailure("unsafe-runtime-arithmetic")
+    shape = { ...shape, glyphs: inspectedGlyphs }
+    if (!exactKeys(shape.summary, [
+      "glyphCount", "missingGlyphCount", "totalAdvanceFontUnits",
+      "unsafeToBreakGlyphCount",
+    ])) return finishFailure("unsafe-runtime-arithmetic")
+    if (
+      shape.contractVersion !== 1
+      || shape.outputShapeVersion !== FLOWDOC_TEXT_ENGINE_MR1_RANGE_SHAPE_FACTS_VERSION
+      || shape.fullText !== text
+      || shape.fullTextByteLength !== flowDocUtf8ByteLengthV1(text)
+      || shape.fullTextScalarCount !== unicodeScalarCount(text)
+      || shape.fontFaceId !== face.fontFaceId
+      || shape.rangeStartUtf16 !== runStart - coverageStart
+      || shape.rangeEndUtf16 !== verificationEnd - coverageStart
+      || shape.contextStartUtf16 !== verificationStart - coverageStart
+      || shape.contextEndUtf16 !== verificationEnd - coverageStart
+      || shape.rangeText !== text.slice(
+        runStart - coverageStart,
+        verificationEnd - coverageStart,
+      )
+      || shape.preContextText !== text.slice(
+        verificationStart - coverageStart,
+        runStart - coverageStart,
+      )
+      || shape.postContextText !== ""
+      || shape.unitsPerEm !== face.unitsPerEm
+      || shape.ascentFontUnit !== face.ascentFontUnit
+      || shape.descentFontUnit !== face.descentFontUnit
+      || shape.lineGapFontUnit !== face.lineGapFontUnit
+      || shape.summary.glyphCount !== shape.glyphs.length
+      || shape.summary.missingGlyphCount
+        !== shape.glyphs.filter((glyph) => glyph.glyphId === 0).length
+    ) return finishFailure("pinned-font-mismatch")
+    if (shape.summary.missingGlyphCount > 0) return finishFailure("missing-glyph")
+    const byteOffsets = byteByUtf16(text)
+    const runStartByte = byteOffsets.get(runStart - coverageStart)
+    const runEndByte = byteOffsets.get(runEnd - coverageStart)
+    if (runStartByte == null || runEndByte == null) {
+      return finishFailure("unsafe-shaping-boundary")
+    }
+    const firstTarget = shape.glyphs.find((glyph) => glyph.cluster === runStartByte)
+    let rightGuard: FlowDocTextEngineMr1RangeShapeFactsV1["glyphs"][number] | null = null
+    let guardGlyphCount = 0
+    for (const glyph of shape.glyphs) {
+      if (glyph.cluster < runEndByte) continue
+      if (!before("evidence-guards")) return ceilingFailure()
+      rightGuard ??= glyph
+      guardGlyphCount += 1
+    }
+    const leftAtExactBoundary = runStart === partition.start
+      || runStart === target.startRenderedUtf16 && runStart === coverageStart
+    const rightAtExactBoundary = runEnd === partition.end
+      || runEnd === target.endRenderedUtf16
+        && runEnd === coverageStart + text.length
+    if (
+      (!leftAtExactBoundary && (firstTarget == null || firstTarget.unsafeToBreak))
+      || (!rightAtExactBoundary && (rightGuard == null || rightGuard.unsafeToBreak))
+    ) return finishFailure("unsafe-shaping-boundary")
+    const clusterResult = clustersFromShapeAuthorized({
+      shape,
+      targetStartLocal: runStart - coverageStart,
+      targetEndLocal: runEnd - coverageStart,
+      globalCoverageStart: coverageStart,
+      fontSizeLayoutUnit: partition.style.fontSizeLayoutUnit,
+      beforeCluster: () => before("evidence-clusters"),
+      onClusterCompleted: () => {
+        consumedClusterCount += 1
+      },
+    })
+    if (clusterResult.status === "ceiling") return ceilingFailure()
+    if (clusterResult.status !== "accepted") {
+      return finishFailure("unsafe-runtime-arithmetic")
+    }
+    const run: VNextTextBlockResolvedShapingRunV1 = {
+      shapingRunId: fingerprint({
+        request: input.request.fingerprint,
+        atoms: partition.atomFingerprints,
+        runStart,
+        runEnd,
+      }),
+      renderStartOffset: runStart,
+      renderEndOffset: runEnd,
+      text: text.slice(runStart - coverageStart, runEnd - coverageStart),
+      styleKey: partition.style.measurementStyleKey,
+      fontFaceId: face.fontFaceId,
+      fontSizeLayoutUnit: partition.style.fontSizeLayoutUnit,
+      textColor: partition.style.textColor,
+      direction: "ltr",
+      baselineShiftLayoutUnit: 0,
+      features: [],
+      clusters: clusterResult.clusters,
+    }
+    shapingRuns.push(freeze(run))
+    const proofFacts = {
+      targetRange: {
+        startRenderedUtf16: runStart,
+        endRenderedUtf16: runEnd,
+      },
+      verificationRange: {
+        startRenderedUtf16: verificationStart,
+        endRenderedUtf16: verificationEnd,
+      },
+      leftBoundary: leftAtExactBoundary
+        ? "exact-style-or-block-start" as const
+        : "safe-first-target-glyph" as const,
+      rightBoundary: rightAtExactBoundary
+        ? "exact-style-or-block-end" as const
+        : "safe-first-right-guard-glyph" as const,
+      guardGlyphCount,
+      inspectedGlyphCount: returnedGlyphCount,
+    }
+    if (!before("evidence-proof-facts")) return ceilingFailure()
+    shapingBoundaryProofs.push(freeze({
+      ...proofFacts,
+      fingerprint: fingerprint(proofFacts),
+    }))
+  }
+
+  const inspectRuntimeIntegerArray = (
+    value: unknown,
+  ):
+    | { readonly status: "accepted"; readonly values: number[] }
+    | { readonly status: "invalid" | "ceiling" } => {
+    const length = exactArrayLength(value)
+    if (length == null) return { status: "invalid" }
+    const values: number[] = []
+    for (let index = 0; index < length; index += 1) {
+      if (!before("evidence-breaks")) return { status: "ceiling" }
+      const descriptor = Object.getOwnPropertyDescriptor(value, String(index))
+      if (
+        descriptor == null
+        || !Object.hasOwn(descriptor, "value")
+        || descriptor.enumerable !== true
+        || !Number.isSafeInteger(descriptor.value)
+      ) return { status: "invalid" }
+      values.push(descriptor.value as number)
+    }
+    return { status: "accepted", values }
+  }
+
+  let stableBreaks: readonly number[] | null = null
+  let stableCount = 0
+  const consumedSegmentationContextRanges: Array<{
+    startRenderedUtf16: number
+    endRenderedUtf16: number
+  }> = []
+  for (const context of input.request.nextSegmentationContextRanges) {
+    const scalarCharge = chargeRuntimeInputString(text)
+    if (scalarCharge === "ceiling") return ceilingFailure()
+    if (scalarCharge === "invalid") return finishFailure("unsafe-runtime-arithmetic")
+    if (!before("evidence-runtime-invocations")) return ceilingFailure()
+    let facts: FlowDocTextEngineMr1RangeSegmentationFactsV1
+    try {
+      facts = input.runtime.segmentRange({
+        text,
+        targetStartUtf16: targetStartLocal,
+        targetEndUtf16: targetEndLocal,
+        contextStartUtf16: context.startRenderedUtf16 - coverageStart,
+        contextEndUtf16: context.endRenderedUtf16 - coverageStart,
+      })
+    } catch {
+      return finishFailure("segmentation-not-stable")
+    }
+    const segmentationSnapshot = snapshotDataBeforeObservation(
+      facts,
+      descriptorMeter,
+    )
+    if (segmentationSnapshot.status === "ceiling") return ceilingFailure()
+    if (segmentationSnapshot.status !== "accepted") {
+      return finishFailure("segmentation-not-stable")
+    }
+    facts = segmentationSnapshot.value as FlowDocTextEngineMr1RangeSegmentationFactsV1
+    if (!exactKeys(facts, [
+      "contractVersion", "outputShapeVersion", "fullText", "fullTextByteLength",
+      "fullTextScalarCount", "targetStartByte", "targetEndByte",
+      "targetStartUtf16", "targetEndUtf16", "contextStartByte", "contextEndByte",
+      "contextStartUtf16", "contextEndUtf16", "contextText",
+      "contextBreakByteOffsets", "contextBreakUtf16Offsets",
+      "targetBreakByteOffsets", "targetBreakUtf16Offsets", "summary",
+    ])) return finishFailure("segmentation-not-stable")
+    const contextBreakByteOffsets = inspectRuntimeIntegerArray(
+      facts.contextBreakByteOffsets,
+    )
+    const contextBreakUtf16Offsets = contextBreakByteOffsets.status === "accepted"
+      ? inspectRuntimeIntegerArray(facts.contextBreakUtf16Offsets)
+      : contextBreakByteOffsets
+    const targetBreakByteOffsets = contextBreakUtf16Offsets.status === "accepted"
+      ? inspectRuntimeIntegerArray(facts.targetBreakByteOffsets)
+      : contextBreakUtf16Offsets
+    const targetBreakUtf16Offsets = targetBreakByteOffsets.status === "accepted"
+      ? inspectRuntimeIntegerArray(facts.targetBreakUtf16Offsets)
+      : targetBreakByteOffsets
+    const inspections = [
+      contextBreakByteOffsets,
+      contextBreakUtf16Offsets,
+      targetBreakByteOffsets,
+      targetBreakUtf16Offsets,
+    ]
+    if (inspections.some((inspection) => inspection.status === "ceiling")) {
+      return ceilingFailure()
+    }
+    if (
+      contextBreakByteOffsets.status !== "accepted"
+      || contextBreakUtf16Offsets.status !== "accepted"
+      || targetBreakByteOffsets.status !== "accepted"
+      || targetBreakUtf16Offsets.status !== "accepted"
+    ) return finishFailure("segmentation-not-stable")
+    const {
+      contextBreakByteOffsets: _contextBytes,
+      contextBreakUtf16Offsets: _contextUtf16,
+      targetBreakByteOffsets: _targetBytes,
+      targetBreakUtf16Offsets: _targetUtf16,
+      ...segmentationHeader
+    } = facts
+    if (!safeDataTree(segmentationHeader)) {
+      return finishFailure("segmentation-not-stable")
+    }
+    facts = {
+      ...facts,
+      contextBreakByteOffsets: contextBreakByteOffsets.values,
+      contextBreakUtf16Offsets: contextBreakUtf16Offsets.values,
+      targetBreakByteOffsets: targetBreakByteOffsets.values,
+      targetBreakUtf16Offsets: targetBreakUtf16Offsets.values,
+    }
+    if (!exactKeys(facts.summary, [
+      "contextBreakCount", "targetBreakCount",
+      "artificialContextBoundaryBreakCount",
+    ])) return finishFailure("segmentation-not-stable")
+    const expectedContextStart = context.startRenderedUtf16 - coverageStart
+    const expectedContextEnd = context.endRenderedUtf16 - coverageStart
+    const expectedArtificialBoundaryCount = (expectedContextStart > 0 ? 1 : 0)
+      + (expectedContextEnd < text.length ? 1 : 0)
+    if (
+      facts.contractVersion !== 1
+      || facts.outputShapeVersion
+        !== FLOWDOC_TEXT_ENGINE_MR1_RANGE_SEGMENTATION_FACTS_VERSION
+      || facts.fullText !== text
+      || facts.fullTextByteLength !== flowDocUtf8ByteLengthV1(text)
+      || facts.fullTextScalarCount !== unicodeScalarCount(text)
+      || facts.targetStartUtf16 !== targetStartLocal
+      || facts.targetEndUtf16 !== targetEndLocal
+      || facts.contextStartUtf16 !== expectedContextStart
+      || facts.contextEndUtf16 !== expectedContextEnd
+      || facts.contextText !== text.slice(expectedContextStart, expectedContextEnd)
+      || facts.summary.targetBreakCount !== facts.targetBreakUtf16Offsets.length
+      || facts.summary.contextBreakCount !== facts.contextBreakUtf16Offsets.length
+      || facts.summary.artificialContextBoundaryBreakCount
+        !== expectedArtificialBoundaryCount
+      || !validSegmentationOffsets(facts)
+      || facts.targetBreakUtf16Offsets.some((offset, index, offsets) =>
+        !Number.isSafeInteger(offset)
+        || offset < targetStartLocal
+        || offset > targetEndLocal
+        || index > 0 && offset <= offsets[index - 1]!
+      )
+    ) return finishFailure("segmentation-not-stable")
+    const current = facts.targetBreakUtf16Offsets
+      .filter((offset) => offset >= targetStartLocal && offset <= targetEndLocal)
+      .map((offset) => coverageStart + offset)
+    const segmentationProofFacts = {
+      contextRange: context,
+      contextBreakCount: facts.contextBreakUtf16Offsets.length,
+      targetBreakOffsets: freeze(current),
+      inspectedOffsetCount: facts.contextBreakByteOffsets.length
+        + facts.contextBreakUtf16Offsets.length
+        + facts.targetBreakByteOffsets.length
+        + facts.targetBreakUtf16Offsets.length,
+    }
+    if (!before("evidence-proof-facts")) return ceilingFailure()
+    segmentationBoundaryProofs.push(freeze({
+      ...segmentationProofFacts,
+      fingerprint: fingerprint(segmentationProofFacts),
+    }))
+    consumedSegmentationContextRanges.push(context)
+    if (stableBreaks != null && canonical(stableBreaks) === canonical(current)) {
+      stableCount += 1
+    } else {
+      stableBreaks = current
+      stableCount = 1
+    }
+    if (stableCount >= input.request.requiredStableSegmentationExpansionCount) break
+  }
+  if (
+    stableBreaks == null
+    || stableCount < input.request.requiredStableSegmentationExpansionCount
+  ) return finishFailure("segmentation-not-stable")
+
+  const hardBreaks: number[] = []
+  for (const atom of input.sourceMaterial.next.atoms) {
+    if (atom.kind !== "hard-break") continue
+    if (!before("evidence-breaks")) return ceilingFailure()
+    const offset = coverageStart + atom.relativeEndRenderedUtf16
+    if (
+      offset >= target.startRenderedUtf16
+      && offset <= target.endRenderedUtf16
+    ) hardBreaks.push(offset)
+  }
+  const candidateBreakOffsets = [...new Set([...stableBreaks, ...hardBreaks])]
+    .sort((left, right) => left - right)
+  const breakOffsets: number[] = []
+  for (const offset of candidateBreakOffsets) {
+    if (!before("evidence-breaks")) return ceilingFailure()
+    breakOffsets.push(offset)
+  }
+  unusedCoverageRenderedUtf16Length = text.length - coveredUtf16Length([
+    ...shapingBoundaryProofs.map((proof) => proof.verificationRange),
+    ...consumedSegmentationContextRanges,
+  ])
+  if (!emitTopLevelFacts(14)) return blockedNotInvoked()
+  const receipt = close("producer-response")
+  if (receipt?.status !== "closed") return NOT_INVOKED
+  const work = completedWork(receipt.visitedEvidenceNodeCount)
+  const facts = {
+    source: "vnext-text-block-transition-producer-response-v2" as const,
+    contractVersion: 2 as const,
+    requestFingerprint: input.request.fingerprint,
+    sourceMaterialFingerprint: input.sourceMaterial.fingerprint,
+    runtimeIdentity: input.runtime.identity,
+    nextEvidenceTargetRange: input.request.next.evidenceTargetRange,
+    shapingRuns: freeze(shapingRuns),
+    breakOffsets: freeze(breakOffsets),
+    shapingBoundaryProofs: freeze(shapingBoundaryProofs),
+    segmentationBoundaryProofs: freeze(segmentationBoundaryProofs),
+    sourceTopologyFingerprint: input.sourceMaterial.sourceTopologyFingerprint,
+    work,
+    contracts: CONTRACTS,
+  }
+  const response = freeze({ ...facts, fingerprint: fingerprint(facts) })
+  return freeze({
+    status: "accepted" as const,
+    response,
+    failure: null,
+    issues: freeze([]),
+  })
 }
