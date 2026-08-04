@@ -1,5 +1,9 @@
 import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint.js"
 import { stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
+import {
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2A_EVIDENCE_OWNER_ROWS_INTERNAL_V2,
+  type VNextTextBlockUnifiedLayout5B2AEvidenceUnitInternalV2,
+} from "./textBlockUnifiedLayoutEvidenceWorkOwnerRegistryV2.js"
 import type {
   VNextTextBlockStageWorkCountV1,
   VNextTextBlockUnifiedLayoutStageUnitV1,
@@ -134,6 +138,20 @@ export function previousVNextTextBlockStageSummaryBaseInternalV1(input: {
     case "evidence-request-lookup-nodes":
     case "evidence-context-atoms":
     case "evidence-response-nodes":
+    case "evidence-request-descriptors":
+    case "evidence-material-descriptors":
+    case "evidence-producer-descriptors":
+    case "evidence-runtime-invocations":
+    case "evidence-runtime-input-scalars":
+    case "evidence-glyphs":
+    case "evidence-clusters":
+    case "evidence-breaks":
+    case "evidence-guards":
+    case "evidence-proof-facts":
+    case "evidence-response-facts":
+    case "evidence-acceptance-descriptors":
+    case "evidence-acceptance-comparisons":
+    case "evidence-acceptance-registrations":
       return input.previousRoot.sourceState.summary.itemCount
     case "spatial-index-nodes":
     case "spatial-query-bands":
@@ -480,6 +498,73 @@ VNextTextBlockUnifiedLayoutWorkPolicyV1 = Object.freeze({
   fingerprint: fingerprint(policy5b1V3Facts),
 })
 
+const exact5B2EvidenceCalibrationPolicies =
+  new WeakSet<VNextTextBlockUnifiedLayoutWorkPolicyV1>()
+
+function authorityEvidenceCalibrationStageLimit(
+  unit: VNextTextBlockUnifiedLayout5B2AEvidenceUnitInternalV2,
+  limit: number,
+): VNextTextBlockStageLimitV1 {
+  return stageLimit({
+    stage: "evidence",
+    unit,
+    lockStatus: "locked",
+    smallBlockFloor: limit,
+    absoluteStageLimit: limit,
+    relativeNumerator: 0,
+    relativeDenominator: 1,
+    checkpointOwner: "5B-2",
+  })
+}
+
+export function createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2(
+  limits: Readonly<Partial<Record<
+    VNextTextBlockUnifiedLayout5B2AEvidenceUnitInternalV2,
+    number
+  >>>,
+): VNextTextBlockUnifiedLayoutWorkPolicyV1 {
+  if (limits == null || typeof limits !== "object" || Array.isArray(limits)) {
+    throw new TypeError("evidence calibration limits must be an object")
+  }
+  const units = new Set<string>(
+    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2A_EVIDENCE_OWNER_ROWS_INTERNAL_V2
+      .map((row) => row.unit),
+  )
+  for (const [unit, limit] of Object.entries(limits)) {
+    if (!units.has(unit)) {
+      throw new TypeError(`unknown evidence calibration unit ${unit}`)
+    }
+    if (!Number.isSafeInteger(limit) || limit < 0) {
+      throw new RangeError(`evidence calibration limit for ${unit} is invalid`)
+    }
+  }
+  const stages = Object.freeze([
+    ...VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2A_EVIDENCE_OWNER_ROWS_INTERNAL_V2
+      .map((row) => authorityEvidenceCalibrationStageLimit(
+        row.unit,
+        limits[row.unit] ?? 8_192,
+      )),
+    ...policy5b1V3Stages,
+  ])
+  const facts = {
+    source: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_SOURCE,
+    contractVersion: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_VERSION,
+    policyId: "5b-2-authority-test-only",
+    checkpoint: "5B-2" as const,
+    stages,
+  }
+  const policy: VNextTextBlockUnifiedLayoutWorkPolicyV1 = Object.freeze({
+    ...facts,
+    fingerprint: fingerprint(facts),
+  })
+  exact5B2EvidenceCalibrationPolicies.add(policy)
+  return policy
+}
+
+/** Internal authority calibration seam; never selected by public bootstrap or attempt. */
+export const VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_TEST_ONLY_INTERNAL_V2 =
+  createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({})
+
 const calibrationEvidenceLocked = (
   unit:
     | "evidence-request-lookup-nodes"
@@ -555,6 +640,11 @@ export function isExactVNextTextBlockUnifiedLayoutWorkPolicyInternalV1(
   return value === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
     || value
       === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1
+    || (value != null
+      && typeof value === "object"
+      && exact5B2EvidenceCalibrationPolicies.has(
+        value as VNextTextBlockUnifiedLayoutWorkPolicyV1,
+      ))
 }
 
 export interface VNextTextBlockSourceEnvelopeLimitInternalV1 {

@@ -8,12 +8,18 @@ import {
   createVNextTextBlockUnifiedLayoutRootCompleteInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutRootV2.js"
 import {
+  createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2,
   deriveVNextTextBlockWorkPolicyCalibrationInternalV1,
   evaluateVNextTextBlockStageWorkLimitInternalV1,
+  isExactVNextTextBlockUnifiedLayoutWorkPolicyInternalV1,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_TEST_ONLY_INTERNAL_V2,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
   type VNextTextBlockWorkCalibrationObservationInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
+import {
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2A_EVIDENCE_OWNER_ROWS_INTERNAL_V2,
+} from "../src/layout/textBlockUnifiedLayoutEvidenceWorkOwnerRegistryV2.js"
 import type {
   VNextTextBlockStageWorkCountV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionContractV1.js"
@@ -473,5 +479,69 @@ describe("Phase 5B-1 private V3 factual work calibration", () => {
       import.meta.url,
     ), "utf8")
     expect(actual).toBe(expected)
+  })
+})
+
+describe("Phase 5B-2A authority evidence calibration", () => {
+  it("derives every evidence threshold from the reviewed owner registry", () => {
+    const registry =
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2A_EVIDENCE_OWNER_ROWS_INTERNAL_V2
+    const policy =
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_TEST_ONLY_INTERNAL_V2
+
+    expect(policy.stages).toHaveLength(
+      registry.length + VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3.stages.length,
+    )
+    for (const row of registry) {
+      const calibration =
+        createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({
+          [row.unit]: 3,
+        })
+      const evaluate = (attemptedWork: number) =>
+        evaluateVNextTextBlockStageWorkLimitInternalV1({
+          policy: calibration,
+          stage: row.stage,
+          unit: row.unit,
+          previousSummaryBase: 99,
+          exactValidatedChangeDelta: 1,
+          attemptedWork,
+        })
+
+      expect(evaluate(2).status).toBe("within-limit")
+      expect(evaluate(3).status).toBe("within-limit")
+      expect(evaluate(4)).toMatchObject({
+        status: "limit-exceeded",
+        attemptedWork: 4,
+        effectiveLimit: 3,
+      })
+    }
+  })
+
+  it("recognizes only factory-registered calibration policies", () => {
+    const policy =
+      createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({})
+
+    expect(isExactVNextTextBlockUnifiedLayoutWorkPolicyInternalV1(policy)).toBe(true)
+    expect(isExactVNextTextBlockUnifiedLayoutWorkPolicyInternalV1(
+      structuredClone(policy),
+    )).toBe(false)
+  })
+
+  it("rejects unknown, negative, and unsafe evidence limits", () => {
+    expect(() =>
+      createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({
+        "unknown-evidence-unit": 1,
+      } as never)
+    ).toThrow(TypeError)
+    expect(() =>
+      createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({
+        "evidence-glyphs": -1,
+      })
+    ).toThrow(RangeError)
+    expect(() =>
+      createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({
+        "evidence-glyphs": Number.MAX_SAFE_INTEGER + 1,
+      })
+    ).toThrow(RangeError)
   })
 })
