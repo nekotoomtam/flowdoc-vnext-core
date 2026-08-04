@@ -692,7 +692,138 @@ function producerAuthorityControls(
   }
 }
 
-function invokeProducerAuthorityControl<T>(callback: () => T): T | null {
+interface DecodedProducerAuthorityControlV2 {
+  readonly keys: readonly string[]
+  readonly fields: Readonly<Record<string, unknown>>
+}
+
+function decodeProducerAuthorityControl(
+  value: unknown,
+): DecodedProducerAuthorityControlV2 | null {
+  try {
+    if (value == null || typeof value !== "object" || Array.isArray(value)) {
+      return null
+    }
+    const prototype = Object.getPrototypeOf(value)
+    if (prototype !== Object.prototype && prototype !== null) return null
+    const ownKeys = Reflect.ownKeys(value)
+    if (ownKeys.some((key) => typeof key !== "string")) return null
+    const fields: Record<string, unknown> = Object.create(null)
+    for (const key of ownKeys) {
+      if (typeof key !== "string") return null
+      const descriptor = Object.getOwnPropertyDescriptor(value, key)
+      if (
+        descriptor == null
+        || !Object.hasOwn(descriptor, "value")
+        || descriptor.enumerable !== true
+      ) return null
+      fields[key] = descriptor.value
+    }
+    return { keys: ownKeys as string[], fields }
+  } catch {
+    return null
+  }
+}
+
+function exactProducerAuthorityControlKeys(
+  decoded: DecodedProducerAuthorityControlV2,
+  keys: readonly string[],
+): boolean {
+  return decoded.keys.length === keys.length
+    && decoded.keys.every((key) => keys.includes(key))
+}
+
+function decodeProducerAuthorityStatus(
+  value: unknown,
+  statuses: readonly string[],
+): string | null {
+  const decoded = decodeProducerAuthorityControl(value)
+  return decoded != null
+    && exactProducerAuthorityControlKeys(decoded, ["status"])
+    && typeof decoded.fields.status === "string"
+    && statuses.includes(decoded.fields.status)
+      ? decoded.fields.status
+      : null
+}
+
+type DecodedProducerAuthorityChargeV2 =
+  | { readonly status: "charged" }
+  | { readonly status: "limit-exceeded" }
+  | { readonly status: "invalid-state" }
+
+function isSafeNonNegativeInteger(value: unknown): value is number {
+  return Number.isSafeInteger(value) && (value as number) >= 0
+}
+
+function decodeProducerAuthorityCharge(
+  value: unknown,
+  requestedUnit: VNextTextBlockTransitionProducerOwnedWorkUnitV2,
+): DecodedProducerAuthorityChargeV2 | null {
+  const decoded = decodeProducerAuthorityControl(value)
+  if (decoded == null || decoded.fields.unit !== requestedUnit) return null
+  if (decoded.fields.status === "charged") {
+    if (
+      !exactProducerAuthorityControlKeys(decoded, [
+        "status",
+        "unit",
+        "completedWork",
+        "effectiveLimit",
+      ])
+      || !isSafeNonNegativeInteger(decoded.fields.completedWork)
+      || decoded.fields.completedWork < 1
+      || !isSafeNonNegativeInteger(decoded.fields.effectiveLimit)
+      || decoded.fields.completedWork > decoded.fields.effectiveLimit
+    ) return null
+    return { status: "charged" }
+  }
+  if (decoded.fields.status === "limit-exceeded") {
+    if (
+      !exactProducerAuthorityControlKeys(decoded, [
+        "status",
+        "unit",
+        "attemptedWork",
+        "completedWork",
+        "effectiveLimit",
+      ])
+      || !isSafeNonNegativeInteger(decoded.fields.attemptedWork)
+      || !isSafeNonNegativeInteger(decoded.fields.completedWork)
+      || decoded.fields.attemptedWork !== decoded.fields.completedWork + 1
+      || !isSafeNonNegativeInteger(decoded.fields.effectiveLimit)
+      || decoded.fields.attemptedWork <= decoded.fields.effectiveLimit
+    ) return null
+    return { status: "limit-exceeded" }
+  }
+  return decoded.fields.status === "invalid-state"
+    && exactProducerAuthorityControlKeys(decoded, ["status", "unit"])
+      ? { status: "invalid-state" }
+      : null
+}
+
+interface DecodedProducerAuthorityCloseV2 {
+  readonly status: "closed" | "rejected"
+  readonly visitedEvidenceNodeCount: number
+}
+
+function decodeProducerAuthorityClose(
+  value: unknown,
+): DecodedProducerAuthorityCloseV2 | null {
+  const decoded = decodeProducerAuthorityControl(value)
+  if (
+    decoded == null
+    || !exactProducerAuthorityControlKeys(decoded, [
+      "status",
+      "visitedEvidenceNodeCount",
+    ])
+    || (decoded.fields.status !== "closed" && decoded.fields.status !== "rejected")
+    || !isSafeNonNegativeInteger(decoded.fields.visitedEvidenceNodeCount)
+  ) return null
+  return {
+    status: decoded.fields.status,
+    visitedEvidenceNodeCount: decoded.fields.visitedEvidenceNodeCount,
+  }
+}
+
+function invokeProducerAuthorityControl(callback: () => unknown): unknown {
   try {
     return callback()
   } catch {
@@ -1122,31 +1253,75 @@ export function createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInter
 ): FlowDocUnifiedIncrementalEvidenceAuthorizedResultV2 {
   const controls = producerAuthorityControls(authority)
   if (controls == null) return NOT_INVOKED
-  const begun = invokeProducerAuthorityControl(() => Reflect.apply(
-    controls.begin,
-    controls.receiver,
-    [request, sourceMaterial],
-  ))
-  if (begun?.status !== "started") return NOT_INVOKED
+  const begun = decodeProducerAuthorityStatus(
+    invokeProducerAuthorityControl(() => Reflect.apply(
+      controls.begin,
+      controls.receiver,
+      [request, sourceMaterial],
+    )),
+    ["started", "rejected"],
+  )
+  if (begun !== "started") return NOT_INVOKED
 
   const close = (
     outcome: "producer-response" | "producer-failure" | "producer-blocked",
-  ) => invokeProducerAuthorityControl(() => Reflect.apply(
-    controls.close,
-    controls.receiver,
-    [outcome],
-  ))
+  ) => decodeProducerAuthorityClose(
+    invokeProducerAuthorityControl(() => Reflect.apply(
+      controls.close,
+      controls.receiver,
+      [outcome],
+    )),
+  )
   const blockedNotInvoked = (): FlowDocUnifiedIncrementalEvidenceAuthorizedResultV2 => {
     close("producer-blocked")
     return NOT_INVOKED
   }
+  let invalidAuthorityControl = false
+  const charge = (
+    unit: VNextTextBlockTransitionProducerOwnedWorkUnitV2,
+  ): "charged" | "limit-exceeded" | "invalid" => {
+    const decoded = decodeProducerAuthorityCharge(
+      invokeProducerAuthorityControl(() => Reflect.apply(
+        controls.charge,
+        controls.receiver,
+        [unit],
+      )),
+      unit,
+    )
+    if (decoded?.status === "charged") return "charged"
+    if (decoded?.status === "limit-exceeded") return "limit-exceeded"
+    invalidAuthorityControl = true
+    return "invalid"
+  }
   const before = (
     unit: VNextTextBlockTransitionProducerOwnedWorkUnitV2,
-  ): boolean => invokeProducerAuthorityControl(() => Reflect.apply(
-    controls.charge,
-    controls.receiver,
-    [unit],
-  ))?.status === "charged"
+  ): boolean => charge(unit) === "charged"
+
+  if (charge("evidence-producer-descriptors") !== "charged") {
+    return blockedNotInvoked()
+  }
+  let runtimeIdentity: unknown
+  try {
+    if (runtime == null || typeof runtime !== "object") return blockedNotInvoked()
+    const descriptor = Object.getOwnPropertyDescriptor(runtime, "identity")
+    if (
+      descriptor == null
+      || !Object.hasOwn(descriptor, "value")
+      || descriptor.enumerable !== true
+    ) return blockedNotInvoked()
+    runtimeIdentity = descriptor.value
+  } catch {
+    return blockedNotInvoked()
+  }
+  const bound = decodeProducerAuthorityStatus(
+    invokeProducerAuthorityControl(() => Reflect.apply(
+      controls.bindRuntimeIdentity,
+      controls.receiver,
+      [runtimeIdentity],
+    )),
+    ["bound", "rejected"],
+  )
+  if (bound !== "bound") return blockedNotInvoked()
 
   const descriptorMeter: ResponseNodeMeterV2 = {
     limit: Number.MAX_SAFE_INTEGER,
@@ -1164,12 +1339,7 @@ export function createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInter
     descriptorMeter,
   )
   if (snapshot.status !== "accepted") return blockedNotInvoked()
-  const bound = invokeProducerAuthorityControl(() => Reflect.apply(
-    controls.bindRuntimeIdentity,
-    controls.receiver,
-    [snapshot.runtimeIdentity],
-  ))
-  if (bound?.status !== "bound") return blockedNotInvoked()
+  if (snapshot.runtimeIdentity !== runtimeIdentity) return blockedNotInvoked()
 
   const input: UnifiedIncrementalEvidenceInputV2 = {
     ...snapshot.input,
@@ -1211,7 +1381,9 @@ export function createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInter
       work: completedWork(receipt.visitedEvidenceNodeCount),
     })
   }
-  const ceilingFailure = () => finishFailure("work-ceiling-before-visit")
+  const ceilingFailure = () => invalidAuthorityControl
+    ? blockedNotInvoked()
+    : finishFailure("work-ceiling-before-visit")
   const chargeRuntimeInputString = (
     text: string,
   ): "charged" | "ceiling" | "invalid" => {
@@ -1395,8 +1567,10 @@ export function createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInter
     for (const glyph of shape.glyphs) {
       if (glyph.cluster < runEndByte) continue
       if (!before("evidence-guards")) return ceilingFailure()
-      rightGuard ??= glyph
       guardGlyphCount += 1
+      if (rightGuard == null && glyph.cluster === runEndByte) {
+        rightGuard = glyph
+      }
     }
     const leftAtExactBoundary = runStart === partition.start
       || runStart === target.startRenderedUtf16 && runStart === coverageStart

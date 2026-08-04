@@ -284,15 +284,12 @@ function nodeRuntimeForRequest(
 }
 
 function comparable(value: VNextTextBlockTransitionProducerResponseV2) {
-  return {
-    nextEvidenceTargetRange: value.nextEvidenceTargetRange,
-    shapingRuns: value.shapingRuns.map((run) => ({ ...run, shapingRunId: "normalized" })),
-    breakOffsets: value.breakOffsets,
-    shapingBoundaryProofs: value.shapingBoundaryProofs,
-    sourceTopologyFingerprint: value.sourceTopologyFingerprint,
-    work: value.work,
-    contracts: value.contracts,
-  }
+  const {
+    runtimeIdentity: _runtimeIdentity,
+    fingerprint: _fingerprint,
+    ...runtimeIndependentFacts
+  } = value
+  return runtimeIndependentFacts
 }
 
 function rehash<T extends object>(value: T): T & { fingerprint: string } {
@@ -748,6 +745,145 @@ describe("authorized producer execution and factual work V2", () => {
     )
   }
 
+  function controlAuthority(
+    overrides: Partial<VNextTextBlockTransitionProducerInvocationAuthorityV2>,
+  ): VNextTextBlockTransitionProducerInvocationAuthorityV2 {
+    return Object.freeze({ ...successfulLookalike(), ...overrides })
+  }
+
+  function unsortedExactRightGuardRuntime(
+    request: VNextTextBlockTransitionEvidenceRequestV2,
+  ): FlowDocUnifiedIncrementalEvidenceRuntimeV2 {
+    const base = nodeRuntimeForRequest(request)
+    const targetEndLocal = request.next.evidenceTargetRange.endRenderedUtf16
+      - request.next.coverageRange.startRenderedUtf16
+    return {
+      ...base,
+      shapeRange(input) {
+        const facts = base.shapeRange(input)
+        const exact = facts.glyphs.find((glyph) => glyph.cluster === targetEndLocal)
+        if (exact == null) throw new Error("unsorted guard fixture requires exact glyph")
+        const later = facts.glyphs.find((glyph) => glyph.cluster > targetEndLocal)
+        if (later == null) throw new Error("unsorted guard fixture requires a later glyph")
+        const exactUnsafe = { ...exact, unsafeToBreak: true }
+        const laterSafe = { ...later, unsafeToBreak: false }
+        const glyphs = [
+          laterSafe,
+          ...facts.glyphs.filter((glyph) => glyph !== exact && glyph !== later),
+          exactUnsafe,
+        ]
+        return {
+          ...facts,
+          glyphs,
+          summary: {
+            ...facts.summary,
+            glyphCount: glyphs.length,
+            unsafeToBreakGlyphCount: glyphs.filter((glyph) => glyph.unsafeToBreak).length,
+          },
+        }
+      },
+    }
+  }
+
+  it("rejects hostile exact-result shapes from begin, charge, bind, and close without invoking result getters", () => {
+    const bundle = authorizedEvidenceRequestBundle5B2({ insertedText: "X" })
+    const runtime = nodeRuntimeForRequest(bundle.request)
+    let resultGetterCalls = 0
+    let closeProxyOwnKeysCalls = 0
+    const accessorResult = (status: string) => {
+      const result = Object.create(null) as Record<string, unknown>
+      Object.defineProperty(result, "status", {
+        enumerable: true,
+        get() {
+          resultGetterCalls += 1
+          return status
+        },
+      })
+      return result
+    }
+    const invoke = (authority: VNextTextBlockTransitionProducerInvocationAuthorityV2) =>
+      createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+        authority,
+        bundle.request,
+        bundle.sourceMaterial,
+        runtime,
+      )
+
+    const begin = invoke(controlAuthority({
+      begin() {
+        return accessorResult("started") as { readonly status: "started" }
+      },
+    }))
+    const charge = invoke(controlAuthority({
+      charge(unit) {
+        return Object.assign(accessorResult("charged"), {
+          unit,
+          completedWork: 1,
+          effectiveLimit: 8_192,
+        }) as never
+      },
+    }))
+    const bind = invoke(controlAuthority({
+      bindRuntimeIdentity() {
+        return accessorResult("bound") as { readonly status: "bound" }
+      },
+    }))
+    const closeResult = new Proxy({
+      status: "closed" as const,
+      visitedEvidenceNodeCount: 0,
+    }, {
+      ownKeys() {
+        closeProxyOwnKeysCalls += 1
+        throw new Error("close result proxy must be rejected")
+      },
+    })
+    const close = invoke(controlAuthority({
+      charge(unit) {
+        return {
+          status: "limit-exceeded" as const,
+          unit,
+          attemptedWork: 1,
+          completedWork: 0,
+          effectiveLimit: 0,
+        }
+      },
+      close() {
+        return closeResult
+      },
+    }))
+
+    for (const result of [begin, charge, bind, close]) {
+      expect(result).toEqual(notInvoked)
+    }
+    expect(resultGetterCalls).toBe(0)
+    expect(closeProxyOwnKeysCalls).toBe(1)
+  })
+
+  it.each([
+    { label: "rejected", bind: () => ({ status: "rejected" as const }) },
+    { label: "throwing", bind: () => { throw new Error("bind failed") } },
+    { label: "malformed", bind: () => ({ status: "bound" as const, extra: true }) },
+  ])("binds the minimum runtime identity before observing hostile request/material when bind is $label", ({ bind }) => {
+    const bundle = authorizedEvidenceRequestBundle5B2({ insertedText: "X" })
+    const baseRuntime = nodeRuntimeForRequest(bundle.request)
+    const observed: string[] = []
+    const authority = controlAuthority({ bindRuntimeIdentity: bind as never })
+    const runtime = {
+      identity: baseRuntime.identity,
+      shapeRange: baseRuntime.shapeRange,
+      segmentRange: baseRuntime.segmentRange,
+    }
+    const result = createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+      authority,
+      hostilePayload("bind:request", observed) as VNextTextBlockTransitionEvidenceRequestV2,
+      hostilePayload("bind:material", observed) as never,
+      runtime,
+    )
+
+    expect(result).toEqual(notInvoked)
+    expect(observed).toEqual([])
+  })
+
   it("returns one constant not-invoked result for missing, malformed, copied, stale, or cross-tuple authority without payload observation", () => {
     const copiedBundle = authorizedEvidenceRequestBundle5B2({ insertedText: "C" })
     const copied = Object.freeze({ ...copiedBundle.producerInvocationAuthority })
@@ -1026,8 +1162,8 @@ describe("authorized producer execution and factual work V2", () => {
     )
     expect(successfulChargeEvents(recorded.events, "evidence-response-facts"))
       .toHaveLength(14)
-    expect(successfulChargeEvents(recorded.events, "evidence-breaks").length)
-      .toBeGreaterThanOrEqual(result.response.breakOffsets.length)
+    expect(successfulChargeEvents(recorded.events, "evidence-breaks"))
+      .toHaveLength(11)
     const close = recorded.events.at(-1)
     expect(close).toMatchObject({
       control: "close",
@@ -1037,6 +1173,31 @@ describe("authorized producer execution and factual work V2", () => {
     })
     expect(result.response.work.completeNextInputTraversalCount).toBe(0)
     expect(result.response.work.completeNextInputComparisonCount).toBe(0)
+  })
+
+  it("uses the unsafe exact-boundary glyph even when a safe later guard is returned first", () => {
+    const bundle = authorizedEvidenceRequestBundle5B2({ insertedText: "X" })
+    const raw = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({
+      request: bundle.request,
+      sourceMaterial: bundle.sourceMaterial,
+      runtime: unsortedExactRightGuardRuntime(bundle.request),
+    })
+    const authorized =
+      createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+        bundle.producerInvocationAuthority,
+        bundle.request,
+        bundle.sourceMaterial,
+        unsortedExactRightGuardRuntime(bundle.request),
+      )
+
+    expect(raw).toMatchObject({
+      status: "blocked",
+      failure: { code: "unsafe-shaping-boundary" },
+    })
+    expect(authorized).toMatchObject({
+      status: "blocked",
+      failure: { code: "unsafe-shaping-boundary" },
+    })
   })
 
   it("retains the next attempted cluster without clamping or fabricating completed clusters", () => {
@@ -1154,6 +1315,102 @@ describe("authorized producer execution and factual work V2", () => {
     })
   })
 
+  it("retains exact charged facts and producer-failure terminal state when shape runtime throws", () => {
+    const bundle = authorizedEvidenceRequestBundle5B2({ insertedText: "X" })
+    const recorded = recordProducerInvocationAuthority5B2(
+      bundle.producerInvocationAuthority,
+    )
+    const base = nodeRuntimeForRequest(bundle.request)
+    const result = createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+      recorded.authority,
+      bundle.request,
+      bundle.sourceMaterial,
+      {
+        ...base,
+        shapeRange() {
+          throw new Error("shape runtime unavailable")
+        },
+      },
+    )
+
+    expect(result).toMatchObject({
+      status: "blocked",
+      failure: {
+        code: "pinned-font-unavailable",
+        completedWork: {
+          consumedAtomCount: bundle.sourceMaterial.next.atoms.length,
+          consumedClusterCount: 0,
+        },
+      },
+    })
+    if (result.status !== "blocked") return
+    expect(successfulChargeEvents(recorded.events, "evidence-runtime-input-scalars"))
+      .toHaveLength(19)
+    expect(successfulChargeEvents(recorded.events, "evidence-runtime-invocations"))
+      .toHaveLength(1)
+    expect(successfulChargeEvents(recorded.events, "evidence-glyphs"))
+      .toHaveLength(0)
+    expect(successfulChargeEvents(recorded.events, "evidence-response-facts"))
+      .toHaveLength(9)
+    expect(recorded.events.at(-1)).toMatchObject({
+      control: "close",
+      outcome: "producer-failure",
+      status: "closed",
+      visitedEvidenceNodeCount: result.failure.completedWork.visitedEvidenceNodeCount,
+    })
+  })
+
+  it("retains completed shape facts and producer-failure terminal state when segment runtime throws", () => {
+    const bundle = authorizedEvidenceRequestBundle5B2({ insertedText: "X" })
+    const recorded = recordProducerInvocationAuthority5B2(
+      bundle.producerInvocationAuthority,
+    )
+    const base = nodeRuntimeForRequest(bundle.request)
+    const result = createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+      recorded.authority,
+      bundle.request,
+      bundle.sourceMaterial,
+      {
+        ...base,
+        segmentRange() {
+          throw new Error("segment runtime unavailable")
+        },
+      },
+    )
+
+    expect(result).toMatchObject({
+      status: "blocked",
+      failure: {
+        code: "segmentation-not-stable",
+        completedWork: {
+          consumedAtomCount: bundle.sourceMaterial.next.atoms.length,
+          consumedClusterCount: 1,
+        },
+      },
+    })
+    if (result.status !== "blocked") return
+    expect(successfulChargeEvents(recorded.events, "evidence-runtime-input-scalars"))
+      .toHaveLength(23)
+    expect(successfulChargeEvents(recorded.events, "evidence-runtime-invocations"))
+      .toHaveLength(2)
+    expect(successfulChargeEvents(recorded.events, "evidence-glyphs"))
+      .toHaveLength(3)
+    expect(successfulChargeEvents(recorded.events, "evidence-guards"))
+      .toHaveLength(2)
+    expect(successfulChargeEvents(recorded.events, "evidence-clusters"))
+      .toHaveLength(1)
+    expect(successfulChargeEvents(recorded.events, "evidence-proof-facts"))
+      .toHaveLength(1)
+    expect(successfulChargeEvents(recorded.events, "evidence-response-facts"))
+      .toHaveLength(9)
+    expect(recorded.events.at(-1)).toMatchObject({
+      control: "close",
+      outcome: "producer-failure",
+      status: "closed",
+      visitedEvidenceNodeCount: result.failure.completedWork.visitedEvidenceNodeCount,
+    })
+  })
+
   it("keeps authorized Node and WASM detached responses equal with zero complete-next counters", () => {
     const nodeBundle = authorizedEvidenceRequestBundle5B2({ insertedText: "X" })
     const wasmBundle = authorizedEvidenceRequestBundle5B2({ insertedText: "X" })
@@ -1189,6 +1446,17 @@ describe("authorized producer execution and factual work V2", () => {
     ).toBe("accepted")
     if (nodeResult.status !== "accepted" || wasmResult.status !== "accepted") return
     expect(comparable(nodeResult.response)).toEqual(comparable(wasmResult.response))
+    const firstProof = wasmResult.response.segmentationBoundaryProofs[0]!
+    const divergentResponse = {
+      ...wasmResult.response,
+      segmentationBoundaryProofs: [{
+        ...firstProof,
+        contextBreakCount: firstProof.contextBreakCount + 1,
+      }, ...wasmResult.response.segmentationBoundaryProofs.slice(1)],
+    }
+    expect(comparable(nodeResult.response)).not.toEqual(
+      comparable(divergentResponse),
+    )
     expect(nodeResult.response.work).toMatchObject({
       completeNextInputTraversalCount: 0,
       completeNextInputComparisonCount: 0,
