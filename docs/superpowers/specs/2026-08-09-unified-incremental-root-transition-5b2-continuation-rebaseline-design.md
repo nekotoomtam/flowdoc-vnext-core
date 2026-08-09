@@ -2,7 +2,8 @@
 
 **Date:** 2026-08-09
 
-**Status:** Written umbrella design awaiting final user review
+**Status:** Umbrella design approved; Source-position amendment awaiting
+written review
 
 **Scope:** Remaining Core-only Phase 5B-2 work after the accepted Producer
 Invocation Authority Boundary 5B-2A checkpoint
@@ -297,6 +298,79 @@ source-style-entries
 Refcount observation/emission belongs to `source-style-entries`; copied Source
 paths belong to `source-tree-path-copy-nodes`. No duplicate alias counter is
 introduced.
+
+#### Source physical-index position amendment
+
+The Source physical index must not store an absolute rendered UTF-16 offset as
+the retained entry's position authority. An insertion before a retained suffix
+would otherwise require updating every suffix entry.
+
+Plan A uses two coupled private persistent roots:
+
+- an identity root keyed by exact `inlineId`, item-kind ordinal, and the
+  process-local Source position key; and
+- a Source-order root keyed by that position key with subtree item-count and
+  rendered-UTF-16-length summaries.
+
+An identity lookup returns the exact physical entry and position key. A bounded
+Source-order lookup derives the current absolute rendered range by accumulating
+prefix summaries. Retained suffix entries and subtrees keep exact identity and
+require no offset rewrite.
+
+The position key policy is task-specific and versioned:
+
+```ts
+const VNEXT_TEXT_BLOCK_SOURCE_POSITION_KEY_POLICY_INTERNAL_V1 = Object.freeze({
+  version: 1 as const,
+  initialStride: 4_294_967_296 as const,
+  representation: "signed-safe-integer" as const,
+  batchAllocation: "canonical-even-interior" as const,
+})
+```
+
+For zero-based ordinal `index` in `itemCount`, complete construction uses the
+exact formula:
+
+```math
+key = (2 * index - (itemCount - 1)) * 2_147_483_648
+```
+
+Adjacent complete keys therefore differ by the exact initial stride and the
+complete key set is centered around zero.
+
+For a local batch of `count` entries, the allocator selects `count` strictly
+increasing safe integers inside neighboring keys `left` and `right` with the
+mathematical formula
+`floor(left + (right - left) * (index + 1) / (count + 1))`. Every result must be
+strictly inside the interval and distinct. With no left neighbor, the exact
+virtual left boundary is `right - initialStride * (count + 1)`; with no right
+neighbor, the exact virtual right boundary is
+`left + initialStride * (count + 1)`. Intermediate arithmetic may use private
+constant-count `bigint` operations, but every boundary and emitted key must fit
+the JavaScript safe-integer range.
+
+The allocator checks `source-index-entries` before emitting each key and
+`source-index-comparisons` before reading/comparing a neighboring or candidate
+key. The exact position-key entries and sidecar roots participate only in
+process-local authority. Sidecar fingerprints are integrity facts and cannot
+substitute for exact roots or entries. None of these facts enters Source
+canonical facts, Root/Scene semantic identity, delivery, fallback material, or
+public JSON.
+
+If the exact interval cannot hold the requested batch, or a boundary extension
+would leave the safe-integer range, the Source owner returns candidate-free
+`source-position-key-space-exhausted` authority with factual attempted and
+completed work. It does not relabel the cause as a work limit and does not
+relabel/rewrite retained suffix keys. Plan D later maps that exact authority to
+the two-step complete-fallback protocol; the shared complete builder compacts
+keys independently.
+
+Rejected alternatives are:
+
+- retained absolute offsets, because they require suffix rewrites;
+- a history-depth delta chain, because lookup cost grows with transitions; and
+- variable-length fractional keys, because they introduce unbounded key-scalar
+  work and framework-like complexity not owned by the reserved catalog.
 
 ### Plan B Flow, Break, and Spatial
 
