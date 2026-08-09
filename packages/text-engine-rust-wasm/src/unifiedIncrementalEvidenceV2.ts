@@ -37,6 +37,12 @@ export type FlowDocUnifiedIncrementalEvidenceResultV2 =
 export type FlowDocUnifiedIncrementalEvidenceAuthorizedResultV2 =
   | FlowDocUnifiedIncrementalEvidenceResultV2
   | {
+      readonly status: "work-limit"
+      readonly response: null
+      readonly failure: null
+      readonly issues: readonly []
+    }
+  | {
       readonly status: "not-invoked"
       readonly response: null
       readonly failure: null
@@ -51,6 +57,14 @@ const NOT_INVOKED: FlowDocUnifiedIncrementalEvidenceAuthorizedResultV2 =
     issues: Object.freeze([
       "missing-or-mismatched-invocation-authority",
     ] as const),
+  })
+
+const WORK_LIMIT: FlowDocUnifiedIncrementalEvidenceAuthorizedResultV2 =
+  Object.freeze({
+    status: "work-limit" as const,
+    response: null,
+    failure: null,
+    issues: Object.freeze([] as const),
   })
 
 const CONTRACTS: VNextTextBlockTransitionProducerContractsV2 = Object.freeze({
@@ -831,6 +845,10 @@ export function createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
     close("producer-blocked")
     return NOT_INVOKED
   }
+  const blockedWorkLimit = (): FlowDocUnifiedIncrementalEvidenceAuthorizedResultV2 => {
+    const receipt = close("producer-blocked")
+    return receipt?.status === "closed" ? WORK_LIMIT : NOT_INVOKED
+  }
   let invalidAuthorityControl = false
   const charge = (
     unit: VNextTextBlockTransitionProducerOwnedWorkUnitV2,
@@ -852,8 +870,11 @@ export function createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
     unit: VNextTextBlockTransitionProducerOwnedWorkUnitV2,
   ): boolean => charge(unit) === "charged"
 
-  if (charge("evidence-producer-descriptors") !== "charged") {
-    return blockedNotInvoked()
+  const initialDescriptorCharge = charge("evidence-producer-descriptors")
+  if (initialDescriptorCharge !== "charged") {
+    return initialDescriptorCharge === "limit-exceeded"
+      ? blockedWorkLimit()
+      : blockedNotInvoked()
   }
   let runtimeIdentity: unknown
   try {
@@ -893,6 +914,7 @@ export function createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
     runtime,
     descriptorMeter,
   )
+  if (snapshot.status === "ceiling") return blockedWorkLimit()
   if (snapshot.status !== "accepted") return blockedNotInvoked()
   if (snapshot.runtimeIdentity !== runtimeIdentity) return blockedNotInvoked()
 
@@ -927,7 +949,9 @@ export function createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
   const finishFailure = (
     code: VNextTextBlockTransitionProducerFailureCodeV2,
   ): FlowDocUnifiedIncrementalEvidenceAuthorizedResultV2 => {
-    if (!emitTopLevelFacts(9)) return blockedNotInvoked()
+    if (!emitTopLevelFacts(9)) {
+      return invalidAuthorityControl ? blockedNotInvoked() : blockedWorkLimit()
+    }
     const receipt = close("producer-failure")
     if (receipt?.status !== "closed") return NOT_INVOKED
     return failure({
@@ -1386,7 +1410,9 @@ export function createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
     ...shapingBoundaryProofs.map((proof) => proof.verificationRange),
     ...consumedSegmentationContextRanges,
   ])
-  if (!emitTopLevelFacts(14)) return blockedNotInvoked()
+  if (!emitTopLevelFacts(14)) {
+    return invalidAuthorityControl ? blockedNotInvoked() : blockedWorkLimit()
+  }
   const receipt = close("producer-response")
   if (receipt?.status !== "closed") return NOT_INVOKED
   const work = completedWork(receipt.visitedEvidenceNodeCount)

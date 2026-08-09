@@ -466,6 +466,53 @@ describe("Text-block unified transition preflight V2", () => {
     })
   })
 
+  it("stops at each Core material-descriptor boundary before emitting the next material envelope", () => {
+    for (const row of [
+      { limit: 0, completed: 0, status: "fallback-required" },
+      { limit: 1, completed: 1, status: "fallback-required" },
+      { limit: 2, completed: 2, status: "fallback-required" },
+      { limit: 3, completed: 3, status: "required" },
+    ] as const) {
+      const workPolicy =
+        createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({
+          "evidence-material-descriptors": row.limit,
+        })
+      const previousRoot = admitted5B2AuthorityRootFixture({ policy: workPolicy })
+      const change = insertionAt(previousRoot, 0, "X")
+      const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+        previousRoot,
+        change,
+        workPolicy,
+      })
+
+      expect(result.status, `limit ${row.limit}`).toBe(row.status)
+      expect(result.completedCandidateWork.stageWork.find((candidate) =>
+        candidate.stage === "evidence"
+        && candidate.unit === "evidence-material-descriptors"
+      )?.count, `completed at limit ${row.limit}`).toBe(row.completed)
+      if (result.status === "fallback-required") {
+        expect(getVNextTextBlockTransitionPreflightFailureAuthorityRecordInternalV2(
+          result.evaluatorOrProofAuthority,
+        ), `terminal at limit ${row.limit}`).toMatchObject({
+          previousRoot,
+          change,
+          workPolicy,
+          unit: "evidence-material-descriptors",
+          attemptedWork: row.limit + 1,
+          completedWork: row.limit,
+          effectiveLimit: row.limit,
+        })
+      } else if (result.status === "required") {
+        expect(result.request.source).toBe(
+          "vnext-text-block-transition-evidence-request-v2",
+        )
+        expect(result.sourceMaterial.source).toBe(
+          "vnext-text-block-transition-producer-source-material-v2",
+        )
+      }
+    }
+  })
+
   it("attributes an authority-policy structural fallback to the request descriptor lane", () => {
     const workPolicy =
       createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({})

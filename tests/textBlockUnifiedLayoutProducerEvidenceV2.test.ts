@@ -658,7 +658,12 @@ describe("authorized producer execution and factual work V2", () => {
           bundle.sourceMaterial,
           runtime,
         )
-      expect(result).toEqual(notInvoked)
+      expect(result).toEqual({
+        status: "work-limit",
+        response: null,
+        failure: null,
+        issues: [],
+      })
     } finally {
       ownKeys.mockRestore()
       descriptor.mockRestore()
@@ -695,6 +700,259 @@ describe("authorized producer execution and factual work V2", () => {
         effectiveLimit: 0,
       },
       visitedEvidenceNodeCount: 0,
+    })
+  })
+
+  it("does not recursively enumerate untouched frozen Root dependencies while retaining the request tuple", () => {
+    const root = textRoot("ABCD")
+    if (root.sourceState.root.nodeKind !== "leaf") {
+      throw new Error("retained-graph fixture requires one Source leaf")
+    }
+    const item = root.sourceState.root.items.find((candidate) => candidate.kind === "text")
+    if (item?.kind !== "text") throw new Error("retained-graph fixture requires text")
+    const change = frozen({
+      source: "vnext-text-block-unified-layout-change-v1" as const,
+      contractVersion: 1 as const,
+      kind: "text-insertion" as const,
+      documentId: root.documentId,
+      sectionId: root.sectionId,
+      textBlockId: root.textBlockId,
+      expectedPreviousRootFingerprint: root.fingerprint,
+      expectedPreviousSourceFingerprint: root.sourceState.fingerprint,
+      atRenderedUtf16: 1,
+      insertedText: "X",
+      insertedSource: {
+        lineageId: "retained-graph-insert",
+        sourceFingerprint: "retained-graph-source",
+        provenanceFingerprint: "retained-graph-provenance",
+      },
+      measurementStyleKey: item.style.measurementStyleKey,
+      effectiveShapingStyleKey: item.style.effectiveShapingStyleKey,
+    })
+    const watched = new Map<object, string>([
+      [root.sourceState, "Source"],
+      [root.sourceState.root, "Source root"],
+      [root.lineTree, "line tree"],
+      [root.lineTree.root, "line-tree root"],
+      [root.persistentScene, "Scene"],
+      [root.persistentScene.root, "Scene root"],
+    ])
+    const observed: string[] = []
+    const originalOwnKeys = Reflect.ownKeys
+    const ownKeys = vi.spyOn(Reflect, "ownKeys").mockImplementation((target) => {
+      const label = watched.get(target)
+      if (label != null) observed.push(label)
+      return originalOwnKeys(target)
+    })
+    let result: ReturnType<
+      typeof createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV2
+    >
+    try {
+      result = createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV2({
+        previousRoot: root,
+        change,
+      })
+    } finally {
+      ownKeys.mockRestore()
+    }
+
+    expect(result.status).toBe("required")
+    expect(observed).toEqual([])
+  })
+
+  it("stops every producer-owned row at its first denied operation before later observation or emission", () => {
+    const rows = [
+      { unit: "evidence-producer-descriptors", runtimeCalls: 0, outcome: "producer-blocked", status: "work-limit" },
+      { unit: "evidence-runtime-input-scalars", runtimeCalls: 0, outcome: "producer-failure", status: "blocked" },
+      { unit: "evidence-runtime-invocations", runtimeCalls: 0, outcome: "producer-failure", status: "blocked" },
+      { unit: "evidence-glyphs", runtimeCalls: 1, outcome: "producer-failure", status: "blocked" },
+      { unit: "evidence-clusters", runtimeCalls: 1, outcome: "producer-failure", status: "blocked" },
+      { unit: "evidence-guards", runtimeCalls: 1, outcome: "producer-failure", status: "blocked" },
+      { unit: "evidence-proof-facts", runtimeCalls: 1, outcome: "producer-failure", status: "blocked" },
+      { unit: "evidence-breaks", runtimeCalls: 2, outcome: "producer-failure", status: "blocked" },
+      { unit: "evidence-response-facts", runtimeCalls: 3, outcome: "producer-blocked", status: "work-limit" },
+    ] as const
+
+    for (const row of rows) {
+      const policy =
+        createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({
+          [row.unit]: 0,
+        })
+      const bundle = authorizedEvidenceRequestBundle5B2({
+        policy,
+        insertedText: "X",
+      })
+      const runtimeEvents: string[] = []
+      const recorded = recordProducerInvocationAuthority5B2(
+        bundle.producerInvocationAuthority,
+        runtimeEvents,
+      )
+      const result = createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
+        recorded.authority,
+        bundle.request,
+        bundle.sourceMaterial,
+        nodeRuntimeForRequest(bundle.request, runtimeEvents),
+      )
+
+      expect(result.status, row.unit).toBe(row.status)
+      expect(runtimeEvents.filter((event) => event.startsWith("runtime:")), row.unit)
+        .toHaveLength(row.runtimeCalls)
+      expect(successfulChargeEvents(recorded.events, row.unit), row.unit)
+        .toHaveLength(0)
+      expect(recorded.events).toContainEqual({
+        control: "charge",
+        status: "limit-exceeded",
+        unit: row.unit,
+        attemptedWork: 1,
+        completedWork: 0,
+        effectiveLimit: 0,
+      })
+      expect(recorded.events.at(-1), row.unit).toMatchObject({
+        control: "close",
+        outcome: row.outcome,
+        status: "closed",
+      })
+      expect(inspectVNextTextBlockTransitionProducerInvocationAuthorityInternalV2(
+        bundle.producerInvocationAuthority,
+      ), row.unit).toMatchObject({
+        terminalOutcome: row.outcome,
+        firstFailedEvaluation: {
+          unit: row.unit,
+          attemptedWork: 1,
+          completedWork: 0,
+          effectiveLimit: 0,
+        },
+      })
+    }
+  }, 30_000)
+
+  it("stops repeated runtime and proof rows at later owner boundaries before the next operation", () => {
+    const rows = [
+      { unit: "evidence-runtime-input-scalars", limit: 19, attempted: 20, runtimeCalls: 1 },
+      { unit: "evidence-runtime-invocations", limit: 1, attempted: 2, runtimeCalls: 1 },
+      { unit: "evidence-proof-facts", limit: 1, attempted: 2, runtimeCalls: 2 },
+    ] as const
+
+    for (const row of rows) {
+      const policy =
+        createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({
+          [row.unit]: row.limit,
+        })
+      const bundle = authorizedEvidenceRequestBundle5B2({
+        policy,
+        insertedText: "X",
+      })
+      const runtimeEvents: string[] = []
+      const recorded = recordProducerInvocationAuthority5B2(
+        bundle.producerInvocationAuthority,
+        runtimeEvents,
+      )
+      const result = createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
+        recorded.authority,
+        bundle.request,
+        bundle.sourceMaterial,
+        nodeRuntimeForRequest(bundle.request, runtimeEvents),
+      )
+
+      expect(result.status, row.unit).toBe("blocked")
+      expect(runtimeEvents.filter((event) => event.startsWith("runtime:")), row.unit)
+        .toHaveLength(row.runtimeCalls)
+      expect(successfulChargeEvents(recorded.events, row.unit), row.unit)
+        .toHaveLength(row.limit)
+      expect(recorded.events).toContainEqual({
+        control: "charge",
+        status: "limit-exceeded",
+        unit: row.unit,
+        attemptedWork: row.attempted,
+        completedWork: row.limit,
+        effectiveLimit: row.limit,
+      })
+    }
+  }, 30_000)
+
+  it("emits no detached failure when its charged producer failure cannot emit response facts", () => {
+    const policy =
+      createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({
+        "evidence-runtime-invocations": 0,
+        "evidence-response-facts": 0,
+      })
+    const bundle = authorizedEvidenceRequestBundle5B2({
+      policy,
+      insertedText: "X",
+    })
+    const runtimeEvents: string[] = []
+    const recorded = recordProducerInvocationAuthority5B2(
+      bundle.producerInvocationAuthority,
+      runtimeEvents,
+    )
+    const result = createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
+      recorded.authority,
+      bundle.request,
+      bundle.sourceMaterial,
+      nodeRuntimeForRequest(bundle.request, runtimeEvents),
+    )
+
+    expect(result).toEqual({
+      status: "work-limit",
+      response: null,
+      failure: null,
+      issues: [],
+    })
+    expect(runtimeEvents.filter((event) => event.startsWith("runtime:")))
+      .toEqual([])
+    expect(successfulChargeEvents(recorded.events, "evidence-response-facts"))
+      .toHaveLength(0)
+    expect(recorded.events.at(-1)).toMatchObject({
+      control: "close",
+      outcome: "producer-blocked",
+      status: "closed",
+    })
+    expect(inspectVNextTextBlockTransitionProducerInvocationAuthorityInternalV2(
+      bundle.producerInvocationAuthority,
+    )).toMatchObject({
+      terminalOutcome: "producer-blocked",
+      firstFailedEvaluation: {
+        unit: "evidence-runtime-invocations",
+        attemptedWork: 1,
+        completedWork: 0,
+        effectiveLimit: 0,
+      },
+    })
+  })
+
+  it("stops before observing the first hard-break emission when the break row is denied", () => {
+    const policy =
+      createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({
+        "evidence-breaks": 0,
+      })
+    const root = admitted5B2HardBreakRootFixture(policy)
+    const { bundle } = insertionBundleForRoot(root, 3, "X")
+    expect(bundle.sourceMaterial.next.atoms.some((atom) => atom.kind === "hard-break"))
+      .toBe(true)
+    const recorded = recordProducerInvocationAuthority5B2(
+      bundle.producerInvocationAuthority,
+    )
+    const result = createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
+      recorded.authority,
+      bundle.request,
+      bundle.sourceMaterial,
+      nodeRuntimeForRequest(bundle.request),
+    )
+
+    expect(result).toMatchObject({
+      status: "blocked",
+      response: null,
+      failure: { code: "work-ceiling-before-visit" },
+    })
+    expect(successfulChargeEvents(recorded.events, "evidence-breaks"))
+      .toHaveLength(0)
+    expect(recorded.events).toContainEqual({
+      control: "charge",
+      status: "limit-exceeded",
+      unit: "evidence-breaks",
+      attemptedWork: 1,
+      completedWork: 0,
+      effectiveLimit: 0,
     })
   })
 

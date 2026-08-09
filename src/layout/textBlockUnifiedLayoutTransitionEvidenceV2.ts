@@ -42,12 +42,16 @@ function fingerprint(value: unknown): string {
 }
 
 function freeze<T>(value: T): T {
-  if (value != null && typeof value === "object") {
+  if (
+    value != null
+    && typeof value === "object"
+    && !Object.isFrozen(value)
+  ) {
     for (const key of Reflect.ownKeys(value)) {
       const descriptor = Object.getOwnPropertyDescriptor(value, key)
       if (descriptor != null && Object.hasOwn(descriptor, "value")) freeze(descriptor.value)
     }
-    if (!Object.isFrozen(value)) Object.freeze(value)
+    Object.freeze(value)
   }
   return value
 }
@@ -493,19 +497,33 @@ function trustedFailureProducerWork(
   })
 }
 
-function isExactZeroDescriptorProducerBlockedTerminal(
+function isExactProducerWorkLimitBlockedTerminal(
   terminal: Readonly<AuthorityRecordSnapshotV2>,
 ): boolean {
   const failed = terminal.firstFailedEvaluation
-  return terminal.terminalOutcome === "producer-blocked"
-    && terminal.runtimeIdentity == null
-    && terminal.completedWork.length === 0
-    && terminal.visitedEvidenceNodeCount === 0
-    && failed != null
-    && failed.unit === "evidence-producer-descriptors"
-    && failed.attemptedWork === 1
-    && failed.completedWork === 0
-    && failed.effectiveLimit === 0
+  if (
+    terminal.terminalOutcome !== "producer-blocked"
+    || failed == null
+    || failed.attemptedWork !== failed.completedWork + 1
+    || failed.effectiveLimit !== failed.completedWork
+    || producerCompletedCount(terminal, failed.unit) !== failed.completedWork
+    || terminal.completedWork.some((row) =>
+      !Number.isSafeInteger(row.completedWork) || row.completedWork <= 0
+    )
+    || terminal.visitedEvidenceNodeCount !== terminal.completedWork.reduce(
+      (sum, row) => sum + row.completedWork,
+      0,
+    )
+  ) return false
+  if (terminal.runtimeIdentity == null) {
+    return failed.unit === "evidence-producer-descriptors"
+      && failed.completedWork === 0
+      && terminal.completedWork.length === 0
+      && terminal.visitedEvidenceNodeCount === 0
+  }
+  return hasRegisteredVNextTextBlockTransitionProducerRuntimeIdentityInternalV2(
+    terminal.runtimeIdentity,
+  )
 }
 
 function trustedResponseProducerWork(
@@ -2059,20 +2077,12 @@ function validateAuthorizedFailure(
 ): AuthorizedFailureValidationV2 {
   const trustedWork = trustedFailureProducerWork(terminal)
   if (terminal.terminalOutcome === "producer-blocked") {
-    const failed = terminal.firstFailedEvaluation
     const compared = failureValidationResult(
       runAuthorizedComparisons(meter, [
         () => value == null,
-        () => terminal.runtimeIdentity == null,
-        () => terminal.completedWork.length === 0,
-        () => terminal.visitedEvidenceNodeCount === 0,
-        () => failed != null,
-        () => failed?.unit === "evidence-producer-descriptors",
-        () => failed?.attemptedWork === 1,
-        () => failed?.completedWork === 0,
-        () => failed?.effectiveLimit === 0,
+        () => isExactProducerWorkLimitBlockedTerminal(terminal),
       ]),
-      "producer-blocked terminal is not the exact zero-descriptor ceiling",
+      "producer-blocked terminal is not an exact producer work-limit ceiling",
     )
     return compared ?? { status: "accepted", failure: null, work: trustedWork }
   }
@@ -2481,13 +2491,13 @@ export function acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureIntern
   if (context.status === "ceiling") {
     if (
       context.terminal.terminalOutcome === "producer-blocked"
-      && !isExactZeroDescriptorProducerBlockedTerminal(context.terminal)
+      && !isExactProducerWorkLimitBlockedTerminal(context.terminal)
     ) {
       return authorizedFailureBlocked(
         context.tuple,
         context.terminal,
         context.meter,
-        "producer-blocked terminal is not the exact zero-descriptor ceiling",
+        "producer-blocked terminal is not an exact producer work-limit ceiling",
         trustedFailureProducerWork(context.terminal),
       )
     }
@@ -2496,7 +2506,9 @@ export function acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureIntern
       context.terminal,
       context.meter,
       trustedFailureProducerWork(context.terminal),
-      "acceptance-work-limit",
+      context.terminal.terminalOutcome === "producer-blocked"
+        ? "producer-work-limit"
+        : "acceptance-work-limit",
       context.terminal.terminalOutcome === "producer-blocked"
         ? "work-ceiling-before-visit"
         : null,
@@ -2519,13 +2531,13 @@ export function acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureIntern
   if (validation.status === "ceiling") {
     if (
       context.terminal.terminalOutcome === "producer-blocked"
-      && !isExactZeroDescriptorProducerBlockedTerminal(context.terminal)
+      && !isExactProducerWorkLimitBlockedTerminal(context.terminal)
     ) {
       return authorizedFailureBlocked(
         context.tuple,
         context.terminal,
         context.meter,
-        "producer-blocked terminal is not the exact zero-descriptor ceiling",
+        "producer-blocked terminal is not an exact producer work-limit ceiling",
         trustedFailureProducerWork(context.terminal),
       )
     }
@@ -2534,7 +2546,9 @@ export function acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureIntern
       context.terminal,
       context.meter,
       trustedFailureProducerWork(context.terminal),
-      "acceptance-work-limit",
+      context.terminal.terminalOutcome === "producer-blocked"
+        ? "producer-work-limit"
+        : "acceptance-work-limit",
       context.terminal.terminalOutcome === "producer-blocked"
         ? "work-ceiling-before-visit"
         : null,

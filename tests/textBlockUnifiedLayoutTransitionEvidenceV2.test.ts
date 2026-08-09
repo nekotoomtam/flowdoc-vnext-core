@@ -10,12 +10,14 @@ import {
 import {
   acceptVNextTextBlockUnifiedLayoutProducerFailureV2,
   acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2,
+  createVNextTextBlockTransitionProducerRuntimeIdentityInternalV2,
   hasVNextTextBlockUnifiedLayoutTransitionEvidenceBindingInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV2.js"
 import * as transitionEvidenceV2Internals from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV2.js"
 import { createVNextCompactFingerprint } from "../src/fingerprint/compactFingerprint.js"
 import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
 import {
+  authorizedEvidenceRequestBundle5B2,
   authorizedProducerTerminalFixture5B2 as authorizedFixture,
 } from "./helpers/textBlockUnifiedIncremental5b2.js"
 import {
@@ -999,9 +1001,10 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
       limits: { "evidence-producer-descriptors": 0 },
     })
     expect(fixture.result).toMatchObject({
-      status: "not-invoked",
+      status: "work-limit",
       response: null,
       failure: null,
+      issues: [],
     })
     const terminal = inspectVNextTextBlockTransitionProducerInvocationAuthorityInternalV2(
       fixture.producerInvocationAuthority,
@@ -1089,7 +1092,7 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     })
   })
 
-  it("blocks a late producer-blocked terminal before acceptance fallback and retains its exact producer rows", () => {
+  it("accepts an exact late response-fact ceiling as a candidate-free producer work-limit fallback", () => {
     const fixture = authorizedFixture({
       insertedText: "LateProducerBlocked",
       limits: {
@@ -1098,9 +1101,10 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
       },
     })
     expect(fixture.result).toMatchObject({
-      status: "not-invoked",
+      status: "work-limit",
       response: null,
       failure: null,
+      issues: [],
     })
     const terminal =
       inspectVNextTextBlockTransitionProducerInvocationAuthorityInternalV2(
@@ -1133,14 +1137,15 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
       })
 
     expect(accepted).toMatchObject({
-      status: "blocked",
-      evaluatorOrProofAuthority: null,
+      status: "fallback-required",
+      evaluatorOrProofAuthority: expect.any(Object),
       completedCandidateWork: {
         evidence: {
           consumedAtomCount: fixture.sourceMaterial.next.atoms.length,
           consumedClusterCount: exactClusterCount,
         },
       },
+      issues: [],
     })
     expect(workCount(
       accepted.completedCandidateWork,
@@ -1149,7 +1154,80 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     expect(workCount(
       accepted.completedCandidateWork,
       "evidence-acceptance-registrations",
-    )).toBe(0)
+    )).toBe(1)
+    if (accepted.status === "fallback-required") {
+      expect(getAuthorizedFallbackRecord(
+        accepted.evaluatorOrProofAuthority,
+      )).toMatchObject({
+        terminal: {
+          state: "acceptance-consumed",
+          terminalOutcome: "producer-blocked",
+          firstFailedEvaluation: {
+            unit: "evidence-response-facts",
+            attemptedWork: 1,
+            completedWork: 0,
+            effectiveLimit: 0,
+          },
+        },
+        failureKind: "producer-work-limit",
+        producerFailureCode: "work-ceiling-before-visit",
+        producerWork: {
+          consumedAtomCount: fixture.sourceMaterial.next.atoms.length,
+          consumedClusterCount: exactClusterCount,
+          visitedEvidenceNodeCount: terminal?.visitedEvidenceNodeCount,
+          completeNextInputTraversalCount: 0,
+          completeNextInputComparisonCount: 0,
+        },
+      })
+    }
+  })
+
+  it("rejects an exact exceptional producer-blocked close that has no failed work evaluation", () => {
+    const bundle = authorizedEvidenceRequestBundle5B2({
+      insertedText: "ExceptionalBlocked",
+    })
+    const runtimeIdentity =
+      createVNextTextBlockTransitionProducerRuntimeIdentityInternalV2({
+        runtime: "node-native-mr1-range",
+        engineBuildFingerprint: "engine-exceptional-blocked",
+        fontBackendFingerprint: "font-exceptional-blocked",
+        unitPolicyFingerprint: bundle.request.layoutUnitPolicyFingerprint,
+        fontStyleUnitDependencyFingerprint:
+          bundle.request.fontStyleUnitDependencyFingerprint,
+        producerRuntimeRequirementFingerprint:
+          bundle.request.producerRuntimeRequirementFingerprint,
+      })
+    expect(bundle.producerInvocationAuthority.begin(
+      bundle.request,
+      bundle.sourceMaterial,
+    )).toEqual({ status: "started" })
+    expect(bundle.producerInvocationAuthority.charge(
+      "evidence-producer-descriptors",
+    )).toMatchObject({
+      status: "charged",
+      unit: "evidence-producer-descriptors",
+      completedWork: 1,
+    })
+    expect(bundle.producerInvocationAuthority.bindRuntimeIdentity(
+      runtimeIdentity,
+    )).toEqual({ status: "bound" })
+    expect(bundle.producerInvocationAuthority.close("producer-blocked"))
+      .toEqual({ status: "closed", visitedEvidenceNodeCount: 1 })
+
+    const accepted = acceptVNextTextBlockUnifiedLayoutProducerFailureV2({
+      previousRoot: bundle.root,
+      change: bundle.change,
+      request: bundle.request,
+      sourceMaterial: bundle.sourceMaterial,
+      producerInvocationAuthority: bundle.producerInvocationAuthority,
+      producerRuntimeIdentity: runtimeIdentity,
+      failure: null,
+    })
+
+    expect(accepted).toMatchObject({
+      status: "blocked",
+      evaluatorOrProofAuthority: null,
+    })
   })
 
   it("retains consumed atoms when a late runtime-output descriptor ceiling becomes producer-blocked", () => {
@@ -1173,9 +1251,10 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
       },
     })
     expect(fixture.result).toMatchObject({
-      status: "not-invoked",
+      status: "work-limit",
       response: null,
       failure: null,
+      issues: [],
     })
     const terminal =
       inspectVNextTextBlockTransitionProducerInvocationAuthorityInternalV2(
@@ -1210,8 +1289,8 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
       })
 
     expect(accepted).toMatchObject({
-      status: "blocked",
-      evaluatorOrProofAuthority: null,
+      status: "fallback-required",
+      evaluatorOrProofAuthority: expect.any(Object),
       completedCandidateWork: {
         evidence: {
           consumedAtomCount: fixture.sourceMaterial.next.atoms.length,
@@ -1222,7 +1301,7 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     expect(workCount(
       accepted.completedCandidateWork,
       "evidence-acceptance-registrations",
-    )).toBe(0)
+    )).toBe(1)
   })
 
   it("blocks exact producer failure when its fallback registration is denied", () => {

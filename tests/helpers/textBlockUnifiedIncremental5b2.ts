@@ -514,11 +514,11 @@ function accepted5B2RootFromCompleteText(input: {
     readonly bottom: number
     readonly left: number
   }
-}) {
+}, policy: VNextTextBlockUnifiedLayoutWorkPolicyV1 = FIVE_B2_TEST_POLICY) {
   const fixture = acceptedCompleteText5B2SourceFixture(input)
   const prepared = prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2(
     fixture.buildInput,
-    FIVE_B2_TEST_POLICY,
+    policy,
     "complete-bootstrap",
   )
   if (prepared.status !== "prepared") {
@@ -532,11 +532,13 @@ function accepted5B2RootFromCompleteText(input: {
   return { root: admit5B2RootFixture(prepared.root), textBlock: fixture.textBlock }
 }
 
-export function admitted5B2HardBreakRootFixture() {
+export function admitted5B2HardBreakRootFixture(
+  policy: VNextTextBlockUnifiedLayoutWorkPolicyV1 = FIVE_B2_TEST_POLICY,
+) {
   return accepted5B2RootFromCompleteText({
     outerWidthPt: 100,
     paddingPt: { top: 2, right: 5, bottom: 2, left: 5 },
-  }).root
+  }, policy).root
 }
 
 export function admitted5B2NondefaultAutoHeightRootFixture() {
