@@ -23,6 +23,7 @@ import {
 import {
   admit5B2RootFixture,
   admitted5B2AuthorityRootFixture,
+  unrestrictedSourceCoveragePermits5B2,
 } from "./helpers/textBlockUnifiedIncremental5b2.js"
 import {
   repeatedUnifiedLayoutRootSourceFixtureV1,
@@ -54,9 +55,6 @@ import type { TextRunStyleV4Target } from "../src/schema/documentV4Foundation.js
 import type {
   VNextTextBlockTransitionProducerResponseV1,
 } from "../src/layout/textBlockUnifiedLayoutEvidenceContractV1.js"
-import type {
-  VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1,
-} from "../src/layout/textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.js"
 
 function frozen<T>(value: T): T {
   if (value != null && typeof value === "object") {
@@ -312,17 +310,10 @@ function coveredItems(
   startRenderedUtf16 = 0,
   endRenderedUtf16 = root.sourceState.summary.renderedUtf16Length,
 ) {
-  const permits = new WeakSet<object>()
   const result = visitVNextTextBlockTransitionSourceCoverageInternalV1({
     sourceState: root.sourceState,
     range: { startRenderedUtf16, endRenderedUtf16 },
-    beforeVisit: () => {
-      const permit = Object.freeze({}) as
-        VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1
-      permits.add(permit)
-      return permit
-    },
-    completeVisit: (permit) => permits.has(permit),
+    ...unrestrictedSourceCoveragePermits5B2(),
   })
   if (result.status !== "accepted") throw new Error("source coverage missing")
   return result.fragments
@@ -560,8 +551,7 @@ describe("Text-block unified transition preflight V2", () => {
     const covered = visitVNextTextBlockTransitionSourceCoverageInternalV1({
       sourceState: previousRoot.root.sourceState,
       range: { startRenderedUtf16: 0, endRenderedUtf16: 1 },
-      beforeVisitNode: () => true,
-      beforeEmitItem: () => true,
+      ...unrestrictedSourceCoveragePermits5B2(),
     })
     const field = covered.status === "accepted" ? covered.fragments[0]?.item : null
     if (field?.kind !== "resolved-field") throw new Error("field fixture missing")
@@ -1054,14 +1044,16 @@ describe("Text-block unified transition preflight V2", () => {
     const source = visitVNextTextBlockTransitionSourceCoverageInternalV1({
       sourceState: root.sourceState,
       range: { startRenderedUtf16: 0, endRenderedUtf16: 1 },
-      beforeVisitNode: () => {
-        sourceVisits += 1
-        if (sourceVisits > expectedSourceVisits) {
-          throw new Error("non-intersecting Source suffix read")
-        }
-        return true
-      },
-      beforeEmitItem: () => true,
+      ...unrestrictedSourceCoveragePermits5B2({
+        beforeVisit: (unit) => {
+          if (unit !== "source-coverage-nodes") return true
+          sourceVisits += 1
+          if (sourceVisits > expectedSourceVisits) {
+            throw new Error("non-intersecting Source suffix read")
+          }
+          return true
+        },
+      }),
     })
     const flow = visitVNextTextBlockTransitionFlowCoverageInternalV1({
       flowTree: root.flowTree,

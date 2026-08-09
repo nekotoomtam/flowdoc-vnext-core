@@ -66,6 +66,31 @@ import {
 import {
   createFlowDocTextEngineUnifiedIncrementalEvidenceV2,
 } from "../../packages/text-engine-rust-wasm/src/unifiedIncrementalEvidenceV2.js"
+import type {
+  VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1,
+} from "../../src/layout/textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.js"
+
+export function unrestrictedSourceCoveragePermits5B2(input: {
+  readonly beforeVisit?: (
+    unit: "source-coverage-nodes" | "source-coverage-items",
+  ) => boolean
+} = {}) {
+  const permits = new WeakSet<object>()
+  return {
+    beforeVisit: (
+      unit: "source-coverage-nodes" | "source-coverage-items",
+    ): VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1 | null => {
+      if (input.beforeVisit?.(unit) === false) return null
+      const permit = Object.freeze({}) as
+        VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1
+      permits.add(permit)
+      return permit
+    },
+    completeVisit: (
+      permit: VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1,
+    ): boolean => permits.has(permit),
+  }
+}
 
 export type ProducerInvocationAuthorityEvent5B2 =
   | {

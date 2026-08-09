@@ -94,6 +94,24 @@ const permitRecords = new WeakMap<
   VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1,
   PermitRecord
 >()
+let candidateRegistrationObserverForTestInternalV1: ((input: {
+  readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+  readonly change: VNextTextBlockUnifiedLayoutChangeV1
+  readonly candidateWork: VNextTextBlockIncrementalCandidateWorkV1
+  readonly producingStageAuthority: object
+}) => boolean) | null = null
+
+export function setVNextTextBlockUnifiedLayout5B2CandidateRegistrationObserverForTestInternalV1(
+  observer: ((input: {
+    readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+    readonly change: VNextTextBlockUnifiedLayoutChangeV1
+    readonly candidateWork: VNextTextBlockIncrementalCandidateWorkV1
+    readonly producingStageAuthority: object
+  }) => boolean) | null,
+): void {
+  candidateRegistrationObserverForTestInternalV1 = observer
+}
+
 const evaluatorRecords = new WeakMap<object, Readonly<{
   readonly meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
   readonly unit: VNextTextBlockUnifiedLayout5B2SourceWorkUnitInternalV1
@@ -158,6 +176,8 @@ function producingOwnerRecord(input: {
     && preflight.change === input.change
     && preflight.completedCandidateWork === input.candidateWork
     && preflight.foundationReceipts != null
+    && preflight.request === null
+    && preflight.sourceMaterial === null
   ) return { receipts: preflight.foundationReceipts }
   const evidence =
     getVNextTextBlockUnifiedLayoutAcceptedEvidenceCandidateOwnerRecordInternalV2(
@@ -194,6 +214,7 @@ export function registerVNextTextBlockUnifiedLayout5B2FoundationCandidateWorkInt
   ) return null
   const owner = producingOwnerRecord(input)
   if (owner == null || !receiptsEqual(input.receipts, owner.receipts)) return null
+  if (candidateRegistrationObserverForTestInternalV1?.(input) === false) return null
   const receipts = cloneReceipts(owner.receipts)
   const record = Object.freeze({
     previousRoot: input.previousRoot,

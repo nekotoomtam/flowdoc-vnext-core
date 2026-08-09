@@ -13,8 +13,12 @@ import {
   type VNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.js"
 import {
+  getVNextTextBlockUnifiedLayoutSourceStagePreflightRecordInternalV2,
   prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutTransitionPreflightV2.js"
+import {
+  resolveVNextTextBlockUnifiedLayout5B2RootPolicyCompositionInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutWorkPolicyCompositionInternalsV1.js"
 import {
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2_OWNER_UNIT_IDS_INTERNAL_V1,
   type VNextTextBlockUnifiedLayout5B2SourceWorkUnitInternalV1,
@@ -28,6 +32,7 @@ import type {
 import {
   admit5B2RootFixture,
   admitted5B2PlanARootFixture,
+  authorizedEvidenceRequestBundle5B2,
 } from "./helpers/textBlockUnifiedIncremental5b2.js"
 
 function freeze<T>(value: T): T {
@@ -207,6 +212,46 @@ describe("5B-2 candidate-work authority", () => {
       candidateWork: clonedWork,
       receipts: exact.authorityRecord.receipts.map((row) => freeze({ ...row })),
       producingStageAuthority: {},
+    })).toBeNull()
+  })
+
+  it("rejects a required-Evidence preflight before Evidence acceptance", () => {
+    const bundle = authorizedEvidenceRequestBundle5B2({
+      insertedText: "required-bypass",
+    })
+    const preflight = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot: bundle.root,
+      change: bundle.change,
+      workPolicy: bundle.root.workPolicy,
+    })
+    expect(preflight.status).toBe("required")
+    if (preflight.status !== "required") return
+    const composition =
+      resolveVNextTextBlockUnifiedLayout5B2RootPolicyCompositionInternalV1(
+        bundle.root,
+      )
+    const owner =
+      getVNextTextBlockUnifiedLayoutSourceStagePreflightRecordInternalV2({
+        preflight: preflight.preflight,
+        previousRoot: bundle.root,
+      })
+    expect(composition).not.toBeNull()
+    expect(owner?.foundationReceipts).not.toBeNull()
+    if (composition == null || owner?.foundationReceipts == null) return
+
+    expect(registerVNextTextBlockUnifiedLayout5B2FoundationCandidateWorkInternalV1({
+      previousRoot: bundle.root,
+      change: bundle.change,
+      composition,
+      candidateWork: preflight.completedCandidateWork,
+      receipts: owner.foundationReceipts,
+      producingStageAuthority: preflight.preflight,
+    })).toBeNull()
+    expect(resolveVNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1({
+      previousRoot: bundle.root,
+      change: bundle.change,
+      composition,
+      candidateWork: preflight.completedCandidateWork,
     })).toBeNull()
   })
 

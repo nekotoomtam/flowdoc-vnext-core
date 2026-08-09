@@ -29,6 +29,7 @@ import type {
 } from "../src/layout/textBlockUnifiedLayoutEvidenceContractV2.js"
 import {
   resolveVNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1,
+  setVNextTextBlockUnifiedLayout5B2CandidateRegistrationObserverForTestInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.js"
 import {
   resolveVNextTextBlockUnifiedLayout5B2RootPolicyCompositionInternalV1,
@@ -288,6 +289,106 @@ function hostileObject(label: string, observed: string[]): object {
 }
 
 describe("Core authorized acceptance and vertical authority boundary", () => {
+  it("binds Evidence before installing accepted candidate authority", () => {
+    const fixture = authorizedFixture({ insertedText: "binding-order" })
+    expect(fixture.result.status).toBe("accepted")
+    if (fixture.result.status !== "accepted") return
+    let bindingVisibleDuringRegistration = false
+    setVNextTextBlockUnifiedLayout5B2CandidateRegistrationObserverForTestInternalV1((input) => {
+      bindingVisibleDuringRegistration =
+        hasVNextTextBlockUnifiedLayoutTransitionEvidenceBindingInternalV2({
+          evidence: input.producingStageAuthority,
+          previousRoot: fixture.previousRoot,
+          change: fixture.change,
+          completedCandidateWork: input.candidateWork,
+          expectedRequest: fixture.request,
+          expectedSourceMaterial: fixture.sourceMaterial,
+        })
+      return true
+    })
+    try {
+      const accepted = acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({
+        previousRoot: fixture.previousRoot,
+        change: fixture.change,
+        request: fixture.request,
+        sourceMaterial: fixture.sourceMaterial,
+        producerInvocationAuthority: fixture.producerInvocationAuthority,
+        producerRuntimeIdentity: fixture.producerRuntimeIdentity,
+        response: fixture.result.response,
+      })
+      expect(accepted.status).toBe("accepted")
+      expect(bindingVisibleDuringRegistration).toBe(true)
+    } finally {
+      setVNextTextBlockUnifiedLayout5B2CandidateRegistrationObserverForTestInternalV1(null)
+    }
+  }, 30_000)
+
+  it("rolls back Evidence and owner bindings when candidate registration fails", () => {
+    const fixture = authorizedFixture({ insertedText: "registration-rollback" })
+    expect(fixture.result.status).toBe("accepted")
+    if (fixture.result.status !== "accepted") return
+    let evidence: object | null = null
+    let completedCandidateWork:
+      Parameters<typeof hasVNextTextBlockUnifiedLayoutTransitionEvidenceBindingInternalV2>[0]["completedCandidateWork"] | null = null
+    let bindingVisibleDuringRegistration = false
+    setVNextTextBlockUnifiedLayout5B2CandidateRegistrationObserverForTestInternalV1((input) => {
+      evidence = input.producingStageAuthority
+      completedCandidateWork = input.candidateWork
+      bindingVisibleDuringRegistration =
+        hasVNextTextBlockUnifiedLayoutTransitionEvidenceBindingInternalV2({
+          evidence,
+          previousRoot: fixture.previousRoot,
+          change: fixture.change,
+          completedCandidateWork,
+          expectedRequest: fixture.request,
+          expectedSourceMaterial: fixture.sourceMaterial,
+        })
+      return false
+    })
+    try {
+      const accepted = acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({
+        previousRoot: fixture.previousRoot,
+        change: fixture.change,
+        request: fixture.request,
+        sourceMaterial: fixture.sourceMaterial,
+        producerInvocationAuthority: fixture.producerInvocationAuthority,
+        producerRuntimeIdentity: fixture.producerRuntimeIdentity,
+        response: fixture.result.response,
+      })
+      expect(accepted).toMatchObject({ status: "blocked" })
+      expect(bindingVisibleDuringRegistration).toBe(true)
+      expect(evidence).not.toBeNull()
+      expect(completedCandidateWork).not.toBeNull()
+      if (evidence == null || completedCandidateWork == null) return
+      expect(hasVNextTextBlockUnifiedLayoutTransitionEvidenceBindingInternalV2({
+        evidence,
+        previousRoot: fixture.previousRoot,
+        change: fixture.change,
+        completedCandidateWork,
+        expectedRequest: fixture.request,
+        expectedSourceMaterial: fixture.sourceMaterial,
+      })).toBe(false)
+      expect(transitionEvidenceV2Internals
+        .getVNextTextBlockUnifiedLayoutAcceptedEvidenceCandidateOwnerRecordInternalV2(
+          evidence,
+        )).toBeNull()
+      const composition =
+        resolveVNextTextBlockUnifiedLayout5B2RootPolicyCompositionInternalV1(
+          fixture.previousRoot,
+        )
+      expect(composition).not.toBeNull()
+      if (composition == null) return
+      expect(resolveVNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1({
+        previousRoot: fixture.previousRoot,
+        change: fixture.change,
+        composition,
+        candidateWork: completedCandidateWork,
+      })).toBeNull()
+    } finally {
+      setVNextTextBlockUnifiedLayout5B2CandidateRegistrationObserverForTestInternalV1(null)
+    }
+  }, 30_000)
+
   it("authorized acceptance consumes the exact positive terminal and registers Evidence V2 from ledger-backed work", () => {
     const fixture = authorizedFixture({ insertedText: "P" })
     expect(fixture.result.status).toBe("accepted")

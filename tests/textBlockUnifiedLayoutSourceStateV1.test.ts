@@ -222,6 +222,47 @@ function postBindingSourceTestBoundaries() {
 }
 
 describe("Phase 5B transition-native source state", () => {
+  it("rejects legacy boolean Source coverage callbacks without observing them", () => {
+    const built = sourceState(acceptedInlineImageEvidenceFixture({
+      content: "image-only",
+    }))
+    let legacyCallbackCount = 0
+    const visitCoverage = sourceStateInternals
+      .visitVNextTextBlockTransitionSourceCoverageInternalV1 as unknown as (
+        input: object,
+      ) => {
+        readonly status: string
+        readonly fragments: unknown
+        readonly visitedNodeCount: number
+        readonly emittedItemCount: number
+        readonly completeTreeTraversalCount: number
+      }
+    const result = visitCoverage({
+      sourceState: built.sourceState,
+      range: {
+        startRenderedUtf16: 0,
+        endRenderedUtf16: built.sourceState.summary.renderedUtf16Length,
+      },
+      beforeVisitNode: () => {
+        legacyCallbackCount += 1
+        return true
+      },
+      beforeEmitItem: () => {
+        legacyCallbackCount += 1
+        return true
+      },
+    })
+
+    expect(result).toEqual({
+      status: "blocked",
+      fragments: null,
+      visitedNodeCount: 0,
+      emittedItemCount: 0,
+      completeTreeTraversalCount: 0,
+    })
+    expect(legacyCallbackCount).toBe(0)
+  })
+
   it("recomposes canonical text, image, and hard-break paint facts exactly", () => {
     const built = sourceState(acceptedInlineImageEvidenceFixture({
       content: "text-image-text-break",

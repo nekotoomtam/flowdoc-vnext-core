@@ -2531,6 +2531,8 @@ export function acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInt
     validation.response.work,
     context.meter,
   )
+  evidenceRecords.set(evidence, context.tuple)
+  evidenceCompletedWorkRecords.set(evidence, acceptedWork)
   const composition =
     resolveVNextTextBlockUnifiedLayout5B2RootPolicyCompositionInternalV1(
       input.previousRoot,
@@ -2542,6 +2544,8 @@ export function acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInt
       context.meter,
     )
     if (foundationReceipts == null) {
+      evidenceRecords.delete(evidence)
+      evidenceCompletedWorkRecords.delete(evidence)
       return authorizedEvidenceBlocked(
         context.tuple,
         context.terminal,
@@ -2565,6 +2569,8 @@ export function acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInt
       producingStageAuthority: evidence,
     }) == null) {
       acceptedEvidenceCandidateOwnerRecords.delete(evidence)
+      evidenceRecords.delete(evidence)
+      evidenceCompletedWorkRecords.delete(evidence)
       return authorizedEvidenceBlocked(
         context.tuple,
         context.terminal,
@@ -2574,8 +2580,6 @@ export function acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInt
       )
     }
   }
-  evidenceRecords.set(evidence, context.tuple)
-  evidenceCompletedWorkRecords.set(evidence, acceptedWork)
   return freeze({
     status: "accepted" as const,
     evidence,

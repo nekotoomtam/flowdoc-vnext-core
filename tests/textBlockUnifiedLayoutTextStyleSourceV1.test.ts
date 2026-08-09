@@ -54,6 +54,7 @@ import {
 import {
   admit5B2RootFixture,
   admitted5B2HardBreakRootFixture,
+  unrestrictedSourceCoveragePermits5B2,
 } from "./helpers/textBlockUnifiedIncremental5b2.js"
 
 const ACTUAL_FONT_FACES = FLOWDOC_TEXT_ENGINE_MR1_SARABUN_FONT_FACES_V1
@@ -348,8 +349,7 @@ function ownerReplacement(input: {
   const coverage = visitVNextTextBlockTransitionSourceCoverageInternalV1({
     sourceState: input.sourceState,
     range,
-    beforeVisitNode: () => true,
-    beforeEmitItem: () => true,
+    ...unrestrictedSourceCoveragePermits5B2(),
   })
   if (coverage.status !== "accepted") throw new Error("owner coverage blocked")
   const selected = coverage.fragments.flatMap((fragment) => {
@@ -536,14 +536,12 @@ describe("5B-2 text/style Source path copy", () => {
     const prefix = visitVNextTextBlockTransitionSourceCoverageInternalV1({
       sourceState: result.nextSourceState,
       range: { startRenderedUtf16: 0, endRenderedUtf16: 1 },
-      beforeVisitNode: () => true,
-      beforeEmitItem: () => true,
+      ...unrestrictedSourceCoveragePermits5B2(),
     })
     const suffix = visitVNextTextBlockTransitionSourceCoverageInternalV1({
       sourceState: result.nextSourceState,
       range: { startRenderedUtf16: 3, endRenderedUtf16: 4 },
-      beforeVisitNode: () => true,
-      beforeEmitItem: () => true,
+      ...unrestrictedSourceCoveragePermits5B2(),
     })
     expect(prefix.status).toBe("accepted")
     expect(suffix.status).toBe("accepted")
