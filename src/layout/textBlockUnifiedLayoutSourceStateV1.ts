@@ -3925,6 +3925,7 @@ export function visitVNextTextBlockTransitionSourceCoverageInternalV1(input: {
     let itemStart = start
     if (items == null) { stopped = true; return null }
     for (let index = 0; index < items.length; index += 1) {
+      if (itemStart >= input.range.endRenderedUtf16) break
       const itemPermit = input.beforeVisit("source-coverage-items")
       if (itemPermit == null) { stopped = true; return null }
       const item = items[index]

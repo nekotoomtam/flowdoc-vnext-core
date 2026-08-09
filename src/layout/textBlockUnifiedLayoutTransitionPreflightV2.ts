@@ -1159,15 +1159,18 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
           producingStageAuthority: preflight,
         }) == null
       )
-    ) return freeze({
-      status: "blocked" as const,
-      completedCandidateWork: bound.incrementalCandidateWork,
-      issues: freeze([issue(
-        "evidence-authority-mismatch",
-        "candidateWork",
-        "preflight candidate-work authority registration failed",
-      )]),
-    })
+    ) {
+      preflights.delete(preflight)
+      return freeze({
+        status: "blocked" as const,
+        completedCandidateWork: bound.incrementalCandidateWork,
+        issues: freeze([issue(
+          "evidence-authority-mismatch",
+          "candidateWork",
+          "preflight candidate-work authority registration failed",
+        )]),
+      })
+    }
     return freeze({ status: "not-required" as const, preflight, request: null, sourceMaterial: null, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([]) })
   }
   const meter = workMeter(
@@ -1516,15 +1519,18 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
           producingStageAuthority: preflight,
         }) == null
       )
-    ) return freeze({
-      status: "blocked" as const,
-      completedCandidateWork: meter.completedCandidateWork,
-      issues: freeze([issue(
-        "evidence-authority-mismatch",
-        "candidateWork",
-        "preflight candidate-work authority registration failed",
-      )]),
-    })
+    ) {
+      preflights.delete(preflight)
+      return freeze({
+        status: "blocked" as const,
+        completedCandidateWork: meter.completedCandidateWork,
+        issues: freeze([issue(
+          "evidence-authority-mismatch",
+          "candidateWork",
+          "preflight candidate-work authority registration failed",
+        )]),
+      })
+    }
     return freeze({
       status: "not-required" as const,
       preflight,

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import {
   getVNextTextBlockTransitionPreflightFailureAuthorityRecordInternalV2,
+  getVNextTextBlockUnifiedLayoutSourceStagePreflightRecordInternalV2,
   inspectVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2,
   prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutTransitionPreflightV2.js"
@@ -23,6 +24,7 @@ import {
 import {
   admit5B2RootFixture,
   admitted5B2AuthorityRootFixture,
+  admitted5B2PlanARootFixture,
   unrestrictedSourceCoveragePermits5B2,
 } from "./helpers/textBlockUnifiedIncremental5b2.js"
 import {
@@ -55,6 +57,13 @@ import type { TextRunStyleV4Target } from "../src/schema/documentV4Foundation.js
 import type {
   VNextTextBlockTransitionProducerResponseV1,
 } from "../src/layout/textBlockUnifiedLayoutEvidenceContractV1.js"
+import {
+  resolveVNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1,
+  setVNextTextBlockUnifiedLayout5B2CandidateRegistrationObserverForTestInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.js"
+import type {
+  VNextTextBlockIncrementalCandidateWorkV1,
+} from "../src/layout/textBlockUnifiedLayoutTransitionContractV1.js"
 
 function frozen<T>(value: T): T {
   if (value != null && typeof value === "object") {
@@ -611,6 +620,63 @@ describe("Text-block unified transition preflight V2", () => {
         },
       },
     })
+  })
+
+  it.each([
+    { name: "true no-op", change: noOpUnifiedLayoutChange5b },
+    {
+      name: "paint-only bounded change",
+      change: (root: VNextTextBlockUnifiedLayoutRootV2) =>
+        styleChange(root, { textColor: "FF0000" }, 1, 3),
+    },
+  ])("rolls back $name preflight ownership when candidate registration fails", ({
+    change: createChange,
+  }) => {
+    const { root: previousRoot, composition } = admitted5B2PlanARootFixture({
+      text: "ABCD",
+    })
+    admit5B2RootFixture(previousRoot)
+    const change = createChange(previousRoot)
+    let producingPreflight: object | null = null
+    let candidateWork: VNextTextBlockIncrementalCandidateWorkV1 | null = null
+    setVNextTextBlockUnifiedLayout5B2CandidateRegistrationObserverForTestInternalV1(
+      (input) => {
+        producingPreflight = input.producingStageAuthority
+        candidateWork = input.candidateWork
+        return false
+      },
+    )
+    try {
+      const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+        previousRoot,
+        change,
+        workPolicy: previousRoot.workPolicy,
+      })
+
+      expect(result).toMatchObject({
+        status: "blocked",
+        issues: [expect.objectContaining({
+          code: "evidence-authority-mismatch",
+        })],
+      })
+      expect(producingPreflight).not.toBeNull()
+      expect(candidateWork).not.toBeNull()
+      if (producingPreflight == null || candidateWork == null) return
+      expect(getVNextTextBlockUnifiedLayoutSourceStagePreflightRecordInternalV2({
+        preflight: producingPreflight,
+        previousRoot,
+      })).toBeNull()
+      expect(resolveVNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1({
+        previousRoot,
+        change,
+        composition,
+        candidateWork,
+      })).toBeNull()
+    } finally {
+      setVNextTextBlockUnifiedLayout5B2CandidateRegistrationObserverForTestInternalV1(
+        null,
+      )
+    }
   })
 
   it("requests registered-source material for an ordinary text insertion", () => {

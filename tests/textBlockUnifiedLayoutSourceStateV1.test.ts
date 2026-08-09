@@ -46,6 +46,9 @@ import {
 import {
   unifiedLayoutRootBuildInputFixtureV2,
 } from "./helpers/textBlockUnifiedLayoutRootV2.js"
+import {
+  unrestrictedSourceCoveragePermits5B2,
+} from "./helpers/textBlockUnifiedIncremental5b2.js"
 
 function shapingRun(
   atom: Extract<VNextTextBlockInitialFlowV1["atoms"][number], {
@@ -261,6 +264,47 @@ describe("Phase 5B transition-native source state", () => {
       completeTreeTraversalCount: 0,
     })
     expect(legacyCallbackCount).toBe(0)
+  })
+
+  it("stops before charging or observing a trailing item slot", () => {
+    const built = sourceState(acceptedInlineImageEvidenceFixture({
+      content: "text-image-text-break",
+    }))
+    if (built.sourceState.root.nodeKind !== "leaf") {
+      throw new Error("hostile coverage fixture must be one leaf")
+    }
+    const firstItem = built.sourceState.root.items[0]
+    expect(firstItem).toBeDefined()
+    expect(built.sourceState.root.items.length).toBeGreaterThan(1)
+    if (firstItem == null) return
+    let itemPermitCount = 0
+    const result = sourceStateInternals
+      .visitVNextTextBlockTransitionSourceCoverageInternalV1({
+        sourceState: built.sourceState,
+        range: {
+          startRenderedUtf16: 0,
+          endRenderedUtf16: firstItem.renderedUtf16Length,
+        },
+        ...unrestrictedSourceCoveragePermits5B2({
+          beforeVisit: (unit) => {
+            if (unit !== "source-coverage-items") return true
+            itemPermitCount += 1
+            if (itemPermitCount > 1) {
+              throw new Error("trailing Source item permit observed")
+            }
+            return true
+          },
+        }),
+      })
+
+    expect(result).toMatchObject({
+      status: "accepted",
+      emittedItemCount: 1,
+      completeTreeTraversalCount: 0,
+    })
+    if (result.status !== "accepted") return
+    expect(result.fragments.map((fragment) => fragment.item)).toEqual([firstItem])
+    expect(itemPermitCount).toBe(1)
   })
 
   it("recomposes canonical text, image, and hard-break paint facts exactly", () => {
