@@ -74,6 +74,16 @@ structures, canonical JSON fingerprints as integrity facts only.
   candidate authority, and validates this tuple before its first payload
   observation. The matcher exposes no seed, candidate work, receipt, resolver,
   forward owner, or generic registry.
+- **Approved Task 6 boundary-insertion amendment (2026-08-10):** Task 6 may
+  modify `textBlockUnifiedLayoutSourcePhysicalIndexInternalsV1.ts` to support
+  the already-approved exact Source candidate shape where a zero-width Source
+  insertion has `removedItems.length === 0` and `nextPhysicalItems` remains the
+  exact frozen local `createdItems` sequence. The physical owner receives the
+  exact previous rendered boundary from the registered replacement and performs
+  one bounded, metered order-tree root-to-leaf lookup for exact predecessor and
+  successor entries. It must reject an out-of-range or non-boundary offset,
+  must not enumerate the complete order tree, and must not add a retained
+  anchor to `nextPhysicalItems` or Source emission work.
 - Position keys are signed safe integers, process-local only, and excluded from
   Source/Root/Scene canonical identity and public JSON.
 - `source-position-key-space-exhausted` is an exact candidate-free structural
@@ -1332,6 +1342,7 @@ whole-style clone, unmetered sort, or candidate-bearing failure blocks Plan A.
 - Modify: `src/layout/textBlockUnifiedLayoutTransitionSourceInternalsV1.ts`
 - Modify: `src/layout/textBlockUnifiedLayoutSourceStateV1.ts`
 - Modify: `src/layout/textBlockUnifiedLayoutSourceSidecarsInternalsV1.ts`
+- Modify: `src/layout/textBlockUnifiedLayoutSourcePhysicalIndexInternalsV1.ts`
 - Modify: `src/layout/textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.ts`
 - Modify: `tests/textBlockUnifiedLayoutTextStyleSourceV1.test.ts`
 - Modify: `tests/textBlockUnifiedLayoutSourceSidecarsV1.test.ts`
@@ -1438,6 +1449,9 @@ Cover:
 - equal-metric and paint-only style updates;
 - metric-affecting insertion/replacement/deletion with exact accepted Evidence;
 - first/middle/last and multi-leaf Source ranges;
+- first/middle/last zero-width boundary insertions, including multi-leaf order
+  trees, with exact predecessor/successor identity and no retained anchor in
+  `nextPhysicalItems`;
 - exact next sidecar roots in Source authority;
 - cloned next Source/index/style root rejection;
 - stale/replayed/cross-Root/cross-change/cross-Evidence/cross-policy work;
@@ -1497,6 +1511,17 @@ affected previous leaf slot     -> source-leaf-slots
 Each callback begins the exact permit before access/allocation and completes
 it after the owned operation succeeds. Preserve the existing canonical local
 batch/borrow/merge/root-collapse algorithm and independent topology tests.
+
+For `removedItems.length === 0`, derive the allocation interval only from the
+exact registered replacement boundary. Walk a single order-tree path using
+subtree rendered-length summaries. Charge every node payload/occupancy,
+summary, entry, key, and comparison read before access. Return the exact entry
+ending at the boundary as predecessor and the exact entry starting at the
+boundary as successor. Boundary `0` has no predecessor; the complete previous
+rendered length has no successor. Reject a boundary that falls inside an
+unchanged physical entry, lies outside the previous rendered length, or cannot
+be proven without a complete traversal. The nonempty-removal path remains
+unchanged.
 
 - [ ] **Step 4: Execute the Source stage as one candidate transaction**
 
@@ -1590,7 +1615,7 @@ git diff --check
 - [ ] **Step 9: Commit Task 6**
 
 ```powershell
-git add src/layout/textBlockUnifiedLayoutSourceAuthorityInternalsV1.ts src/layout/textBlockUnifiedLayoutTransitionSourceInternalsV1.ts src/layout/textBlockUnifiedLayoutSourceStateV1.ts src/layout/textBlockUnifiedLayoutSourceSidecarsInternalsV1.ts src/layout/textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.ts tests/textBlockUnifiedLayoutTextStyleSourceV1.test.ts tests/textBlockUnifiedLayoutSourceSidecarsV1.test.ts tests/textBlockUnifiedLayoutCandidateWorkAuthorityV1.test.ts tests/textBlockUnifiedLayoutTransitionFoundationV1.test.ts tests/helpers/textBlockUnifiedIncremental5b2.ts
+git add src/layout/textBlockUnifiedLayoutSourceAuthorityInternalsV1.ts src/layout/textBlockUnifiedLayoutTransitionSourceInternalsV1.ts src/layout/textBlockUnifiedLayoutSourceStateV1.ts src/layout/textBlockUnifiedLayoutSourceSidecarsInternalsV1.ts src/layout/textBlockUnifiedLayoutSourcePhysicalIndexInternalsV1.ts src/layout/textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.ts tests/textBlockUnifiedLayoutTextStyleSourceV1.test.ts tests/textBlockUnifiedLayoutSourceSidecarsV1.test.ts tests/textBlockUnifiedLayoutCandidateWorkAuthorityV1.test.ts tests/textBlockUnifiedLayoutTransitionFoundationV1.test.ts tests/helpers/textBlockUnifiedIncremental5b2.ts
 git commit -m "feat(layout): bind full phase 5b2 source stage authority"
 ```
 
