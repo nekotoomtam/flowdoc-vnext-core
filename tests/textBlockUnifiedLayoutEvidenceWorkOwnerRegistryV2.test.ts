@@ -3,6 +3,9 @@ import {
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2A_EVIDENCE_OWNER_ROWS_INTERNAL_V2,
 } from "../src/layout/textBlockUnifiedLayoutEvidenceWorkOwnerRegistryV2.js"
 import {
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2_EVIDENCE_OWNER_ROWS_INTERNAL_V1,
+} from "../src/layout/textBlockUnifiedLayoutWorkOwnerRegistryV1.js"
+import {
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import type {
@@ -46,6 +49,14 @@ describe("Phase 5B-2A evidence work owner registry", () => {
       .toHaveLength(21)
     expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3.fingerprint).toBe(
       "sha256:896f2163367070bd1f1e6fa0d9b34c0f47e371e6256cc9c15bd27e898c185982",
+    )
+  })
+
+  it("enriches the accepted Evidence slice without changing its unit order", () => {
+    expect(VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2_EVIDENCE_OWNER_ROWS_INTERNAL_V1
+      .map((row) => row.unit)).toEqual(
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2A_EVIDENCE_OWNER_ROWS_INTERNAL_V2
+        .map((row) => row.unit),
     )
   })
 })
