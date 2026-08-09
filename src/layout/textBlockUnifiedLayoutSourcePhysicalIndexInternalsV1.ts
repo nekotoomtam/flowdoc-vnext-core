@@ -322,6 +322,38 @@ export function lookupVNextTextBlockUnifiedLayoutSourcePhysicalEntriesInternalV1
   return Object.freeze(output)
 }
 
+function firstIdentityEntryAtOrAfterInternalV1(input: {
+  readonly root: VNextTextBlockUnifiedLayoutSourceIdentityIndexNodeInternalV1
+  readonly key: IdentityKeyInternalV1
+  readonly observeBeforeOperation?: Observer
+}): VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1 | null {
+  let node = input.root
+  while (true) {
+    input.observeBeforeOperation?.("source-index-nodes")
+    if (node.nodeKind === "leaf") {
+      for (const candidate of node.entries) {
+        if (
+          compareIdentityKeys(
+            identityKey(candidate),
+            input.key,
+            input.observeBeforeOperation,
+          ) >= 0
+        ) return candidate
+      }
+      return null
+    }
+    let next: VNextTextBlockUnifiedLayoutSourceIdentityIndexNodeInternalV1 | null = null
+    for (const child of node.children) {
+      if (compareIdentityKeys(child.lastKey, input.key, input.observeBeforeOperation) >= 0) {
+        next = child
+        break
+      }
+    }
+    if (next == null) return null
+    node = next
+  }
+}
+
 export function insertVNextTextBlockUnifiedLayoutSourcePhysicalEntryCompleteInternalV1(input: {
   readonly identityRoot: VNextTextBlockUnifiedLayoutSourceIdentityIndexNodeInternalV1 | null
   readonly orderRoot: VNextTextBlockUnifiedLayoutSourceOrderIndexNodeInternalV1 | null
@@ -342,18 +374,21 @@ export function insertVNextTextBlockUnifiedLayoutSourcePhysicalEntryCompleteInte
     || entry.renderedUtf16Length !== entry.item.renderedUtf16Length
   ) return Object.freeze({ status: "blocked" })
   observe?.("source-index-entries")
-  const sameInline = lookupVNextTextBlockUnifiedLayoutSourcePhysicalEntriesInternalV1({
-    root: input.identityRoot,
-    inlineId: entry.item.inlineId,
-    observeBeforeOperation: observe,
-  })
-  if (
-    sameInline.length > 0
-    && (
-      entry.item.kind !== "text"
-      || sameInline.some((candidate) => candidate.item.kind !== "text")
-    )
-  ) return Object.freeze({ status: "blocked" })
+  if (input.identityRoot != null) {
+    const firstDisallowedKindOrdinal = entry.item.kind === "text" ? 1 : 0
+    const conflict = firstIdentityEntryAtOrAfterInternalV1({
+      root: input.identityRoot,
+      key: Object.freeze({
+        inlineId: entry.item.inlineId,
+        kindOrdinal: firstDisallowedKindOrdinal,
+        positionKey: Number.MIN_SAFE_INTEGER,
+      }),
+      observeBeforeOperation: observe,
+    })
+    if (conflict?.item.inlineId === entry.item.inlineId) {
+      return Object.freeze({ status: "blocked" })
+    }
+  }
   try {
     let identityRoot: VNextTextBlockUnifiedLayoutSourceIdentityIndexNodeInternalV1
     if (input.identityRoot == null) {

@@ -11,7 +11,10 @@ import {
   createVNextTextBlockInitialFlowV1,
 } from "../src/layout/textBlockInitialFlowInputV1.js"
 import {
+  createVNextTextBlockTransitionReplacementSourceItemInternalV1,
   createVNextTextBlockUnifiedLayoutSourceStateCompleteInternalV1,
+  prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1,
+  registerVNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
 import type {
   VNextTextBlockUnifiedLayoutSourceStateV1,
@@ -160,6 +163,67 @@ function prepare(sourceState: VNextTextBlockUnifiedLayoutSourceStateV1) {
   return result
 }
 
+function sameInlineTextFragmentSource(
+  fragmentCount: number,
+): VNextTextBlockUnifiedLayoutSourceStateV1 {
+  const previousSourceState = textSource(1)
+  if (previousSourceState.root.nodeKind !== "leaf") {
+    throw new Error("same-inline fixture requires one Source leaf")
+  }
+  const previous = previousSourceState.root.items[0]
+  if (previous?.kind !== "text") throw new Error("same-inline text fixture missing")
+  const nextItems = Object.freeze(Array.from(
+    { length: fragmentCount },
+    (_, index) => {
+      const item = createVNextTextBlockTransitionReplacementSourceItemInternalV1({
+        sourceState: previousSourceState,
+        kind: "text",
+        renderedText: "x",
+        lineageId: `same-inline-fragment-${index}`,
+        inlineId: previous.inlineId,
+        sourceFingerprint: `same-inline-source-${index}`,
+        provenanceFingerprint: `same-inline-provenance-${index}`,
+        style: previous.style,
+      })
+      if (item == null) throw new Error("same-inline replacement item blocked")
+      return item
+    },
+  ))
+  const previousRange = Object.freeze({
+    startRenderedUtf16: 0,
+    endRenderedUtf16: previous.renderedUtf16Length,
+  })
+  const compactFingerprint = (value: unknown) => createVNextCompactFingerprint(
+    stringifyVNextCanonicalJson(value),
+  )
+  const replacement = Object.freeze({
+    previousRange,
+    nextItems,
+    expectedPreviousContentFingerprint: compactFingerprint([previous.renderedText]),
+    expectedPreviousSourceFingerprint: compactFingerprint([previous.sourceFingerprint]),
+    expectedPreviousProvenanceFingerprint: compactFingerprint([
+      previous.provenanceFingerprint,
+    ]),
+    fingerprint: compactFingerprint({
+      previousRange,
+      nextItems: nextItems.map((item) => item.fingerprint),
+    }),
+  })
+  if (!registerVNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1({
+    previousSourceState,
+    replacement,
+  })) throw new Error("same-inline replacement registration blocked")
+  const prepared = prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1({
+    previousSourceState,
+    replacement,
+    beforeVisit: () => true,
+  })
+  if (prepared.status !== "prepared") {
+    throw new Error(`same-inline Source preparation was ${prepared.status}`)
+  }
+  return prepared.sourceState
+}
+
 function planAFor(root: ReturnType<typeof registered5B2RootFixture>) {
   const composition = createVNextTextBlockUnifiedLayout5B2PlanAPolicyForTestInternalV1({
     publicWorkPolicy: FIVE_B2_TEST_POLICY,
@@ -237,6 +301,50 @@ describe("Phase 5B-2 complete process-local Source sidecars", () => {
     expect(first.identityRoot?.fingerprint).toBe(second.identityRoot?.fingerprint)
     expect(first.orderRoot?.fingerprint).toBe(second.orderRoot?.fingerprint)
   })
+
+  it("bounds complete identity probes for many same-inline text fragments", () => {
+    // Catches enumerating/materializing the growing same-inline range per insertion.
+    const fragmentCount = 128
+    const maximumIdentityHeight = 2
+    const maximumBranchChildren = 8
+    const maximumLeafEntries = 8
+    const maximumProbeNodesPerFragment = maximumIdentityHeight + 1
+    const maximumCreatedOrVisitedPathNodesPerTree =
+      3 * (maximumIdentityHeight + 1) + 1
+    const maximumIndexNodes = fragmentCount * (
+      maximumProbeNodesPerFragment
+      + 2 * maximumCreatedOrVisitedPathNodesPerTree
+    )
+    const maximumIndexComparisons = fragmentCount * (
+      maximumBranchChildren * maximumIdentityHeight
+      + maximumLeafEntries
+      + maximumBranchChildren * (maximumIdentityHeight + 1)
+      + maximumIdentityHeight + 1
+    )
+    const observedCompleteBuild = () => {
+      const operations: Record<string, number> = {}
+      const result = prepareVNextTextBlockUnifiedLayoutSourceSidecarsCompleteInternalV1({
+        sourceState: sameInlineTextFragmentSource(fragmentCount),
+        observeBeforeOperation(unit) {
+          operations[unit] = (operations[unit] ?? 0) + 1
+        },
+      })
+      if (result.status !== "prepared") throw new Error("same-inline sidecars blocked")
+      return { result, operations }
+    }
+    const first = observedCompleteBuild()
+    const second = observedCompleteBuild()
+
+    expect(lookupVNextTextBlockUnifiedLayoutSourcePhysicalEntriesInternalV1({
+      root: first.result.sidecars.identityRoot,
+      inlineId: "text-000",
+    })).toHaveLength(fragmentCount)
+    expect(second.operations).toEqual(first.operations)
+    expect(first.operations["source-index-entries"]).toBe(fragmentCount * 2)
+    expect(first.operations["source-index-nodes"]).toBeLessThanOrEqual(maximumIndexNodes)
+    expect(first.operations["source-index-comparisons"])
+      .toBeLessThanOrEqual(maximumIndexComparisons)
+  }, 30_000)
 
   it("keeps exact style refcounts and excludes hard breaks and inline images", () => {
     // Catches style registration per distinct object instead of exact facts/refcount.
@@ -458,6 +566,34 @@ describe("Phase 5B-2 complete process-local Source sidecars", () => {
           fingerprint: `${atomic.item.fingerprint}-duplicate`,
         }),
         positionKey: atomicSidecars.orderRoot!.lastPositionKey + 1,
+        renderedUtf16Length: atomic.renderedUtf16Length,
+      }),
+    })).toEqual({ status: "blocked" })
+    expect(insertVNextTextBlockUnifiedLayoutSourcePhysicalEntryCompleteInternalV1({
+      identityRoot: atomicSidecars.identityRoot,
+      orderRoot: atomicSidecars.orderRoot,
+      entry: Object.freeze({
+        item: Object.freeze({
+          ...first.item,
+          inlineId: atomic.item.inlineId,
+          lineageId: `${first.item.lineageId}-atomic-conflict`,
+          fingerprint: `${first.item.fingerprint}-atomic-conflict`,
+        }),
+        positionKey: atomicSidecars.orderRoot!.lastPositionKey + 1,
+        renderedUtf16Length: first.renderedUtf16Length,
+      }),
+    })).toEqual({ status: "blocked" })
+    expect(insertVNextTextBlockUnifiedLayoutSourcePhysicalEntryCompleteInternalV1({
+      identityRoot: textInsert.identityRoot,
+      orderRoot: textInsert.orderRoot,
+      entry: Object.freeze({
+        item: Object.freeze({
+          ...atomic.item,
+          inlineId: first.item.inlineId,
+          lineageId: `${atomic.item.lineageId}-text-conflict`,
+          fingerprint: `${atomic.item.fingerprint}-text-conflict`,
+        }),
+        positionKey: textInsert.orderRoot.lastPositionKey + 1,
         renderedUtf16Length: atomic.renderedUtf16Length,
       }),
     })).toEqual({ status: "blocked" })
