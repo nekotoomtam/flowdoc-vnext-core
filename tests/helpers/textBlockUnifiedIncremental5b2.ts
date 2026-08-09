@@ -18,6 +18,12 @@ import {
   type VNextTextBlockUnifiedLayoutWorkPolicyV1,
 } from "../../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import {
+  createVNextTextBlockUnifiedLayout5B2PlanAPolicyForTestInternalV1,
+  registerVNextTextBlockUnifiedLayout5B2RootPolicyCompositionInternalV1,
+  type VNextTextBlockUnifiedLayout5B2PlanATestLimitsInternalV1,
+  type VNextTextBlockUnifiedLayout5B2PolicyCompositionInternalV1,
+} from "../../src/layout/textBlockUnifiedLayoutWorkPolicyCompositionInternalsV1.js"
+import {
   createVNextTextBlockTransitionProducerRuntimeIdentityInternalV2,
   createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV2,
 } from "../../src/layout/textBlockUnifiedLayoutTransitionEvidenceV2.js"
@@ -163,6 +169,45 @@ export function registered5B2RootFixture(input: Parameters<
 
 export const FIVE_B2_TEST_POLICY =
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_TEST_ONLY_INTERNAL_V2
+
+export function admitted5B2PlanARootFixture(input: {
+  readonly sourceLimits?: Partial<
+    VNextTextBlockUnifiedLayout5B2PlanATestLimitsInternalV1
+  >
+  readonly text?: string
+} = {}): {
+  readonly root: VNextTextBlockUnifiedLayoutRootV2
+  readonly composition: VNextTextBlockUnifiedLayout5B2PolicyCompositionInternalV1
+} {
+  const root = registered5B2RootFixture({
+    content: "text-only",
+    text: input.text ?? "ABCD",
+  })
+  const composition =
+    createVNextTextBlockUnifiedLayout5B2PlanAPolicyForTestInternalV1({
+      publicWorkPolicy: FIVE_B2_TEST_POLICY,
+      sourceLimits: {
+        sourceItems: Number.MAX_SAFE_INTEGER,
+        sourceTreeLookupNodes: Number.MAX_SAFE_INTEGER,
+        sourceTreePathCopyNodes: Number.MAX_SAFE_INTEGER,
+        sourceLeafSlots: Number.MAX_SAFE_INTEGER,
+        sourceIndexNodes: Number.MAX_SAFE_INTEGER,
+        sourceIndexEntries: Number.MAX_SAFE_INTEGER,
+        sourceIndexComparisons: Number.MAX_SAFE_INTEGER,
+        sourceStyleNodes: Number.MAX_SAFE_INTEGER,
+        sourceStyleBuckets: Number.MAX_SAFE_INTEGER,
+        sourceStyleEntries: Number.MAX_SAFE_INTEGER,
+        ...input.sourceLimits,
+      },
+    })
+  if (!registerVNextTextBlockUnifiedLayout5B2RootPolicyCompositionInternalV1({
+    root,
+    composition,
+  })) {
+    throw new Error("5B-2 Plan A Root policy composition registration blocked")
+  }
+  return { root, composition }
+}
 
 export function admit5B2RootFixture(
   root: VNextTextBlockUnifiedLayoutRootV2,
