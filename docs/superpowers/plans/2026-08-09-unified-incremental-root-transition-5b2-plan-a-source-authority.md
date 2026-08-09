@@ -52,6 +52,12 @@ structures, canonical JSON fingerprints as integrity facts only.
 - No wall clock or payload estimate selects an execution path.
 - Partial Source, sidecar, candidate-work, or authority objects never enter
   fallback.
+- **Approved Task 3/Task 6 ownership amendment (2026-08-09):** Task 3 owns
+  foundation/Evidence candidate-work publication and must fail closed when
+  `source-items` is nonzero. Task 6 owns the first nonzero Source publication
+  and may modify the candidate-work authority module and its focused test to
+  bind publication to the exact one-shot Source commit ticket. No forward or
+  generic producing-stage registry is introduced in Task 3.
 - Position keys are signed safe integers, process-local only, and excluded from
   Source/Root/Scene canonical identity and public JSON.
 - `source-position-key-space-exhausted` is an exact candidate-free structural
@@ -748,10 +754,14 @@ source-tree-path-copy-nodes  == nextCandidateWork.flow.copiedSourcePathNodeCount
 source-leaf-slots            == nextCandidateWork.flow.visitedChangedSourceLeafItemCount
 ```
 
-`source-items` is checked against the Source owner's exact emission count when
-that stage publishes. Index/style rows have no public aggregate and are
-validated only from completed Core-owned permits. Never derive private
-receipts by rereading `nextCandidateWork.stageWork`.
+Task 3 publication accepts only `source-items.completedWork === 0` and the
+exact foundation/Evidence `producingStageAuthority`. Any nonzero Source item
+count fails closed without publishing authority. Task 6 extends this same
+module at the approved seam and checks nonzero `source-items` against the exact
+emission count stored in the one-shot Source commit ticket. Index/style rows
+have no public aggregate and are validated only from completed Core-owned
+permits. Never derive private receipts by rereading
+`nextCandidateWork.stageWork`.
 
 The compatibility projector reads only the meter record and its exact seed
 candidate. It updates the four existing public Source aggregates/legacy rows
@@ -759,6 +769,13 @@ from completed private receipts. It does not register authority. Every blocked
 or fallback-required Source exit calls it so factual completed Source work is
 retained while attempted/completed distinctions remain in the private
 evaluator/proof record.
+
+Projection caching is meter-revision-bound. Every successful permit completion
+increments the meter revision and invalidates any earlier projected object. A
+projection taken while another permit is open may report the factual completed
+work at that moment, but after the permit completes the next projection must be
+a newly frozen object with the new completed count. Publication remains blocked
+while any permit is open.
 
 - [ ] **Step 4: Split admission membership from admission payload read**
 
@@ -1253,8 +1270,10 @@ whole-style clone, unmetered sort, or candidate-bearing failure blocks Plan A.
 - Modify: `src/layout/textBlockUnifiedLayoutTransitionSourceInternalsV1.ts`
 - Modify: `src/layout/textBlockUnifiedLayoutSourceStateV1.ts`
 - Modify: `src/layout/textBlockUnifiedLayoutSourceSidecarsInternalsV1.ts`
+- Modify: `src/layout/textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.ts`
 - Modify: `tests/textBlockUnifiedLayoutTextStyleSourceV1.test.ts`
 - Modify: `tests/textBlockUnifiedLayoutSourceSidecarsV1.test.ts`
+- Modify: `tests/textBlockUnifiedLayoutCandidateWorkAuthorityV1.test.ts`
 - Modify: `tests/textBlockUnifiedLayoutTransitionFoundationV1.test.ts`
 - Modify: `tests/helpers/textBlockUnifiedIncremental5b2.ts`
 - Test: `tests/textBlockUnifiedLayoutTransitionPreflightV2.test.ts`
@@ -1364,6 +1383,11 @@ Cover:
   candidate work;
 - partial tree candidate followed by sidecar work limit/key exhaustion returns
   no Source/sidecar/stage authority;
+- Task 3 foundation publication rejects nonzero `source-items`, while Task 6
+  accepts it only with the exact current Source commit ticket and exact ticket
+  emission count;
+- cloned, stale, replayed, cross-meter, cross-Root, and cross-change Source
+  commit tickets cannot authorize candidate-work publication;
 - a forced final-precondition rejection before commit leaves candidate work,
   next sidecars, and Source-stage authority all unresolvable;
 - replaying one consumed Source commit ticket is an internal invariant
@@ -1423,8 +1447,9 @@ The exact order is:
 5. prepare physical-index and style-refcount path copies;
 6. project the factual unchanged-shape public compatibility work object;
 7. validate every candidate-work, sidecar, full-tuple, and derived-authority
-   precondition and mint one opaque one-shot Source commit ticket without any
-   registry write;
+   precondition, derive the exact Source emission count from the registered
+   Source range candidate, and mint one opaque one-shot Source commit ticket
+   without any candidate/sidecar publication;
 8. consume that ticket in one synchronous no-fail commit tail which publishes
    private candidate-work authority, registers next sidecars, mints the full
    Source-stage authority, and derives the narrow authorities.
@@ -1442,6 +1467,16 @@ minted. After ticket creation there is no work-limit, structural-exhaustion, or
 blocked branch: a failed registry write or authority mint is an internal
 invariant violation, not a fallback result. This prevents an implementation
 from publishing a resolvable half-registered Source candidate.
+
+For the approved Task 6 seam, the Source authority module stores the exact
+meter, Root/change/composition, next Source candidate, and completed Source
+emission count behind the commit ticket. It exposes one narrow task-specific
+ticket resolver. The candidate-work authority module resolves that ticket by
+exact identity and accepts nonzero `source-items` only when all bound objects
+and the exact ticket emission count match its private receipts and public
+compatibility aggregate. The Source authority module must use only type imports
+from candidate-work authority so this resolver direction does not create a
+runtime module cycle. No neutral/generic producing-stage registry is added.
 
 - [ ] **Step 5: Preserve public Candidate Work V1 compatibility honestly**
 
@@ -1493,7 +1528,7 @@ git diff --check
 - [ ] **Step 9: Commit Task 6**
 
 ```powershell
-git add src/layout/textBlockUnifiedLayoutSourceAuthorityInternalsV1.ts src/layout/textBlockUnifiedLayoutTransitionSourceInternalsV1.ts src/layout/textBlockUnifiedLayoutSourceStateV1.ts src/layout/textBlockUnifiedLayoutSourceSidecarsInternalsV1.ts tests/textBlockUnifiedLayoutTextStyleSourceV1.test.ts tests/textBlockUnifiedLayoutSourceSidecarsV1.test.ts tests/textBlockUnifiedLayoutTransitionFoundationV1.test.ts tests/helpers/textBlockUnifiedIncremental5b2.ts
+git add src/layout/textBlockUnifiedLayoutSourceAuthorityInternalsV1.ts src/layout/textBlockUnifiedLayoutTransitionSourceInternalsV1.ts src/layout/textBlockUnifiedLayoutSourceStateV1.ts src/layout/textBlockUnifiedLayoutSourceSidecarsInternalsV1.ts src/layout/textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.ts tests/textBlockUnifiedLayoutTextStyleSourceV1.test.ts tests/textBlockUnifiedLayoutSourceSidecarsV1.test.ts tests/textBlockUnifiedLayoutCandidateWorkAuthorityV1.test.ts tests/textBlockUnifiedLayoutTransitionFoundationV1.test.ts tests/helpers/textBlockUnifiedIncremental5b2.ts
 git commit -m "feat(layout): bind full phase 5b2 source stage authority"
 ```
 
