@@ -8,18 +8,44 @@ import type {
   VNextTextBlockUnifiedLayoutSourceStateV1,
 } from "./textBlockUnifiedLayoutSourceStateContractV1.js"
 import {
+  discardVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInternalV1,
+  consumeVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInternalV1,
   getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInternalV1,
   prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1,
   type VNextTextBlockIncrementalStructuralTargetAuthorityInternalV1,
   type VNextTextBlockSourceLayoutDeltaAuthorityInternalV1,
   type VNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_SOURCE_STATE_POLICY_V1,
 } from "./textBlockUnifiedLayoutSourceStateV1.js"
 import {
+  commitVNextTextBlockUnifiedLayoutSourceStageInternalV1,
   createVNextTextBlockSourceLayoutDeltaAuthorityInternalV1,
   createVNextTextBlockStructuralTargetAuthorityInternalV1,
   hasVNextTextBlockSourceLayoutDeltaAuthorityBindingInternalV1,
   hasVNextTextBlockStructuralTargetAuthorityBindingInternalV1,
+  prepareVNextTextBlockUnifiedLayoutSourceStageCommitInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceStageAuthorityInternalV1,
 } from "./textBlockUnifiedLayoutSourceAuthorityInternalsV1.js"
+import {
+  discardVNextTextBlockUnifiedLayoutSourceSidecarCandidateInternalV1,
+  prepareVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyInternalV1,
+  prepareVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyRegistrationInternalV1,
+  registerVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyInternalV1,
+  resolveVNextTextBlockUnifiedLayoutSourceSidecarsInternalV1,
+} from "./textBlockUnifiedLayoutSourceSidecarsInternalsV1.js"
+import {
+  beginVNextTextBlockUnifiedLayout5B2OperationInternalV1,
+  completeVNextTextBlockUnifiedLayout5B2OperationInternalV1,
+  openVNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+  prepareVNextTextBlockUnifiedLayout5B2SourceCandidateWorkPublicationInternalV1,
+  projectVNextTextBlockUnifiedLayout5B2CompatibilityWorkInternalV1,
+  publishVNextTextBlockUnifiedLayout5B2CandidateWorkInternalV1,
+  resolveVNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1,
+  type VNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1,
+} from "./textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.js"
+import {
+  resolveVNextTextBlockUnifiedLayout5B2RootPolicyCompositionInternalV1,
+} from "./textBlockUnifiedLayoutWorkPolicyCompositionInternalsV1.js"
 import type {
   VNextTextBlockIncrementalCandidateWorkV1,
   VNextTextBlockUnifiedLayoutIssueV1,
@@ -59,6 +85,10 @@ export interface VNextTextBlockUnifiedLayoutSourceStageAcceptedV1 {
     VNextTextBlockIncrementalStructuralTargetAuthorityInternalV1
   readonly sourceLayoutDeltaAuthority:
     VNextTextBlockSourceLayoutDeltaAuthorityInternalV1 | null
+  readonly sourceStageAuthority?:
+    VNextTextBlockUnifiedLayoutSourceStageAuthorityInternalV1
+  readonly candidateWorkAuthority?:
+    VNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1
   readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
   readonly issues: readonly []
 }
@@ -270,6 +300,291 @@ export function transitionVNextTextBlockUnifiedLayoutSourceInternalV1(input: {
       input.completedCandidateWork,
       "source stage requires exact preflight-owned replacement authority",
     )
+  }
+
+  const composition =
+    resolveVNextTextBlockUnifiedLayout5B2RootPolicyCompositionInternalV1(
+      input.previousRoot,
+    )
+  if (composition != null) {
+    const previousSidecars =
+      resolveVNextTextBlockUnifiedLayoutSourceSidecarsInternalV1({
+        sourceState: input.previousRoot.sourceState,
+        composition,
+      })
+    const candidateWorkRecord =
+      resolveVNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1({
+        previousRoot: input.previousRoot,
+        change: record.change,
+        composition,
+        candidateWork: input.completedCandidateWork,
+      })
+    if (previousSidecars == null || candidateWorkRecord == null) {
+      return blocked(
+        input.completedCandidateWork,
+        "Plan A Source stage requires exact previous sidecars and candidate-work authority",
+      )
+    }
+    const candidateWorkAuthority = candidateWorkRecord as unknown as
+      VNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1
+    const meter =
+      openVNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1({
+        previousRoot: input.previousRoot,
+        change: record.change,
+        composition,
+        candidateWork: input.completedCandidateWork,
+        candidateWorkAuthority,
+      })
+    if (meter == null) {
+      return blocked(
+        input.completedCandidateWork,
+        "Plan A Source stage requires one fresh exact candidate-work meter",
+      )
+    }
+    let failedEvaluator: object | null = null
+    let meterInvariantFailed = false
+    let pendingPermit: Parameters<
+      typeof completeVNextTextBlockUnifiedLayout5B2OperationInternalV1
+    >[0] | null = null
+    const beforeVisit = (
+      unit: "source-lookup-nodes" | "source-path-copy-nodes" | "source-leaf-items",
+    ): boolean => {
+      if (pendingPermit != null) {
+        if (!completeVNextTextBlockUnifiedLayout5B2OperationInternalV1(
+          pendingPermit,
+        )) {
+          meterInvariantFailed = true
+          return false
+        }
+        pendingPermit = null
+      }
+      const mapped = unit === "source-lookup-nodes"
+        ? "source-tree-lookup-nodes" as const
+        : unit === "source-path-copy-nodes"
+          ? "source-tree-path-copy-nodes" as const
+          : "source-leaf-slots" as const
+      const begun = beginVNextTextBlockUnifiedLayout5B2OperationInternalV1({
+        meter,
+        unit: mapped,
+      })
+      if (begun.status === "limit-exceeded") {
+        failedEvaluator = begun.evaluatorAuthority
+        return false
+      }
+      if (begun.status !== "permitted") {
+        meterInvariantFailed = true
+        return false
+      }
+      pendingPermit = begun.permit
+      return true
+    }
+    const sourceCandidate =
+      prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1({
+        previousSourceState: input.previousRoot.sourceState,
+        replacement,
+        beforeVisit,
+      })
+    if (
+      sourceCandidate.status === "prepared"
+      && pendingPermit != null
+    ) {
+      if (!completeVNextTextBlockUnifiedLayout5B2OperationInternalV1(
+        pendingPermit,
+      )) meterInvariantFailed = true
+      pendingPermit = null
+    }
+    const factualWork = () =>
+      projectVNextTextBlockUnifiedLayout5B2CompatibilityWorkInternalV1(meter)
+        ?? input.completedCandidateWork
+    if (sourceCandidate.status !== "prepared") {
+      if (failedEvaluator != null && !meterInvariantFailed) {
+        return freeze({
+          status: "fallback-required" as const,
+          evaluatorOrProofAuthority: failedEvaluator,
+          completedCandidateWork: factualWork(),
+          issues: freeze([]) as readonly [],
+        })
+      }
+      return sourceCandidate.issues.length > 0
+        ? freeze({
+            status: "blocked" as const,
+            completedCandidateWork: factualWork(),
+            issues: sourceCandidate.issues,
+          })
+        : blocked(
+            factualWork(),
+            "Plan A Source path copy stopped without exact evaluator authority",
+          )
+    }
+    if (meterInvariantFailed) {
+      return blocked(
+        factualWork(),
+        "Plan A Source operation permit completion invariant failed",
+      )
+    }
+    const sourceCandidateRecord =
+      getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInternalV1(
+        sourceCandidate.pathCopyCandidateAuthority,
+      )
+    if (sourceCandidateRecord == null) {
+      return blocked(factualWork(), "Plan A Source candidate authority was lost")
+    }
+    const sidecarCandidate =
+      prepareVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyInternalV1({
+        previousSourceState: input.previousRoot.sourceState,
+        nextSourceState: sourceCandidate.sourceState,
+        replacement,
+        removedItems: sourceCandidateRecord.removedItems,
+        nextPhysicalItems: sourceCandidateRecord.nextPhysicalItems,
+        previousSidecars,
+        workMeter: meter,
+      })
+    if (sidecarCandidate.status !== "prepared") {
+      discardVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInternalV1(
+        sourceCandidate.pathCopyCandidateAuthority,
+      )
+      if (sidecarCandidate.status === "fallback-required") {
+        return freeze({
+          status: "fallback-required" as const,
+          evaluatorOrProofAuthority:
+            sidecarCandidate.evaluatorOrProofAuthority,
+          completedCandidateWork: factualWork(),
+          issues: freeze([]) as readonly [],
+        })
+      }
+      return freeze({
+        status: "blocked" as const,
+        completedCandidateWork: factualWork(),
+        issues: sidecarCandidate.issues,
+      })
+    }
+    const nextCandidateWork = factualWork()
+    const completedSourceEmissionCount =
+      sourceCandidateRecord.nextPhysicalItems.length
+    const producingStageAuthority = input.evidence ?? input.preflight
+    const candidateWorkPublicationPrecondition =
+      prepareVNextTextBlockUnifiedLayout5B2SourceCandidateWorkPublicationInternalV1({
+        meter,
+        nextCandidateWork,
+        completedSourceEmissionCount,
+        producingStageAuthority,
+      })
+    const sidecarRegistrationPrecondition =
+      prepareVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyRegistrationInternalV1({
+        previousRoot: input.previousRoot,
+        composition,
+        previousSidecars,
+        nextSourceState: sourceCandidate.sourceState,
+        nextSidecars: sidecarCandidate.sidecars,
+        candidateAuthority: sidecarCandidate.candidateAuthority,
+        sourcePathCopyCandidateAuthority:
+          sourceCandidate.pathCopyCandidateAuthority,
+        workMeter: meter,
+      })
+    if (
+      nextCandidateWork.flow.visitedSourceItemCount
+        !== completedSourceEmissionCount
+      || sidecarRegistrationPrecondition == null
+      || candidateWorkPublicationPrecondition == null
+    ) {
+      discardVNextTextBlockUnifiedLayoutSourceSidecarCandidateInternalV1(
+        sidecarCandidate.candidateAuthority,
+      )
+      discardVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInternalV1(
+        sourceCandidate.pathCopyCandidateAuthority,
+      )
+      return blocked(
+        nextCandidateWork,
+        "Plan A Source commit preconditions rejected the complete candidate tuple",
+      )
+    }
+    const ticket = prepareVNextTextBlockUnifiedLayoutSourceStageCommitInternalV1({
+      previousRoot: input.previousRoot,
+      previousSourceState: input.previousRoot.sourceState,
+      preflight: input.preflight,
+      evidence: input.evidence,
+      composition,
+      packingPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_SOURCE_STATE_POLICY_V1,
+      previousSidecars,
+      nextSourceState: sourceCandidate.sourceState,
+      nextSidecars: sidecarCandidate.sidecars,
+      candidateWorkMeter: meter,
+      nextCandidateWork,
+      nextSidecarCandidateAuthority: sidecarCandidate.candidateAuthority,
+      sourcePathCopyCandidateAuthority:
+        sourceCandidate.pathCopyCandidateAuthority,
+      producingStageAuthority,
+      completedSourceEmissionCount,
+      candidateWorkPublicationPreconditionAuthority:
+        candidateWorkPublicationPrecondition,
+      sidecarRegistrationPreconditionAuthority:
+        sidecarRegistrationPrecondition,
+    })
+    if (ticket == null) {
+      discardVNextTextBlockUnifiedLayoutSourceSidecarCandidateInternalV1(
+        sidecarCandidate.candidateAuthority,
+      )
+      discardVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInternalV1(
+        sourceCandidate.pathCopyCandidateAuthority,
+      )
+      return blocked(
+        nextCandidateWork,
+        "Plan A Source commit ticket rejected the exact candidate tuple",
+      )
+    }
+
+    // No-fail synchronous commit tail. Any failure here is an internal
+    // invariant violation, never a fallback result with partial publication.
+    const nextCandidateWorkAuthority =
+      publishVNextTextBlockUnifiedLayout5B2CandidateWorkInternalV1({
+        meter,
+        nextCandidateWork,
+        producingStageAuthority: ticket,
+      })
+    if (nextCandidateWorkAuthority == null) {
+      throw new Error("Source candidate-work commit invariant violated")
+    }
+    if (!registerVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyInternalV1({
+      previousRoot: input.previousRoot,
+      composition,
+      previousSidecars,
+      nextSourceState: sourceCandidate.sourceState,
+      nextSidecars: sidecarCandidate.sidecars,
+      candidateAuthority: sidecarCandidate.candidateAuthority,
+      workMeter: meter,
+      sourceStageCommitTicket: ticket,
+    })) throw new Error("Source sidecar commit invariant violated")
+    const committed =
+      commitVNextTextBlockUnifiedLayoutSourceStageInternalV1(ticket)
+    if (!consumeVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInternalV1(
+      sourceCandidate.pathCopyCandidateAuthority,
+    )) throw new Error("Source path-copy candidate retirement invariant violated")
+    const sourceStage = freeze({
+      status: "accepted" as const,
+      preflight: input.preflight,
+      previousSourceRange: input.preflight.previousRanges.changedSourceRange,
+      nextSourceRange: input.preflight.nextRanges.changedSourceRange,
+      nextSourceState: sourceCandidate.sourceState,
+      existingLineageIds: sourceCandidate.existingLineageIds,
+      insertedLineageIds: sourceCandidate.insertedLineageIds,
+      structuralTargetAuthority: committed.structuralTargetAuthority,
+      sourceLayoutDeltaAuthority: committed.sourceLayoutDeltaAuthority,
+      sourceStageAuthority: committed.sourceStageAuthority,
+      candidateWorkAuthority: nextCandidateWorkAuthority,
+      completedCandidateWork: nextCandidateWork,
+      issues: freeze([]) as readonly [],
+    })
+    sourceStageRecords.set(sourceStage, Object.freeze({
+      previousRoot: input.previousRoot,
+      sourceStage,
+      evidence: input.evidence,
+      validatedChange: record.validatedChange,
+      sourceMaterial: record.sourceMaterial,
+      boundedNextSourceItems: sourceCandidateRecord.nextLeafItems,
+      boundedNextSourceStartRenderedUtf16:
+        sourceCandidateRecord.nextLeafStartRenderedUtf16,
+    }))
+    return sourceStage
   }
 
   let work = input.completedCandidateWork

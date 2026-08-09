@@ -13,7 +13,10 @@ import {
 import {
   createVNextTextBlockTransitionReplacementSourceItemInternalV1,
   createVNextTextBlockUnifiedLayoutSourceStateCompleteInternalV1,
+  consumeVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInternalV1,
+  discardVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInternalV1,
   getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInternalV1,
+  inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1,
   prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1,
   registerVNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1,
   setVNextTextBlockUnifiedLayoutSourceIndexLookupObserverForTestInternalV1,
@@ -26,11 +29,13 @@ import {
   completeVNextTextBlockUnifiedLayout5B2OperationInternalV1,
   inspectVNextTextBlockUnifiedLayout5B2CandidateWorkMeterForTestInternalV1,
   openVNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+  prepareVNextTextBlockUnifiedLayout5B2SourceCandidateWorkPublicationInternalV1,
   projectVNextTextBlockUnifiedLayout5B2CompatibilityWorkInternalV1,
   publishVNextTextBlockUnifiedLayout5B2CandidateWorkInternalV1,
   resolveVNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1,
   type VNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1,
   type VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+  type VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.js"
 import type {
   VNextTextBlockUnifiedLayout5B2SourceWorkUnitInternalV1,
@@ -58,14 +63,26 @@ import {
   type VNextTextBlockUnifiedLayoutSourceStyleRefcountNodeInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutSourceStyleRefcountsInternalsV1.js"
 import {
+  commitVNextTextBlockUnifiedLayoutSourceStageInternalV1,
+  prepareVNextTextBlockUnifiedLayoutSourceStageCommitInternalV1,
+  resolveVNextTextBlockUnifiedLayoutSourceStageAuthorityInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutSourceAuthorityInternalsV1.js"
+import {
   prepareVNextTextBlockUnifiedLayoutSourceSidecarsCompleteInternalV1,
   prepareVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyInternalV1,
+  prepareVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyRegistrationInternalV1,
   prepareVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyWithForcedPositionIntervalForTestInternalV1,
   prepareVNextTextBlockUnifiedLayoutSourceSidecarsWithForcedStyleCollisionForTestInternalV1,
+  canRegisterVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyInternalV1,
+  discardVNextTextBlockUnifiedLayoutSourceSidecarCandidateInternalV1,
+  registerVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyInternalV1,
   registerVNextTextBlockUnifiedLayoutSourceSidecarsCompleteInternalV1,
   matchesVNextTextBlockUnifiedLayoutSourcePositionKeyExhaustionProofInternalV1,
   resolveVNextTextBlockUnifiedLayoutSourceSidecarsInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutSourceSidecarsInternalsV1.js"
+import {
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_SOURCE_STATE_POLICY_V1,
+} from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
 import {
   prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutRootV2.js"
@@ -666,6 +683,79 @@ function prepareMixedSingleItemEditCandidate(
   return { ...foundation, previousEntries, prepared, record, replacement, previous }
 }
 
+function prepareMixedBoundaryInsertionCandidate(
+  lineCount: number,
+  boundaryOrdinal: number,
+) {
+  const foundation = mixedPlanAFoundation(lineCount)
+  const previousEntries = inspectVNextTextBlockUnifiedLayoutSourceOrderTreeInternalV1(
+    foundation.sidecars.orderRoot,
+  ).entries
+  const styleOwner = previousEntries[Math.min(
+    boundaryOrdinal,
+    previousEntries.length - 1,
+  )]?.item
+  if (styleOwner?.kind !== "text") {
+    throw new Error("boundary insertion style owner missing")
+  }
+  const inserted = createVNextTextBlockTransitionReplacementSourceItemInternalV1({
+    sourceState: foundation.root.sourceState,
+    kind: "text",
+    renderedText: "I",
+    lineageId: `boundary-lineage-${lineCount}-${boundaryOrdinal}`,
+    inlineId: `boundary-inline-${lineCount}-${boundaryOrdinal}`,
+    sourceFingerprint: `boundary-source-${lineCount}-${boundaryOrdinal}`,
+    provenanceFingerprint: `boundary-provenance-${lineCount}-${boundaryOrdinal}`,
+    style: styleOwner.style,
+  })
+  if (inserted == null) throw new Error("boundary insertion item blocked")
+  const boundary = previousEntries.slice(0, boundaryOrdinal).reduce(
+    (sum, entry) => sum + entry.renderedUtf16Length,
+    0,
+  )
+  const previousRange = Object.freeze({
+    startRenderedUtf16: boundary,
+    endRenderedUtf16: boundary,
+  })
+  const emptyFingerprint = createVNextCompactFingerprint(
+    stringifyVNextCanonicalJson([]),
+  )
+  const replacement = Object.freeze({
+    previousRange,
+    nextItems: Object.freeze([inserted]),
+    expectedPreviousContentFingerprint: emptyFingerprint,
+    expectedPreviousSourceFingerprint: emptyFingerprint,
+    expectedPreviousProvenanceFingerprint: emptyFingerprint,
+    fingerprint: `boundary-replacement-${lineCount}-${boundaryOrdinal}`,
+  })
+  if (!registerVNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1({
+    previousSourceState: foundation.root.sourceState,
+    replacement,
+    change: foundation.change,
+  })) throw new Error("boundary insertion replacement registration blocked")
+  const prepared = prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1({
+    previousSourceState: foundation.root.sourceState,
+    replacement,
+    beforeVisit: () => true,
+  })
+  if (prepared.status !== "prepared") {
+    throw new Error(`boundary Source candidate was ${prepared.status}`)
+  }
+  const record = getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInternalV1(
+    prepared.pathCopyCandidateAuthority,
+  )
+  if (record == null) throw new Error("boundary Source candidate record missing")
+  return {
+    ...foundation,
+    previousEntries,
+    inserted,
+    boundary,
+    replacement,
+    prepared,
+    record,
+  }
+}
+
 function preparePlanASourceCandidate(input: {
   readonly nextItemCount?: number
   readonly sourceLimits?: NonNullable<
@@ -742,6 +832,256 @@ function preparePlanASourceCandidate(input: {
   )
   if (record == null) throw new Error("path-copy record missing")
   return { ...foundation, prepared, record, replacement }
+}
+
+function commitSourceCheckpoint(input: {
+  readonly fixture: ReturnType<typeof admitted5B2PlanARootFixture>
+  readonly previousSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly previousSidecars: NonNullable<
+    ReturnType<typeof resolveVNextTextBlockUnifiedLayoutSourceSidecarsInternalV1>
+  >
+  readonly checkpointOrdinal: number
+  readonly probeTicketAtomicity?: boolean
+  readonly probeSourceAbortAlias?: "removedItems" | "nextPhysicalItems"
+}) {
+  const opened = openMeterForPlanAFixture({
+    root: input.fixture.root,
+    composition: input.fixture.composition,
+    sidecars: input.previousSidecars,
+  }, `Source-checkpoint-${input.checkpointOrdinal}`)
+  const previous = inspectVNextTextBlockUnifiedLayoutSourceOrderTreeInternalV1(
+    input.previousSidecars.orderRoot,
+  ).entries[0]?.item
+  if (previous?.kind !== "text") throw new Error("checkpoint text missing")
+  const next = createVNextTextBlockTransitionReplacementSourceItemInternalV1({
+    sourceState: input.previousSourceState,
+    kind: "text",
+    renderedText: previous.renderedText,
+    lineageId: `checkpoint-lineage-${input.checkpointOrdinal}`,
+    inlineId: `checkpoint-inline-${input.checkpointOrdinal}`,
+    sourceFingerprint: `checkpoint-source-${input.checkpointOrdinal}`,
+    provenanceFingerprint: `checkpoint-provenance-${input.checkpointOrdinal}`,
+    style: previous.style,
+  })
+  if (next == null) throw new Error("checkpoint item blocked")
+  const previousRange = Object.freeze({
+    startRenderedUtf16: 0,
+    endRenderedUtf16: previous.renderedUtf16Length,
+  })
+  const replacement = Object.freeze({
+    previousRange,
+    nextItems: Object.freeze([next]),
+    expectedPreviousContentFingerprint: createVNextCompactFingerprint(
+      stringifyVNextCanonicalJson([previous.renderedText]),
+    ),
+    expectedPreviousSourceFingerprint: createVNextCompactFingerprint(
+      stringifyVNextCanonicalJson([previous.sourceFingerprint]),
+    ),
+    expectedPreviousProvenanceFingerprint: createVNextCompactFingerprint(
+      stringifyVNextCanonicalJson([previous.provenanceFingerprint]),
+    ),
+    fingerprint: `Source-checkpoint-replacement-${input.checkpointOrdinal}`,
+  })
+  if (!registerVNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1({
+    previousSourceState: input.previousSourceState,
+    replacement,
+    change: opened.change,
+  })) throw new Error("checkpoint replacement registration blocked")
+
+  let pendingPermit: VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1 | null = null
+  const sourceCandidate =
+    prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1({
+      previousSourceState: input.previousSourceState,
+      replacement,
+      beforeVisit(unit) {
+        if (pendingPermit != null) {
+          if (!completeVNextTextBlockUnifiedLayout5B2OperationInternalV1(
+            pendingPermit,
+          )) throw new Error("checkpoint permit completion blocked")
+          pendingPermit = null
+        }
+        const begun = beginVNextTextBlockUnifiedLayout5B2OperationInternalV1({
+          meter: opened.meter,
+          unit: unit === "source-lookup-nodes"
+            ? "source-tree-lookup-nodes"
+            : unit === "source-path-copy-nodes"
+              ? "source-tree-path-copy-nodes"
+              : "source-leaf-slots",
+        })
+        if (begun.status !== "permitted") {
+          throw new Error(`checkpoint Source work was ${begun.status}`)
+        }
+        pendingPermit = begun.permit
+        return true
+      },
+    })
+  if (sourceCandidate.status !== "prepared") {
+    throw new Error(`checkpoint Source candidate was ${sourceCandidate.status}`)
+  }
+  if (
+    pendingPermit != null
+    && !completeVNextTextBlockUnifiedLayout5B2OperationInternalV1(pendingPermit)
+  ) throw new Error("checkpoint final permit completion blocked")
+  const sourceRecord =
+    getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInternalV1(
+      sourceCandidate.pathCopyCandidateAuthority,
+    )
+  if (sourceRecord == null) throw new Error("checkpoint Source record missing")
+  const sidecarCandidate =
+    prepareVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyInternalV1({
+      previousSourceState: input.previousSourceState,
+      nextSourceState: sourceCandidate.sourceState,
+      replacement,
+      removedItems: sourceRecord.removedItems,
+      nextPhysicalItems: sourceRecord.nextPhysicalItems,
+      previousSidecars: input.previousSidecars,
+      workMeter: opened.meter,
+    })
+  if (sidecarCandidate.status !== "prepared") {
+    throw new Error(`checkpoint sidecars were ${sidecarCandidate.status}`)
+  }
+  const nextCandidateWork =
+    projectVNextTextBlockUnifiedLayout5B2CompatibilityWorkInternalV1(
+      opened.meter,
+    )
+  if (nextCandidateWork == null) throw new Error("checkpoint work missing")
+  const sourceEmissionCount = sourceRecord.nextPhysicalItems.length
+  const publicationPrecondition =
+    prepareVNextTextBlockUnifiedLayout5B2SourceCandidateWorkPublicationInternalV1({
+      meter: opened.meter,
+      nextCandidateWork,
+      completedSourceEmissionCount: sourceEmissionCount,
+      producingStageAuthority: opened.preflight,
+    })
+  if (
+    publicationPrecondition == null
+    || !canRegisterVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyInternalV1({
+      previousRoot: input.fixture.root,
+      composition: input.fixture.composition,
+      previousSidecars: input.previousSidecars,
+      nextSourceState: sourceCandidate.sourceState,
+      nextSidecars: sidecarCandidate.sidecars,
+      candidateAuthority: sidecarCandidate.candidateAuthority,
+      workMeter: opened.meter,
+    })
+  ) throw new Error("checkpoint commit precondition blocked")
+  const sidecarRegistrationPrecondition =
+    prepareVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyRegistrationInternalV1({
+      previousRoot: input.fixture.root,
+      composition: input.fixture.composition,
+      previousSidecars: input.previousSidecars,
+      nextSourceState: sourceCandidate.sourceState,
+      nextSidecars: sidecarCandidate.sidecars,
+      candidateAuthority: sidecarCandidate.candidateAuthority,
+      sourcePathCopyCandidateAuthority:
+        sourceCandidate.pathCopyCandidateAuthority,
+      workMeter: opened.meter,
+    })
+  if (sidecarRegistrationPrecondition == null) {
+    throw new Error("checkpoint sidecar precondition blocked")
+  }
+  const ticketInput = {
+    previousRoot: input.fixture.root,
+    previousSourceState: input.previousSourceState,
+    preflight: opened.preflight,
+    evidence: null,
+    composition: input.fixture.composition,
+    packingPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_SOURCE_STATE_POLICY_V1,
+    previousSidecars: input.previousSidecars,
+    nextSourceState: sourceCandidate.sourceState,
+    nextSidecars: sidecarCandidate.sidecars,
+    candidateWorkMeter: opened.meter,
+    nextCandidateWork,
+    nextSidecarCandidateAuthority: sidecarCandidate.candidateAuthority,
+    sourcePathCopyCandidateAuthority:
+      sourceCandidate.pathCopyCandidateAuthority,
+    producingStageAuthority: opened.preflight,
+    completedSourceEmissionCount: sourceEmissionCount,
+    candidateWorkPublicationPreconditionAuthority: publicationPrecondition,
+    sidecarRegistrationPreconditionAuthority: sidecarRegistrationPrecondition,
+  }
+  const clonedTupleTicket = input.probeTicketAtomicity === true
+    ? prepareVNextTextBlockUnifiedLayoutSourceStageCommitInternalV1({
+        ...ticketInput,
+        nextSidecars: Object.freeze({
+          ...structuredClone(sidecarCandidate.sidecars),
+          sourceState: sourceCandidate.sourceState,
+        }),
+      })
+    : null
+  const ticket = prepareVNextTextBlockUnifiedLayoutSourceStageCommitInternalV1(
+    ticketInput,
+  )
+  if (ticket == null) throw new Error("checkpoint commit ticket blocked")
+  const duplicateTicket = input.probeTicketAtomicity === true
+    ? prepareVNextTextBlockUnifiedLayoutSourceStageCommitInternalV1(ticketInput)
+    : null
+  const postTicketSidecarAbortRejected = input.probeTicketAtomicity === true
+    ? !discardVNextTextBlockUnifiedLayoutSourceSidecarCandidateInternalV1(
+        sidecarCandidate.candidateAuthority,
+      )
+    : true
+  const postTicketSourceAbortRejected = input.probeTicketAtomicity === true
+    ? !discardVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInternalV1(
+        sourceCandidate.pathCopyCandidateAuthority,
+      )
+    : true
+  const postTicketSourceAliasAbortRejected = input.probeSourceAbortAlias == null
+    ? true
+    : !discardVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInternalV1(
+        sourceRecord[input.probeSourceAbortAlias],
+      )
+  if (publishVNextTextBlockUnifiedLayout5B2CandidateWorkInternalV1({
+    meter: opened.meter,
+    nextCandidateWork,
+    producingStageAuthority: ticket,
+  }) == null) throw new Error("checkpoint Candidate Work publication blocked")
+  if (!registerVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyInternalV1({
+    previousRoot: input.fixture.root,
+    composition: input.fixture.composition,
+    previousSidecars: input.previousSidecars,
+    nextSourceState: sourceCandidate.sourceState,
+    nextSidecars: sidecarCandidate.sidecars,
+    candidateAuthority: sidecarCandidate.candidateAuthority,
+    workMeter: opened.meter,
+    sourceStageCommitTicket: ticket,
+  })) throw new Error("checkpoint sidecar registration blocked")
+  const committed = commitVNextTextBlockUnifiedLayoutSourceStageInternalV1(ticket)
+  if (!consumeVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInternalV1(
+    sourceCandidate.pathCopyCandidateAuthority,
+  )) throw new Error("checkpoint Source candidate retirement blocked")
+  const postCommitSourceAbortRejected =
+    !discardVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInternalV1(
+      sourceCandidate.pathCopyCandidateAuthority,
+    )
+  const postCommitRemovedAliasAbortRejected =
+    !discardVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInternalV1(
+      sourceRecord.removedItems,
+    )
+  const postCommitNextAliasAbortRejected =
+    !discardVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInternalV1(
+      sourceRecord.nextPhysicalItems,
+    )
+  return Object.freeze({
+    previousSourceState: input.previousSourceState,
+    previousSidecars: input.previousSidecars,
+    nextSourceState: sourceCandidate.sourceState,
+    nextSidecars: sidecarCandidate.sidecars,
+    completedCandidateWork: nextCandidateWork,
+    sourceStageAuthority: committed.sourceStageAuthority,
+    clonedTupleTicketMinted: clonedTupleTicket != null,
+    duplicateTicketMinted: duplicateTicket != null,
+    postTicketSidecarAbortRejected,
+    postTicketSourceAbortRejected,
+    postTicketSourceAliasAbortRejected,
+    postCommitSourceAbortRejected,
+    postCommitRemovedAliasAbortRejected,
+    postCommitNextAliasAbortRejected,
+    sourceCandidateHandleRetired:
+      getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInternalV1(
+        sourceCandidate.pathCopyCandidateAuthority,
+      ) == null,
+  })
 }
 
 describe("Phase 5B-2 complete process-local Source sidecars", () => {
@@ -833,6 +1173,103 @@ describe("Phase 5B-2 complete process-local Source sidecars", () => {
     expect(getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInternalV1(
       prepared.pathCopyCandidateAuthority,
     )?.change).toBe(candidate.change)
+  })
+
+  it("normalizes a pre-ticket Source array alias to the exact candidate abort", () => {
+    const candidate = preparePlanASourceCandidate({ nextItemCount: 1 })
+    expect(discardVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInternalV1(
+      candidate.record.removedItems,
+    )).toBe(true)
+    expect(getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInternalV1(
+      candidate.prepared.pathCopyCandidateAuthority,
+    )).toBeNull()
+    expect(getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInternalV1(
+      candidate.record.nextPhysicalItems,
+    )).toBeNull()
+    expect(inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1(
+      candidate.prepared.sourceState,
+    ).status).toBe("invalid")
+  })
+
+  it("keeps a three-state Source checkpoint chain on immediately previous sidecars", () => {
+    // This is a process-local Source checkpoint chain, not Root publication.
+    const fixture = admitted5B2PlanARootFixture({ text: "ABCD" })
+    const checkpoint1 = commitSourceCheckpoint({
+      fixture,
+      previousSourceState: fixture.root.sourceState,
+      previousSidecars: fixture.sidecars,
+      checkpointOrdinal: 1,
+      probeTicketAtomicity: true,
+      probeSourceAbortAlias: "removedItems",
+    })
+    const checkpoint2 = commitSourceCheckpoint({
+      fixture,
+      previousSourceState: checkpoint1.nextSourceState,
+      previousSidecars: checkpoint1.nextSidecars,
+      checkpointOrdinal: 2,
+      probeTicketAtomicity: true,
+      probeSourceAbortAlias: "nextPhysicalItems",
+    })
+    const checkpoint3 = commitSourceCheckpoint({
+      fixture,
+      previousSourceState: checkpoint2.nextSourceState,
+      previousSidecars: checkpoint2.nextSidecars,
+      checkpointOrdinal: 3,
+    })
+
+    const resolve = (checkpoint: typeof checkpoint1) =>
+      resolveVNextTextBlockUnifiedLayoutSourceStageAuthorityInternalV1({
+        authority: checkpoint.sourceStageAuthority,
+        previousRoot: fixture.root,
+        nextSourceState: checkpoint.nextSourceState,
+        completedCandidateWork: checkpoint.completedCandidateWork,
+      })
+    expect(resolve(checkpoint1)?.previousSidecars).toBe(fixture.sidecars)
+    expect(checkpoint1.clonedTupleTicketMinted).toBe(false)
+    expect(checkpoint1.duplicateTicketMinted).toBe(false)
+    expect(checkpoint1.postTicketSidecarAbortRejected).toBe(true)
+    expect(checkpoint1.postTicketSourceAbortRejected).toBe(true)
+    expect(checkpoint1.postTicketSourceAliasAbortRejected).toBe(true)
+    expect(checkpoint2.postTicketSourceAliasAbortRejected).toBe(true)
+    expect(checkpoint1.postCommitSourceAbortRejected).toBe(true)
+    expect(checkpoint1.postCommitRemovedAliasAbortRejected).toBe(true)
+    expect(checkpoint1.postCommitNextAliasAbortRejected).toBe(true)
+    expect(checkpoint1.sourceCandidateHandleRetired).toBe(true)
+    expect(inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1(
+      checkpoint1.nextSourceState,
+    ).status).toBe("prepared-unregistered")
+    expect(resolveVNextTextBlockUnifiedLayoutSourceSidecarsInternalV1({
+      sourceState: checkpoint1.nextSourceState,
+      composition: fixture.composition,
+    })).toBe(checkpoint1.nextSidecars)
+    expect(resolve(checkpoint2)).toMatchObject({
+      previousSourceState: checkpoint1.nextSourceState,
+      previousSidecars: checkpoint1.nextSidecars,
+    })
+    expect(resolve(checkpoint3)).toMatchObject({
+      previousSourceState: checkpoint2.nextSourceState,
+      previousSidecars: checkpoint2.nextSidecars,
+    })
+    expect(resolve(checkpoint2)?.previousSidecars).not.toBe(fixture.sidecars)
+    expect(resolve(checkpoint3)?.previousSidecars).not.toBe(
+      checkpoint1.nextSidecars,
+    )
+    expect(resolveVNextTextBlockUnifiedLayoutSourceStageAuthorityInternalV1({
+      authority: checkpoint1.sourceStageAuthority,
+      previousRoot: fixture.root,
+      nextSourceState: checkpoint2.nextSourceState,
+      completedCandidateWork: checkpoint1.completedCandidateWork,
+    })).toBeNull()
+    expect(resolveVNextTextBlockUnifiedLayoutSourceStageAuthorityInternalV1({
+      authority: checkpoint2.sourceStageAuthority,
+      previousRoot: fixture.root,
+      nextSourceState: checkpoint3.nextSourceState,
+      completedCandidateWork: checkpoint2.completedCandidateWork,
+    })).toBeNull()
+    expect(resolveVNextTextBlockUnifiedLayoutSourceSidecarsInternalV1({
+      sourceState: structuredClone(checkpoint3.nextSourceState),
+      composition: fixture.composition,
+    })).toBeNull()
   })
 
   it("does not consult the stale legacy item index on registered Plan A Source", () => {
@@ -982,6 +1419,12 @@ describe("Phase 5B-2 complete process-local Source sidecars", () => {
       .toBe(true)
     expect(matches()).toBe(false)
     expect(result).not.toHaveProperty("candidateAuthority")
+    expect(discardVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInternalV1(
+      candidate.prepared.pathCopyCandidateAuthority,
+    )).toBe(true)
+    expect(inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1(
+      candidate.prepared.sourceState,
+    ).status).toBe("invalid")
   }, 30_000)
 
   it("validates the meter before observing neighbors and skips neighbors for zero count", () => {
@@ -1157,6 +1600,106 @@ describe("Phase 5B-2 complete process-local Source sidecars", () => {
     },
     30_000,
   )
+
+  it.each([
+    ["first", 0],
+    ["middle", 8],
+    ["last", 16],
+  ] as const)(
+    "path-copies a zero-width $0 boundary insertion in a multi-leaf order tree",
+    (_label, boundaryOrdinal) => {
+      const candidate = prepareMixedBoundaryInsertionCandidate(
+        16,
+        boundaryOrdinal,
+      )
+      expect(candidate.record.removedItems).toEqual([])
+      expect(candidate.record.nextPhysicalItems).toEqual([candidate.inserted])
+      const result = prepareVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyInternalV1({
+        previousSourceState: candidate.root.sourceState,
+        nextSourceState: candidate.prepared.sourceState,
+        replacement: candidate.replacement,
+        removedItems: candidate.record.removedItems,
+        nextPhysicalItems: candidate.record.nextPhysicalItems,
+        previousSidecars: candidate.sidecars,
+        workMeter: candidate.meter,
+      })
+      expect(result.status).toBe("prepared")
+      if (result.status !== "prepared") return
+      const nextEntries = inspectVNextTextBlockUnifiedLayoutSourceOrderTreeInternalV1(
+        result.sidecars.orderRoot,
+      ).entries
+      expect(nextEntries).toHaveLength(candidate.previousEntries.length + 1)
+      expect(nextEntries[boundaryOrdinal]?.item).toBe(candidate.inserted)
+      expect(nextEntries[boundaryOrdinal - 1]?.item ?? null).toBe(
+        candidate.previousEntries[boundaryOrdinal - 1]?.item ?? null,
+      )
+      expect(nextEntries[boundaryOrdinal + 1]?.item ?? null).toBe(
+        candidate.previousEntries[boundaryOrdinal]?.item ?? null,
+      )
+      expect(
+        inspectVNextTextBlockUnifiedLayout5B2CandidateWorkMeterForTestInternalV1(
+          candidate.meter,
+        )?.find((row) => row.ownerRow.unit === "source-items"),
+      ).toMatchObject({ attemptedWork: 1, completedWork: 1 })
+    },
+    30_000,
+  )
+
+  it.each([
+    ["negative", -1],
+    ["past-end", 10_000],
+    ["non-boundary", 1],
+  ] as const)(
+    "rejects a $0 zero-removal physical boundary without insertion output",
+    (_label, previousRenderedBoundary) => {
+      const candidate = prepareMixedBoundaryInsertionCandidate(16, 0)
+      const result = pathCopyVNextTextBlockUnifiedLayoutSourcePhysicalIndexInternalV1({
+        identityRoot: candidate.sidecars.identityRoot,
+        orderRoot: candidate.sidecars.orderRoot,
+        removedItems: candidate.record.removedItems,
+        nextPhysicalItems: candidate.record.nextPhysicalItems,
+        workMeter: candidate.meter,
+        previousRenderedBoundary,
+      })
+      expect(result.status).toBe("blocked")
+    },
+  )
+
+  it("stops a zero-width boundary lookup at a zero node limit before node payload", () => {
+    const foundation = openPlanAMeter({
+      sourceLimits: { sourceIndexNodes: 0 },
+      label: "boundary-zero-node-limit",
+    })
+    const previous = foundation.root.sourceState.root.nodeKind === "leaf"
+      ? foundation.root.sourceState.root.items[0]
+      : null
+    if (previous?.kind !== "text") throw new Error("zero-limit text missing")
+    const inserted = createVNextTextBlockTransitionReplacementSourceItemInternalV1({
+      sourceState: foundation.root.sourceState,
+      kind: "text",
+      renderedText: "I",
+      lineageId: "zero-limit-boundary-lineage",
+      inlineId: "zero-limit-boundary-inline",
+      sourceFingerprint: "zero-limit-boundary-source",
+      provenanceFingerprint: "zero-limit-boundary-provenance",
+      style: previous.style,
+    })
+    if (inserted == null) throw new Error("zero-limit insertion item blocked")
+    const result = pathCopyVNextTextBlockUnifiedLayoutSourcePhysicalIndexInternalV1({
+      identityRoot: foundation.sidecars.identityRoot,
+      orderRoot: foundation.sidecars.orderRoot,
+      removedItems: Object.freeze([]),
+      nextPhysicalItems: Object.freeze([inserted]),
+      workMeter: foundation.meter,
+      previousRenderedBoundary: 0,
+    })
+    expect(result.status).toBe("work-limit")
+    expect(
+      inspectVNextTextBlockUnifiedLayout5B2CandidateWorkMeterForTestInternalV1(
+        foundation.meter,
+      )?.find((row) => row.ownerRow.unit === "source-index-nodes"),
+    ).toMatchObject({ attemptedWork: 1, completedWork: 0 })
+  })
 
   it("removes a zero-refcount style and inserts a previously absent exact style", () => {
     // Catches zero-count tombstones and failure to insert the replacement style facts.

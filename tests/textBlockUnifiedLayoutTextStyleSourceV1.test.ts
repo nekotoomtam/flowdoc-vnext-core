@@ -13,6 +13,7 @@ import type { VNextTextBlockUnifiedLayoutRootV2 } from "../src/layout/textBlockU
 import type {
   VNextTextBlockUnifiedLayoutSourceItemV1,
   VNextTextBlockUnifiedLayoutSourceNodeV1,
+  VNextTextBlockUnifiedLayoutSourceStateV1,
 } from "../src/layout/textBlockUnifiedLayoutSourceStateContractV1.js"
 import { createVNextTextBlockUnifiedLayoutRootCompleteInternalV2 } from "../src/layout/textBlockUnifiedLayoutRootV2.js"
 import {
@@ -27,17 +28,35 @@ import {
   transitionVNextTextBlockUnifiedLayoutSourceInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionSourceInternalsV1.js"
 import {
+  commitVNextTextBlockUnifiedLayoutSourceStageInternalV1,
+  resolveVNextTextBlockUnifiedLayoutSourceStageCommitTicketForCandidateWorkInternalV1,
+  resolveVNextTextBlockUnifiedLayoutSourceStageAuthorityInternalV1,
+  setVNextTextBlockUnifiedLayoutSourceStageCommitTicketObserverForTestInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutSourceAuthorityInternalsV1.js"
+import {
+  canRegisterVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyInternalV1,
+  resolveVNextTextBlockUnifiedLayoutSourceSidecarsInternalV1,
+  setVNextTextBlockUnifiedLayoutSourceSidecarPathCopyCandidateObserverForTestInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutSourceSidecarsInternalsV1.js"
+import {
+  resolveVNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1,
+  setVNextTextBlockUnifiedLayout5B2CandidateRegistrationObserverForTestInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.js"
+import {
   setVNextTextBlockPostBindingLimitOverrideForTestInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
   createVNextTextBlockTransitionReplacementSourceItemInternalV1,
   forceVNextTextBlockRegisteredSourceStyleCollisionForTestInternalV1,
+  getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInternalV1,
+  inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1,
   inspectVNextTextBlockUnifiedLayoutSourceLegacyStorageForTestInternalV1,
   lookupVNextTextBlockUnifiedLayoutSourceItemByInlineIdInternalV1,
   prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1,
   registerVNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1,
   resolveVNextTextBlockRegisteredSourceStyleInternalV1,
   setVNextTextBlockUnifiedLayoutSourceIndexLookupObserverForTestInternalV1,
+  setVNextTextBlockUnifiedLayoutSourcePathCopyCandidateObserverForTestInternalV1,
   setVNextTextBlockSourceReplacementItemReadObserverForTestInternalV1,
   visitVNextTextBlockTransitionSourceCoverageInternalV1,
   visitVNextTextBlockTransitionSourceItemByInlineIdInternalV1,
@@ -56,8 +75,10 @@ import {
 } from "./helpers/textBlockUnifiedLayoutRootV1.js"
 import {
   admit5B2RootFixture,
+  admitted5B2PlanAAuthorityRootFixture,
   admitted5B2PlanARootFixture,
   admitted5B2HardBreakRootFixture,
+  register5B2PlanASidecarsForRootFixture,
   unrestrictedSourceCoveragePermits5B2,
 } from "./helpers/textBlockUnifiedIncremental5b2.js"
 
@@ -426,6 +447,393 @@ function batchItems(
 }
 
 describe("5B-2 text/style Source path copy", () => {
+  it("publishes the accepted Plan A Source stage only with full private authority", () => {
+    const fixture = admitted5B2PlanARootFixture()
+    admit5B2RootFixture(fixture.root)
+    const { result } = transition(
+      fixture.root,
+      styleChange(fixture.root, { textColor: "FF0000" }),
+    )
+
+    expect(result.status, JSON.stringify(result)).toBe("accepted")
+    if (result.status !== "accepted") return
+    expect("sourceStageAuthority" in result).toBe(true)
+    expect("candidateWorkAuthority" in result).toBe(true)
+    if (
+      !("sourceStageAuthority" in result)
+      || !("candidateWorkAuthority" in result)
+    ) return
+    const record = resolveVNextTextBlockUnifiedLayoutSourceStageAuthorityInternalV1({
+      authority: result.sourceStageAuthority,
+      previousRoot: fixture.root,
+      nextSourceState: result.nextSourceState,
+      completedCandidateWork: result.completedCandidateWork,
+    })
+    expect(record).toMatchObject({
+      previousRoot: fixture.root,
+      previousSourceState: fixture.root.sourceState,
+      preflight: result.preflight,
+      composition: fixture.composition,
+      previousSidecars: fixture.sidecars,
+      nextSourceState: result.nextSourceState,
+      completedCandidateWork: result.completedCandidateWork,
+      candidateWorkAuthority: result.candidateWorkAuthority,
+    })
+    expect(resolveVNextTextBlockUnifiedLayoutSourceSidecarsInternalV1({
+      sourceState: result.nextSourceState,
+      composition: fixture.composition,
+    })).toBe(record?.nextSidecars)
+    const candidateRecord =
+      resolveVNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1({
+      previousRoot: fixture.root,
+      change: result.preflight.change,
+      composition: fixture.composition,
+      candidateWork: result.completedCandidateWork,
+    })
+    expect(candidateRecord as unknown).toBe(result.candidateWorkAuthority)
+    const completedReceipt = (unit: string) => candidateRecord?.receipts.find(
+      (receipt) => receipt.ownerRow.unit === unit,
+    )?.completedWork
+    expect(result.completedCandidateWork.flow.visitedSourceItemCount).toBeGreaterThan(0)
+    expect(result.completedCandidateWork.flow).toMatchObject({
+      visitedSourceItemCount: completedReceipt("source-items"),
+      visitedSourceLookupNodeCount:
+        completedReceipt("source-tree-lookup-nodes"),
+      copiedSourcePathNodeCount:
+        completedReceipt("source-tree-path-copy-nodes"),
+      visitedChangedSourceLeafItemCount:
+        completedReceipt("source-leaf-slots"),
+    })
+    expect(result.completedCandidateWork.stageWork.filter(
+      (row) => row.stage === "source-flow",
+    )).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        unit: "source-items",
+        count: result.completedCandidateWork.flow.visitedSourceItemCount,
+      }),
+      expect.objectContaining({
+        unit: "source-lookup-nodes",
+        count: result.completedCandidateWork.flow.visitedSourceLookupNodeCount,
+      }),
+      expect.objectContaining({
+        unit: "source-path-copy-nodes",
+        count: result.completedCandidateWork.flow.copiedSourcePathNodeCount,
+      }),
+      expect.objectContaining({
+        unit: "source-leaf-items",
+        count:
+          result.completedCandidateWork.flow.visitedChangedSourceLeafItemCount,
+      }),
+    ]))
+    expect(resolveVNextTextBlockUnifiedLayoutSourceStageAuthorityInternalV1({
+      authority: structuredClone(result.sourceStageAuthority),
+      previousRoot: fixture.root,
+      nextSourceState: result.nextSourceState,
+      completedCandidateWork: result.completedCandidateWork,
+    })).toBeNull()
+    const clonedNextSource = structuredClone(result.nextSourceState)
+    expect(clonedNextSource.fingerprint).toBe(result.nextSourceState.fingerprint)
+    expect(resolveVNextTextBlockUnifiedLayoutSourceStageAuthorityInternalV1({
+      authority: result.sourceStageAuthority,
+      previousRoot: fixture.root,
+      nextSourceState: clonedNextSource,
+      completedCandidateWork: result.completedCandidateWork,
+    })).toBeNull()
+    expect(resolveVNextTextBlockUnifiedLayoutSourceSidecarsInternalV1({
+      sourceState: clonedNextSource,
+      composition: fixture.composition,
+    })).toBeNull()
+    expect(resolveVNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1({
+      previousRoot: fixture.root,
+      change: result.preflight.change,
+      composition: structuredClone(fixture.composition),
+      candidateWork: result.completedCandidateWork,
+    })).toBeNull()
+    const clonedCandidateWork = frozen(structuredClone(
+      result.completedCandidateWork,
+    ))
+    expect(stringifyVNextCanonicalJson(clonedCandidateWork)).toBe(
+      stringifyVNextCanonicalJson(result.completedCandidateWork),
+    )
+    expect(resolveVNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1({
+      previousRoot: fixture.root,
+      change: result.preflight.change,
+      composition: fixture.composition,
+      candidateWork: clonedCandidateWork,
+    })).toBeNull()
+  })
+
+  it("leaves no Source candidate publication after a forced final precondition rejection", () => {
+    const fixture = admitted5B2PlanAAuthorityRootFixture({ text: "ABCD" })
+    type SidecarCandidateInput = Parameters<
+      typeof canRegisterVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyInternalV1
+    >[0]
+    let sidecarCandidate: SidecarCandidateInput | null = null
+    let rejectedCandidateWork: Parameters<
+      typeof resolveVNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1
+    >[0]["candidateWork"] | null = null
+    setVNextTextBlockUnifiedLayoutSourceSidecarPathCopyCandidateObserverForTestInternalV1(
+      (candidate) => {
+        sidecarCandidate = {
+          previousRoot: fixture.root,
+          composition: fixture.composition,
+          previousSidecars: fixture.sidecars,
+          nextSourceState: candidate.sourceState,
+          nextSidecars: candidate.sidecars,
+          candidateAuthority: candidate.authority,
+          workMeter: candidate.workMeter,
+        }
+      },
+    )
+    setVNextTextBlockUnifiedLayout5B2CandidateRegistrationObserverForTestInternalV1(
+      (candidate) => {
+        if (candidate.candidateWork.flow.visitedSourceItemCount === 0) return true
+        rejectedCandidateWork = candidate.candidateWork
+        return false
+      },
+    )
+    try {
+      const change = styleChange(fixture.root, { textColor: "00FF00" })
+      const { result } = transition(fixture.root, change)
+      expect(result.status).toBe("blocked")
+      expect(sidecarCandidate).not.toBeNull()
+      expect(rejectedCandidateWork).not.toBeNull()
+      if (sidecarCandidate == null || rejectedCandidateWork == null) return
+      expect(canRegisterVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyInternalV1(
+        sidecarCandidate,
+      )).toBe(false)
+      const rejectedSidecarCandidate = sidecarCandidate as SidecarCandidateInput
+      expect(resolveVNextTextBlockUnifiedLayoutSourceSidecarsInternalV1({
+        sourceState: rejectedSidecarCandidate.nextSourceState,
+        composition: fixture.composition,
+      })).toBeNull()
+      expect(inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1(
+        rejectedSidecarCandidate.nextSourceState,
+      ).status).toBe("invalid")
+      expect(resolveVNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1({
+        previousRoot: fixture.root,
+        change,
+        composition: fixture.composition,
+        candidateWork: rejectedCandidateWork,
+      })).toBeNull()
+    } finally {
+      setVNextTextBlockUnifiedLayout5B2CandidateRegistrationObserverForTestInternalV1(null)
+      setVNextTextBlockUnifiedLayoutSourceSidecarPathCopyCandidateObserverForTestInternalV1(null)
+    }
+  })
+
+  it("discards the partial Source candidate when Plan A sidecar work reaches its limit", () => {
+    const fixture = admitted5B2PlanARootFixture({
+      text: "ABCD",
+      sourceLimits: { sourceIndexNodes: 0 },
+    })
+    admit5B2RootFixture(fixture.root)
+    const change = styleChange(fixture.root, { textColor: "112233" })
+    let sourceCandidateAuthority: unknown = null
+    let sourceCandidateState: VNextTextBlockUnifiedLayoutSourceStateV1 | null = null
+    let sidecarCandidateCount = 0
+    setVNextTextBlockUnifiedLayoutSourcePathCopyCandidateObserverForTestInternalV1(
+      (authority) => {
+        sourceCandidateAuthority = authority
+        sourceCandidateState =
+          getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInternalV1(
+            authority,
+          )?.nextSourceState ?? null
+      },
+    )
+    setVNextTextBlockUnifiedLayoutSourceSidecarPathCopyCandidateObserverForTestInternalV1(
+      () => { sidecarCandidateCount += 1 },
+    )
+    try {
+      const { result } = transition(fixture.root, change)
+      expect(result.status, JSON.stringify(result)).toBe("fallback-required")
+      expect(sourceCandidateAuthority).not.toBeNull()
+      expect(sidecarCandidateCount).toBe(0)
+      expect(getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInternalV1(
+        sourceCandidateAuthority,
+      )).toBeNull()
+      expect(sourceCandidateState).not.toBeNull()
+      expect(inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1(
+        sourceCandidateState,
+      ).status).toBe("invalid")
+      expect("sourceStageAuthority" in result).toBe(false)
+      expect("candidateWorkAuthority" in result).toBe(false)
+      expect(resolveVNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1({
+        previousRoot: fixture.root,
+        change,
+        composition: fixture.composition,
+        candidateWork: result.completedCandidateWork,
+      })).toBeNull()
+      for (const key of [
+        "flowCandidate",
+        "breakCandidate",
+        "spatialCandidate",
+        "lineCandidate",
+        "sceneCandidate",
+        "deliveryCandidate",
+        "rootCandidate",
+      ]) expect(result).not.toHaveProperty(key)
+    } finally {
+      setVNextTextBlockUnifiedLayoutSourceSidecarPathCopyCandidateObserverForTestInternalV1(null)
+      setVNextTextBlockUnifiedLayoutSourcePathCopyCandidateObserverForTestInternalV1(null)
+    }
+  })
+
+  it("binds one Source commit ticket against replay, clone, and cross tuples", () => {
+    const exact = admitted5B2PlanARootFixture({ text: "ABCD" })
+    const other = admitted5B2PlanARootFixture({ text: "WXYZ" })
+    admit5B2RootFixture(exact.root)
+    admit5B2RootFixture(other.root)
+    const exactChange = styleChange(exact.root, { textColor: "0000FF" })
+    const otherChange = styleChange(other.root, { textColor: "FF00FF" })
+    let ticket: Parameters<
+      typeof commitVNextTextBlockUnifiedLayoutSourceStageInternalV1
+    >[0] | null = null
+    const observations: boolean[] = []
+    setVNextTextBlockUnifiedLayoutSourceStageCommitTicketObserverForTestInternalV1(
+      (candidate) => {
+        ticket = candidate.ticket
+        const resolves = (overrides: Partial<typeof candidate> = {}) =>
+          resolveVNextTextBlockUnifiedLayoutSourceStageCommitTicketForCandidateWorkInternalV1({
+            ticket: overrides.ticket ?? candidate.ticket,
+            meter: overrides.meter ?? candidate.meter,
+            previousRoot: overrides.previousRoot ?? candidate.previousRoot,
+            change: overrides.change ?? candidate.change,
+            composition: overrides.composition ?? candidate.composition,
+            nextCandidateWork:
+              overrides.nextCandidateWork ?? candidate.nextCandidateWork,
+          }) != null
+        observations.push(
+          resolves(),
+          resolves({ ticket: structuredClone(candidate.ticket) }),
+          resolves({ meter: {} as typeof candidate.meter }),
+          resolves({ previousRoot: other.root }),
+          resolves({ change: otherChange }),
+          resolves({ composition: other.composition }),
+          resolves({
+            nextCandidateWork: frozen(structuredClone(candidate.nextCandidateWork)),
+          }),
+        )
+      },
+    )
+    try {
+      const { result } = transition(exact.root, exactChange)
+      expect(result.status).toBe("accepted")
+      expect(observations).toEqual([true, false, false, false, false, false, false])
+      expect(ticket).not.toBeNull()
+      if (ticket == null) return
+      expect(() => commitVNextTextBlockUnifiedLayoutSourceStageInternalV1(ticket!))
+        .toThrow("Source commit ticket was not fully prepared")
+    } finally {
+      setVNextTextBlockUnifiedLayoutSourceStageCommitTicketObserverForTestInternalV1(null)
+    }
+  })
+
+  it.each([
+    {
+      label: "insertion",
+      change: (root: VNextTextBlockUnifiedLayoutRootV2) =>
+        insertion(root, 0, "X"),
+    },
+    {
+      label: "replacement",
+      change: (root: VNextTextBlockUnifiedLayoutRootV2) =>
+        replacement(root, 1, 3, "YZ"),
+    },
+    {
+      label: "deletion",
+      change: (root: VNextTextBlockUnifiedLayoutRootV2) =>
+        deletion(root, 1, 3),
+    },
+  ])("commits exact Evidence-backed geometry $label through Plan A", (row) => {
+    const fixture = admitted5B2PlanAAuthorityRootFixture({ text: "ABCD" })
+    const { result } = transition(fixture.root, row.change(fixture.root))
+    expect(result.status, JSON.stringify(result)).toBe("accepted")
+    if (result.status !== "accepted") return
+    expect("sourceStageAuthority" in result).toBe(true)
+    expect(result.completedCandidateWork.flow.visitedSourceItemCount)
+      .toBeGreaterThan(0)
+    expect(resolveVNextTextBlockUnifiedLayoutSourceSidecarsInternalV1({
+      sourceState: result.nextSourceState,
+      composition: fixture.composition,
+    })).not.toBeNull()
+  })
+
+  it("commits a whole-item deletion with zero Source emissions through its exact ticket", () => {
+    const fixture = register5B2PlanASidecarsForRootFixture(repeatedRoot(2))
+    const removed = firstText(fixture.root)
+    const { result } = transition(
+      fixture.root,
+      deletion(fixture.root, 0, removed.renderedUtf16Length),
+    )
+
+    expect(result.status, JSON.stringify(result)).toBe("accepted")
+    if (result.status !== "accepted") return
+    expect("sourceStageAuthority" in result).toBe(true)
+    expect(result.completedCandidateWork.flow.visitedSourceItemCount).toBe(0)
+    expect(sourceItems(result.nextSourceState.root)).not.toContain(removed)
+  })
+
+  it.each([
+    {
+      label: "equal-metric semantic-only",
+      nextStyle: {},
+      expectedEffect: "semantic-only-change",
+    },
+    {
+      label: "paint-only",
+      nextStyle: { textColor: "00FF00" },
+      expectedEffect: "paint-affecting-change",
+    },
+  ] as const)("commits the Plan A $label style Source checkpoint", (row) => {
+    const fixture = admitted5B2PlanAAuthorityRootFixture({ text: "ABCD" })
+    const { preflight, result } = transition(
+      fixture.root,
+      styleChange(fixture.root, row.nextStyle, 1, 3),
+    )
+
+    expect(preflight).toMatchObject({
+      status: "not-required",
+      preflight: { effectClassification: { effectClass: row.expectedEffect } },
+    })
+    expect(result.status, JSON.stringify(result)).toBe("accepted")
+    if (result.status !== "accepted") return
+    expect("sourceStageAuthority" in result).toBe(true)
+    expect(result.completedCandidateWork.evidence.requestCount).toBe(0)
+    expect(result.nextSourceState.summary.provenanceFingerprint).not.toBe(
+      fixture.root.sourceState.summary.provenanceFingerprint,
+    )
+  })
+
+  it("commits an equal-rendered resolved-field Source checkpoint through Plan A", () => {
+    const fixture = register5B2PlanASidecarsForRootFixture(
+      admitted5B2HardBreakRootFixture(),
+    )
+    const previousField = sourceItems(fixture.root.sourceState.root).find(
+      (item) => item.kind === "resolved-field",
+    )
+    if (previousField?.kind !== "resolved-field") throw new Error("field missing")
+
+    const { result } = transition(
+      fixture.root,
+      fieldChange(fixture.root, previousField.renderedText),
+    )
+
+    expect(result.status, JSON.stringify(result)).toBe("accepted")
+    if (result.status !== "accepted") return
+    expect("sourceStageAuthority" in result).toBe(true)
+    const nextField = sourceItems(result.nextSourceState.root).find(
+      (item) => item.kind === "resolved-field",
+    )
+    expect(nextField).toMatchObject({
+      inlineId: previousField.inlineId,
+      renderedText: previousField.renderedText,
+    })
+    expect(nextField?.provenanceFingerprint).not.toBe(
+      previousField.provenanceFingerprint,
+    )
+  })
+
   it("resolves registered Plan A styles from the exact style sidecar", () => {
     // Catches filtering the cloned legacy style registry after Plan A registration.
     const { root } = admitted5B2PlanARootFixture({ text: "ABCD" })

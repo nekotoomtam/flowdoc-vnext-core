@@ -251,6 +251,8 @@ interface OrderNodeBaseInternalV1 {
   readonly renderedUtf16Length: number
   readonly firstPositionKey: number
   readonly lastPositionKey: number
+  readonly firstEntry: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1
+  readonly lastEntry: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1
   readonly fingerprint: string
 }
 
@@ -380,7 +382,13 @@ function orderLeaf(
   if (!Number.isSafeInteger(facts.renderedUtf16Length)) {
     throw new RangeError("Source order rendered length must stay safe")
   }
-  return Object.freeze({ ...facts, entries: frozenEntries, fingerprint: fingerprint(facts) })
+  return Object.freeze({
+    ...facts,
+    entries: frozenEntries,
+    firstEntry: frozenEntries[0]!,
+    lastEntry: frozenEntries[frozenEntries.length - 1]!,
+    fingerprint: fingerprint(facts),
+  })
 }
 
 function orderBranch(
@@ -405,7 +413,13 @@ function orderBranch(
     !Number.isSafeInteger(facts.itemCount)
     || !Number.isSafeInteger(facts.renderedUtf16Length)
   ) throw new RangeError("Source order summaries must stay safe")
-  return Object.freeze({ ...facts, children: frozenChildren, fingerprint: fingerprint(facts) })
+  return Object.freeze({
+    ...facts,
+    children: frozenChildren,
+    firstEntry: frozenChildren[0]!.firstEntry,
+    lastEntry: frozenChildren[frozenChildren.length - 1]!.lastEntry,
+    fingerprint: fingerprint(facts),
+  })
 }
 
 type IdentityInsert = readonly [
@@ -1338,12 +1352,142 @@ function insertOrderEntryMeteredInternalV1(input: {
   ]
 }
 
+function lookupOrderBoundaryMeteredInternalV1(input: {
+  readonly root: VNextTextBlockUnifiedLayoutSourceOrderIndexNodeInternalV1
+  readonly boundaryRenderedUtf16: number
+  readonly meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
+}):
+  | {
+      readonly status: "found"
+      readonly predecessor: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1 | null
+      readonly successor: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1 | null
+    }
+  | { readonly status: "invalid" } {
+  const rootLength = meteredPhysicalOperationInternalV1({
+    meter: input.meter,
+    unit: "source-index-comparisons",
+    operation: () => input.root.renderedUtf16Length,
+  })
+  const validBoundary = meteredPhysicalOperationInternalV1({
+    meter: input.meter,
+    unit: "source-index-comparisons",
+    operation: () => Number.isSafeInteger(input.boundaryRenderedUtf16)
+      && input.boundaryRenderedUtf16 >= 0
+      && input.boundaryRenderedUtf16 <= rootLength,
+  })
+  if (!validBoundary) return Object.freeze({ status: "invalid" as const })
+
+  let node = input.root
+  let localBoundary = input.boundaryRenderedUtf16
+  let inheritedPredecessor:
+    VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1 | null = null
+  let inheritedSuccessor:
+    VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1 | null = null
+  while (true) {
+    const payload = orderNodePayloadMeteredInternalV1(node, input.meter)
+    if (payload.kind === "leaf") {
+      let prefix = 0
+      let predecessor = inheritedPredecessor
+      for (let index = 0; index < payload.occupancy; index += 1) {
+        const entry = meteredPhysicalOperationInternalV1({
+          meter: input.meter,
+          unit: "source-index-entries",
+          operation: () => payload.entries[index]!,
+        })
+        const entryFacts = meteredPhysicalOperationInternalV1({
+          meter: input.meter,
+          unit: "source-index-comparisons",
+          operation: () => ({
+            renderedUtf16Length: entry.renderedUtf16Length,
+            positionKey: entry.positionKey,
+          }),
+        })
+        const relation = meteredPhysicalOperationInternalV1({
+          meter: input.meter,
+          unit: "source-index-comparisons",
+          operation: () => {
+            const end = prefix + entryFacts.renderedUtf16Length
+            return localBoundary === prefix
+              ? "before" as const
+              : localBoundary < end
+                ? "inside" as const
+                : "after" as const
+          },
+        })
+        if (relation === "before") {
+          return Object.freeze({
+            status: "found" as const,
+            predecessor,
+            successor: entry,
+          })
+        }
+        if (relation === "inside") {
+          return Object.freeze({ status: "invalid" as const })
+        }
+        prefix += entryFacts.renderedUtf16Length
+        predecessor = entry
+      }
+      return meteredPhysicalOperationInternalV1({
+        meter: input.meter,
+        unit: "source-index-comparisons",
+        operation: () => localBoundary === prefix
+          ? Object.freeze({
+              status: "found" as const,
+              predecessor,
+              successor: inheritedSuccessor,
+            })
+          : Object.freeze({ status: "invalid" as const }),
+      })
+    }
+
+    let prefix = 0
+    let selected:
+      VNextTextBlockUnifiedLayoutSourceOrderIndexNodeInternalV1 | null = null
+    for (let index = 0; index < payload.occupancy; index += 1) {
+      const child = payload.children[index]!
+      const summary = meteredPhysicalOperationInternalV1({
+        meter: input.meter,
+        unit: "source-index-comparisons",
+        operation: () => ({
+          renderedUtf16Length: child.renderedUtf16Length,
+          firstEntry: child.firstEntry,
+          lastEntry: child.lastEntry,
+        }),
+      })
+      const contains = meteredPhysicalOperationInternalV1({
+        meter: input.meter,
+        unit: "source-index-comparisons",
+        operation: () => localBoundary <= prefix + summary.renderedUtf16Length,
+      })
+      if (!contains) {
+        prefix += summary.renderedUtf16Length
+        inheritedPredecessor = summary.lastEntry
+        continue
+      }
+      const nextChild = payload.children[index + 1] ?? null
+      inheritedSuccessor = nextChild == null
+        ? inheritedSuccessor
+        : meteredPhysicalOperationInternalV1({
+            meter: input.meter,
+            unit: "source-index-comparisons",
+            operation: () => nextChild.firstEntry,
+          })
+      localBoundary -= prefix
+      selected = child
+      break
+    }
+    if (selected == null) return Object.freeze({ status: "invalid" as const })
+    node = selected
+  }
+}
+
 export function pathCopyVNextTextBlockUnifiedLayoutSourcePhysicalIndexInternalV1(input: {
   readonly identityRoot: VNextTextBlockUnifiedLayoutSourceIdentityIndexNodeInternalV1 | null
   readonly orderRoot: VNextTextBlockUnifiedLayoutSourceOrderIndexNodeInternalV1 | null
   readonly removedItems: readonly VNextTextBlockUnifiedLayoutSourceItemV1[]
   readonly nextPhysicalItems: readonly VNextTextBlockUnifiedLayoutSourceItemV1[]
   readonly workMeter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
+  readonly previousRenderedBoundary?: number
   readonly forcedPositionIntervalForTest?: Readonly<{
     readonly left: number | null
     readonly right: number | null
@@ -1370,7 +1514,6 @@ export function pathCopyVNextTextBlockUnifiedLayoutSourcePhysicalIndexInternalV1
     if (
       input.identityRoot == null
       || input.orderRoot == null
-      || input.removedItems.length === 0
     ) return Object.freeze({ status: "blocked" as const })
     const removedEntries: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[] = []
     for (const item of input.removedItems) {
@@ -1390,53 +1533,94 @@ export function pathCopyVNextTextBlockUnifiedLayoutSourcePhysicalIndexInternalV1
       if (matches.length !== 1) return Object.freeze({ status: "blocked" as const })
       removedEntries.push(matches[0]!)
     }
-    const initialPositionKey = meteredPhysicalOperationInternalV1({
-      meter: input.workMeter,
-      unit: "source-index-comparisons",
-      operation: () => removedEntries[0]!.positionKey,
-    })
-    let minimumPositionKey = initialPositionKey
-    let maximumPositionKey = initialPositionKey
-    for (const entry of removedEntries.slice(1)) {
-      const values = meteredPhysicalOperationInternalV1({
+    let predecessor:
+      VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1 | null
+    let successor:
+      VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1 | null
+    let allocationLeft: number | null
+    let allocationRight: number | null
+    if (removedEntries.length === 0) {
+      if (
+        input.nextPhysicalItems.length === 0
+        || input.previousRenderedBoundary == null
+      ) return Object.freeze({ status: "blocked" as const })
+      const boundary = lookupOrderBoundaryMeteredInternalV1({
+        root: input.orderRoot,
+        boundaryRenderedUtf16: input.previousRenderedBoundary,
+        meter: input.workMeter,
+      })
+      if (boundary.status !== "found") {
+        return Object.freeze({ status: "blocked" as const })
+      }
+      predecessor = boundary.predecessor
+      successor = boundary.successor
+      allocationLeft = input.forcedPositionIntervalForTest == null
+        ? predecessor == null
+          ? null
+          : meteredPhysicalOperationInternalV1({
+              meter: input.workMeter,
+              unit: "source-index-comparisons",
+              operation: () => predecessor!.positionKey,
+            })
+        : input.forcedPositionIntervalForTest.left
+      allocationRight = input.forcedPositionIntervalForTest == null
+        ? successor == null
+          ? null
+          : meteredPhysicalOperationInternalV1({
+              meter: input.workMeter,
+              unit: "source-index-comparisons",
+              operation: () => successor!.positionKey,
+            })
+        : input.forcedPositionIntervalForTest.right
+    } else {
+      const initialPositionKey = meteredPhysicalOperationInternalV1({
         meter: input.workMeter,
         unit: "source-index-comparisons",
-        operation: () => ({
-          minimum: Math.min(minimumPositionKey, entry.positionKey),
-          maximum: Math.max(maximumPositionKey, entry.positionKey),
-        }),
+        operation: () => removedEntries[0]!.positionKey,
       })
-      minimumPositionKey = values.minimum
-      maximumPositionKey = values.maximum
+      let minimumPositionKey = initialPositionKey
+      let maximumPositionKey = initialPositionKey
+      for (const entry of removedEntries.slice(1)) {
+        const values = meteredPhysicalOperationInternalV1({
+          meter: input.workMeter,
+          unit: "source-index-comparisons",
+          operation: () => ({
+            minimum: Math.min(minimumPositionKey, entry.positionKey),
+            maximum: Math.max(maximumPositionKey, entry.positionKey),
+          }),
+        })
+        minimumPositionKey = values.minimum
+        maximumPositionKey = values.maximum
+      }
+      predecessor = predecessorOrderEntryMeteredInternalV1({
+        node: input.orderRoot,
+        positionKey: minimumPositionKey,
+        meter: input.workMeter,
+      })
+      successor = successorOrderEntryMeteredInternalV1({
+        node: input.orderRoot,
+        positionKey: maximumPositionKey,
+        meter: input.workMeter,
+      })
+      allocationLeft = input.forcedPositionIntervalForTest == null
+        ? predecessor == null
+          ? successor == null ? minimumPositionKey : null
+          : meteredPhysicalOperationInternalV1({
+              meter: input.workMeter,
+              unit: "source-index-comparisons",
+              operation: () => predecessor!.positionKey,
+            })
+        : input.forcedPositionIntervalForTest.left
+      allocationRight = input.forcedPositionIntervalForTest == null
+        ? successor == null
+          ? null
+          : meteredPhysicalOperationInternalV1({
+              meter: input.workMeter,
+              unit: "source-index-comparisons",
+              operation: () => successor!.positionKey,
+            })
+        : input.forcedPositionIntervalForTest.right
     }
-    const predecessor = predecessorOrderEntryMeteredInternalV1({
-      node: input.orderRoot,
-      positionKey: minimumPositionKey,
-      meter: input.workMeter,
-    })
-    const successor = successorOrderEntryMeteredInternalV1({
-      node: input.orderRoot,
-      positionKey: maximumPositionKey,
-      meter: input.workMeter,
-    })
-    const allocationLeft = input.forcedPositionIntervalForTest == null
-      ? predecessor == null
-        ? successor == null ? minimumPositionKey : null
-        : meteredPhysicalOperationInternalV1({
-            meter: input.workMeter,
-            unit: "source-index-comparisons",
-            operation: () => predecessor.positionKey,
-          })
-      : input.forcedPositionIntervalForTest.left
-    const allocationRight = input.forcedPositionIntervalForTest == null
-      ? successor == null
-        ? null
-        : meteredPhysicalOperationInternalV1({
-            meter: input.workMeter,
-            unit: "source-index-comparisons",
-            operation: () => successor.positionKey,
-          })
-      : input.forcedPositionIntervalForTest.right
     const allocation = allocatePositionKeysDetailedInternalV1({
       left: allocationLeft,
       right: allocationRight,

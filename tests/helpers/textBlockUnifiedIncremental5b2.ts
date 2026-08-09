@@ -20,6 +20,7 @@ import {
 import {
   createVNextTextBlockUnifiedLayout5B2PlanAPolicyForTestInternalV1,
   registerVNextTextBlockUnifiedLayout5B2RootPolicyCompositionInternalV1,
+  resolveVNextTextBlockUnifiedLayout5B2RootPolicyCompositionInternalV1,
   type VNextTextBlockUnifiedLayout5B2PlanATestLimitsInternalV1,
   type VNextTextBlockUnifiedLayout5B2PolicyCompositionInternalV1,
 } from "../../src/layout/textBlockUnifiedLayoutWorkPolicyCompositionInternalsV1.js"
@@ -359,6 +360,62 @@ export function admitted5B2AuthorityRootFixture(input: {
     throw new Error("5B-2 authority Root admission blocked")
   }
   return prepared.root
+}
+
+export function admitted5B2PlanAAuthorityRootFixture(input: {
+  readonly text?: string
+} = {}): {
+  readonly root: VNextTextBlockUnifiedLayoutRootV2
+  readonly composition: VNextTextBlockUnifiedLayout5B2PolicyCompositionInternalV1
+  readonly sidecars: VNextTextBlockUnifiedLayoutSourceSidecarsInternalV1
+} {
+  const root = admitted5B2AuthorityRootFixture({ text: input.text })
+  return register5B2PlanASidecarsForRootFixture(root)
+}
+
+export function register5B2PlanASidecarsForRootFixture(
+  root: VNextTextBlockUnifiedLayoutRootV2,
+): {
+  readonly root: VNextTextBlockUnifiedLayoutRootV2
+  readonly composition: VNextTextBlockUnifiedLayout5B2PolicyCompositionInternalV1
+  readonly sidecars: VNextTextBlockUnifiedLayoutSourceSidecarsInternalV1
+} {
+  let composition =
+    resolveVNextTextBlockUnifiedLayout5B2RootPolicyCompositionInternalV1(root)
+  if (composition == null) {
+    composition = createVNextTextBlockUnifiedLayout5B2PlanAPolicyForTestInternalV1({
+      publicWorkPolicy: root.workPolicy,
+      sourceLimits: {
+        sourceItems: Number.MAX_SAFE_INTEGER,
+        sourceTreeLookupNodes: Number.MAX_SAFE_INTEGER,
+        sourceTreePathCopyNodes: Number.MAX_SAFE_INTEGER,
+        sourceLeafSlots: Number.MAX_SAFE_INTEGER,
+        sourceIndexNodes: Number.MAX_SAFE_INTEGER,
+        sourceIndexEntries: Number.MAX_SAFE_INTEGER,
+        sourceIndexComparisons: Number.MAX_SAFE_INTEGER,
+        sourceStyleNodes: Number.MAX_SAFE_INTEGER,
+        sourceStyleBuckets: Number.MAX_SAFE_INTEGER,
+        sourceStyleEntries: Number.MAX_SAFE_INTEGER,
+      },
+    })
+    if (!registerVNextTextBlockUnifiedLayout5B2RootPolicyCompositionInternalV1({
+      root,
+      composition,
+    })) throw new Error("5B-2 Root composition registration blocked")
+  }
+  const preparedSidecars =
+    prepareVNextTextBlockUnifiedLayoutSourceSidecarsCompleteInternalV1({
+      sourceState: root.sourceState,
+    })
+  if (preparedSidecars.status !== "prepared") {
+    throw new Error("5B-2 authority Source sidecars blocked")
+  }
+  if (!registerVNextTextBlockUnifiedLayoutSourceSidecarsCompleteInternalV1({
+    root,
+    composition,
+    candidateAuthority: preparedSidecars.candidateAuthority,
+  })) throw new Error("5B-2 authority Source sidecar registration blocked")
+  return { root, composition, sidecars: preparedSidecars.sidecars }
 }
 
 export function authorizedEvidenceRequestBundle5B2(input: {

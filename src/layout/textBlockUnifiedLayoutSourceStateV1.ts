@@ -54,6 +54,10 @@ import type {
 import type {
   VNextTextBlockUnifiedLayoutRootV2,
 } from "./textBlockUnifiedLayoutRootContractV2.js"
+import {
+  isVNextTextBlockUnifiedLayoutSourceStageSourceCandidateAbortProtectedInternalV1,
+  isVNextTextBlockUnifiedLayoutSourceStageSourceCandidateCommittedInternalV1,
+} from "./textBlockUnifiedLayoutSourceAuthorityInternalsV1.js"
 
 type FingerprintFactory = (canonicalFacts: string) => string
 
@@ -284,6 +288,8 @@ export type VNextTextBlockSourceRangePathCopyResultInternalV1 =
     }
 
 export interface VNextTextBlockSourcePathCopyCandidateRecordInternalV1 {
+  readonly pathCopyCandidateAuthority:
+    VNextTextBlockSourcePathCopyCandidateAuthorityInternalV1
   readonly previousSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
   readonly nextSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
   readonly replacement:
@@ -304,6 +310,16 @@ const sourceRangePathCopyCandidateAuthorities = new WeakMap<
   object,
   VNextTextBlockSourcePathCopyCandidateRecordInternalV1
 >()
+const consumedSourcePathCopyCandidateAuthorities = new WeakSet<object>()
+let sourcePathCopyCandidateObserverForTestInternalV1: (
+  (authority: VNextTextBlockSourcePathCopyCandidateAuthorityInternalV1) => void
+) | null = null
+
+export function setVNextTextBlockUnifiedLayoutSourcePathCopyCandidateObserverForTestInternalV1(
+  observer: typeof sourcePathCopyCandidateObserverForTestInternalV1,
+): void {
+  sourcePathCopyCandidateObserverForTestInternalV1 = observer
+}
 const sourceRangeReplacementAuthorities = new WeakMap<object, {
   readonly previousSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
   readonly change: VNextTextBlockUnifiedLayoutChangeV1 | null
@@ -342,6 +358,57 @@ export function getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInter
   return authority != null && typeof authority === "object"
     ? sourceRangePathCopyCandidateAuthorities.get(authority as object) ?? null
     : null
+}
+
+export function discardVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInternalV1(
+  authority: unknown,
+): boolean {
+  if (
+    authority == null
+    || typeof authority !== "object"
+  ) return false
+  const record = getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInternalV1(
+    authority,
+  )
+  const canonicalAuthority = record?.pathCopyCandidateAuthority
+  if (
+    record == null
+    || canonicalAuthority == null
+    || consumedSourcePathCopyCandidateAuthorities.has(canonicalAuthority)
+    || isVNextTextBlockUnifiedLayoutSourceStageSourceCandidateAbortProtectedInternalV1(
+      canonicalAuthority,
+    )
+  ) return false
+  sourceRangePathCopyCandidateAuthorities.delete(canonicalAuthority)
+  sourceRangePathCopyCandidateAuthorities.delete(record.removedItems)
+  sourceRangePathCopyCandidateAuthorities.delete(record.nextPhysicalItems)
+  preparedStates.delete(record.nextSourceState)
+  planASidecarStorageSourceStates.delete(record.nextSourceState)
+  registeredStylesBySourceState.delete(record.nextSourceState)
+  registeredPlanASourceSidecarAccessBySourceState.delete(record.nextSourceState)
+  return true
+}
+
+export function consumeVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInternalV1(
+  authority: VNextTextBlockSourcePathCopyCandidateAuthorityInternalV1,
+): boolean {
+  const record = getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInternalV1(
+    authority,
+  )
+  const canonicalAuthority = record?.pathCopyCandidateAuthority
+  if (
+    record == null
+    || canonicalAuthority == null
+    || consumedSourcePathCopyCandidateAuthorities.has(canonicalAuthority)
+    || !isVNextTextBlockUnifiedLayoutSourceStageSourceCandidateCommittedInternalV1(
+      canonicalAuthority,
+    )
+  ) return false
+  sourceRangePathCopyCandidateAuthorities.delete(canonicalAuthority)
+  sourceRangePathCopyCandidateAuthorities.delete(record.removedItems)
+  sourceRangePathCopyCandidateAuthorities.delete(record.nextPhysicalItems)
+  consumedSourcePathCopyCandidateAuthorities.add(canonicalAuthority)
+  return true
 }
 
 interface RegisteredStyleSetInternalV1 {
@@ -386,6 +453,13 @@ const planASidecarStorageSourceStates = new WeakSet<
   VNextTextBlockUnifiedLayoutSourceStateV1
 >()
 
+export function canRegisterVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessInternalV1(
+  sourceState: VNextTextBlockUnifiedLayoutSourceStateV1,
+): boolean {
+  return preparedStates.has(sourceState)
+    && !registeredPlanASourceSidecarAccessBySourceState.has(sourceState)
+}
+
 export function registerVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessInternalV1(
   input: {
     readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
@@ -395,11 +469,12 @@ export function registerVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessInter
   },
 ): boolean {
   if (
-    !preparedStates.has(input.sourceState)
+    !canRegisterVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessInternalV1(
+      input.sourceState,
+    )
     || typeof input.resolveStyle !== "function"
     || typeof input.visitItemByInlineId !== "function"
     || typeof input.checkInlineIdConflict !== "function"
-    || registeredPlanASourceSidecarAccessBySourceState.has(input.sourceState)
   ) return false
   registeredPlanASourceSidecarAccessBySourceState.set(input.sourceState, Object.freeze({
     resolveStyle: input.resolveStyle,
@@ -2622,6 +2697,7 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
   const removedItemsAuthority = Object.freeze([...removedItems])
   const nextPhysicalItemsAuthority = Object.freeze([...createdItems])
   const pathCopyCandidateRecord = Object.freeze({
+    pathCopyCandidateAuthority,
     previousSourceState: input.previousSourceState,
     nextSourceState: sourceState,
     replacement: input.replacement,
@@ -2645,6 +2721,9 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
   sourceRangePathCopyCandidateAuthorities.set(
     nextPhysicalItemsAuthority,
     pathCopyCandidateRecord,
+  )
+  sourcePathCopyCandidateObserverForTestInternalV1?.(
+    pathCopyCandidateAuthority,
   )
   const removedLineageIds = new Set(removedItems.map((item) => item.lineageId))
   const existingLineageIds = Object.freeze([

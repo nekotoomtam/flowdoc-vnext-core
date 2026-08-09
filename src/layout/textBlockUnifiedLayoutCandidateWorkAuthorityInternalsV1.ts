@@ -22,6 +22,11 @@ import {
   type VNextTextBlockUnifiedLayout5B2SourceWorkUnitInternalV1,
   type VNextTextBlockUnifiedLayout5B2WorkOwnerRowInternalV1,
 } from "./textBlockUnifiedLayoutWorkOwnerRegistryV1.js"
+import {
+  bindVNextTextBlockUnifiedLayoutSourceStageCommitCandidateWorkInternalV1,
+  registerVNextTextBlockUnifiedLayoutSourceStageCandidateWorkPreconditionInternalV1,
+  resolveVNextTextBlockUnifiedLayoutSourceStageCommitTicketForCandidateWorkInternalV1,
+} from "./textBlockUnifiedLayoutSourceAuthorityInternalsV1.js"
 
 export interface VNextTextBlockUnifiedLayout5B2WorkReceiptInternalV1 {
   readonly ownerRow: VNextTextBlockUnifiedLayout5B2WorkOwnerRowInternalV1
@@ -43,6 +48,10 @@ export interface VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1 {
 
 export interface VNextTextBlockUnifiedLayout5B2ReceiptSnapshotAuthorityInternalV1 {
   readonly __receiptSnapshotAuthorityOpaque: never
+}
+
+export interface VNextTextBlockUnifiedLayout5B2SourcePublicationPreconditionAuthorityInternalV1 {
+  readonly __sourcePublicationPreconditionAuthorityOpaque: never
 }
 
 export interface VNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityRecordInternalV1 {
@@ -105,6 +114,14 @@ const receiptSnapshotRecords = new WeakMap<
 const permitRecords = new WeakMap<
   VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1,
   PermitRecord
+>()
+const sourcePublicationPreconditionRecords = new WeakMap<
+  VNextTextBlockUnifiedLayout5B2SourcePublicationPreconditionAuthorityInternalV1,
+  Readonly<{
+    readonly meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
+    readonly nextCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+    readonly completedSourceEmissionCount: number
+  }>
 >()
 let candidateRegistrationObserverForTestInternalV1: ((input: {
   readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
@@ -441,6 +458,59 @@ export function projectVNextTextBlockUnifiedLayout5B2CompatibilityWorkInternalV1
   return record.projectedWork
 }
 
+export function prepareVNextTextBlockUnifiedLayout5B2SourceCandidateWorkPublicationInternalV1(
+  input: {
+    readonly meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
+    readonly nextCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+    readonly completedSourceEmissionCount: number
+    readonly producingStageAuthority: object
+  },
+): VNextTextBlockUnifiedLayout5B2SourcePublicationPreconditionAuthorityInternalV1 | null {
+  const meter = meterRecords.get(input.meter)
+  const projected = meter == null
+    ? null
+    : projectVNextTextBlockUnifiedLayout5B2CompatibilityWorkInternalV1(
+      input.meter,
+    )
+  const sourceItems = meter?.receiptsByUnit.get("source-items")?.completedWork
+    ?? -1
+  if (
+    meter == null
+    || meter.failed
+    || meter.published
+    || meter.openPermits.size !== 0
+    || projected == null
+    || projected !== input.nextCandidateWork
+    || !Number.isSafeInteger(input.completedSourceEmissionCount)
+    || input.completedSourceEmissionCount < 0
+    || sourceItems !== input.completedSourceEmissionCount
+    || projected.flow.visitedSourceItemCount !== sourceItems
+    || input.producingStageAuthority !== meter.seed.producingStageAuthority
+    || authoritiesByCandidate.has(input.nextCandidateWork)
+    || candidateRegistrationObserverForTestInternalV1?.({
+      previousRoot: meter.seed.previousRoot,
+      change: meter.seed.change,
+      candidateWork: input.nextCandidateWork,
+      producingStageAuthority: input.producingStageAuthority,
+    }) === false
+  ) return null
+  const authority = Object.freeze({}) as
+    VNextTextBlockUnifiedLayout5B2SourcePublicationPreconditionAuthorityInternalV1
+  if (!registerVNextTextBlockUnifiedLayoutSourceStageCandidateWorkPreconditionInternalV1({
+    authority,
+    meter: input.meter,
+    nextCandidateWork: input.nextCandidateWork,
+    completedSourceEmissionCount: input.completedSourceEmissionCount,
+    producingStageAuthority: input.producingStageAuthority,
+  })) return null
+  sourcePublicationPreconditionRecords.set(authority, Object.freeze({
+    meter: input.meter,
+    nextCandidateWork: input.nextCandidateWork,
+    completedSourceEmissionCount: input.completedSourceEmissionCount,
+  }))
+  return authority
+}
+
 export function publishVNextTextBlockUnifiedLayout5B2CandidateWorkInternalV1(
   input: {
     readonly meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
@@ -468,11 +538,36 @@ export function publishVNextTextBlockUnifiedLayout5B2CandidateWorkInternalV1(
     || projected.flow.visitedChangedSourceLeafItemCount
       !== (meter.receiptsByUnit.get("source-leaf-slots")?.completedWork ?? 0)
   ) return null
-  // The exact Source-stage owner is introduced by Task 4. Until then, only a
-  // foundation owner can publish a meter with no completed Source emissions.
-  if (
-    meter.receiptsByUnit.get("source-items")?.completedWork !== 0
-    || input.producingStageAuthority !== meter.seed.producingStageAuthority
+  const sourceItems = meter.receiptsByUnit.get("source-items")?.completedWork ?? 0
+  const sourceTicket =
+    resolveVNextTextBlockUnifiedLayoutSourceStageCommitTicketForCandidateWorkInternalV1({
+      ticket: input.producingStageAuthority,
+      meter: input.meter,
+      previousRoot: meter.seed.previousRoot,
+      change: meter.seed.change,
+      composition: meter.seed.composition,
+      nextCandidateWork: input.nextCandidateWork,
+    })
+  const sourcePublicationPrecondition = sourceTicket == null
+    ? null
+    : sourcePublicationPreconditionRecords.get(
+      sourceTicket.candidateWorkPublicationPreconditionAuthority as
+        VNextTextBlockUnifiedLayout5B2SourcePublicationPreconditionAuthorityInternalV1,
+    )
+  if (sourceTicket == null) {
+    if (
+      sourceItems !== 0
+      || input.producingStageAuthority !== meter.seed.producingStageAuthority
+    ) {
+      return null
+    }
+  } else if (
+    sourceTicket.completedSourceEmissionCount !== sourceItems
+    || sourcePublicationPrecondition?.meter !== input.meter
+    || sourcePublicationPrecondition.nextCandidateWork
+      !== input.nextCandidateWork
+    || sourcePublicationPrecondition.completedSourceEmissionCount
+      !== sourceItems
   ) return null
   const receipts = cloneReceipts(meter.receipts)
   const record = Object.freeze({
@@ -487,6 +582,14 @@ export function publishVNextTextBlockUnifiedLayout5B2CandidateWorkInternalV1(
     VNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1
   authorityRecords.set(authority, record)
   authoritiesByCandidate.set(input.nextCandidateWork, authority)
+  if (sourceTicket != null) {
+    bindVNextTextBlockUnifiedLayoutSourceStageCommitCandidateWorkInternalV1({
+      ticket: input.producingStageAuthority as
+        import("./textBlockUnifiedLayoutSourceAuthorityInternalsV1.js")
+          .VNextTextBlockUnifiedLayoutSourceStageCommitTicketInternalV1,
+      candidateWorkAuthority: authority,
+    })
+  }
   meter.published = true
   return authority
 }

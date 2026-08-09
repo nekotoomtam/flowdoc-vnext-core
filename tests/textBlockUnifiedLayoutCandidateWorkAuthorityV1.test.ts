@@ -7,6 +7,7 @@ import {
   inspectVNextTextBlockUnifiedLayout5B2CandidateWorkMeterForTestInternalV1,
   matchesVNextTextBlockUnifiedLayout5B2CandidateWorkMeterSeedInternalV1,
   openVNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+  prepareVNextTextBlockUnifiedLayout5B2SourceCandidateWorkPublicationInternalV1,
   projectVNextTextBlockUnifiedLayout5B2CompatibilityWorkInternalV1,
   publishVNextTextBlockUnifiedLayout5B2CandidateWorkInternalV1,
   registerVNextTextBlockUnifiedLayout5B2FoundationCandidateWorkInternalV1,
@@ -437,6 +438,18 @@ describe("5B-2 candidate-work authority", () => {
         sourceMeter,
       )
     expect(sourceWork).toMatchObject({ flow: { visitedSourceItemCount: 1 } })
+    expect(prepareVNextTextBlockUnifiedLayout5B2SourceCandidateWorkPublicationInternalV1({
+      meter: sourceMeter,
+      nextCandidateWork: sourceWork!,
+      completedSourceEmissionCount: 1,
+      producingStageAuthority: structuredClone(withSourceItems.preflight),
+    })).toBeNull()
+    expect(prepareVNextTextBlockUnifiedLayout5B2SourceCandidateWorkPublicationInternalV1({
+      meter: sourceMeter,
+      nextCandidateWork: sourceWork!,
+      completedSourceEmissionCount: 1,
+      producingStageAuthority: withSourceItems.preflight,
+    })).not.toBeNull()
     expect(publishVNextTextBlockUnifiedLayout5B2CandidateWorkInternalV1({
       meter: sourceMeter,
       nextCandidateWork: sourceWork!,
