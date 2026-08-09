@@ -775,13 +775,13 @@ describe("Text-block unified transition preflight V2", () => {
       + result.sourceMaterial.next.atoms.length
     expect(exactMaterialAtomCount).toBe(3)
     expect(result.completedCandidateWork.evidence).toMatchObject({
-      visitedRequestLookupNodeCount: 2,
+      visitedRequestLookupNodeCount: 3,
       materializedContextAtomCount: exactMaterialAtomCount,
       requestedAtomCount: exactMaterialAtomCount,
       visitedEvidenceNodeCount: 0,
     })
     expect(result.sourceMaterial.producerWorkCeilings.maximumVisitedEvidenceNodeCount)
-      .toBe(8_192)
+      .toBe(73_728)
   })
 
   it.each([
@@ -1023,43 +1023,46 @@ describe("Text-block unified transition preflight V2", () => {
   })
 
   it.each([
-    { unit: "evidence-request-lookup-nodes", limit: 1, status: "fallback-required", completed: 1 },
-    { unit: "evidence-request-lookup-nodes", limit: 2, status: "required", completed: 2 },
-    { unit: "evidence-request-lookup-nodes", limit: 3, status: "required", completed: 2 },
+    { unit: "evidence-request-descriptors", limit: 1, status: "fallback-required", completed: 1 },
+    { unit: "evidence-request-descriptors", limit: 2, status: "fallback-required", completed: 2 },
+    { unit: "evidence-request-descriptors", limit: 3, status: "required", completed: 3 },
+    { unit: "evidence-request-descriptors", limit: 4, status: "required", completed: 3 },
     { unit: "evidence-context-atoms", limit: 2, status: "fallback-required", completed: 2 },
     { unit: "evidence-context-atoms", limit: 3, status: "required", completed: 3 },
     { unit: "evidence-context-atoms", limit: 4, status: "required", completed: 3 },
   ] as const)("stops $unit at exact threshold edge $limit", (row) => {
-    const previousRoot = textRoot("ABCD")
-    setVNextTextBlockPostBindingLimitOverrideForTestInternalV1({
-      stage: "evidence",
-      unit: row.unit,
-      effectiveLimit: row.limit,
-    })
-    try {
-      const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
-        previousRoot,
-        change: insertionAt(previousRoot, 0, "X"),
-        workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    const workPolicy =
+      createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({
+        [row.unit]: row.limit,
       })
-      expect(result.status).toBe(row.status)
-      const actual = row.unit === "evidence-request-lookup-nodes"
-        ? result.completedCandidateWork.evidence.visitedRequestLookupNodeCount
-        : result.completedCandidateWork.evidence.materializedContextAtomCount
-      expect(actual).toBe(row.completed)
-      if (result.status === "fallback-required") {
-        expect(getVNextTextBlockLimitExceededAuthorityRecordInternalV1(
-          result.evaluatorOrProofAuthority,
-        )).toMatchObject({
-          previousRoot,
-          stage: "evidence",
-          unit: row.unit,
-          completedWork: row.completed,
-          effectiveLimit: row.limit,
-        })
-      }
-    } finally {
-      setVNextTextBlockPostBindingLimitOverrideForTestInternalV1(null)
+    const previousRoot = admitted5B2AuthorityRootFixture({
+      policy: workPolicy,
+      text: "ABCD",
+    })
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      change: insertionAt(previousRoot, 0, "X"),
+      workPolicy,
+    })
+    expect(result.status).toBe(row.status)
+    expect(result.completedCandidateWork.stageWork.find((candidate) =>
+      candidate.stage === "evidence" && candidate.unit === row.unit
+    )?.count).toBe(row.completed)
+    const aggregate = row.unit === "evidence-request-descriptors"
+      ? result.completedCandidateWork.evidence.visitedRequestLookupNodeCount
+      : result.completedCandidateWork.evidence.materializedContextAtomCount
+    expect(aggregate).toBe(row.completed)
+    if (result.status === "fallback-required") {
+      expect(getVNextTextBlockTransitionPreflightFailureAuthorityRecordInternalV2(
+        result.evaluatorOrProofAuthority,
+      )).toMatchObject({
+        previousRoot,
+        workPolicy,
+        unit: row.unit,
+        completedWork: row.completed,
+        attemptedWork: row.completed + 1,
+        effectiveLimit: row.limit,
+      })
     }
   })
 
@@ -1266,39 +1269,35 @@ describe("Text-block unified transition preflight V2", () => {
   })
 
   it("stops before an over-limit material atom and returns its registered evaluator authority", () => {
-    const previousRoot = textRoot("ABCD")
-    setVNextTextBlockPostBindingLimitOverrideForTestInternalV1({
-      stage: "evidence",
-      unit: "evidence-context-atoms",
-      effectiveLimit: 2,
-    })
-    try {
-      const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
-        previousRoot,
-        change: insertionAt(previousRoot, 0, "X"),
-        workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    const workPolicy =
+      createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({
+        "evidence-context-atoms": 2,
       })
+    const previousRoot = admitted5B2AuthorityRootFixture({
+      policy: workPolicy,
+      text: "ABCD",
+    })
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot,
+      change: insertionAt(previousRoot, 0, "X"),
+      workPolicy,
+    })
 
-      expect(result.status).toBe("fallback-required")
-      if (result.status !== "fallback-required") return
-      expect(result.completedCandidateWork.evidence.materializedContextAtomCount)
-        .toBe(2)
-      expect(getVNextTextBlockLimitExceededAuthorityRecordInternalV1(
+    expect(result.status).toBe("fallback-required")
+    if (result.status !== "fallback-required") return
+    expect(result.completedCandidateWork.evidence.materializedContextAtomCount)
+      .toBe(2)
+    expect(getVNextTextBlockTransitionPreflightFailureAuthorityRecordInternalV2(
         result.evaluatorOrProofAuthority,
       )).toMatchObject({
         previousRoot,
-        originalChange: expect.any(Object),
-        workPolicy:
-          VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
-        stage: "evidence",
+        change: expect.any(Object),
+        workPolicy,
         unit: "evidence-context-atoms",
         completedWork: 2,
         attemptedWork: 3,
         effectiveLimit: 2,
       })
-    } finally {
-      setVNextTextBlockPostBindingLimitOverrideForTestInternalV1(null)
-    }
   })
 
   it("classifies an exact paint-only style overlay without producer evidence", () => {
@@ -1689,35 +1688,39 @@ describe("Text-block unified transition preflight V2", () => {
   })
 
   it("counts an actual registered request exactly once and no pre-request fallback", () => {
-    const previousRoot = textRoot("ABCD")
+    const acceptedPolicy =
+      createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({})
+    const previousRoot = admitted5B2AuthorityRootFixture({
+      policy: acceptedPolicy,
+      text: "ABCD",
+    })
     const accepted = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot,
       change: insertionAt(previousRoot, 0, "X"),
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: acceptedPolicy,
     })
     expect(accepted.status).toBe("required")
     expect(accepted.completedCandidateWork.evidence.requestCount).toBe(1)
 
-    setVNextTextBlockPostBindingLimitOverrideForTestInternalV1({
-      stage: "evidence",
-      unit: "evidence-context-atoms",
-      effectiveLimit: 1,
+    const fallbackPolicy =
+      createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({
+        "evidence-context-atoms": 1,
+      })
+    const fallbackRoot = admitted5B2AuthorityRootFixture({
+      policy: fallbackPolicy,
+      text: "ABCD",
     })
-    try {
-      const fallback = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
-        previousRoot,
-        change: insertionAt(previousRoot, 0, "Y"),
-        workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
-      })
-      expect(fallback.status).toBe("fallback-required")
-      expect(fallback.completedCandidateWork.evidence).toMatchObject({
-        requestCount: 0,
-        materializedContextAtomCount: 1,
-        requestedAtomCount: 0,
-        requestedClusterCount: 0,
-      })
-    } finally {
-      setVNextTextBlockPostBindingLimitOverrideForTestInternalV1(null)
-    }
+    const fallback = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot: fallbackRoot,
+      change: insertionAt(fallbackRoot, 0, "Y"),
+      workPolicy: fallbackPolicy,
+    })
+    expect(fallback.status).toBe("fallback-required")
+    expect(fallback.completedCandidateWork.evidence).toMatchObject({
+      requestCount: 0,
+      materializedContextAtomCount: 1,
+      requestedAtomCount: 0,
+      requestedClusterCount: 0,
+    })
   })
 })

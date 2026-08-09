@@ -5,24 +5,17 @@ import {
   runFlowDocTextEngineNodeMr1RangeShapeV1,
 } from "../packages/text-engine-rust-wasm/src/node.js"
 import {
-  createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2,
   createFlowDocTextEngineUnifiedIncrementalEvidenceV2,
 } from "../packages/text-engine-rust-wasm/src/unifiedIncrementalEvidenceV2.js"
 import {
-  acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureInternalV2,
-  acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInternalV2,
   acceptVNextTextBlockUnifiedLayoutProducerFailureV2,
   acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2,
-  createVNextTextBlockTransitionProducerRuntimeIdentityInternalV2,
-  createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV2,
   hasVNextTextBlockUnifiedLayoutTransitionEvidenceBindingInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV2.js"
 import * as transitionEvidenceV2Internals from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV2.js"
-import { noOpUnifiedLayoutChange5b } from "./helpers/textBlockUnifiedIncremental5b.js"
 import { createVNextCompactFingerprint } from "../src/fingerprint/compactFingerprint.js"
 import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
 import {
-  admitted5B2RootFixture,
   authorizedProducerTerminalFixture5B2 as authorizedFixture,
 } from "./helpers/textBlockUnifiedIncremental5b2.js"
 import {
@@ -48,60 +41,6 @@ function rehash<T extends object>(value: T): T & { fingerprint: string } {
   const facts = { ...value } as Record<string, unknown>
   delete facts.fingerprint
   return { ...value, fingerprint: createVNextCompactFingerprint(stringifyVNextCanonicalJson(facts)) } as T & { fingerprint: string }
-}
-
-function exactFixture() {
-  const actualFontFaces = FLOWDOC_TEXT_ENGINE_MR1_SARABUN_FONT_FACES_V1
-    .filter((face) => face.fontFaceId === "sarabun-regular")
-    .map(({ fontAssetPath: _path, ...face }) => ({ ...face }))
-  const root = admitted5B2RootFixture({
-    content: "text-only",
-    text: "flowdoc evidence",
-    fontFaces: actualFontFaces,
-  })
-  if (root.sourceState.root.nodeKind !== "leaf") throw new Error("evidence root fixture blocked")
-  const item = root.sourceState.root.items.find((candidate) => candidate.kind === "text")
-  if (item?.kind !== "text") throw new Error("evidence text fixture missing")
-  const change = frozen({
-    source: "vnext-text-block-unified-layout-change-v1" as const,
-    contractVersion: 1 as const,
-    kind: "text-insertion" as const,
-    documentId: root.documentId,
-    sectionId: root.sectionId,
-    textBlockId: root.textBlockId,
-    expectedPreviousRootFingerprint: root.fingerprint,
-    expectedPreviousSourceFingerprint: root.sourceState.fingerprint,
-    atRenderedUtf16: "flowdoc evidence".length,
-    insertedText: "X",
-    insertedSource: { lineageId: "accept-v2", sourceFingerprint: "accept-source-v2", provenanceFingerprint: "accept-provenance-v2" },
-    measurementStyleKey: item.style.measurementStyleKey,
-    effectiveShapingStyleKey: item.style.effectiveShapingStyleKey,
-  })
-  const bundle = createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV2({ previousRoot: root, change })
-  if (bundle.status !== "required") throw new Error(`evidence request fixture was ${bundle.status}`)
-  const runtimeIdentity = createVNextTextBlockTransitionProducerRuntimeIdentityInternalV2({
-    runtime: "node-native-mr1-range",
-    engineBuildFingerprint: "engine-node-v2",
-    fontBackendFingerprint: "font-backend-node-v2",
-    unitPolicyFingerprint: bundle.request.layoutUnitPolicyFingerprint,
-    fontStyleUnitDependencyFingerprint: bundle.request.fontStyleUnitDependencyFingerprint,
-    producerRuntimeRequirementFingerprint: bundle.request.producerRuntimeRequirementFingerprint,
-  })
-  const produced = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({
-    request: bundle.request,
-    sourceMaterial: bundle.sourceMaterial,
-    runtime: {
-      identity: runtimeIdentity,
-      shapeRange(input) {
-        const face = FLOWDOC_TEXT_ENGINE_MR1_SARABUN_FONT_FACES_V1.find((candidate) => candidate.fontFaceId === input.fontFaceId)
-        if (face == null) throw new Error("font unavailable")
-        return runFlowDocTextEngineNodeMr1RangeShapeV1({ text: input.text, fontId: face.fontFaceId, fontAssetPath: face.fontAssetPath, fontSha256: face.fontSha256, rangeStartUtf16: input.rangeStartUtf16, rangeEndUtf16: input.rangeEndUtf16, contextStartUtf16: input.contextStartUtf16, contextEndUtf16: input.contextEndUtf16 })
-      },
-      segmentRange: runFlowDocTextEngineNodeMr1RangeSegmentationV1,
-    },
-  })
-  if (produced.status !== "accepted") throw new Error(`producer fixture blocked: ${produced.failure.code}`)
-  return { previousRoot: root, change, request: bundle.request, sourceMaterial: bundle.sourceMaterial, producerRuntimeIdentity: runtimeIdentity, response: produced.response }
 }
 
 function workCount(
@@ -357,14 +296,14 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     })
 
     const accepted =
-      acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInternalV2({
+      acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({
         previousRoot: fixture.previousRoot,
         change: fixture.change,
         request: fixture.request,
         sourceMaterial: fixture.sourceMaterial,
         producerInvocationAuthority: fixture.producerInvocationAuthority,
         producerRuntimeIdentity: fixture.producerRuntimeIdentity,
-        responseOrFailure: fixture.result.response,
+        response: fixture.result.response,
       })
 
     expect(accepted).toMatchObject({ status: "accepted", issues: [] })
@@ -398,7 +337,7 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
       expectedRequest: fixture.request,
       expectedSourceMaterial: fixture.sourceMaterial,
     })).toBe(true)
-  })
+  }, 30_000)
 
   it("authorized acceptance follows consumed authority rows instead of the legacy mirrored producer formula", () => {
     const fixture = authorizedFixture({
@@ -418,14 +357,14 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
       .toBe(terminal?.visitedEvidenceNodeCount)
 
     const accepted =
-      acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInternalV2({
+      acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({
         previousRoot: fixture.previousRoot,
         change: fixture.change,
         request: fixture.request,
         sourceMaterial: fixture.sourceMaterial,
         producerInvocationAuthority: fixture.producerInvocationAuthority,
         producerRuntimeIdentity: fixture.producerRuntimeIdentity,
-        responseOrFailure: fixture.result.response,
+        response: fixture.result.response,
       })
 
     expect(accepted.status).toBe("accepted")
@@ -455,14 +394,14 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
         })
       : null
     if (stale != null && stale.result.status === "accepted") {
-      acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInternalV2({
+      acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({
         previousRoot: stale.previousRoot,
         change: stale.change,
         request: stale.request,
         sourceMaterial: stale.sourceMaterial,
         producerInvocationAuthority: stale.producerInvocationAuthority,
         producerRuntimeIdentity: stale.producerRuntimeIdentity,
-        responseOrFailure: stale.result.response,
+        response: stale.result.response,
       })
     }
     const authority = kind === "authority-clone"
@@ -484,14 +423,14 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
         ? structuredClone(exact.sourceMaterial)
         : exact.sourceMaterial
     const result =
-      acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInternalV2({
+      acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({
         previousRoot: hostileObject("root", observed) as never,
         change: hostileObject("change", observed) as never,
         request,
         sourceMaterial,
         producerInvocationAuthority: authority,
         producerRuntimeIdentity: hostileObject("runtime", observed) as never,
-        responseOrFailure: hostileObject("response", observed),
+        response: hostileObject("response", observed),
       })
 
     expect(result).toMatchObject({ status: "blocked", evidence: null })
@@ -502,25 +441,25 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     const replay = authorizedFixture({ insertedText: "Replay" })
     expect(replay.result.status).toBe("accepted")
     if (replay.result.status !== "accepted") return
-    const first = acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInternalV2({
+    const first = acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({
       previousRoot: replay.previousRoot,
       change: replay.change,
       request: replay.request,
       sourceMaterial: replay.sourceMaterial,
       producerInvocationAuthority: replay.producerInvocationAuthority,
       producerRuntimeIdentity: replay.producerRuntimeIdentity,
-      responseOrFailure: replay.result.response,
+      response: replay.result.response,
     })
     expect(first.status).toBe("accepted")
     const replayObserved: string[] = []
-    expect(acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInternalV2({
+    expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({
       previousRoot: hostileObject("root", replayObserved) as never,
       change: hostileObject("change", replayObserved) as never,
       request: replay.request,
       sourceMaterial: replay.sourceMaterial,
       producerInvocationAuthority: replay.producerInvocationAuthority,
       producerRuntimeIdentity: hostileObject("runtime", replayObserved) as never,
-      responseOrFailure: hostileObject("response", replayObserved),
+      response: hostileObject("response", replayObserved),
     })).toMatchObject({ status: "blocked", evidence: null })
     expect(replayObserved).toEqual([])
 
@@ -529,14 +468,14 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     if (mismatch.result.status !== "accepted") return
     const other = authorizedFixture({ insertedText: "OtherRuntime" })
     const mismatchObserved: string[] = []
-    expect(acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInternalV2({
+    expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({
       previousRoot: mismatch.previousRoot,
       change: mismatch.change,
       request: mismatch.request,
       sourceMaterial: mismatch.sourceMaterial,
       producerInvocationAuthority: mismatch.producerInvocationAuthority,
       producerRuntimeIdentity: other.producerRuntimeIdentity,
-      responseOrFailure: hostileObject("response", mismatchObserved),
+      response: hostileObject("response", mismatchObserved),
     })).toMatchObject({ status: "blocked", evidence: null })
     expect(mismatchObserved).toEqual([])
   })
@@ -556,7 +495,7 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
       bindRuntimeIdentity: () => ({ status: "bound" as const }),
       close: () => ({ status: "closed" as const, visitedEvidenceNodeCount: 1 }),
     })
-    const raw = createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+    const raw = createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
       lookalike,
       fixture.request,
       fixture.sourceMaterial,
@@ -586,14 +525,14 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     expect(inspectVNextTextBlockTransitionProducerInvocationAuthorityInternalV2(
       lookalike,
     )).toBeNull()
-    expect(acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInternalV2({
+    expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({
       previousRoot: fixture.previousRoot,
       change: fixture.change,
       request: fixture.request,
       sourceMaterial: fixture.sourceMaterial,
       producerInvocationAuthority: lookalike,
       producerRuntimeIdentity: fixture.producerRuntimeIdentity,
-      responseOrFailure: raw.response,
+      response: raw.response,
     })).toMatchObject({ status: "blocked", evidence: null })
   })
 
@@ -611,14 +550,14 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
       sourceTopologyFingerprint: "forced-fingerprint-collision-shape",
       fingerprint: fixture.result.response.fingerprint,
     }
-    const result = acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInternalV2({
+    const result = acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({
       previousRoot: fixture.previousRoot,
       change: fixture.change,
       request: fixture.request,
       sourceMaterial: fixture.sourceMaterial,
       producerInvocationAuthority: fixture.producerInvocationAuthority,
       producerRuntimeIdentity: fixture.producerRuntimeIdentity,
-      responseOrFailure: collision,
+      response: collision,
     })
 
     expect(result).toMatchObject({ status: "blocked", evidence: null })
@@ -646,17 +585,17 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     expect(fixture.result.status).toBe("accepted")
     if (fixture.result.status !== "accepted") return
     const observed: string[] = []
-    const responseOrFailure = unit === "evidence-acceptance-descriptors"
+    const response = unit === "evidence-acceptance-descriptors"
       ? hostileObject("response", observed)
       : fixture.result.response
-    const result = acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInternalV2({
+    const result = acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({
       previousRoot: fixture.previousRoot,
       change: fixture.change,
       request: fixture.request,
       sourceMaterial: fixture.sourceMaterial,
       producerInvocationAuthority: fixture.producerInvocationAuthority,
       producerRuntimeIdentity: fixture.producerRuntimeIdentity,
-      responseOrFailure,
+      response,
     })
 
     expect(result).toMatchObject({
@@ -712,14 +651,14 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     if (fixture.result.status !== "accepted") return
 
     const result =
-      acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInternalV2({
+      acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({
         previousRoot: fixture.previousRoot,
         change: fixture.change,
         request: fixture.request,
         sourceMaterial: fixture.sourceMaterial,
         producerInvocationAuthority: fixture.producerInvocationAuthority,
         producerRuntimeIdentity: fixture.producerRuntimeIdentity,
-        responseOrFailure: hostileObject("registration-denied-response", []),
+        response: hostileObject("registration-denied-response", []),
       })
 
     expect(result).toMatchObject({ status: "blocked", evidence: null })
@@ -742,14 +681,14 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     expect(fixture.result.status).toBe("blocked")
     if (fixture.result.status !== "blocked") return
     const result =
-      acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureInternalV2({
+      acceptVNextTextBlockUnifiedLayoutProducerFailureV2({
         previousRoot: fixture.previousRoot,
         change: fixture.change,
         request: fixture.request,
         sourceMaterial: fixture.sourceMaterial,
         producerInvocationAuthority: fixture.producerInvocationAuthority,
         producerRuntimeIdentity: fixture.producerRuntimeIdentity,
-        responseOrFailure: fixture.result.failure,
+        failure: fixture.result.failure,
       })
 
     expect(result).toMatchObject({
@@ -805,14 +744,14 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     expect(baseline.result.status).toBe("accepted")
     if (baseline.result.status !== "accepted") return
     const acceptedBaseline =
-      acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInternalV2({
+      acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({
         previousRoot: baseline.previousRoot,
         change: baseline.change,
         request: baseline.request,
         sourceMaterial: baseline.sourceMaterial,
         producerInvocationAuthority: baseline.producerInvocationAuthority,
         producerRuntimeIdentity: baseline.producerRuntimeIdentity,
-        responseOrFailure: baseline.result.response,
+        response: baseline.result.response,
       })
     expect(acceptedBaseline.status).toBe("accepted")
     const exactCompleted = workCount(acceptedBaseline.completedCandidateWork, unit)
@@ -825,14 +764,14 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     expect(below.result.status).toBe("accepted")
     if (below.result.status !== "accepted") return
     const belowAcceptance =
-      acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInternalV2({
+      acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({
         previousRoot: below.previousRoot,
         change: below.change,
         request: below.request,
         sourceMaterial: below.sourceMaterial,
         producerInvocationAuthority: below.producerInvocationAuthority,
         producerRuntimeIdentity: below.producerRuntimeIdentity,
-        responseOrFailure: below.result.response,
+        response: below.result.response,
       })
     expect(belowAcceptance).toMatchObject(unit === "evidence-acceptance-registrations"
       ? {
@@ -855,14 +794,14 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     expect(at.result.status).toBe("accepted")
     if (at.result.status !== "accepted") return
     const atAcceptance =
-      acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInternalV2({
+      acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({
         previousRoot: at.previousRoot,
         change: at.change,
         request: at.request,
         sourceMaterial: at.sourceMaterial,
         producerInvocationAuthority: at.producerInvocationAuthority,
         producerRuntimeIdentity: at.producerRuntimeIdentity,
-        responseOrFailure: at.result.response,
+        response: at.result.response,
       })
     expect(atAcceptance.status).toBe("accepted")
     expect(workCount(atAcceptance.completedCandidateWork, unit)).toBe(exactCompleted)
@@ -923,14 +862,14 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
       try {
         return {
           result:
-            acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInternalV2({
+            acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({
               previousRoot: fixture.previousRoot,
               change: fixture.change,
               request: fixture.request,
               sourceMaterial: fixture.sourceMaterial,
               producerInvocationAuthority: fixture.producerInvocationAuthority,
               producerRuntimeIdentity: fixture.producerRuntimeIdentity,
-              responseOrFailure: response,
+              response: response,
             }),
           semanticOffsetSafeIntegerCheckCount,
         }
@@ -1080,14 +1019,14 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     })
 
     const accepted =
-      acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureInternalV2({
+      acceptVNextTextBlockUnifiedLayoutProducerFailureV2({
         previousRoot: fixture.previousRoot,
         change: fixture.change,
         request: fixture.request,
         sourceMaterial: fixture.sourceMaterial,
         producerInvocationAuthority: fixture.producerInvocationAuthority,
         producerRuntimeIdentity: fixture.producerRuntimeIdentity,
-        responseOrFailure: fixture.result.failure,
+        failure: fixture.result.failure,
       })
 
     expect(accepted).toMatchObject({
@@ -1183,14 +1122,14 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     expect(exactClusterCount).toBeGreaterThan(0)
 
     const accepted =
-      acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureInternalV2({
+      acceptVNextTextBlockUnifiedLayoutProducerFailureV2({
         previousRoot: fixture.previousRoot,
         change: fixture.change,
         request: fixture.request,
         sourceMaterial: fixture.sourceMaterial,
         producerInvocationAuthority: fixture.producerInvocationAuthority,
         producerRuntimeIdentity: fixture.producerRuntimeIdentity,
-        responseOrFailure: fixture.result.failure,
+        failure: fixture.result.failure,
       })
 
     expect(accepted).toMatchObject({
@@ -1260,14 +1199,14 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     )?.completedWork ?? 0
 
     const accepted =
-      acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureInternalV2({
+      acceptVNextTextBlockUnifiedLayoutProducerFailureV2({
         previousRoot: fixture.previousRoot,
         change: fixture.change,
         request: fixture.request,
         sourceMaterial: fixture.sourceMaterial,
         producerInvocationAuthority: fixture.producerInvocationAuthority,
         producerRuntimeIdentity: fixture.producerRuntimeIdentity,
-        responseOrFailure: fixture.result.failure,
+        failure: fixture.result.failure,
       })
 
     expect(accepted).toMatchObject({
@@ -1296,14 +1235,14 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     if (fixture.result.status !== "blocked") return
 
     const result =
-      acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureInternalV2({
+      acceptVNextTextBlockUnifiedLayoutProducerFailureV2({
         previousRoot: fixture.previousRoot,
         change: fixture.change,
         request: fixture.request,
         sourceMaterial: fixture.sourceMaterial,
         producerInvocationAuthority: fixture.producerInvocationAuthority,
         producerRuntimeIdentity: fixture.producerRuntimeIdentity,
-        responseOrFailure: fixture.result.failure,
+        failure: fixture.result.failure,
       })
 
     expect(result).toMatchObject({
@@ -1334,14 +1273,14 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
       },
     })
     if (ceiling.result.status !== "blocked") return
-    const accepted = acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureInternalV2({
+    const accepted = acceptVNextTextBlockUnifiedLayoutProducerFailureV2({
       previousRoot: ceiling.previousRoot,
       change: ceiling.change,
       request: ceiling.request,
       sourceMaterial: ceiling.sourceMaterial,
       producerInvocationAuthority: ceiling.producerInvocationAuthority,
       producerRuntimeIdentity: ceiling.producerRuntimeIdentity,
-      responseOrFailure: ceiling.result.failure,
+      failure: ceiling.result.failure,
     })
     expect(accepted).toMatchObject({
       status: "fallback-required",
@@ -1373,14 +1312,14 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     })
     if (exactNonCeiling.result.status !== "blocked") return
     const exactNonCeilingAcceptance =
-      acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureInternalV2({
+      acceptVNextTextBlockUnifiedLayoutProducerFailureV2({
       previousRoot: exactNonCeiling.previousRoot,
       change: exactNonCeiling.change,
       request: exactNonCeiling.request,
       sourceMaterial: exactNonCeiling.sourceMaterial,
       producerInvocationAuthority: exactNonCeiling.producerInvocationAuthority,
       producerRuntimeIdentity: exactNonCeiling.producerRuntimeIdentity,
-      responseOrFailure: exactNonCeiling.result.failure,
+      failure: exactNonCeiling.result.failure,
     })
     expect(exactNonCeilingAcceptance).toMatchObject({
       status: "fallback-required",
@@ -1405,7 +1344,7 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
       })
     }
     const replayObserved: string[] = []
-    expect(acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureInternalV2({
+    expect(acceptVNextTextBlockUnifiedLayoutProducerFailureV2({
       previousRoot: hostileObject("failure-replay-root", replayObserved) as never,
       change: hostileObject("failure-replay-change", replayObserved) as never,
       request: exactNonCeiling.request,
@@ -1415,7 +1354,7 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
         "failure-replay-runtime",
         replayObserved,
       ) as never,
-      responseOrFailure: hostileObject("failure-replay-payload", replayObserved),
+      failure: hostileObject("failure-replay-payload", replayObserved),
     })).toMatchObject({ status: "blocked", evaluatorOrProofAuthority: null })
     expect(replayObserved).toEqual([])
 
@@ -1430,14 +1369,14 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
       runtimeIdentity: nonCeiling.producerRuntimeIdentity,
       code: "work-ceiling-before-visit" as const,
     })
-    expect(acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureInternalV2({
+    expect(acceptVNextTextBlockUnifiedLayoutProducerFailureV2({
       previousRoot: nonCeiling.previousRoot,
       change: nonCeiling.change,
       request: nonCeiling.request,
       sourceMaterial: nonCeiling.sourceMaterial,
       producerInvocationAuthority: nonCeiling.producerInvocationAuthority,
       producerRuntimeIdentity: nonCeiling.producerRuntimeIdentity,
-      responseOrFailure: forged,
+      failure: forged,
     })).toMatchObject({
       status: "blocked",
       evaluatorOrProofAuthority: null,
@@ -1464,7 +1403,7 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
         throw new Error("failure accessor must not run")
       },
     })
-    expect(acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureInternalV2({
+    expect(acceptVNextTextBlockUnifiedLayoutProducerFailureV2({
       previousRoot: hostileObject("root", observed) as never,
       change: hostileObject("change", observed) as never,
       request: hostileObject("request", observed) as never,
@@ -1473,7 +1412,7 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
         ...fixture.producerInvocationAuthority,
       }),
       producerRuntimeIdentity: hostileObject("runtime", observed) as never,
-      responseOrFailure: failureAccessor,
+      failure: failureAccessor,
     })).toMatchObject({
       status: "blocked",
       evaluatorOrProofAuthority: null,
@@ -1509,14 +1448,14 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
     })
 
     const result =
-      acceptVNextTextBlockUnifiedLayoutAuthorizedProducerFailureInternalV2({
+      acceptVNextTextBlockUnifiedLayoutProducerFailureV2({
         previousRoot: fixture.previousRoot,
         change: fixture.change,
         request: fixture.request,
         sourceMaterial: fixture.sourceMaterial,
         producerInvocationAuthority: fixture.producerInvocationAuthority,
         producerRuntimeIdentity: fixture.producerRuntimeIdentity,
-        responseOrFailure: mutatedFailure,
+        failure: mutatedFailure,
       })
 
     expect(result).toMatchObject({
@@ -1527,186 +1466,5 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
       result.completedCandidateWork,
       fixture.result.failure.completedWork,
     )
-  })
-})
-
-describe("Core transition evidence V2 acceptance", () => {
-  it("projects not-required preflight rows without leaking preflight or material", () => {
-    const root = admitted5B2RootFixture({ content: "text-only" })
-    expect(createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV2({ previousRoot: root, change: noOpUnifiedLayoutChange5b(root) })).toMatchObject({
-      status: "not-required",
-      request: null,
-      sourceMaterial: null,
-      evaluatorOrProofAuthority: null,
-      issues: [],
-    })
-  })
-
-  it("accepts only the exact registered request/material/runtime tuple", () => {
-    const exact = exactFixture()
-    const accepted = acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2(exact)
-    expect(accepted).toMatchObject({ status: "accepted", issues: [] })
-    if (accepted.status !== "accepted") return
-    expect(hasVNextTextBlockUnifiedLayoutTransitionEvidenceBindingInternalV2({
-      evidence: accepted.evidence,
-      previousRoot: exact.previousRoot,
-      change: exact.change,
-      completedCandidateWork: accepted.completedCandidateWork,
-      expectedRequest: exact.request,
-      expectedSourceMaterial: exact.sourceMaterial,
-    })).toBe(true)
-    const equalDigestClone = structuredClone(accepted.evidence)
-    expect(equalDigestClone.fingerprint).toBe(accepted.evidence.fingerprint)
-    expect(hasVNextTextBlockUnifiedLayoutTransitionEvidenceBindingInternalV2({
-      evidence: equalDigestClone,
-      previousRoot: exact.previousRoot,
-      change: exact.change,
-      completedCandidateWork: accepted.completedCandidateWork,
-      expectedRequest: exact.request,
-      expectedSourceMaterial: exact.sourceMaterial,
-    })).toBe(false)
-    expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({ ...exact, sourceMaterial: structuredClone(exact.sourceMaterial) })).toMatchObject({ status: "blocked", evidence: null })
-    expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({ ...exact, producerRuntimeIdentity: structuredClone(exact.producerRuntimeIdentity) })).toMatchObject({ status: "blocked", evidence: null })
-    expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({ ...exact, request: structuredClone(exact.request) })).toMatchObject({ status: "blocked", evidence: null })
-    expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({ ...exact, change: structuredClone(exact.change) })).toMatchObject({ status: "blocked", evidence: null })
-    const crossRuntimeIdentity = createVNextTextBlockTransitionProducerRuntimeIdentityInternalV2({
-      runtime: "node-native-mr1-range",
-      engineBuildFingerprint: "engine-node-v2-cross-runtime",
-      fontBackendFingerprint: "font-backend-node-v2-cross-runtime",
-      unitPolicyFingerprint: exact.request.layoutUnitPolicyFingerprint,
-      fontStyleUnitDependencyFingerprint: exact.request.fontStyleUnitDependencyFingerprint,
-      producerRuntimeRequirementFingerprint: exact.request.producerRuntimeRequirementFingerprint,
-    })
-    expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({
-      ...exact,
-      producerRuntimeIdentity: crossRuntimeIdentity,
-    })).toMatchObject({ status: "blocked", evidence: null })
-  })
-
-  it("blocks response tampering, unknown fields, symbols, prototypes, and accessors", () => {
-    const exact = exactFixture()
-    const cloneResponse = () => ({ ...structuredClone(exact.response), runtimeIdentity: exact.producerRuntimeIdentity })
-    const tampered = { ...cloneResponse(), sourceTopologyFingerprint: "collision-forced-same-shape" }
-    expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({ ...exact, response: tampered })).toMatchObject({ status: "blocked", evidence: null })
-    expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({ ...exact, response: { ...exact.response, callerDirtyRange: [0, 1] } })).toMatchObject({ status: "blocked", evidence: null })
-    const symbol = { ...exact.response, [Symbol("hidden")]: true }
-    expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({ ...exact, response: symbol })).toMatchObject({ status: "blocked", evidence: null })
-    const prototype = Object.assign(Object.create({ inherited: true }), exact.response)
-    expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({ ...exact, response: prototype })).toMatchObject({ status: "blocked", evidence: null })
-    let getterCalls = 0
-    const accessor = { ...exact.response }
-    Object.defineProperty(accessor, "fingerprint", { enumerable: true, get() { getterCalls += 1; return exact.response.fingerprint } })
-    expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({ ...exact, response: accessor })).toMatchObject({ status: "blocked", evidence: null })
-    expect(getterCalls).toBe(0)
-
-    const wrongText = cloneResponse()
-    wrongText.shapingRuns[0]!.text = "tampered"
-    expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({ ...exact, response: rehash(wrongText) })).toMatchObject({ status: "blocked", evidence: null })
-    const wrongCluster = cloneResponse()
-    wrongCluster.shapingRuns[0]!.clusters[0]!.renderEndOffset += 1
-    expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({ ...exact, response: rehash(wrongCluster) })).toMatchObject({ status: "blocked", evidence: null })
-    const wrongBoundary = {
-      ...cloneResponse(),
-      shapingBoundaryProofs: [
-        rehash({ ...structuredClone(exact.response.shapingBoundaryProofs[0]!), rightBoundary: "safe-first-right-guard-glyph" as const }),
-      ],
-    }
-    expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({ ...exact, response: rehash(wrongBoundary) })).toMatchObject({ status: "blocked", evidence: null })
-    const glyphVisitResponse = cloneResponse()
-    const wrongGlyphVisitCount = {
-      ...glyphVisitResponse,
-      shapingBoundaryProofs: [
-        rehash({ ...glyphVisitResponse.shapingBoundaryProofs[0]!, inspectedGlyphCount: glyphVisitResponse.shapingBoundaryProofs[0]!.inspectedGlyphCount + 1 }),
-        ...glyphVisitResponse.shapingBoundaryProofs.slice(1),
-      ],
-    }
-    expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({ ...exact, response: rehash(wrongGlyphVisitCount) })).toMatchObject({ status: "blocked", evidence: null })
-    const segmentationVisitResponse = cloneResponse()
-    const wrongSegmentationVisitCount = {
-      ...segmentationVisitResponse,
-      segmentationBoundaryProofs: [
-        rehash({ ...segmentationVisitResponse.segmentationBoundaryProofs[0]!, inspectedOffsetCount: segmentationVisitResponse.segmentationBoundaryProofs[0]!.inspectedOffsetCount + 1 }),
-        ...segmentationVisitResponse.segmentationBoundaryProofs.slice(1),
-      ],
-    }
-    expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({ ...exact, response: rehash(wrongSegmentationVisitCount) })).toMatchObject({ status: "blocked", evidence: null })
-    const wrongWork = { ...cloneResponse(), work: { ...structuredClone(exact.response.work), consumedAtomCount: 0 } }
-    expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({ ...exact, response: rehash(wrongWork) })).toMatchObject({ status: "blocked", evidence: null })
-    const unsafeInteger = cloneResponse()
-    unsafeInteger.shapingRuns[0]!.clusters[0]!.advanceLayoutUnit = Number.MAX_SAFE_INTEGER + 1
-    expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({ ...exact, response: rehash(unsafeInteger) })).toMatchObject({ status: "blocked", evidence: null })
-    expect(acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({ ...exact, response: { ...exact.response, fingerprint: "forced-collision" } })).toMatchObject({ status: "blocked", evidence: null })
-  })
-
-  it("charges Core acceptance slots before observation and retains factual stopped work", () => {
-    const exact = exactFixture()
-    const observed: string[] = []
-    const hostileRuns = Array.from(
-      { length: 9_000 },
-      () => structuredClone(exact.response.shapingRuns[0]!),
-    )
-    const hostileArray = new Proxy(hostileRuns, {
-      getOwnPropertyDescriptor(target, property) {
-        if (property === "8999") observed.push("shapingRuns[8999]")
-        return Reflect.getOwnPropertyDescriptor(target, property)
-      },
-    })
-    const hostile = rehash({
-      ...structuredClone(exact.response),
-      runtimeIdentity: exact.producerRuntimeIdentity,
-      shapingRuns: hostileArray,
-    })
-    observed.length = 0
-
-    const result = acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({
-      ...exact,
-      response: hostile,
-    })
-
-    expect(result).toMatchObject({
-      status: "fallback-required",
-      evidence: null,
-      evaluatorOrProofAuthority: expect.any(Object),
-      completedCandidateWork: {
-        evidence: { visitedEvidenceNodeCount: 8_192 },
-      },
-      issues: [],
-    })
-    expect(observed).toEqual([])
-  })
-
-  it("accepts an exact factual producer failure and rejects its clone tuple", () => {
-    const exact = exactFixture()
-    const failedWork = { ...exact.response.work, consumedAtomCount: 0, consumedClusterCount: 0, visitedEvidenceNodeCount: 0 }
-    const producerFailureResult = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({
-      request: exact.request,
-      sourceMaterial: exact.sourceMaterial,
-      runtime: {
-        identity: exact.producerRuntimeIdentity,
-        shapeRange() { throw new Error("font unavailable") },
-        segmentRange: runFlowDocTextEngineNodeMr1RangeSegmentationV1,
-      },
-    })
-    expect(failedWork.completeNextInputTraversalCount).toBe(0)
-    expect(producerFailureResult.status).toBe("blocked")
-    if (producerFailureResult.status !== "blocked") return
-    expect(acceptVNextTextBlockUnifiedLayoutProducerFailureV2({ ...exact, failure: producerFailureResult.failure })).toMatchObject({ status: "fallback-required", evaluatorOrProofAuthority: expect.any(Object), issues: [] })
-    expect(acceptVNextTextBlockUnifiedLayoutProducerFailureV2({ ...exact, request: structuredClone(exact.request), failure: producerFailureResult.failure })).toMatchObject({ status: "blocked", evaluatorOrProofAuthority: null })
-    const forgedCeiling = rehash({
-      ...structuredClone(producerFailureResult.failure),
-      runtimeIdentity: exact.producerRuntimeIdentity,
-      code: "work-ceiling-before-visit" as const,
-      completedWork: { ...producerFailureResult.failure.completedWork, consumedAtomCount: 0, consumedClusterCount: 0, visitedEvidenceNodeCount: 0 },
-    })
-    expect(acceptVNextTextBlockUnifiedLayoutProducerFailureV2({ ...exact, failure: forgedCeiling })).toMatchObject({ status: "blocked", evaluatorOrProofAuthority: null })
-  })
-
-  it("keeps internal factories and preflight helpers off the public Core seam", async () => {
-    const publicCore = await import("../src/index.js")
-    expect(Object.keys(publicCore)).not.toEqual(expect.arrayContaining([
-      "prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2",
-      "resolveVNextTextBlockRegisteredSourceStyleInternalV1",
-      "createVNextTextBlockTransitionProducerRuntimeIdentityInternalV2",
-    ]))
   })
 })

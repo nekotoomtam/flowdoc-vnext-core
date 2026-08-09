@@ -49,6 +49,9 @@ import type {
   VNextTextBlockUnifiedLayoutRootV2,
 } from "./textBlockUnifiedLayoutRootContractV2.js"
 import {
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2A_EVIDENCE_OWNER_ROWS_INTERNAL_V2,
+} from "./textBlockUnifiedLayoutEvidenceWorkOwnerRegistryV2.js"
+import {
   composeVNextTextBlockStageWorkLedgerInternalV1,
   evaluateVNextTextBlockStageWorkLimitInternalV1,
   isExactVNextTextBlockUnifiedLayoutWorkPolicyInternalV1,
@@ -777,6 +780,55 @@ function candidateWorkIsDeeplyFrozenInternalV1(
   ].every((value) => Object.isFrozen(value))
 }
 
+function usesExact5B2AEvidenceRowsInternalV1(
+  policy: VNextTextBlockUnifiedLayoutWorkPolicyV1,
+): boolean {
+  const evidenceRows = policy.stages.filter((row) => row.stage === "evidence")
+  return evidenceRows.length
+    === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2A_EVIDENCE_OWNER_ROWS_INTERNAL_V2.length
+    && evidenceRows.every((row, index) =>
+      row.unit
+        === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2A_EVIDENCE_OWNER_ROWS_INTERNAL_V2[index]!.unit
+    )
+}
+
+function hasCanonical5B2AEvidenceAggregatesInternalV1(input: {
+  readonly work: VNextTextBlockIncrementalCandidateWorkV1
+  readonly policy: VNextTextBlockUnifiedLayoutWorkPolicyV1
+}): boolean {
+  const evidenceCounts = new Map<VNextTextBlockUnifiedLayoutStageUnitV1, number>()
+  for (let index = 0; index < input.policy.stages.length; index += 1) {
+    const expected = input.policy.stages[index]!
+    if (expected.stage !== "evidence") continue
+    const actual = input.work.stageWork[index]
+    if (
+      actual == null
+      || actual.stage !== "evidence"
+      || actual.unit !== expected.unit
+      || !Number.isSafeInteger(actual.count)
+      || actual.count < 0
+    ) return false
+    evidenceCounts.set(actual.unit, actual.count)
+  }
+  if (
+    evidenceCounts.size
+      !== VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2A_EVIDENCE_OWNER_ROWS_INTERNAL_V2.length
+    || evidenceCounts.get("evidence-request-descriptors")
+      !== input.work.evidence.visitedRequestLookupNodeCount
+    || evidenceCounts.get("evidence-context-atoms")
+      !== input.work.evidence.materializedContextAtomCount
+  ) return false
+
+  let visitedProducerAndAcceptanceCount = 0
+  for (const row of VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2A_EVIDENCE_OWNER_ROWS_INTERNAL_V2) {
+    if (row.owner !== "producer" && row.owner !== "core-acceptance") continue
+    visitedProducerAndAcceptanceCount += evidenceCounts.get(row.unit) ?? 0
+    if (!Number.isSafeInteger(visitedProducerAndAcceptanceCount)) return false
+  }
+  return visitedProducerAndAcceptanceCount
+    === input.work.evidence.visitedEvidenceNodeCount
+}
+
 export function hasCanonicalVNextTextBlockStageWorkInternalV1(input: {
   readonly work: VNextTextBlockIncrementalCandidateWorkV1
   readonly policy: VNextTextBlockUnifiedLayoutWorkPolicyV1
@@ -786,32 +838,40 @@ export function hasCanonicalVNextTextBlockStageWorkInternalV1(input: {
     return false
   }
   try {
+    const usesExact5B2AEvidenceRows =
+      usesExact5B2AEvidenceRowsInternalV1(policy)
     if (
       !candidateWorkIsDeeplyFrozenInternalV1(work)
       || work.source !== "vnext-text-block-incremental-candidate-work-v1"
       || work.contractVersion !== 1
       || work.stageWork.length !== policy.stages.length
+      || (
+        usesExact5B2AEvidenceRows
+        && !hasCanonical5B2AEvidenceAggregatesInternalV1({ work, policy })
+      )
     ) return false
-    for (const [unit, count] of [
-      [
-        "evidence-request-lookup-nodes",
-        work.evidence.visitedRequestLookupNodeCount,
-      ],
-      [
-        "evidence-context-atoms",
-        work.evidence.materializedContextAtomCount,
-      ],
-      [
-        "evidence-response-nodes",
-        work.evidence.visitedEvidenceNodeCount,
-      ],
-    ] as const) {
-      if (
-        !policy.stages.some((row) =>
-          row.stage === "evidence" && row.unit === unit
-        )
-        && count !== 0
-      ) return false
+    if (!usesExact5B2AEvidenceRows) {
+      for (const [unit, count] of [
+        [
+          "evidence-request-lookup-nodes",
+          work.evidence.visitedRequestLookupNodeCount,
+        ],
+        [
+          "evidence-context-atoms",
+          work.evidence.materializedContextAtomCount,
+        ],
+        [
+          "evidence-response-nodes",
+          work.evidence.visitedEvidenceNodeCount,
+        ],
+      ] as const) {
+        if (
+          !policy.stages.some((row) =>
+            row.stage === "evidence" && row.unit === unit
+          )
+          && count !== 0
+        ) return false
+      }
     }
     for (let index = 0; index < policy.stages.length; index += 1) {
       const expected = policy.stages[index]!
@@ -823,11 +883,17 @@ export function hasCanonicalVNextTextBlockStageWorkInternalV1(input: {
         || !Number.isSafeInteger(actual.count)
         || actual.count < 0
         || (expected.lockStatus !== "locked" && actual.count !== 0)
-        || candidateDetailedWorkCountInternalV1(
-          work,
-          actual.stage,
-          actual.unit,
-        ) !== actual.count
+        || (
+          !(
+            usesExact5B2AEvidenceRows
+            && actual.stage === "evidence"
+          )
+          && candidateDetailedWorkCountInternalV1(
+            work,
+            actual.stage,
+            actual.unit,
+          ) !== actual.count
+        )
       ) return false
     }
     return true

@@ -2,7 +2,6 @@ import { readFileSync } from "node:fs"
 import { resolve } from "node:path"
 import { beforeAll, describe, expect, it, vi } from "vitest"
 import {
-  createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2,
   createFlowDocTextEngineUnifiedIncrementalEvidenceV2,
   type FlowDocUnifiedIncrementalEvidenceRuntimeV2,
 } from "../packages/text-engine-rust-wasm/src/unifiedIncrementalEvidenceV2.js"
@@ -313,361 +312,6 @@ async function initializeWasmRuntime() {
   })
 }
 
-describe("unified incremental producer evidence V2", () => {
-  beforeAll(async () => {
-    const wasmPath = resolve(process.cwd(), "packages/text-engine-rust-wasm/pkg-live-draft-mr1-range/flowdoc_text_engine_mr1_range_bg.wasm")
-    wasm = await createFlowDocTextEngineMr1RangeWorkerRuntimeV1({
-      measurementProfileId: "measurement-profile-unified-evidence-v2",
-      wasmSha256: FLOWDOC_TEXT_ENGINE_MR1_RANGE_WASM_SHA256,
-      wasmBytes: arrayBuffer(readFileSync(wasmPath)),
-      fonts: FLOWDOC_TEXT_ENGINE_MR1_SARABUN_FONT_FACES_V1.map((face) => ({
-        face: structuredClone(face),
-        bytes: arrayBuffer(readFileSync(resolve(process.cwd(), face.fontAssetPath))),
-      })),
-    })
-  }, 30_000)
-
-  it.each([
-    { label: "Latin ligature adjacency", text: "office affinity", at: 2, inserted: "X" },
-    { label: "Thai shaping", text: "สวัสดีครับตูม", at: 4, inserted: "ใหม่" },
-    { label: "zero-width end insertion", text: "flowdoc", at: 7, inserted: "!" },
-  ])("produces equal bounded Node/WASM facts for $label", ({ text, at, inserted }) => {
-    const { bundle } = bundleFor(text, at, inserted)
-    const node = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({
-      request: bundle.request,
-      sourceMaterial: bundle.sourceMaterial,
-      runtime: nodeRuntime(bundle),
-    })
-    const wasmResult = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({
-      request: bundle.request,
-      sourceMaterial: bundle.sourceMaterial,
-      runtime: { identity: identity(bundle, "browser-worker-wasm-mr1-range"), shapeRange: wasm.shapeRange, segmentRange: wasm.segmentRange },
-    })
-    expect(node.status, node.status === "blocked" ? node.failure.code : "").toBe("accepted")
-    expect(wasmResult.status, wasmResult.status === "blocked" ? wasmResult.failure.code : "").toBe("accepted")
-    if (node.status !== "accepted" || wasmResult.status !== "accepted") return
-    expect(node.response.nextEvidenceTargetRange).toEqual(bundle.request.next.evidenceTargetRange)
-    expect(comparable(node.response)).toEqual(comparable(wasmResult.response))
-    expect(node.response.work.completeNextInputTraversalCount).toBe(0)
-    expect(node.response.work.completeNextInputComparisonCount).toBe(0)
-  }, 30_000)
-
-  it("keeps deletion and replacement evidence bounded and Node/WASM-equal", () => {
-    const fixtures = [
-      deletionBundleFor("office deletion", 3, 5),
-      replacementBundleFor("ภาษาไทยทดสอบ", 4, 7, "ใหม่"),
-    ]
-    for (const { bundle } of fixtures) {
-      const node = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({ request: bundle.request, sourceMaterial: bundle.sourceMaterial, runtime: nodeRuntime(bundle) })
-      const wasmResult = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({ request: bundle.request, sourceMaterial: bundle.sourceMaterial, runtime: { identity: identity(bundle, "browser-worker-wasm-mr1-range"), shapeRange: wasm.shapeRange, segmentRange: wasm.segmentRange } })
-      expect(node.status, node.status === "blocked" ? node.failure.code : "").toBe("accepted")
-      expect(wasmResult.status, wasmResult.status === "blocked" ? wasmResult.failure.code : "").toBe("accepted")
-      if (node.status !== "accepted" || wasmResult.status !== "accepted") continue
-      expect(comparable(node.response)).toEqual(comparable(wasmResult.response))
-      expect(node.response.nextEvidenceTargetRange).toEqual(bundle.request.next.evidenceTargetRange)
-    }
-  }, 30_000)
-
-  it("preserves parity across metric style, multiple styles, retained hard break, field, and generated-page adjacency", () => {
-    const fixtures = [
-      metricStyleBundleFor("metric style", 2, 5),
-      resolvedFieldBundleFor(),
-      insertionBundleForRoot(fixtureRoot({ content: "adjacent-text", breakOffsets: [0, 2] }), 1, "X"),
-      insertionBundleForRoot(fixtureRoot({ content: "adjacent-text", mixedTextSizes: true }), 1, "X"),
-      insertionBundleForRoot(admitted5B2HardBreakRootFixture(), 2, "X"),
-    ]
-    for (const { bundle } of fixtures) {
-      const node = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({ request: bundle.request, sourceMaterial: bundle.sourceMaterial, runtime: nodeRuntime(bundle) })
-      const wasmResult = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({ request: bundle.request, sourceMaterial: bundle.sourceMaterial, runtime: { identity: identity(bundle, "browser-worker-wasm-mr1-range"), shapeRange: wasm.shapeRange, segmentRange: wasm.segmentRange } })
-      expect(node.status, node.status === "blocked" ? node.failure.code : "").toBe("accepted")
-      expect(wasmResult.status, wasmResult.status === "blocked" ? wasmResult.failure.code : "").toBe("accepted")
-      if (node.status !== "accepted" || wasmResult.status !== "accepted") continue
-      expect(comparable(node.response)).toEqual(comparable(wasmResult.response))
-      expect(node.response.nextEvidenceTargetRange).toEqual(bundle.request.next.evidenceTargetRange)
-    }
-  }, 30_000)
-
-  it("coalesces exact same-style Source atoms before proving shaping boundaries", () => {
-    const { bundle } = insertionBundleForRoot(fixtureRoot({ content: "adjacent-text", breakOffsets: [0, 2] }), 1, "X")
-    const result = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({ request: bundle.request, sourceMaterial: bundle.sourceMaterial, runtime: nodeRuntime(bundle) })
-    expect(result.status).toBe("accepted")
-    if (result.status !== "accepted") return
-    expect(result.response.shapingBoundaryProofs).toHaveLength(1)
-    expect(result.response.shapingBoundaryProofs[0]).toMatchObject({
-      leftBoundary: "safe-first-target-glyph",
-      rightBoundary: "safe-first-right-guard-glyph",
-    })
-    expect(result.response.shapingBoundaryProofs[0]!.verificationRange.startRenderedUtf16).toBeLessThan(bundle.request.next.evidenceTargetRange.startRenderedUtf16)
-    expect(result.response.shapingBoundaryProofs[0]!.verificationRange.endRenderedUtf16).toBeGreaterThan(bundle.request.next.evidenceTargetRange.endRenderedUtf16)
-  })
-
-  it("keeps retained mandatory hard-break material distinct from target opportunities", () => {
-    const { bundle } = insertionBundleForRoot(
-      admitted5B2HardBreakRootFixture(),
-      3,
-      "X",
-    )
-    const result = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({
-      request: bundle.request,
-      sourceMaterial: bundle.sourceMaterial,
-      runtime: nodeRuntime(bundle),
-    })
-    expect(result.status).toBe("accepted")
-    if (result.status !== "accepted") return
-    const hardBreak = bundle.sourceMaterial.next.atoms.find(
-      (atom) => atom.kind === "hard-break",
-    )
-    expect(hardBreak).toBeDefined()
-    const mandatoryOffset = bundle.request.next.coverageRange.startRenderedUtf16
-      + hardBreak!.relativeEndRenderedUtf16
-    expect(mandatoryOffset).toBeGreaterThan(
-      bundle.request.next.evidenceTargetRange.endRenderedUtf16,
-    )
-    expect(result.response.breakOffsets).toEqual([])
-    expect(result.response.breakOffsets).not.toEqual(
-      bundle.sourceMaterial.next.atoms.map(
-        (atom) => bundle.request.next.coverageRange.startRenderedUtf16
-          + atom.relativeEndRenderedUtf16,
-      ),
-    )
-  })
-
-  it("accounts every bounded runtime glyph and segmentation-offset node it inspects", () => {
-    const { bundle } = bundleFor("office affinity", 2, "X")
-    const result = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({ request: bundle.request, sourceMaterial: bundle.sourceMaterial, runtime: nodeRuntime(bundle) })
-    expect(result.status).toBe("accepted")
-    if (result.status !== "accepted") return
-
-    const inspectedGlyphCount = result.response.shapingBoundaryProofs.reduce((sum, proof) => sum + proof.inspectedGlyphCount, 0)
-    const inspectedSegmentationOffsetCount = result.response.segmentationBoundaryProofs.reduce((sum, proof) => sum + proof.inspectedOffsetCount, 0)
-    expect(result.response.segmentationBoundaryProofs).toHaveLength(bundle.request.nextSegmentationContextRanges.length)
-    for (const proof of result.response.segmentationBoundaryProofs) {
-      expect(proof.inspectedOffsetCount).toBe(2 * proof.contextBreakCount + 2 * proof.targetBreakOffsets.length)
-    }
-    const runtimeDispatchAndEmissionCount =
-      bundle.sourceMaterial.next.atoms.length
-      + result.response.shapingBoundaryProofs.length
-      + result.response.segmentationBoundaryProofs.length
-      + result.response.breakOffsets.length
-    const runtimeResultDescriptorCount =
-      result.response.shapingBoundaryProofs.reduce(
-        (sum, proof) => sum + 37 + 12 * proof.inspectedGlyphCount,
-        0,
-      )
-      + result.response.segmentationBoundaryProofs.reduce(
-        (sum, proof) => sum + 44 + proof.inspectedOffsetCount,
-        0,
-      )
-    expect(inspectedGlyphCount + inspectedSegmentationOffsetCount).toBe(8)
-    expect(runtimeDispatchAndEmissionCount).toBe(6)
-    expect(runtimeResultDescriptorCount).toBe(155)
-    expect(result.response.work.visitedEvidenceNodeCount).toBe(498)
-    expect(
-      result.response.work.visitedEvidenceNodeCount
-        - runtimeDispatchAndEmissionCount
-        - runtimeResultDescriptorCount,
-    ).toBe(337)
-  })
-
-  it("fails when two bounded segmentation expansions do not reconfirm equal target breaks", () => {
-    const { bundle } = bundleFor("stable segmentation", 7, "X")
-    expect(bundle.request.nextSegmentationContextRanges).toHaveLength(2)
-    const base = nodeRuntime(bundle)
-    let attempt = 0
-    const result = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({
-      request: bundle.request,
-      sourceMaterial: bundle.sourceMaterial,
-      runtime: { ...base, segmentRange(input) {
-        const facts = base.segmentRange(input)
-        attempt += 1
-        if (attempt === 1) return facts
-        const candidate = [facts.targetStartUtf16, facts.targetEndUtf16].find((offset) => !facts.targetBreakUtf16Offsets.includes(offset))
-        if (candidate == null) return { ...facts, targetBreakByteOffsets: [], targetBreakUtf16Offsets: [], summary: { ...facts.summary, targetBreakCount: 0 } }
-        const contextPairs = facts.contextBreakUtf16Offsets.map((offset, index) => ({ utf16: offset, byte: facts.contextBreakByteOffsets[index]! }))
-        if (!contextPairs.some((pair) => pair.utf16 === candidate)) contextPairs.push({ utf16: candidate, byte: candidate })
-        contextPairs.sort((left, right) => left.utf16 - right.utf16)
-        return {
-          ...facts,
-          contextBreakByteOffsets: contextPairs.map((pair) => pair.byte),
-          contextBreakUtf16Offsets: contextPairs.map((pair) => pair.utf16),
-          targetBreakByteOffsets: [candidate],
-          targetBreakUtf16Offsets: [candidate],
-          summary: { ...facts.summary, contextBreakCount: contextPairs.length, targetBreakCount: 1 },
-        }
-      } },
-    })
-    expect(result).toMatchObject({ status: "blocked", failure: { code: "segmentation-not-stable" } })
-    expect(attempt).toBe(2)
-  })
-
-  it("fails closed with factual producer codes and never widens to full-runtime calls", () => {
-    const { bundle } = bundleFor("office affinity", 2, "X")
-    const base = nodeRuntime(bundle)
-    const run = (runtime: FlowDocUnifiedIncrementalEvidenceRuntimeV2, sourceMaterial = bundle.sourceMaterial) => createFlowDocTextEngineUnifiedIncrementalEvidenceV2({ request: bundle.request, sourceMaterial, runtime })
-
-    const missing = run({ ...base, shapeRange(input) {
-      const facts = base.shapeRange(input)
-      return { ...facts, glyphs: facts.glyphs.map((glyph, index) => index === 0 ? { ...glyph, glyphId: 0 } : glyph), summary: { ...facts.summary, missingGlyphCount: 1 } }
-    } })
-    expect(missing).toMatchObject({ status: "blocked", failure: { code: "missing-glyph" } })
-
-    const mismatch = run({ ...base, shapeRange(input) {
-      const facts = base.shapeRange(input)
-      return { ...facts, unitsPerEm: facts.unitsPerEm + 1 }
-    } })
-    expect(mismatch).toMatchObject({ status: "blocked", failure: { code: "pinned-font-mismatch" } })
-
-    const unsafeBoundary = run({ ...base, shapeRange(input) {
-      const facts = base.shapeRange(input)
-      return { ...facts, glyphs: facts.glyphs.map((glyph) => ({ ...glyph, unsafeToBreak: true })) }
-    } })
-    expect(unsafeBoundary).toMatchObject({ status: "blocked", failure: { code: "unsafe-shaping-boundary" } })
-
-    const unsafeArithmetic = run({ ...base, shapeRange(input) {
-      const facts = base.shapeRange(input)
-      return { ...facts, glyphs: facts.glyphs.map((glyph, index) => index === 0 ? { ...glyph, xAdvance: Number.MAX_SAFE_INTEGER } : glyph) }
-    } })
-    expect(unsafeArithmetic).toMatchObject({ status: "blocked", failure: { code: "unsafe-runtime-arithmetic" } })
-
-    const segmentation = run({ ...base, segmentRange() { throw new Error("bounded segmentation unavailable") } })
-    expect(segmentation).toMatchObject({ status: "blocked", failure: { code: "segmentation-not-stable" } })
-
-    let runtimeGetterCalls = 0
-    const shapeAccessor = run({ ...base, shapeRange(input) {
-      const facts = { ...base.shapeRange(input) }
-      Object.defineProperty(facts, "glyphs", { enumerable: true, get() { runtimeGetterCalls += 1; return [] } })
-      return facts
-    } })
-    expect(shapeAccessor).toMatchObject({ status: "blocked", failure: { code: "unsafe-runtime-arithmetic" } })
-    expect(runtimeGetterCalls).toBe(0)
-    const segmentAccessor = run({ ...base, segmentRange(input) {
-      const facts = { ...base.segmentRange(input) }
-      Object.defineProperty(facts, "targetBreakUtf16Offsets", { enumerable: true, get() { runtimeGetterCalls += 1; return [] } })
-      return facts
-    } })
-    expect(segmentAccessor).toMatchObject({ status: "blocked", failure: { code: "segmentation-not-stable" } })
-    expect(runtimeGetterCalls).toBe(0)
-
-    expect(run({ ...base, shapeRange() { throw new Error("pinned font unavailable") } })).toMatchObject({ status: "blocked", failure: { code: "pinned-font-unavailable" } })
-
-    const zeroCeiling = rehash({ ...bundle.sourceMaterial, producerWorkCeilings: { ...bundle.sourceMaterial.producerWorkCeilings, maximumVisitedEvidenceNodeCount: 0 } })
-    const overLimit = run(base, zeroCeiling)
-    expect(overLimit).toMatchObject({ status: "blocked", failure: { code: "work-ceiling-before-visit", completedWork: { visitedEvidenceNodeCount: 0 } } })
-  })
-
-  it("charges a returned runtime descriptor before observing its shape payload", () => {
-    const { bundle } = bundleFor("office affinity", 2, "X")
-    const material = rehash({
-      ...bundle.sourceMaterial,
-      producerWorkCeilings: {
-        ...bundle.sourceMaterial.producerWorkCeilings,
-        maximumVisitedEvidenceNodeCount: 341,
-      },
-    })
-    const base = nodeRuntime(bundle)
-    const observed: string[] = []
-    const result = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({
-      request: bundle.request,
-      sourceMaterial: material,
-      runtime: {
-        ...base,
-        shapeRange(input) {
-          const facts = base.shapeRange(input)
-          return new Proxy(facts, {
-            ownKeys(target) {
-              observed.push("shape-own-keys")
-              return Reflect.ownKeys(target)
-            },
-          })
-        },
-      },
-    })
-
-    expect(result).toMatchObject({
-      status: "blocked",
-      response: null,
-      failure: {
-        code: "work-ceiling-before-visit",
-        completedWork: { visitedEvidenceNodeCount: 341 },
-      },
-    })
-    expect(observed).toEqual([])
-  })
-
-  it("rejects request-scoped material with caller-shaped complete-input fields", () => {
-    const { bundle } = bundleFor("bounded material", 7, "X")
-    const invalid = { ...bundle.sourceMaterial, completeNextCanonicalInput: "forbidden" }
-    expect(createFlowDocTextEngineUnifiedIncrementalEvidenceV2({ request: bundle.request, sourceMaterial: invalid as typeof bundle.sourceMaterial, runtime: nodeRuntime(bundle) })).toMatchObject({ status: "blocked", failure: { code: "invalid-request-scoped-material" } })
-    let getterCalls = 0
-    const accessor = structuredClone(bundle.sourceMaterial)
-    Object.defineProperty(accessor.next.atoms[0]!, "renderedText", { enumerable: true, get() { getterCalls += 1; return "forbidden" } })
-    expect(createFlowDocTextEngineUnifiedIncrementalEvidenceV2({ request: bundle.request, sourceMaterial: accessor, runtime: nodeRuntime(bundle) })).toMatchObject({ status: "blocked", failure: { code: "invalid-request-scoped-material" } })
-    expect(getterCalls).toBe(0)
-    const outer = { sourceMaterial: bundle.sourceMaterial, runtime: nodeRuntime(bundle) } as Record<string, unknown>
-    Object.defineProperty(outer, "request", { enumerable: true, get() { getterCalls += 1; return bundle.request } })
-    expect(createFlowDocTextEngineUnifiedIncrementalEvidenceV2(outer)).toMatchObject({ status: "blocked", failure: { code: "invalid-request-scoped-material" } })
-    expect(getterCalls).toBe(0)
-  })
-
-  it("charges the producer response owner before the first request/material payload observation", () => {
-    const { bundle } = bundleFor("bounded producer descriptors", 8, "X")
-    const material = structuredClone(bundle.sourceMaterial) as unknown as {
-      producerWorkCeilings: { maximumVisitedEvidenceNodeCount: number }
-      fingerprint: string
-      next: { atoms: object[] }
-    }
-    material.producerWorkCeilings.maximumVisitedEvidenceNodeCount = 0
-    const materialFacts = { ...material } as Record<string, unknown>
-    delete materialFacts.fingerprint
-    material.fingerprint = createVNextCompactFingerprint(
-      stringifyVNextCanonicalJson(materialFacts),
-    )
-
-    const observed: string[] = []
-    const firstAtom = material.next.atoms[0]!
-    material.next.atoms[0] = new Proxy(firstAtom, {
-      ownKeys(target) {
-        observed.push("next.atoms[0]")
-        return Reflect.ownKeys(target)
-      },
-    })
-
-    const result = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({
-      request: bundle.request,
-      sourceMaterial: material as unknown as typeof bundle.sourceMaterial,
-      runtime: nodeRuntime(bundle),
-    })
-
-    expect(result).toMatchObject({
-      status: "blocked",
-      response: null,
-      failure: {
-        code: "work-ceiling-before-visit",
-        completedWork: { visitedEvidenceNodeCount: 0 },
-      },
-    })
-    expect(observed).toEqual([])
-  })
-
-  it("honors threshold-minus-one, threshold, and threshold-plus-one without wall-clock policy", () => {
-    const { bundle } = bundleFor("threshold evidence", 9, "X")
-    const baseline = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({ request: bundle.request, sourceMaterial: bundle.sourceMaterial, runtime: nodeRuntime(bundle) })
-    expect(baseline.status).toBe("accepted")
-    if (baseline.status !== "accepted") return
-    const threshold = baseline.response.work.visitedEvidenceNodeCount
-    const materialAt = (maximumVisitedEvidenceNodeCount: number) => rehash({
-      ...bundle.sourceMaterial,
-      producerWorkCeilings: { ...bundle.sourceMaterial.producerWorkCeilings, maximumVisitedEvidenceNodeCount },
-    })
-    const below = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({ request: bundle.request, sourceMaterial: materialAt(threshold - 1), runtime: nodeRuntime(bundle) })
-    const at = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({ request: bundle.request, sourceMaterial: materialAt(threshold), runtime: nodeRuntime(bundle) })
-    const above = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({ request: bundle.request, sourceMaterial: materialAt(threshold + 1), runtime: nodeRuntime(bundle) })
-    expect(below).toMatchObject({ status: "blocked", failure: { code: "work-ceiling-before-visit", completedWork: { visitedEvidenceNodeCount: threshold - 1 } } })
-    expect(at.status).toBe("accepted")
-    expect(above.status).toBe("accepted")
-  })
-})
-
 describe("authorized producer execution and factual work V2", () => {
   beforeAll(async () => {
     await initializeWasmRuntime()
@@ -802,7 +446,7 @@ describe("authorized producer execution and factual work V2", () => {
       return result
     }
     const invoke = (authority: VNextTextBlockTransitionProducerInvocationAuthorityV2) =>
-      createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+      createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
         authority,
         bundle.request,
         bundle.sourceMaterial,
@@ -873,7 +517,7 @@ describe("authorized producer execution and factual work V2", () => {
       shapeRange: baseRuntime.shapeRange,
       segmentRange: baseRuntime.segmentRange,
     }
-    const result = createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+    const result = createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
       authority,
       hostilePayload("bind:request", observed) as VNextTextBlockTransitionEvidenceRequestV2,
       hostilePayload("bind:material", observed) as never,
@@ -902,6 +546,27 @@ describe("authorized producer execution and factual work V2", () => {
         throw new Error("authority getter must not run")
       },
     })
+    let envelopeGetterCalls = 0
+    const hostileEnvelope = Object.create(null) as Record<string, unknown>
+    Object.defineProperty(hostileEnvelope, "request", {
+      enumerable: true,
+      get() {
+        envelopeGetterCalls += 1
+        throw new Error("one-argument envelope getter must not run")
+      },
+    })
+    Object.defineProperty(hostileEnvelope, "runtime", {
+      enumerable: true,
+      get() {
+        envelopeGetterCalls += 1
+        throw new Error("one-argument runtime getter must not run")
+      },
+    })
+    const oneArgumentResult = createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
+      hostileEnvelope,
+    )
+    expect(oneArgumentResult).toEqual(notInvoked)
+    expect(envelopeGetterCalls).toBe(0)
     const cases: readonly { readonly label: string; readonly authority: unknown }[] = [
       { label: "missing", authority: null },
       { label: "malformed", authority: Object.freeze({}) },
@@ -913,7 +578,7 @@ describe("authorized producer execution and factual work V2", () => {
     let firstResult: unknown = null
     for (const row of cases) {
       const observed: string[] = []
-      const result = createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+      const result = createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
         row.authority as VNextTextBlockTransitionProducerInvocationAuthorityV2,
         hostilePayload(`${row.label}:request`, observed) as VNextTextBlockTransitionEvidenceRequestV2,
         hostilePayload(`${row.label}:material`, observed) as never,
@@ -927,31 +592,26 @@ describe("authorized producer execution and factual work V2", () => {
     expect(authorityGetterCalls).toBe(0)
     expect(Object.isFrozen(firstResult)).toBe(true)
     expect(Object.isFrozen((firstResult as typeof notInvoked).issues)).toBe(true)
+    expect(oneArgumentResult).toBe(firstResult)
   })
 
-  it("keeps a caller-authored successful lookalike in the raw adapter lane without a Core authority record", () => {
+  it("keeps a caller-authored successful control lookalike outside Core authority records", () => {
     const bundle = authorizedEvidenceRequestBundle5B2({ insertedText: "L" })
     const runtime = nodeRuntimeForRequest(bundle.request)
-    const raw = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({
-      request: bundle.request,
-      sourceMaterial: bundle.sourceMaterial,
-      runtime,
-    })
     const lookalike = successfulLookalike()
     const structurallyAuthorized =
-      createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+      createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
         lookalike,
         bundle.request,
         bundle.sourceMaterial,
         runtime,
       )
 
-    expect(raw.status).toBe("accepted")
     expect(structurallyAuthorized.status).toBe("accepted")
     expect(inspectVNextTextBlockTransitionProducerInvocationAuthorityInternalV2(
       lookalike,
     )).toBeNull()
-  })
+  }, 30_000)
 
   it("stops an exact zero descriptor authority before the first payload observation and retains attempted one completed zero", () => {
     const policy =
@@ -992,7 +652,7 @@ describe("authorized producer execution and factual work V2", () => {
     })
     try {
       const result =
-        createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+        createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
           recorded.authority,
           bundle.request,
           bundle.sourceMaterial,
@@ -1046,7 +706,7 @@ describe("authorized producer execution and factual work V2", () => {
       executionEvents,
     )
     const result =
-      createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+      createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
         recorded.authority,
         bundle.request,
         bundle.sourceMaterial,
@@ -1084,7 +744,7 @@ describe("authorized producer execution and factual work V2", () => {
       bundle.producerInvocationAuthority,
       executionEvents,
     )
-    createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+    createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
       recorded.authority,
       bundle.request,
       bundle.sourceMaterial,
@@ -1110,7 +770,7 @@ describe("authorized producer execution and factual work V2", () => {
       bundle.producerInvocationAuthority,
     )
     const result =
-      createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+      createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
         recorded.authority,
         bundle.request,
         bundle.sourceMaterial,
@@ -1177,23 +837,14 @@ describe("authorized producer execution and factual work V2", () => {
 
   it("uses the unsafe exact-boundary glyph even when a safe later guard is returned first", () => {
     const bundle = authorizedEvidenceRequestBundle5B2({ insertedText: "X" })
-    const raw = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({
-      request: bundle.request,
-      sourceMaterial: bundle.sourceMaterial,
-      runtime: unsortedExactRightGuardRuntime(bundle.request),
-    })
     const authorized =
-      createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+      createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
         bundle.producerInvocationAuthority,
         bundle.request,
         bundle.sourceMaterial,
         unsortedExactRightGuardRuntime(bundle.request),
       )
 
-    expect(raw).toMatchObject({
-      status: "blocked",
-      failure: { code: "unsafe-shaping-boundary" },
-    })
     expect(authorized).toMatchObject({
       status: "blocked",
       failure: { code: "unsafe-shaping-boundary" },
@@ -1212,7 +863,7 @@ describe("authorized producer execution and factual work V2", () => {
       below.producerInvocationAuthority,
     )
     const belowResult =
-      createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+      createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
         belowRecorded.authority,
         below.request,
         below.sourceMaterial,
@@ -1254,7 +905,7 @@ describe("authorized producer execution and factual work V2", () => {
       insertedText: "K",
     })
     const atResult =
-      createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+      createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
         at.producerInvocationAuthority,
         at.request,
         at.sourceMaterial,
@@ -1270,7 +921,7 @@ describe("authorized producer execution and factual work V2", () => {
     )
     const base = nodeRuntimeForRequest(bundle.request)
     const result =
-      createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+      createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
         recorded.authority,
         bundle.request,
         bundle.sourceMaterial,
@@ -1321,7 +972,7 @@ describe("authorized producer execution and factual work V2", () => {
       bundle.producerInvocationAuthority,
     )
     const base = nodeRuntimeForRequest(bundle.request)
-    const result = createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+    const result = createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
       recorded.authority,
       bundle.request,
       bundle.sourceMaterial,
@@ -1366,7 +1017,7 @@ describe("authorized producer execution and factual work V2", () => {
       bundle.producerInvocationAuthority,
     )
     const base = nodeRuntimeForRequest(bundle.request)
-    const result = createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+    const result = createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
       recorded.authority,
       bundle.request,
       bundle.sourceMaterial,
@@ -1415,14 +1066,14 @@ describe("authorized producer execution and factual work V2", () => {
     const nodeBundle = authorizedEvidenceRequestBundle5B2({ insertedText: "X" })
     const wasmBundle = authorizedEvidenceRequestBundle5B2({ insertedText: "X" })
     const nodeResult =
-      createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+      createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
         nodeBundle.producerInvocationAuthority,
         nodeBundle.request,
         nodeBundle.sourceMaterial,
         nodeRuntimeForRequest(nodeBundle.request),
       )
     const wasmResult =
-      createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+      createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
         wasmBundle.producerInvocationAuthority,
         wasmBundle.request,
         wasmBundle.sourceMaterial,

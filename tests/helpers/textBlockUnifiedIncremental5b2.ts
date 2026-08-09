@@ -1,7 +1,9 @@
 import {
-  createVNextTextBlockUnifiedLayoutRoot5B2CompleteInternalV1,
   prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2,
 } from "../../src/layout/textBlockUnifiedLayoutRootV2.js"
+import type {
+  VNextTextBlockUnifiedLayoutRootV2,
+} from "../../src/layout/textBlockUnifiedLayoutRootContractV2.js"
 import {
   registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2,
 } from "../../src/layout/textBlockUnifiedLayoutRootAuthorityInternalsV2.js"
@@ -12,7 +14,7 @@ import {
 } from "../../src/layout/textBlockUnifiedLayoutTrivialAdmissionInternalsV1.js"
 import {
   createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2,
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_TEST_ONLY_INTERNAL_V2,
   type VNextTextBlockUnifiedLayoutWorkPolicyV1,
 } from "../../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import {
@@ -56,7 +58,7 @@ import {
   runFlowDocTextEngineNodeMr1RangeShapeV1,
 } from "../../packages/text-engine-rust-wasm/src/node.js"
 import {
-  createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2,
+  createFlowDocTextEngineUnifiedIncrementalEvidenceV2,
 } from "../../packages/text-engine-rust-wasm/src/unifiedIncrementalEvidenceV2.js"
 
 export type ProducerInvocationAuthorityEvent5B2 =
@@ -125,20 +127,71 @@ export function recordProducerInvocationAuthority5B2(
 export function admitted5B2RootFixture(input: Parameters<
   typeof unifiedLayoutRootBuildInputFixtureV2
 >[0] = {}) {
-  const result = createVNextTextBlockUnifiedLayoutRoot5B2CompleteInternalV1({
-    buildInput: unifiedLayoutRootBuildInputFixtureV2(input),
-    constructionKind: "complete-bootstrap",
-    workPolicy:
-      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
-  })
-  if (result.status !== "accepted") {
-    throw new Error(`5B-2 Root fixture blocked: ${JSON.stringify(result.issues)}`)
+  const root = registered5B2RootFixture(input)
+  try {
+    return admit5B2RootFixture(root)
+  } catch (error) {
+    if (
+      error instanceof Error
+      && (
+        error.message === "5B-2 Root admission blocked"
+        || error.message === "5B-2 Root admission requires an empty Spatial index"
+      )
+    ) return root
+    throw error
   }
-  return result.root
+}
+
+export function registered5B2RootFixture(input: Parameters<
+  typeof unifiedLayoutRootBuildInputFixtureV2
+>[0] = {}) {
+  const prepared = prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2(
+    unifiedLayoutRootBuildInputFixtureV2(input),
+    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_TEST_ONLY_INTERNAL_V2,
+    "complete-bootstrap",
+  )
+  if (prepared.status !== "prepared") {
+    throw new Error(`5B-2 Root fixture blocked: ${JSON.stringify(prepared.issues)}`)
+  }
+  const registration =
+    registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2(prepared.root)
+  if (registration.status !== "committed") {
+    throw new Error(`5B-2 Root registration blocked: ${registration.message}`)
+  }
+  return prepared.root
 }
 
 export const FIVE_B2_TEST_POLICY =
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_TEST_ONLY_INTERNAL_V2
+
+export function admit5B2RootFixture(
+  root: VNextTextBlockUnifiedLayoutRootV2,
+): VNextTextBlockUnifiedLayoutRootV2 {
+  if (root.spatialState.summary.entryCount !== 0) {
+    throw new Error("5B-2 Root admission requires an empty Spatial index")
+  }
+  markVNextTextBlockUnifiedLayout5B2CompleteKernelProfileInternalV1({
+    root,
+    source: root.sourceState,
+    spatialState: root.spatialState,
+    authoredBox: root.authoredBoxSummary,
+    workPolicy: root.workPolicy,
+    authoredBoxProfile: {
+      heightPolicy: "auto-height",
+      clippingPolicy: "none",
+      overflowPolicy: "none",
+    },
+  })
+  const admission = registerVNextTextBlockUnifiedLayoutTrivialAdmissionInternalV1({
+    root,
+    source: root.sourceState,
+    spatialState: root.spatialState,
+    authoredBox: root.authoredBoxSummary,
+    workPolicy: root.workPolicy,
+  })
+  if (admission == null) throw new Error("5B-2 Root admission blocked")
+  return root
+}
 
 function actualSarabunRegularFaces5B2() {
   return FLOWDOC_TEXT_ENGINE_MR1_SARABUN_FONT_FACES_V1
@@ -295,7 +348,7 @@ export function authorizedProducerTerminalFixture5B2(input: {
         ),
       })
     : bundle.producerInvocationAuthority
-  const result = createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+  const result = createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
     producerInvocationAuthority,
     bundle.request,
     bundle.sourceMaterial,
@@ -463,15 +516,20 @@ function accepted5B2RootFromCompleteText(input: {
   }
 }) {
   const fixture = acceptedCompleteText5B2SourceFixture(input)
-  const result = createVNextTextBlockUnifiedLayoutRoot5B2CompleteInternalV1({
-    buildInput: fixture.buildInput,
-    constructionKind: "complete-bootstrap",
-    workPolicy: FIVE_B2_TEST_POLICY,
-  })
-  if (result.status !== "accepted") {
-    throw new Error(`5B-2 complete-text Root blocked: ${JSON.stringify(result.issues)}`)
+  const prepared = prepareVNextTextBlockUnifiedLayoutRootCompleteCandidateInternalV2(
+    fixture.buildInput,
+    FIVE_B2_TEST_POLICY,
+    "complete-bootstrap",
+  )
+  if (prepared.status !== "prepared") {
+    throw new Error(`5B-2 complete-text Root blocked: ${JSON.stringify(prepared.issues)}`)
   }
-  return { root: result.root, textBlock: fixture.textBlock }
+  const registration =
+    registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2(prepared.root)
+  if (registration.status !== "committed") {
+    throw new Error(`5B-2 complete-text Root registration blocked: ${registration.message}`)
+  }
+  return { root: admit5B2RootFixture(prepared.root), textBlock: fixture.textBlock }
 }
 
 export function admitted5B2HardBreakRootFixture() {

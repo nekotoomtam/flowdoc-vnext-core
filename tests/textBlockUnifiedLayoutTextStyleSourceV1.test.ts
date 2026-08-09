@@ -51,6 +51,10 @@ import {
 import {
   repeatedUnifiedLayoutRootSourceFixtureV1,
 } from "./helpers/textBlockUnifiedLayoutRootV1.js"
+import {
+  admit5B2RootFixture,
+  admitted5B2HardBreakRootFixture,
+} from "./helpers/textBlockUnifiedIncremental5b2.js"
 
 const ACTUAL_FONT_FACES = FLOWDOC_TEXT_ENGINE_MR1_SARABUN_FONT_FACES_V1
 const CORE_FONT_FACES = ACTUAL_FONT_FACES.slice(0, 1).map(({ fontAssetPath: _path, ...face }) => ({ ...face }))
@@ -87,7 +91,7 @@ function textRoot(text: string): VNextTextBlockUnifiedLayoutRootV2 {
     VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
   )
   if (built.status !== "accepted") throw new Error(`text root blocked: ${JSON.stringify(built.issues)}`)
-  return built.root
+  return admit5B2RootFixture(built.root)
 }
 
 function repeatedRoot(lineCount: number): VNextTextBlockUnifiedLayoutRootV2 {
@@ -103,7 +107,7 @@ function repeatedRoot(lineCount: number): VNextTextBlockUnifiedLayoutRootV2 {
     spatialEntries: source.spatialEntries,
   }, VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1)
   if (built.status !== "accepted") throw new Error(`repeated root blocked: ${JSON.stringify(built.issues)}`)
-  return built.root
+  return admit5B2RootFixture(built.root)
 }
 
 function adjacentTextRoot(itemCount: number): VNextTextBlockUnifiedLayoutRootV2 {
@@ -120,7 +124,7 @@ function adjacentTextRoot(itemCount: number): VNextTextBlockUnifiedLayoutRootV2 
     spatialEntries: source.spatialEntries,
   }, VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1)
   if (built.status !== "accepted") throw new Error(`adjacent root blocked: ${JSON.stringify(built.issues)}`)
-  return built.root
+  return admit5B2RootFixture(built.root)
 }
 
 function sourceItems(node: VNextTextBlockUnifiedLayoutSourceNodeV1): readonly VNextTextBlockUnifiedLayoutSourceItemV1[] {
@@ -274,10 +278,11 @@ function acceptedEvidence(
     fontStyleUnitDependencyFingerprint: requestResult.request.fontStyleUnitDependencyFingerprint,
     producerRuntimeRequirementFingerprint: requestResult.request.producerRuntimeRequirementFingerprint,
   })
-  const produced = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({
-    request: requestResult.request,
-    sourceMaterial: requestResult.sourceMaterial,
-    runtime: {
+  const produced = createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
+    requestResult.producerInvocationAuthority,
+    requestResult.request,
+    requestResult.sourceMaterial,
+    {
       identity,
       shapeRange(input) {
         const face = ACTUAL_FONT_FACES.find((candidate) => candidate.fontFaceId === input.fontFaceId)
@@ -295,13 +300,14 @@ function acceptedEvidence(
       },
       segmentRange: runFlowDocTextEngineNodeMr1RangeSegmentationV1,
     },
-  })
+  )
   if (produced.status !== "accepted") throw new Error(`producer evidence blocked: ${JSON.stringify(produced.failure)}`)
   const accepted = acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({
     previousRoot: root,
     change,
     request: requestResult.request,
     sourceMaterial: requestResult.sourceMaterial,
+    producerInvocationAuthority: requestResult.producerInvocationAuthority,
     producerRuntimeIdentity: identity,
     response: produced.response,
   })
@@ -453,21 +459,14 @@ describe("5B-2 text/style Source path copy", () => {
   })
 
   it("updates equal-rendered field provenance beside atomic boundaries", () => {
-    const built = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
-      unifiedLayoutRootBuildInputFixtureV2({
-        content: "field-image-page-break",
-        fontFaces: CORE_FONT_FACES,
-      }),
-      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
-    )
-    if (built.status !== "accepted") throw new Error("field root blocked")
-    const previousField = sourceItems(built.root.sourceState.root).find(
+    const root = admitted5B2HardBreakRootFixture()
+    const previousField = sourceItems(root.sourceState.root).find(
       (item) => item.kind === "resolved-field",
     )
     if (previousField?.kind !== "resolved-field") throw new Error("field missing")
     const { result } = transition(
-      built.root,
-      fieldChange(built.root, previousField.renderedText),
+      root,
+      fieldChange(root, previousField.renderedText),
     )
     expect(result, JSON.stringify(result)).toMatchObject({ status: "accepted" })
     if (result.status !== "accepted") return

@@ -39,6 +39,9 @@ import { transitionVNextTextBlockUnifiedLayoutSourceAndFlowInternalV1 } from "..
 import { VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import { unifiedLayoutRootBuildInputFixtureV2 } from "./helpers/textBlockUnifiedLayoutRootV2.js"
 import { repeatedUnifiedLayoutRootSourceFixtureV1 } from "./helpers/textBlockUnifiedLayoutRootV1.js"
+import {
+  admit5B2RootFixture,
+} from "./helpers/textBlockUnifiedIncremental5b2.js"
 
 const ACTUAL_FONT_FACES = FLOWDOC_TEXT_ENGINE_MR1_SARABUN_FONT_FACES_V1
 const CORE_FONT_FACES = ACTUAL_FONT_FACES.slice(0, 1).map(
@@ -79,7 +82,7 @@ function textRoot(text: string): VNextTextBlockUnifiedLayoutRootV2 {
     VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
   )
   if (built.status !== "accepted") throw new Error("root blocked")
-  return built.root
+  return admit5B2RootFixture(built.root)
 }
 
 function adjacentTextRoot(itemCount: number): VNextTextBlockUnifiedLayoutRootV2 {
@@ -96,19 +99,24 @@ function adjacentTextRoot(itemCount: number): VNextTextBlockUnifiedLayoutRootV2 
     spatialEntries: source.spatialEntries,
   }, VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1)
   if (built.status !== "accepted") throw new Error("adjacent root blocked")
-  return built.root
+  return admit5B2RootFixture(built.root)
 }
 
 function mixedBoundaryRoot(): VNextTextBlockUnifiedLayoutRootV2 {
-  const built = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
-    unifiedLayoutRootBuildInputFixtureV2({
-      content: "text-image-text-break",
-      fontFaces: CORE_FONT_FACES,
-    }),
-    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
-  )
+  const source = repeatedUnifiedLayoutRootSourceFixtureV1({
+    lineCount: 1,
+    includeImages: false,
+    includeBreaks: true,
+    fontFaces: CORE_FONT_FACES,
+  })
+  const built = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2({
+    inputAuthority: "core-synthetic-qa-only",
+    initialFlow: source.initialFlow,
+    evidence: source.evidence,
+    spatialEntries: source.spatialEntries,
+  }, VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1)
   if (built.status !== "accepted") throw new Error("mixed root blocked")
-  return built.root
+  return admit5B2RootFixture(built.root)
 }
 
 function sourceLeafOccupancies(
@@ -238,10 +246,11 @@ function acceptedEvidence(
     producerRuntimeRequirementFingerprint:
       request.request.producerRuntimeRequirementFingerprint,
   })
-  const produced = createFlowDocTextEngineUnifiedIncrementalEvidenceV2({
-    request: request.request,
-    sourceMaterial: request.sourceMaterial,
-    runtime: {
+  const produced = createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
+    request.producerInvocationAuthority,
+    request.request,
+    request.sourceMaterial,
+    {
       identity,
       shapeRange(input) {
         const face = ACTUAL_FONT_FACES.find(
@@ -261,13 +270,14 @@ function acceptedEvidence(
       },
       segmentRange: runFlowDocTextEngineNodeMr1RangeSegmentationV1,
     },
-  })
+  )
   if (produced.status !== "accepted") throw new Error("producer blocked")
   const accepted = acceptVNextTextBlockUnifiedLayoutTransitionEvidenceV2({
     previousRoot: root,
     change,
     request: request.request,
     sourceMaterial: request.sourceMaterial,
+    producerInvocationAuthority: request.producerInvocationAuthority,
     producerRuntimeIdentity: identity,
     response: produced.response,
   })

@@ -270,23 +270,23 @@ describe("Phase 5B-1 private V3 factual work calibration", () => {
   it("keeps the 5B2 evidence calibration policy internal and finitely bounded", () => {
     const policy =
       VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1
-    expect(policy.stages).toHaveLength(24)
+    expect(policy.stages).toHaveLength(36)
     expect(policy.stages.filter((row) =>
       row.stage === "spatial-index" && row.lockStatus === "inactive"
     )).toHaveLength(2)
-    expect(policy.stages.filter((row) => row.stage === "evidence"))
-      .toEqual(expect.arrayContaining([
-        expect.objectContaining({
-          unit: "evidence-request-lookup-nodes",
-          lockStatus: "locked",
-          smallBlockFloor: 8_192,
-          absoluteStageLimit: 32_768,
-          relativeNumerator: 8,
-          relativeDenominator: 1,
-        }),
-        expect.objectContaining({ unit: "evidence-context-atoms" }),
-        expect.objectContaining({ unit: "evidence-response-nodes" }),
-      ]))
+    const evidenceRows = policy.stages.filter((row) => row.stage === "evidence")
+    expect(evidenceRows.map((row) => row.unit)).toEqual(
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2A_EVIDENCE_OWNER_ROWS_INTERNAL_V2
+        .map((row) => row.unit),
+    )
+    expect(evidenceRows).toHaveLength(15)
+    expect(evidenceRows.every((row) =>
+      row.lockStatus === "locked"
+      && row.smallBlockFloor === 8_192
+      && row.absoluteStageLimit === 8_192
+      && row.relativeNumerator === 0
+      && row.relativeDenominator === 1
+    )).toBe(true)
   })
 
   it("proves minus-one/equal/plus-one for every derived locked row", () => {

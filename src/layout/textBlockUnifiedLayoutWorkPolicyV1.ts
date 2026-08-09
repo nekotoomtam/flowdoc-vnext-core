@@ -573,22 +573,6 @@ export function createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInt
 export const VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_TEST_ONLY_INTERNAL_V2 =
   createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({})
 
-const calibrationEvidenceLocked = (
-  unit:
-    | "evidence-request-lookup-nodes"
-    | "evidence-context-atoms"
-    | "evidence-response-nodes",
-): VNextTextBlockStageLimitV1 => stageLimit({
-  stage: "evidence",
-  unit,
-  lockStatus: "locked",
-  smallBlockFloor: 8_192,
-  absoluteStageLimit: 32_768,
-  relativeNumerator: 8,
-  relativeDenominator: 1,
-  checkpointOwner: "5B-2",
-})
-
 const calibrationSourceFlowLocked = (
   unit:
     | "source-items"
@@ -609,9 +593,8 @@ const calibrationSourceFlowLocked = (
 })
 
 const policy5b2CalibrationTestOnlyStages = Object.freeze([
-  calibrationEvidenceLocked("evidence-request-lookup-nodes"),
-  calibrationEvidenceLocked("evidence-context-atoms"),
-  calibrationEvidenceLocked("evidence-response-nodes"),
+  ...VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2A_EVIDENCE_OWNER_ROWS_INTERNAL_V2
+    .map((row) => authorityEvidenceCalibrationStageLimit(row.unit, 8_192)),
   ...policy5b1V3Stages.map((row) => {
     if (row.stage !== "source-flow") return row
     switch (row.unit) {

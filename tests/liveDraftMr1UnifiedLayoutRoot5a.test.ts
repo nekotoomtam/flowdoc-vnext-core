@@ -48,6 +48,8 @@ const privilegedRuntimeNames = [
   "registerVNextTextBlockTransitionProducerRuntimeIdentityInternalV2",
   "inspectVNextTextBlockTransitionProducerInvocationAuthorityInternalV2",
   "consumeVNextTextBlockTransitionProducerInvocationAuthorityInternalV2",
+  "createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2",
+  "VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2A_EVIDENCE_OWNER_ROWS_INTERNAL_V2",
   "canonicalRootFacts",
   "rootFingerprintFacts",
   "roots",
@@ -76,6 +78,8 @@ describe("Live Draft MR1 unified TextBlock root Phase 5A public boundary", () =>
       "registerVNextTextBlockTransitionProducerRuntimeIdentityInternalV2",
       "inspectVNextTextBlockTransitionProducerInvocationAuthorityInternalV2",
       "consumeVNextTextBlockTransitionProducerInvocationAuthorityInternalV2",
+      "createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2",
+      "VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2A_EVIDENCE_OWNER_ROWS_INTERNAL_V2",
     ]) {
       expect(name in core, name).toBe(false)
     }

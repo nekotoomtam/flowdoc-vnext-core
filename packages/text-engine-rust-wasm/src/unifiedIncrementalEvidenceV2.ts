@@ -225,16 +225,6 @@ function failure(input: {
   return freeze({ status: "blocked" as const, response: null, failure: { ...facts, fingerprint: fingerprint(facts) }, issues: freeze([]) })
 }
 
-function ownData(value: unknown, key: string): unknown {
-  try {
-    if (value == null || typeof value !== "object") return undefined
-    const descriptor = Object.getOwnPropertyDescriptor(value, key)
-    return descriptor != null && Object.hasOwn(descriptor, "value") ? descriptor.value : undefined
-  } catch {
-    return undefined
-  }
-}
-
 function exactArrayLength(value: unknown): number | null {
   try {
     if (!Array.isArray(value) || Object.getPrototypeOf(value) !== Array.prototype || Object.getOwnPropertySymbols(value).length !== 0) return null
@@ -256,19 +246,6 @@ interface ResponseNodeMeterV2 {
 type MeteredSnapshotV2 =
   | { readonly status: "accepted"; readonly value: unknown }
   | { readonly status: "invalid" | "ceiling" }
-
-function createResponseNodeMeter(limit: number): ResponseNodeMeterV2 {
-  const meter: ResponseNodeMeterV2 = {
-    limit,
-    count: 0,
-    beforeObservation() {
-      if (meter.count >= meter.limit) return false
-      meter.count += 1
-      return true
-    },
-  }
-  return meter
-}
 
 function snapshotDataBeforeObservation(
   value: unknown,
@@ -345,56 +322,6 @@ function snapshotDataBeforeObservation(
   }
 }
 
-function producerResponseLimit(value: unknown): number | null {
-  const material = ownData(value, "sourceMaterial")
-  const ceilings = ownData(material, "producerWorkCeilings")
-  const limit = ownData(ceilings, "maximumVisitedEvidenceNodeCount")
-  return Number.isSafeInteger(limit) && (limit as number) >= 0
-    ? limit as number
-    : null
-}
-
-function invalidInputFailure(input: {
-  readonly request: unknown
-  readonly sourceMaterial: unknown
-  readonly runtimeIdentity: unknown
-}): FlowDocUnifiedIncrementalEvidenceResultV2 {
-  const requestFingerprint = ownData(input.request, "fingerprint")
-  const sourceMaterialFingerprint = ownData(input.sourceMaterial, "fingerprint")
-  const runtimeIdentity = freeze({
-    source: "vnext-text-block-transition-producer-runtime-v2" as const,
-    contractVersion: 2 as const,
-    runtime: "node-native-mr1-range" as const,
-    engineBuildFingerprint: "invalid",
-    fontBackendFingerprint: "invalid",
-    unitPolicyFingerprint: "invalid",
-    fontStyleUnitDependencyFingerprint: "invalid",
-    producerRuntimeRequirementFingerprint: "invalid",
-    fingerprint: "invalid",
-  })
-  const work = freeze({
-    requestedAtomCount: 0,
-    requestedClusterCount: 0,
-    consumedAtomCount: 0,
-    consumedClusterCount: 0,
-    unusedCoverageRenderedUtf16Length: 0,
-    visitedEvidenceNodeCount: 0,
-    completeNextInputTraversalCount: 0 as const,
-    completeNextInputComparisonCount: 0 as const,
-  })
-  const facts = {
-    source: "vnext-text-block-transition-producer-failure-v2" as const,
-    contractVersion: 2 as const,
-    requestFingerprint: typeof requestFingerprint === "string" ? requestFingerprint : "invalid",
-    sourceMaterialFingerprint: typeof sourceMaterialFingerprint === "string" ? sourceMaterialFingerprint : "invalid",
-    runtimeIdentity,
-    code: "invalid-request-scoped-material" as const,
-    completedWork: work,
-    contracts: CONTRACTS,
-  }
-  return freeze({ status: "blocked" as const, response: null, failure: { ...facts, fingerprint: fingerprint(facts) }, issues: freeze([]) })
-}
-
 interface UnifiedIncrementalEvidenceInputV2 {
   readonly request: VNextTextBlockTransitionEvidenceRequestV2
   readonly sourceMaterial: VNextTextBlockTransitionProducerSourceMaterialV2
@@ -436,55 +363,6 @@ function exactDataFieldsBeforeObservation(
     return { status: "accepted", fields }
   } catch {
     return { status: "invalid" }
-  }
-}
-
-function snapshotAdapterInput(
-  value: unknown,
-  meter: ResponseNodeMeterV2,
-): { readonly status: "accepted"; readonly input: UnifiedIncrementalEvidenceInputV2 }
-  | { readonly status: "invalid" | "ceiling" } {
-  const envelope = exactDataFieldsBeforeObservation(
-    value,
-    ["request", "sourceMaterial", "runtime"],
-    meter,
-  )
-  if (envelope.status !== "accepted") return envelope
-  const runtimeEnvelope = exactDataFieldsBeforeObservation(
-    envelope.fields.runtime,
-    ["identity", "shapeRange", "segmentRange"],
-    meter,
-  )
-  if (runtimeEnvelope.status !== "accepted") return runtimeEnvelope
-  if (
-    typeof runtimeEnvelope.fields.shapeRange !== "function"
-    || typeof runtimeEnvelope.fields.segmentRange !== "function"
-  ) return { status: "invalid" }
-  const request = snapshotDataBeforeObservation(envelope.fields.request, meter)
-  if (request.status !== "accepted") return request
-  const sourceMaterial = snapshotDataBeforeObservation(
-    envelope.fields.sourceMaterial,
-    meter,
-  )
-  if (sourceMaterial.status !== "accepted") return sourceMaterial
-  const runtimeIdentity = snapshotDataBeforeObservation(
-    runtimeEnvelope.fields.identity,
-    meter,
-  )
-  if (runtimeIdentity.status !== "accepted") return runtimeIdentity
-  return {
-    status: "accepted",
-    input: {
-      request: request.value as VNextTextBlockTransitionEvidenceRequestV2,
-      sourceMaterial:
-        sourceMaterial.value as VNextTextBlockTransitionProducerSourceMaterialV2,
-      runtime: {
-        identity:
-          runtimeIdentity.value as VNextTextBlockTransitionProducerRuntimeIdentityV2,
-        shapeRange: runtimeEnvelope.fields.shapeRange as UnifiedIncrementalEvidenceInputV2["runtime"]["shapeRange"],
-        segmentRange: runtimeEnvelope.fields.segmentRange as UnifiedIncrementalEvidenceInputV2["runtime"]["segmentRange"],
-      },
-    },
   }
 }
 
@@ -616,46 +494,12 @@ function composeCoverageText(material: VNextTextBlockTransitionProducerSourceMat
   return position === coverageLength ? text : null
 }
 
-function clustersFromShape(input: {
-  shape: FlowDocTextEngineMr1RangeShapeFactsV1
-  targetStartLocal: number
-  targetEndLocal: number
-  globalCoverageStart: number
-  fontSizeLayoutUnit: number
-}): VNextTextBlockResolvedShapingRunV1["clusters"] | null {
-  const utf16Offsets = utf16ByByte(input.shape.fullText)
-  const targetStartByte = byteByUtf16(input.shape.fullText).get(input.targetStartLocal)
-  const targetEndByte = byteByUtf16(input.shape.fullText).get(input.targetEndLocal)
-  if (targetStartByte == null || targetEndByte == null) return null
-  const advanceByCluster = new Map<number, number>()
-  for (const glyph of input.shape.glyphs) {
-    const next = (advanceByCluster.get(glyph.cluster) ?? 0) + glyph.xAdvance
-    if (!Number.isSafeInteger(next) || next < 0) return null
-    advanceByCluster.set(glyph.cluster, next)
-  }
-  const starts = [...advanceByCluster.keys()].sort((a, b) => a - b)
-  const output: VNextTextBlockResolvedShapingRunV1["clusters"] = []
-  for (let index = 0; index < starts.length; index += 1) {
-    const startByte = starts[index]!
-    const endByte = starts[index + 1] ?? input.shape.rangeEndByte
-    if (startByte < targetStartByte || startByte >= targetEndByte) continue
-    if (endByte > targetEndByte) return null
-    const start = utf16Offsets.get(startByte)
-    const end = utf16Offsets.get(endByte)
-    const advance = advanceByCluster.get(startByte)
-    if (start == null || end == null || end <= start || advance == null) return null
-    const scaled = scaleVNextFontMetricToLayoutUnitV1({ fontMetric: advance, fontSizeLayoutUnit: input.fontSizeLayoutUnit, unitsPerEm: input.shape.unitsPerEm })
-    if (scaled.status !== "accepted" || scaled.layoutUnit < 0) return null
-    output.push({ index: output.length, renderStartOffset: input.globalCoverageStart + start, renderEndOffset: input.globalCoverageStart + end, advanceLayoutUnit: scaled.layoutUnit })
-  }
-  return output.length > 0 && output[0]!.renderStartOffset === input.globalCoverageStart + input.targetStartLocal && output.at(-1)!.renderEndOffset === input.globalCoverageStart + input.targetEndLocal ? output : null
-}
-
 interface ProducerAuthorityControlsV2 {
   readonly receiver: VNextTextBlockTransitionProducerInvocationAuthorityV2
   readonly begin: VNextTextBlockTransitionProducerInvocationAuthorityV2["begin"]
   readonly charge: VNextTextBlockTransitionProducerInvocationAuthorityV2["charge"]
-  readonly bindRuntimeIdentity: VNextTextBlockTransitionProducerInvocationAuthorityV2["bindRuntimeIdentity"]
+  readonly bindRuntimeIdentity:
+    VNextTextBlockTransitionProducerInvocationAuthorityV2["bindRuntimeIdentity"]
   readonly close: VNextTextBlockTransitionProducerInvocationAuthorityV2["close"]
 }
 
@@ -946,310 +790,21 @@ function clustersFromShapeAuthorized(input: {
     : { status: "invalid" }
 }
 
-export function createFlowDocTextEngineUnifiedIncrementalEvidenceV2(input: {
-  readonly request: VNextTextBlockTransitionEvidenceRequestV2
-  readonly sourceMaterial: VNextTextBlockTransitionProducerSourceMaterialV2
-  readonly runtime: FlowDocUnifiedIncrementalEvidenceRuntimeV2
-}): FlowDocUnifiedIncrementalEvidenceResultV2
-export function createFlowDocTextEngineUnifiedIncrementalEvidenceV2(input: unknown): FlowDocUnifiedIncrementalEvidenceResultV2
-export function createFlowDocTextEngineUnifiedIncrementalEvidenceV2(value: unknown): FlowDocUnifiedIncrementalEvidenceResultV2 {
-  const rawRequest = ownData(value, "request")
-  const rawSourceMaterial = ownData(value, "sourceMaterial")
-  const rawRuntime = ownData(value, "runtime")
-  const rawRuntimeIdentity = ownData(rawRuntime, "identity")
-  const limit = producerResponseLimit(value)
-  if (limit == null) {
-    return invalidInputFailure({
-      request: rawRequest,
-      sourceMaterial: rawSourceMaterial,
-      runtimeIdentity: rawRuntimeIdentity,
-    })
-  }
-  const descriptorMeter = createResponseNodeMeter(limit)
-  const snapshot = snapshotAdapterInput(value, descriptorMeter)
-  if (snapshot.status === "ceiling") {
-    const rawInput = {
-      request: rawRequest,
-      sourceMaterial: rawSourceMaterial,
-      runtime: {
-        identity: rawRuntimeIdentity,
-        shapeRange: ownData(rawRuntime, "shapeRange"),
-        segmentRange: ownData(rawRuntime, "segmentRange"),
-      },
-    } as UnifiedIncrementalEvidenceInputV2
-    return failure({
-      ...rawInput,
-      code: "work-ceiling-before-visit",
-      work: {
-        ...baseWork(rawInput.sourceMaterial),
-        visitedEvidenceNodeCount: descriptorMeter.count,
-      },
-    })
-  }
-  if (snapshot.status !== "accepted") {
-    return invalidInputFailure({
-      request: rawRequest,
-      sourceMaterial: rawSourceMaterial,
-      runtimeIdentity: rawRuntimeIdentity,
-    })
-  }
-  const snapshotInput = snapshot.input
-  if (!validMaterial(snapshotInput)) {
-    return invalidInputFailure({
-      request: rawRequest,
-      sourceMaterial: rawSourceMaterial,
-      runtimeIdentity: rawRuntimeIdentity,
-    })
-  }
-  const input: UnifiedIncrementalEvidenceInputV2 = {
-    ...snapshotInput,
-    runtime: {
-      ...snapshotInput.runtime,
-      identity: rawRuntimeIdentity as VNextTextBlockTransitionProducerRuntimeIdentityV2,
-    },
-  }
-  let work = {
-    ...baseWork(input.sourceMaterial),
-    visitedEvidenceNodeCount: descriptorMeter.count,
-  }
-  const text = composeCoverageText(input.sourceMaterial)
-  if (text == null) return failure({ ...input, code: "invalid-request-scoped-material", work })
-  const coverageStart = input.request.next.coverageRange.startRenderedUtf16
-  const target = input.request.next.evidenceTargetRange
-  const targetStartLocal = target.startRenderedUtf16 - coverageStart
-  const targetEndLocal = target.endRenderedUtf16 - coverageStart
-  const shapeRange = input.request.next.shapeVerificationRange
-  const shapeStartLocal = shapeRange.startRenderedUtf16 - coverageStart
-  const shapeEndLocal = shapeRange.endRenderedUtf16 - coverageStart
-  if (targetStartLocal < 0 || targetEndLocal < targetStartLocal || shapeStartLocal < 0 || shapeStartLocal > targetStartLocal || shapeEndLocal < targetEndLocal || shapeEndLocal > text.length) return failure({ ...input, code: "invalid-request-scoped-material", work })
-
-  const shapingRuns: VNextTextBlockResolvedShapingRunV1[] = []
-  const shapingBoundaryProofs: VNextTextBlockTransitionShapingBoundaryProofV2[] = []
-  const segmentationBoundaryProofs: VNextTextBlockTransitionSegmentationBoundaryProofV2[] = []
-  let consumedAtoms = 0
-  let consumedClusters = 0
-  let visited = descriptorMeter.count
-  const visit = (): boolean => {
-    if (!descriptorMeter.beforeObservation()) return false
-    visited = descriptorMeter.count
-    return true
-  }
-  const inspectRuntimeIntegerArray = (value: unknown):
-    | { readonly status: "accepted"; readonly values: number[] }
-    | { readonly status: "invalid" | "ceiling" } => {
-    const length = exactArrayLength(value)
-    if (length == null) return { status: "invalid" }
-    const values: number[] = []
-    for (let index = 0; index < length; index += 1) {
-      const descriptor = Object.getOwnPropertyDescriptor(value, String(index))
-      if (descriptor == null || !Object.hasOwn(descriptor, "value") || descriptor.enumerable !== true || !Number.isSafeInteger(descriptor.value)) return { status: "invalid" }
-      values.push(descriptor.value as number)
-    }
-    return { status: "accepted", values }
-  }
-  type StyledAtom = Extract<(typeof input.sourceMaterial.next.atoms)[number], { readonly resolvedStyle: unknown }>
-  type ResolvedStyle = StyledAtom["resolvedStyle"]
-  const partitions: Array<{
-    start: number
-    end: number
-    style: ResolvedStyle
-    atomFingerprints: string[]
-  }> = []
-  for (const atom of input.sourceMaterial.next.atoms) {
-    if (!visit()) {
-      work = { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited }
-      return failure({ ...input, code: "work-ceiling-before-visit", work })
-    }
-    consumedAtoms += 1
-    if (atom.kind === "hard-break" || atom.kind === "inline-image-boundary") {
-      continue
-    }
-    const atomStart = coverageStart + atom.relativeStartRenderedUtf16
-    const atomEnd = coverageStart + atom.relativeEndRenderedUtf16
-    const previous = partitions.at(-1)
-    if (previous != null && previous.end === atomStart && canonical(previous.style) === canonical(atom.resolvedStyle)) {
-      previous.end = atomEnd
-      previous.atomFingerprints.push(atom.fingerprint)
-    } else {
-      partitions.push({ start: atomStart, end: atomEnd, style: atom.resolvedStyle, atomFingerprints: [atom.fingerprint] })
-    }
-  }
-  for (const partition of partitions) {
-    const runStart = Math.max(partition.start, target.startRenderedUtf16)
-    const runEnd = Math.min(partition.end, target.endRenderedUtf16)
-    if (runEnd <= runStart) continue
-    const verificationStart = Math.max(partition.start, shapeRange.startRenderedUtf16)
-    const verificationEnd = Math.min(partition.end, shapeRange.endRenderedUtf16)
-    const targetScalarUpperBound = [...text.slice(runStart - coverageStart, runEnd - coverageStart)].length
-    if (targetScalarUpperBound > input.sourceMaterial.producerWorkCeilings.maximumRequestedClusterCount - consumedClusters) return failure({ ...input, code: "work-ceiling-before-visit", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: input.sourceMaterial.producerWorkCeilings.maximumRequestedClusterCount, visitedEvidenceNodeCount: visited } })
-    const face = input.sourceMaterial.fontFaces.find((candidate) => candidate.fontFaceId === partition.style.fontFaceId)
-    if (face == null) return failure({ ...input, code: "pinned-font-unavailable", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-    if (!visit()) return failure({ ...input, code: "work-ceiling-before-visit", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-    let shape: FlowDocTextEngineMr1RangeShapeFactsV1
-    try {
-      shape = input.runtime.shapeRange({
-        text,
-        fontFaceId: face.fontFaceId,
-        rangeStartUtf16: runStart - coverageStart,
-        rangeEndUtf16: verificationEnd - coverageStart,
-        contextStartUtf16: verificationStart - coverageStart,
-        contextEndUtf16: verificationEnd - coverageStart,
-      })
-    } catch {
-      return failure({ ...input, code: "pinned-font-unavailable", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-    }
-    const shapeSnapshot = snapshotDataBeforeObservation(shape, descriptorMeter)
-    visited = descriptorMeter.count
-    if (shapeSnapshot.status === "ceiling") return failure({ ...input, code: "work-ceiling-before-visit", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-    if (shapeSnapshot.status !== "accepted") return failure({ ...input, code: "unsafe-runtime-arithmetic", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-    shape = shapeSnapshot.value as FlowDocTextEngineMr1RangeShapeFactsV1
-    if (!exactKeys(shape, ["contractVersion", "outputShapeVersion", "fullText", "fontFaceId", "fullTextByteLength", "fullTextScalarCount", "rangeStartByte", "rangeEndByte", "rangeStartUtf16", "rangeEndUtf16", "contextStartByte", "contextEndByte", "contextStartUtf16", "contextEndUtf16", "rangeText", "preContextText", "postContextText", "unitsPerEm", "ascentFontUnit", "descentFontUnit", "lineGapFontUnit", "glyphs", "summary"])) return failure({ ...input, code: "unsafe-runtime-arithmetic", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-    const returnedGlyphs = ownData(shape, "glyphs")
-    const returnedGlyphCount = exactArrayLength(returnedGlyphs)
-    if (returnedGlyphCount == null) return failure({ ...input, code: "unsafe-runtime-arithmetic", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-    const inspectedGlyphs: FlowDocTextEngineMr1RangeShapeFactsV1["glyphs"][number][] = []
-    for (let glyphIndex = 0; glyphIndex < returnedGlyphCount; glyphIndex += 1) {
-      const descriptor = Object.getOwnPropertyDescriptor(returnedGlyphs, String(glyphIndex))
-      if (descriptor == null || !Object.hasOwn(descriptor, "value") || descriptor.enumerable !== true || !safeDataTree(descriptor.value)) return failure({ ...input, code: "unsafe-runtime-arithmetic", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-      inspectedGlyphs.push(descriptor.value as FlowDocTextEngineMr1RangeShapeFactsV1["glyphs"][number])
-    }
-    const { glyphs: _uninspectedGlyphs, ...shapeHeader } = shape
-    if (!safeDataTree(shapeHeader)) return failure({ ...input, code: "unsafe-runtime-arithmetic", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-    shape = { ...shape, glyphs: inspectedGlyphs }
-    if (!exactKeys(shape.summary, ["glyphCount", "missingGlyphCount", "totalAdvanceFontUnits", "unsafeToBreakGlyphCount"]) || !shape.glyphs.every((glyph) => exactKeys(glyph, ["index", "glyphId", "cluster", "xAdvance", "yAdvance", "xOffset", "yOffset", "unsafeToBreak"]))) return failure({ ...input, code: "unsafe-runtime-arithmetic", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-    if (shape.contractVersion !== 1 || shape.outputShapeVersion !== FLOWDOC_TEXT_ENGINE_MR1_RANGE_SHAPE_FACTS_VERSION || shape.fullText !== text || shape.fullTextByteLength !== flowDocUtf8ByteLengthV1(text) || shape.fullTextScalarCount !== [...text].length || shape.fontFaceId !== face.fontFaceId || shape.rangeStartUtf16 !== runStart - coverageStart || shape.rangeEndUtf16 !== verificationEnd - coverageStart || shape.contextStartUtf16 !== verificationStart - coverageStart || shape.contextEndUtf16 !== verificationEnd - coverageStart || shape.rangeText !== text.slice(runStart - coverageStart, verificationEnd - coverageStart) || shape.preContextText !== text.slice(verificationStart - coverageStart, runStart - coverageStart) || shape.postContextText !== "" || shape.unitsPerEm !== face.unitsPerEm || shape.ascentFontUnit !== face.ascentFontUnit || shape.descentFontUnit !== face.descentFontUnit || shape.lineGapFontUnit !== face.lineGapFontUnit || shape.summary.glyphCount !== shape.glyphs.length || shape.summary.missingGlyphCount !== shape.glyphs.filter((glyph) => glyph.glyphId === 0).length) return failure({ ...input, code: "pinned-font-mismatch", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-    if (shape.summary.missingGlyphCount > 0) return failure({ ...input, code: "missing-glyph", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-    const byteOffsets = byteByUtf16(text)
-    const runStartByte = byteOffsets.get(runStart - coverageStart)
-    const runEndByte = byteOffsets.get(runEnd - coverageStart)
-    if (runStartByte == null || runEndByte == null) return failure({ ...input, code: "unsafe-shaping-boundary", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-    const firstTarget = shape.glyphs.find((glyph) => glyph.cluster === runStartByte)
-    const rightGuard = shape.glyphs.find((glyph) => glyph.cluster === runEndByte)
-    const leftAtExactBoundary = runStart === partition.start || runStart === target.startRenderedUtf16 && runStart === coverageStart
-    const rightAtExactBoundary = runEnd === partition.end || runEnd === target.endRenderedUtf16 && runEnd === coverageStart + text.length
-    if ((!leftAtExactBoundary && (firstTarget == null || firstTarget.unsafeToBreak)) || (!rightAtExactBoundary && (rightGuard == null || rightGuard.unsafeToBreak))) return failure({ ...input, code: "unsafe-shaping-boundary", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-    const clusters = clustersFromShape({ shape, targetStartLocal: runStart - coverageStart, targetEndLocal: runEnd - coverageStart, globalCoverageStart: coverageStart, fontSizeLayoutUnit: partition.style.fontSizeLayoutUnit })
-    if (clusters == null) return failure({ ...input, code: "unsafe-runtime-arithmetic", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-    if (clusters.length > input.sourceMaterial.producerWorkCeilings.maximumRequestedClusterCount - consumedClusters) return failure({ ...input, code: "work-ceiling-before-visit", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: input.sourceMaterial.producerWorkCeilings.maximumRequestedClusterCount, visitedEvidenceNodeCount: visited } })
-    consumedClusters += clusters.length
-    const guardGlyphCount = shape.glyphs.filter((glyph) => glyph.cluster >= runEndByte).length
-    const run: VNextTextBlockResolvedShapingRunV1 = {
-      shapingRunId: fingerprint({ request: input.request.fingerprint, atoms: partition.atomFingerprints, runStart, runEnd }),
-      renderStartOffset: runStart,
-      renderEndOffset: runEnd,
-      text: text.slice(runStart - coverageStart, runEnd - coverageStart),
-      styleKey: partition.style.measurementStyleKey,
-      fontFaceId: face.fontFaceId,
-      fontSizeLayoutUnit: partition.style.fontSizeLayoutUnit,
-      textColor: partition.style.textColor,
-      direction: "ltr",
-      baselineShiftLayoutUnit: 0,
-      features: [],
-      clusters,
-    }
-    shapingRuns.push(freeze(run))
-    const proofFacts = {
-      targetRange: { startRenderedUtf16: runStart, endRenderedUtf16: runEnd },
-      verificationRange: { startRenderedUtf16: verificationStart, endRenderedUtf16: verificationEnd },
-      leftBoundary: leftAtExactBoundary ? "exact-style-or-block-start" as const : "safe-first-target-glyph" as const,
-      rightBoundary: rightAtExactBoundary ? "exact-style-or-block-end" as const : "safe-first-right-guard-glyph" as const,
-      guardGlyphCount,
-      inspectedGlyphCount: returnedGlyphCount,
-    }
-    shapingBoundaryProofs.push(freeze({ ...proofFacts, fingerprint: fingerprint(proofFacts) }))
-  }
-
-  let stableBreaks: readonly number[] | null = null
-  let stableCount = 0
-  const consumedSegmentationContextRanges: Array<{ startRenderedUtf16: number; endRenderedUtf16: number }> = []
-  for (const context of input.request.nextSegmentationContextRanges) {
-    if (!visit()) return failure({ ...input, code: "work-ceiling-before-visit", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-    consumedSegmentationContextRanges.push(context)
-    let facts
-    try {
-      facts = input.runtime.segmentRange({ text, targetStartUtf16: targetStartLocal, targetEndUtf16: targetEndLocal, contextStartUtf16: context.startRenderedUtf16 - coverageStart, contextEndUtf16: context.endRenderedUtf16 - coverageStart })
-    } catch {
-      return failure({ ...input, code: "segmentation-not-stable", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-    }
-    const segmentationSnapshot = snapshotDataBeforeObservation(facts, descriptorMeter)
-    visited = descriptorMeter.count
-    if (segmentationSnapshot.status === "ceiling") return failure({ ...input, code: "work-ceiling-before-visit", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-    if (segmentationSnapshot.status !== "accepted") return failure({ ...input, code: "segmentation-not-stable", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-    facts = segmentationSnapshot.value as FlowDocTextEngineMr1RangeSegmentationFactsV1
-    if (!exactKeys(facts, ["contractVersion", "outputShapeVersion", "fullText", "fullTextByteLength", "fullTextScalarCount", "targetStartByte", "targetEndByte", "targetStartUtf16", "targetEndUtf16", "contextStartByte", "contextEndByte", "contextStartUtf16", "contextEndUtf16", "contextText", "contextBreakByteOffsets", "contextBreakUtf16Offsets", "targetBreakByteOffsets", "targetBreakUtf16Offsets", "summary"])) return failure({ ...input, code: "segmentation-not-stable", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-    const contextBreakByteOffsets = inspectRuntimeIntegerArray(ownData(facts, "contextBreakByteOffsets"))
-    const contextBreakUtf16Offsets = contextBreakByteOffsets.status === "accepted" ? inspectRuntimeIntegerArray(ownData(facts, "contextBreakUtf16Offsets")) : contextBreakByteOffsets
-    const targetBreakByteOffsets = contextBreakUtf16Offsets.status === "accepted" ? inspectRuntimeIntegerArray(ownData(facts, "targetBreakByteOffsets")) : contextBreakUtf16Offsets
-    const targetBreakUtf16Offsets = targetBreakByteOffsets.status === "accepted" ? inspectRuntimeIntegerArray(ownData(facts, "targetBreakUtf16Offsets")) : targetBreakByteOffsets
-    const offsetInspections = [contextBreakByteOffsets, contextBreakUtf16Offsets, targetBreakByteOffsets, targetBreakUtf16Offsets]
-    if (offsetInspections.some((inspection) => inspection.status === "ceiling")) return failure({ ...input, code: "work-ceiling-before-visit", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-    if (offsetInspections.some((inspection) => inspection.status !== "accepted") || contextBreakByteOffsets.status !== "accepted" || contextBreakUtf16Offsets.status !== "accepted" || targetBreakByteOffsets.status !== "accepted" || targetBreakUtf16Offsets.status !== "accepted") return failure({ ...input, code: "segmentation-not-stable", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-    const { contextBreakByteOffsets: _contextBytes, contextBreakUtf16Offsets: _contextUtf16, targetBreakByteOffsets: _targetBytes, targetBreakUtf16Offsets: _targetUtf16, ...segmentationHeader } = facts
-    if (!safeDataTree(segmentationHeader)) return failure({ ...input, code: "segmentation-not-stable", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-    facts = {
-      ...facts,
-      contextBreakByteOffsets: contextBreakByteOffsets.values,
-      contextBreakUtf16Offsets: contextBreakUtf16Offsets.values,
-      targetBreakByteOffsets: targetBreakByteOffsets.values,
-      targetBreakUtf16Offsets: targetBreakUtf16Offsets.values,
-    }
-    if (!exactKeys(facts.summary, ["contextBreakCount", "targetBreakCount", "artificialContextBoundaryBreakCount"])) return failure({ ...input, code: "segmentation-not-stable", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-    const expectedContextStart = context.startRenderedUtf16 - coverageStart
-    const expectedContextEnd = context.endRenderedUtf16 - coverageStart
-    const expectedArtificialBoundaryCount = (expectedContextStart > 0 ? 1 : 0) + (expectedContextEnd < text.length ? 1 : 0)
-    if (facts.contractVersion !== 1 || facts.outputShapeVersion !== FLOWDOC_TEXT_ENGINE_MR1_RANGE_SEGMENTATION_FACTS_VERSION || facts.fullText !== text || facts.fullTextByteLength !== flowDocUtf8ByteLengthV1(text) || facts.fullTextScalarCount !== [...text].length || facts.targetStartUtf16 !== targetStartLocal || facts.targetEndUtf16 !== targetEndLocal || facts.contextStartUtf16 !== expectedContextStart || facts.contextEndUtf16 !== expectedContextEnd || facts.contextText !== text.slice(expectedContextStart, expectedContextEnd) || facts.summary.targetBreakCount !== facts.targetBreakUtf16Offsets.length || facts.summary.contextBreakCount !== facts.contextBreakUtf16Offsets.length || facts.summary.artificialContextBoundaryBreakCount !== expectedArtificialBoundaryCount || !validSegmentationOffsets(facts) || facts.targetBreakUtf16Offsets.some((offset, index, offsets) => !Number.isSafeInteger(offset) || offset < targetStartLocal || offset > targetEndLocal || (index > 0 && offset <= offsets[index - 1]!))) return failure({ ...input, code: "segmentation-not-stable", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-    const current = facts.targetBreakUtf16Offsets.filter((offset) => offset >= targetStartLocal && offset <= targetEndLocal).map((offset) => coverageStart + offset)
-    const segmentationProofFacts = {
-      contextRange: context,
-      contextBreakCount: facts.contextBreakUtf16Offsets.length,
-      targetBreakOffsets: freeze(current),
-      inspectedOffsetCount: facts.contextBreakByteOffsets.length + facts.contextBreakUtf16Offsets.length + facts.targetBreakByteOffsets.length + facts.targetBreakUtf16Offsets.length,
-    }
-    segmentationBoundaryProofs.push(freeze({ ...segmentationProofFacts, fingerprint: fingerprint(segmentationProofFacts) }))
-    if (stableBreaks != null && canonical(stableBreaks) === canonical(current)) stableCount += 1
-    else { stableBreaks = current; stableCount = 1 }
-    if (stableCount >= input.request.requiredStableSegmentationExpansionCount) break
-  }
-  if (stableBreaks == null || stableCount < input.request.requiredStableSegmentationExpansionCount) return failure({ ...input, code: "segmentation-not-stable", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-  const hardBreaks = input.sourceMaterial.next.atoms.filter((atom) => atom.kind === "hard-break").map((atom) => coverageStart + atom.relativeEndRenderedUtf16).filter((offset) => offset >= target.startRenderedUtf16 && offset <= target.endRenderedUtf16)
-  const breakOffsets = [...new Set([...stableBreaks, ...hardBreaks])].sort((a, b) => a - b)
-  for (let evidenceNode = 0; evidenceNode < breakOffsets.length; evidenceNode += 1) {
-    if (!visit()) return failure({ ...input, code: "work-ceiling-before-visit", work: { ...work, consumedAtomCount: consumedAtoms, consumedClusterCount: consumedClusters, visitedEvidenceNodeCount: visited } })
-  }
-  work = freeze({
-    ...work,
-    consumedAtomCount: consumedAtoms,
-    consumedClusterCount: consumedClusters,
-    unusedCoverageRenderedUtf16Length: text.length - coveredUtf16Length([
-      ...shapingBoundaryProofs.map((proof) => proof.verificationRange),
-      ...consumedSegmentationContextRanges,
-    ]),
-    visitedEvidenceNodeCount: visited,
-  })
-  const facts = {
-    source: "vnext-text-block-transition-producer-response-v2" as const,
-    contractVersion: 2 as const,
-    requestFingerprint: input.request.fingerprint,
-    sourceMaterialFingerprint: input.sourceMaterial.fingerprint,
-    runtimeIdentity: input.runtime.identity,
-    nextEvidenceTargetRange: input.request.next.evidenceTargetRange,
-    shapingRuns: freeze(shapingRuns),
-    breakOffsets: freeze(breakOffsets),
-    shapingBoundaryProofs: freeze(shapingBoundaryProofs),
-    segmentationBoundaryProofs: freeze(segmentationBoundaryProofs),
-    sourceTopologyFingerprint: input.sourceMaterial.sourceTopologyFingerprint,
-    work,
-    contracts: CONTRACTS,
-  }
-  const response = freeze({ ...facts, fingerprint: fingerprint(facts) })
-  return freeze({ status: "accepted" as const, response, failure: null, issues: freeze([]) })
-}
-
-export function createFlowDocTextEngineUnifiedIncrementalEvidenceAuthorizedInternalV2(
+export function createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
   authority: VNextTextBlockTransitionProducerInvocationAuthorityV2,
   request: VNextTextBlockTransitionEvidenceRequestV2,
   sourceMaterial: VNextTextBlockTransitionProducerSourceMaterialV2,
   runtime: FlowDocUnifiedIncrementalEvidenceRuntimeV2,
+): FlowDocUnifiedIncrementalEvidenceAuthorizedResultV2
+export function createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
+  authority: unknown,
+  ...argumentsAfterAuthority: readonly unknown[]
+): FlowDocUnifiedIncrementalEvidenceAuthorizedResultV2
+export function createFlowDocTextEngineUnifiedIncrementalEvidenceV2(
+  authority: unknown,
+  request?: unknown,
+  sourceMaterial?: unknown,
+  runtime?: unknown,
 ): FlowDocUnifiedIncrementalEvidenceAuthorizedResultV2 {
   const controls = producerAuthorityControls(authority)
   if (controls == null) return NOT_INVOKED

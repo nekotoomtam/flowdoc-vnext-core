@@ -132,6 +132,11 @@ const explicitlyPrivatePublicNames = [
   "evaluateVNextTextBlockStageWorkLimitInternalV1",
   "registerPreparedVNextTextBlockUnifiedLayoutRootGraphInternalV2",
   "setVNextTextBlockUnifiedLayoutFallbackCandidateObserverForTestInternalV1",
+  "createVNextTextBlockTransitionProducerInvocationAuthorityInternalV2",
+  "inspectVNextTextBlockTransitionProducerInvocationAuthorityInternalV2",
+  "consumeVNextTextBlockTransitionProducerInvocationAuthorityInternalV2",
+  "createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2",
+  "VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2A_EVIDENCE_OWNER_ROWS_INTERNAL_V2",
 ] as const
 
 function privatePublicExportNames(names: readonly string[]): readonly string[] {
