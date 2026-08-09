@@ -58,6 +58,12 @@ structures, canonical JSON fingerprints as integrity facts only.
   and may modify the candidate-work authority module and its focused test to
   bind publication to the exact one-shot Source commit ticket. No forward or
   generic producing-stage registry is introduced in Task 3.
+- **Approved Task 5 Source-candidate amendment (2026-08-09):** Task 5 may
+  extend the existing private Source path-copy candidate record with exact
+  frozen `removedItems` and `nextPhysicalItems`. `nextPhysicalItems` is the
+  exact frozen form of the existing local `createdItems` sequence; it is not a
+  rename or reuse of `nextLeafItems`, which also contains retained items. No
+  separate candidate registry or caller-reconstructed array is introduced.
 - Position keys are signed safe integers, process-local only, and excluded from
   Source/Root/Scene canonical identity and public JSON.
 - `source-position-key-space-exhausted` is an exact candidate-free structural
@@ -1082,6 +1088,25 @@ sidecar authority blocks Plan A.
 - Produces an unregistered next sidecar candidate with exact retained objects,
   bounded receipts, and candidate-free structural exhaustion.
 
+Task 5 first extends the existing private candidate record in
+`textBlockUnifiedLayoutSourceStateV1.ts`:
+
+```ts
+export interface VNextTextBlockSourcePathCopyCandidateRecordInternalV1 {
+  // Existing exact fields remain unchanged.
+  readonly removedItems:
+    readonly VNextTextBlockUnifiedLayoutSourceItemV1[]
+  readonly nextPhysicalItems:
+    readonly VNextTextBlockUnifiedLayoutSourceItemV1[]
+}
+```
+
+The Source range owner freezes one copy of its existing local `removedItems`
+array and one copy of its existing local `createdItems` array only when the
+Source candidate reaches `prepared`; those exact objects are stored in the
+same candidate record. It keeps the existing `nextLeafItems` field and meaning
+unchanged. Blocked/limit paths register none of the three arrays.
+
 ```ts
 export function allocateVNextTextBlockSourcePositionKeysInternalV1(input: {
   readonly left: VNextTextBlockSourcePositionKeyInternalV1 | null
@@ -1145,7 +1170,12 @@ Cover:
 - correct current absolute rendered ranges after a length-changing prefix edit;
 - direct allocator exhaustion and no emitted candidate;
 - forced Source/index/style fingerprint collisions; and
-- no `range-delta` history-depth growth over three Source states.
+- no `range-delta` history-depth growth over three Source states;
+- exact candidate-record array identity, including rejection of cloned,
+  reordered, truncated, cross-candidate, `nextLeafItems`, and structurally
+  equal caller-created arrays; and
+- a blocked/limit Source path-copy attempt leaves no registered removed/next
+  physical array authority.
 
 ```ts
 it("retains suffix entries while deriving their shifted current offsets", () => {
