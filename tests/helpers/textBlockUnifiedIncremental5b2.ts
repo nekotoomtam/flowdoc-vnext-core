@@ -69,6 +69,11 @@ import {
 import type {
   VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1,
 } from "../../src/layout/textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.js"
+import {
+  prepareVNextTextBlockUnifiedLayoutSourceSidecarsCompleteInternalV1,
+  registerVNextTextBlockUnifiedLayoutSourceSidecarsCompleteInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceSidecarsInternalV1,
+} from "../../src/layout/textBlockUnifiedLayoutSourceSidecarsInternalsV1.js"
 
 export function unrestrictedSourceCoveragePermits5B2(input: {
   readonly beforeVisit?: (
@@ -203,6 +208,7 @@ export function admitted5B2PlanARootFixture(input: {
 } = {}): {
   readonly root: VNextTextBlockUnifiedLayoutRootV2
   readonly composition: VNextTextBlockUnifiedLayout5B2PolicyCompositionInternalV1
+  readonly sidecars: VNextTextBlockUnifiedLayoutSourceSidecarsInternalV1
 } {
   const root = registered5B2RootFixture({
     content: "text-only",
@@ -231,7 +237,23 @@ export function admitted5B2PlanARootFixture(input: {
   })) {
     throw new Error("5B-2 Plan A Root policy composition registration blocked")
   }
-  return { root, composition }
+  const preparedSidecars =
+    prepareVNextTextBlockUnifiedLayoutSourceSidecarsCompleteInternalV1({
+      sourceState: root.sourceState,
+    })
+  if (preparedSidecars.status !== "prepared") {
+    throw new Error(
+      `5B-2 Plan A Source sidecars blocked: ${JSON.stringify(preparedSidecars.completeReceipt)}`,
+    )
+  }
+  if (!registerVNextTextBlockUnifiedLayoutSourceSidecarsCompleteInternalV1({
+    root,
+    composition,
+    candidateAuthority: preparedSidecars.candidateAuthority,
+  })) {
+    throw new Error("5B-2 Plan A Source sidecar registration blocked")
+  }
+  return { root, composition, sidecars: preparedSidecars.sidecars }
 }
 
 export function admit5B2RootFixture(
