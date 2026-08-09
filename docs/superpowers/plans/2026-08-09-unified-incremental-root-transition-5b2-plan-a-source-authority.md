@@ -64,6 +64,16 @@ structures, canonical JSON fingerprints as integrity facts only.
   exact frozen form of the existing local `createdItems` sequence; it is not a
   rename or reuse of `nextLeafItems`, which also contains retained items. No
   separate candidate registry or caller-reconstructed array is introduced.
+- **Approved Task 5 meter-binding amendment (2026-08-09):** the existing
+  Source replacement authority and prepared Source candidate record carry the
+  exact public `change` object registered by preflight. CandidateWorkAuthority
+  exposes one read-only boolean matcher that accepts only an eligible exact
+  meter whose seed is bound by `===` to the supplied Root/change/composition.
+  The Source-sidecar coordinator derives Root/composition from the exact
+  previous-sidecar registration, obtains change from the exact Source
+  candidate authority, and validates this tuple before its first payload
+  observation. The matcher exposes no seed, candidate work, receipt, resolver,
+  forward owner, or generic registry.
 - Position keys are signed safe integers, process-local only, and excluded from
   Source/Root/Scene canonical identity and public JSON.
 - `source-position-key-space-exhausted` is an exact candidate-free structural
@@ -1076,8 +1086,12 @@ sidecar authority blocks Plan A.
 - Modify: `src/layout/textBlockUnifiedLayoutSourceStyleRefcountsInternalsV1.ts`
 - Modify: `src/layout/textBlockUnifiedLayoutSourceSidecarsInternalsV1.ts`
 - Modify: `src/layout/textBlockUnifiedLayoutSourceStateV1.ts`
+- Modify: `src/layout/textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.ts`
+- Modify: `src/layout/textBlockUnifiedLayoutTransitionPreflightV2.ts`
 - Modify: `tests/textBlockUnifiedLayoutSourceSidecarsV1.test.ts`
 - Modify: `tests/textBlockUnifiedLayoutTextStyleSourceV1.test.ts`
+- Modify: `tests/textBlockUnifiedLayoutCandidateWorkAuthorityV1.test.ts`
+- Modify: `tests/textBlockUnifiedLayoutTransitionPreflightV2.test.ts`
 - Test: `tests/textBlockUnifiedLayoutSourceStateV1.test.ts`
 
 **Interfaces:**
@@ -1094,6 +1108,7 @@ Task 5 first extends the existing private candidate record in
 ```ts
 export interface VNextTextBlockSourcePathCopyCandidateRecordInternalV1 {
   // Existing exact fields remain unchanged.
+  readonly change: VNextTextBlockUnifiedLayoutChangeV1
   readonly removedItems:
     readonly VNextTextBlockUnifiedLayoutSourceItemV1[]
   readonly nextPhysicalItems:
@@ -1106,6 +1121,17 @@ array and one copy of its existing local `createdItems` array only when the
 Source candidate reaches `prepared`; those exact objects are stored in the
 same candidate record. It keeps the existing `nextLeafItems` field and meaning
 unchanged. Blocked/limit paths register none of the three arrays.
+
+Preflight registers the Source replacement with the exact public `change`
+object used by CandidateWorkAuthority. The replacement owner copies that
+exact reference into the prepared Source candidate record. Before any Source
+item, key, entry, style, node, or receipt observation, the sidecar coordinator
+calls a read-only CandidateWorkAuthority matcher with the exact previous Root
+and composition from the registered previous sidecars plus the exact change
+from the Source candidate. A missing, detached, cloned, failed, published,
+wrong-Root, wrong-change, or wrong-composition meter blocks without
+observation. The matcher returns only `boolean` and never returns its private
+meter seed.
 
 ```ts
 export function allocateVNextTextBlockSourcePositionKeysInternalV1(input: {
@@ -1175,7 +1201,10 @@ Cover:
   reordered, truncated, cross-candidate, `nextLeafItems`, and structurally
   equal caller-created arrays; and
 - a blocked/limit Source path-copy attempt leaves no registered removed/next
-  physical array authority.
+  physical array authority; and
+- exact rejection before observation for wrong-Root, wrong-change,
+  wrong-composition, detached, cloned, failed, published, and cross-candidate
+  meters, including structurally or fingerprint-equal change clones.
 
 ```ts
 it("retains suffix entries while deriving their shifted current offsets", () => {
@@ -1212,9 +1241,12 @@ Expected: FAIL because current Source lookup uses a history-depth
 
 - [ ] **Step 3: Implement canonical local position-key allocation**
 
-The allocator accepts only an exact open Plan A meter bound to the same
-Root/change/composition as its coordinator; a detached, closed, cross-candidate,
-or cloned meter returns `invalid` before neighbor access. For `count === 0`,
+The allocator accepts only an exact open Plan A meter already proven by its
+coordinator to be bound to the same Root/change/composition; a detached,
+closed, cross-candidate, or cloned meter returns `invalid` before neighbor
+access. This proof uses the approved read-only exact meter-binding matcher;
+neither the allocator nor coordinator may inspect or reconstruct a meter seed.
+For `count === 0`,
 return `allocated` with an exact empty frozen array and do not read neighbors.
 For positive `count`, use the exact mathematical formula and virtual boundary
 rules from the design. Charge the index-entry permit before emitting each key
@@ -1270,7 +1302,7 @@ delete or reinterpret their behavior in Plan A.
 - [ ] **Step 7: Run Task 5 GREEN and threshold probes**
 
 ```powershell
-npx vitest run tests/textBlockUnifiedLayoutSourceSidecarsV1.test.ts tests/textBlockUnifiedLayoutTextStyleSourceV1.test.ts tests/textBlockUnifiedLayoutSourceStateV1.test.ts
+npx vitest run tests/textBlockUnifiedLayoutSourceSidecarsV1.test.ts tests/textBlockUnifiedLayoutTextStyleSourceV1.test.ts tests/textBlockUnifiedLayoutSourceStateV1.test.ts tests/textBlockUnifiedLayoutCandidateWorkAuthorityV1.test.ts tests/textBlockUnifiedLayoutTransitionPreflightV2.test.ts
 npm run type-check
 git diff --check
 ```
@@ -1285,7 +1317,7 @@ no invented extra work.
 - [ ] **Step 8: Commit Task 5**
 
 ```powershell
-git add src/layout/textBlockUnifiedLayoutSourcePhysicalIndexInternalsV1.ts src/layout/textBlockUnifiedLayoutSourceStyleRefcountsInternalsV1.ts src/layout/textBlockUnifiedLayoutSourceSidecarsInternalsV1.ts src/layout/textBlockUnifiedLayoutSourceStateV1.ts tests/textBlockUnifiedLayoutSourceSidecarsV1.test.ts tests/textBlockUnifiedLayoutTextStyleSourceV1.test.ts
+git add src/layout/textBlockUnifiedLayoutSourcePhysicalIndexInternalsV1.ts src/layout/textBlockUnifiedLayoutSourceStyleRefcountsInternalsV1.ts src/layout/textBlockUnifiedLayoutSourceSidecarsInternalsV1.ts src/layout/textBlockUnifiedLayoutSourceStateV1.ts src/layout/textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.ts src/layout/textBlockUnifiedLayoutTransitionPreflightV2.ts tests/textBlockUnifiedLayoutSourceSidecarsV1.test.ts tests/textBlockUnifiedLayoutTextStyleSourceV1.test.ts tests/textBlockUnifiedLayoutCandidateWorkAuthorityV1.test.ts tests/textBlockUnifiedLayoutTransitionPreflightV2.test.ts
 git commit -m "feat(layout): path copy phase 5b2 source sidecars"
 ```
 
