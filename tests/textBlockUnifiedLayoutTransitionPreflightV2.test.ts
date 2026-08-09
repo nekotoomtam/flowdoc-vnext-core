@@ -9,11 +9,11 @@ import {
   acceptedUnifiedLayoutRootFixtureV2,
   unifiedLayoutRootBuildInputFixtureV2,
 } from "./helpers/textBlockUnifiedLayoutRootV2.js"
-import { createVNextTextBlockUnifiedLayoutRoot5B2CompleteInternalV1 } from "../src/layout/textBlockUnifiedLayoutRootV2.js"
+import { createVNextTextBlockUnifiedLayoutRootCompleteInternalV2 } from "../src/layout/textBlockUnifiedLayoutRootV2.js"
 import {
   createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import {
   imagePaintUnifiedLayoutChange5b,
@@ -21,6 +21,7 @@ import {
   acceptedRepeatedUnifiedLayoutRootFixture5b,
 } from "./helpers/textBlockUnifiedIncremental5b.js"
 import {
+  admit5B2RootFixture,
   admitted5B2AuthorityRootFixture,
 } from "./helpers/textBlockUnifiedIncremental5b2.js"
 import {
@@ -109,19 +110,32 @@ function fingerprint(value: unknown): string {
 
 function create5B2Root(
   buildInput: VNextTextBlockUnifiedLayoutRootBuildInputV2,
-  workPolicy = VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+  workPolicy = VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
 ) {
-  return createVNextTextBlockUnifiedLayoutRoot5B2CompleteInternalV1({
+  const result = createVNextTextBlockUnifiedLayoutRootCompleteInternalV2(
     buildInput,
-    constructionKind: "complete-bootstrap",
     workPolicy,
-  })
+  )
+  if (result.status !== "accepted") return result
+  try {
+    admit5B2RootFixture(result.root)
+  } catch (error) {
+    if (
+      !(error instanceof Error)
+      || (
+        error.message !== "5B-2 Root admission blocked"
+        && error.message
+          !== "5B-2 Root admission requires an empty Spatial index"
+      )
+    ) throw error
+  }
+  return result
 }
 
 function textRoot(text: string) {
   const built = create5B2Root(
     unifiedLayoutRootBuildInputFixtureV2({ content: "text-only", text }),
-    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
   )
   if (built.status !== "accepted") throw new Error("text root missing")
   return built.root
@@ -140,7 +154,7 @@ function clusteredTextRoot(
       text,
       textClusterRanges,
     }),
-    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
   )
   if (built.status !== "accepted") throw new Error("clustered root missing")
   return built.root
@@ -156,7 +170,7 @@ function repeatedTextRoot(lineCount: number, includeImages = false) {
     initialFlow: source.initialFlow,
     evidence: source.evidence,
     spatialEntries: source.spatialEntries,
-  }, VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1)
+  }, VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2)
   if (built.status !== "accepted") throw new Error("repeated text root missing")
   return built.root
 }
@@ -484,7 +498,7 @@ describe("Text-block unified transition preflight V2", () => {
   it("classifies an equal-rendered field provenance change after bounded facts", () => {
     const previousRoot = create5B2Root(
       unifiedLayoutRootBuildInputFixtureV2({ content: "field-image-page-break" }),
-      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     )
     if (previousRoot.status !== "accepted") throw new Error("field root missing")
     const covered = visitVNextTextBlockTransitionSourceCoverageInternalV1({
@@ -497,7 +511,7 @@ describe("Text-block unified transition preflight V2", () => {
     if (field?.kind !== "resolved-field") throw new Error("field fixture missing")
     const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot: previousRoot.root,
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
       change: frozen({
         source: "vnext-text-block-unified-layout-change-v1" as const,
         contractVersion: 1 as const,
@@ -536,7 +550,7 @@ describe("Text-block unified transition preflight V2", () => {
       prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
         previousRoot,
         change: noOpUnifiedLayoutChange5b(previousRoot),
-        workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+        workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
       })
 
     expect(result).toMatchObject({
@@ -556,14 +570,14 @@ describe("Text-block unified transition preflight V2", () => {
   it("requests registered-source material for an ordinary text insertion", () => {
     const built = create5B2Root(unifiedLayoutRootBuildInputFixtureV2({
       content: "text-only",
-    }), VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1)
+    }), VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2)
     if (built.status !== "accepted") throw new Error("calibration root missing")
     const previousRoot = built.root
     const result =
       prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
         previousRoot,
         change: textInsertion(previousRoot),
-        workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+        workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
       })
 
     expect(result).toMatchObject({
@@ -599,7 +613,7 @@ describe("Text-block unified transition preflight V2", () => {
     }
     const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot,
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
       change: frozen({
         ...changeBase(previousRoot),
         kind: "text-replacement" as const,
@@ -632,7 +646,7 @@ describe("Text-block unified transition preflight V2", () => {
   it("emits the exact next resolved-field atom with retained style and new provenance", () => {
     const built = create5B2Root(
       unifiedLayoutRootBuildInputFixtureV2({ content: "field-image-page-break" }),
-      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     )
     if (built.status !== "accepted") throw new Error("field root missing")
     const previousRoot = built.root
@@ -640,7 +654,7 @@ describe("Text-block unified transition preflight V2", () => {
     if (field?.kind !== "resolved-field") throw new Error("field item missing")
     const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot,
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
       change: frozen({
         ...changeBase(previousRoot),
         kind: "resolved-field-rendered-value-change" as const,
@@ -686,7 +700,7 @@ describe("Text-block unified transition preflight V2", () => {
     if (item?.kind !== "text") throw new Error("text item missing")
     const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot,
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
       change: frozen({
         ...changeBase(previousRoot),
         kind: "supported-style-change" as const,
@@ -715,7 +729,7 @@ describe("Text-block unified transition preflight V2", () => {
     const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot,
       change: insertionAt(previousRoot, 2, "X"),
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     })
 
     expect(result).toMatchObject({
@@ -752,7 +766,7 @@ describe("Text-block unified transition preflight V2", () => {
     const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot,
       change: insertionAt(previousRoot, 0, "X"),
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     })
 
     expect(result.status).toBe("required")
@@ -766,7 +780,7 @@ describe("Text-block unified transition preflight V2", () => {
     const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot,
       change: insertionAt(previousRoot, 0, "X"),
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     })
 
     expect(result.status).toBe("required")
@@ -796,7 +810,7 @@ describe("Text-block unified transition preflight V2", () => {
   }) => {
     const built = create5B2Root(
       unifiedLayoutRootBuildInputFixtureV2({ content: "field-image-page-break" }),
-      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     )
     if (built.status !== "accepted") throw new Error("passive boundary root missing")
     const styleItem = coveredItems(built.root).find((fragment) =>
@@ -806,7 +820,7 @@ describe("Text-block unified transition preflight V2", () => {
     const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot: built.root,
       change: insertionWithStyle(built.root, at, "X", styleItem.style),
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     })
 
     expect(result.status).toBe("fallback-required")
@@ -838,7 +852,7 @@ describe("Text-block unified transition preflight V2", () => {
     const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot,
       change: insertionAt(previousRoot, 1, special),
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     })
 
     expect(result).toMatchObject({ status: "fallback-required", reason: "unsupported-structural-change" })
@@ -851,7 +865,7 @@ describe("Text-block unified transition preflight V2", () => {
         content: "adjacent-text",
         mixedTextSizes: true,
       }),
-      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     )
     if (built.status !== "accepted") throw new Error("multi-style root missing")
     const items = coveredItems(built.root).map((fragment) => fragment.item)
@@ -866,7 +880,7 @@ describe("Text-block unified transition preflight V2", () => {
     const existingStyle = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot: built.root,
       change: insertionWithStyle(built.root, 2, "X", second.style),
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     })
     expect(existingStyle.status).toBe("required")
     if (existingStyle.status === "required") {
@@ -896,7 +910,7 @@ describe("Text-block unified transition preflight V2", () => {
         nextStyleFingerprint: fingerprint({ textColor: "FF0000" }),
         nextStyleProvenanceFingerprint: "multi-style-red",
       }),
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     })
     expect(overlay.status).toBe("not-required")
     if (overlay.status === "not-required") {
@@ -917,7 +931,7 @@ describe("Text-block unified transition preflight V2", () => {
     expect(prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot: unavailableRoot,
       change: unavailable,
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     })).toMatchObject({
       status: "blocked",
       issues: [expect.objectContaining({ code: "unsupported-change-value" })],
@@ -930,7 +944,7 @@ describe("Text-block unified transition preflight V2", () => {
     expect(prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot: ambiguousRoot,
       change: insertionAt(ambiguousRoot, 0, "X"),
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     })).toMatchObject({
       status: "blocked",
       issues: [expect.objectContaining({ code: "style-authority-ambiguous" })],
@@ -943,7 +957,7 @@ describe("Text-block unified transition preflight V2", () => {
         content: "text-image-text",
         fit: "contain",
       }),
-      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     )
     if (built.status !== "accepted") throw new Error("paint root missing")
     const previous = built.root
@@ -1072,7 +1086,7 @@ describe("Text-block unified transition preflight V2", () => {
     const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot,
       change,
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     })
     if (result.status !== "required") throw new Error("exact tuple missing")
     const exact = {
@@ -1081,7 +1095,7 @@ describe("Text-block unified transition preflight V2", () => {
       sourceMaterial: result.sourceMaterial,
       previousRoot,
       change,
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     }
     expect(inspectVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(exact))
       .toMatchObject({ status: "valid" })
@@ -1132,7 +1146,7 @@ describe("Text-block unified transition preflight V2", () => {
       const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
         previousRoot,
         change: attack as typeof base,
-        workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+        workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
       })
       expect(result.status).toBe("blocked")
       expect(result.completedCandidateWork.evidence.requestCount).toBe(0)
@@ -1185,7 +1199,7 @@ describe("Text-block unified transition preflight V2", () => {
     const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot,
       change,
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     })
     if (result.status !== "required") throw new Error("collision tuple missing")
     const forgedRequest = frozen({
@@ -1203,7 +1217,7 @@ describe("Text-block unified transition preflight V2", () => {
       sourceMaterial: result.sourceMaterial,
       previousRoot,
       change,
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     })).toMatchObject({ status: "invalid", code: "evidence-authority-mismatch" })
   })
 
@@ -1218,12 +1232,12 @@ describe("Text-block unified transition preflight V2", () => {
     const v1 = createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestInternalV1({
       previousRoot,
       change,
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     })
     const v2 = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot,
       change,
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     })
     expect(v1.status).toBe("required")
     expect(v2.status).toBe("required")
@@ -1256,7 +1270,7 @@ describe("Text-block unified transition preflight V2", () => {
     const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot,
       change: insertionAt(previousRoot, 0, "😀"),
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     })
 
     expect(result.status).toBe("required")
@@ -1305,7 +1319,7 @@ describe("Text-block unified transition preflight V2", () => {
     const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot,
       change: styleChange(previousRoot, { textColor: "FF0000" }, 1, 3),
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     })
 
     expect(result).toMatchObject({
@@ -1339,7 +1353,7 @@ describe("Text-block unified transition preflight V2", () => {
     const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot,
       change: styleChange(previousRoot, {}, 1, 3),
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     })
 
     expect(result).toMatchObject({
@@ -1375,7 +1389,7 @@ describe("Text-block unified transition preflight V2", () => {
       change: styleChange(previousRoot, {
         fontSize: { value: 24, unit: "pt" },
       }),
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     })
 
     expect(result).toMatchObject({
@@ -1409,7 +1423,7 @@ describe("Text-block unified transition preflight V2", () => {
     const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot,
       change,
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     })
 
     expect(result.status).toBe("required")
@@ -1449,7 +1463,7 @@ describe("Text-block unified transition preflight V2", () => {
     expect(prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot,
       change: deletion(previousRoot, 0, 4),
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     })).toMatchObject({
       status: "blocked",
       issues: [expect.objectContaining({ code: "unsupported-change-value" })],
@@ -1497,7 +1511,7 @@ describe("Text-block unified transition preflight V2", () => {
       const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
         previousRoot,
         change,
-        workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+        workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
       })
       expect(result.status).toBe("required")
       if (result.status !== "required") continue
@@ -1519,7 +1533,7 @@ describe("Text-block unified transition preflight V2", () => {
     expect(prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot,
       change,
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     })).toMatchObject({
       status: "blocked",
       issues: [expect.objectContaining({ code: "invalid-change-range" })],
@@ -1542,7 +1556,7 @@ describe("Text-block unified transition preflight V2", () => {
       const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
         previousRoot,
         change: styleChange(previousRoot, nextStyle),
-        workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+        workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
       })
 
       expect(result.status).toBe("not-required")
@@ -1656,7 +1670,7 @@ describe("Text-block unified transition preflight V2", () => {
     const deleteAll = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot,
       change: deletion(previousRoot, 0, 4),
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     })
     expect(deleteAll.status).toBe("blocked")
     expect(deleteAll.completedCandidateWork.evidence).toMatchObject({
@@ -1675,7 +1689,7 @@ describe("Text-block unified transition preflight V2", () => {
     const unavailable = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
       previousRoot,
       change: unavailableStyle,
-      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      workPolicy: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     })
     expect(unavailable.status).toBe("blocked")
     expect(unavailable.completedCandidateWork.evidence).toMatchObject({

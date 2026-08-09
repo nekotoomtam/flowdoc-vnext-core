@@ -13,7 +13,7 @@ import {
   evaluateVNextTextBlockStageWorkLimitInternalV1,
   isExactVNextTextBlockUnifiedLayoutWorkPolicyInternalV1,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_TEST_ONLY_INTERNAL_V2,
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
   type VNextTextBlockWorkCalibrationObservationInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
@@ -269,7 +269,7 @@ describe("Phase 5B-1 private V3 factual work calibration", () => {
 
   it("keeps the 5B2 evidence calibration policy internal and finitely bounded", () => {
     const policy =
-      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2
     expect(policy.stages).toHaveLength(36)
     expect(policy.stages.filter((row) =>
       row.stage === "spatial-index" && row.lockStatus === "inactive"

@@ -43,7 +43,7 @@ import {
   hasVNextTextBlockUnifiedLayoutTransitionEvidenceBindingInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV2.js"
 import {
-  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import {
   unifiedLayoutRootBuildInputFixtureV2,
@@ -88,7 +88,7 @@ function textRoot(text: string): VNextTextBlockUnifiedLayoutRootV2 {
       }),
       fontFaces: CORE_FONT_FACES,
     }),
-    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
   )
   if (built.status !== "accepted") throw new Error(`text root blocked: ${JSON.stringify(built.issues)}`)
   return admit5B2RootFixture(built.root)
@@ -105,7 +105,7 @@ function repeatedRoot(lineCount: number): VNextTextBlockUnifiedLayoutRootV2 {
     initialFlow: source.initialFlow,
     evidence: source.evidence,
     spatialEntries: source.spatialEntries,
-  }, VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1)
+  }, VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2)
   if (built.status !== "accepted") throw new Error(`repeated root blocked: ${JSON.stringify(built.issues)}`)
   return admit5B2RootFixture(built.root)
 }
@@ -122,7 +122,7 @@ function adjacentTextRoot(itemCount: number): VNextTextBlockUnifiedLayoutRootV2 
     initialFlow: source.initialFlow,
     evidence: source.evidence,
     spatialEntries: source.spatialEntries,
-  }, VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1)
+  }, VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2)
   if (built.status !== "accepted") throw new Error(`adjacent root blocked: ${JSON.stringify(built.issues)}`)
   return admit5B2RootFixture(built.root)
 }
@@ -973,7 +973,7 @@ describe("5B-2 text/style Source path copy", () => {
         content: "field-image-page-break",
         fontFaces: CORE_FONT_FACES,
       }),
-      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+      VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
     )
     if (built.status !== "accepted") throw new Error("field root blocked")
     const field = sourceItems(built.root.sourceState.root).find(

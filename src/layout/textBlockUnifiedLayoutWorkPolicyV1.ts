@@ -573,6 +573,22 @@ export function createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInt
 export const VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_TEST_ONLY_INTERNAL_V2 =
   createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({})
 
+const calibrationEvidenceLocked = (
+  unit:
+    | "evidence-request-lookup-nodes"
+    | "evidence-context-atoms"
+    | "evidence-response-nodes",
+): VNextTextBlockStageLimitV1 => stageLimit({
+  stage: "evidence",
+  unit,
+  lockStatus: "locked",
+  smallBlockFloor: 8_192,
+  absoluteStageLimit: 32_768,
+  relativeNumerator: 8,
+  relativeDenominator: 1,
+  checkpointOwner: "5B-2",
+})
+
 const calibrationSourceFlowLocked = (
   unit:
     | "source-items"
@@ -593,8 +609,9 @@ const calibrationSourceFlowLocked = (
 })
 
 const policy5b2CalibrationTestOnlyStages = Object.freeze([
-  ...VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2A_EVIDENCE_OWNER_ROWS_INTERNAL_V2
-    .map((row) => authorityEvidenceCalibrationStageLimit(row.unit, 8_192)),
+  calibrationEvidenceLocked("evidence-request-lookup-nodes"),
+  calibrationEvidenceLocked("evidence-context-atoms"),
+  calibrationEvidenceLocked("evidence-response-nodes"),
   ...policy5b1V3Stages.map((row) => {
     if (row.stage !== "source-flow") return row
     switch (row.unit) {
@@ -618,11 +635,44 @@ const policy5b2CalibrationTestOnlyFacts = {
   stages: policy5b2CalibrationTestOnlyStages,
 }
 
-/** Internal calibration seam; never selected by public bootstrap or attempt. */
+/** Retained V1 calibration seam; never selected by public bootstrap or attempt. */
 export const VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1:
 VNextTextBlockUnifiedLayoutWorkPolicyV1 = Object.freeze({
   ...policy5b2CalibrationTestOnlyFacts,
   fingerprint: fingerprint(policy5b2CalibrationTestOnlyFacts),
+})
+
+const policy5b2AuthorityCalibrationTestOnlyStages = Object.freeze([
+  ...VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2A_EVIDENCE_OWNER_ROWS_INTERNAL_V2
+    .map((row) => authorityEvidenceCalibrationStageLimit(row.unit, 8_192)),
+  ...policy5b1V3Stages.map((row) => {
+    if (row.stage !== "source-flow") return row
+    switch (row.unit) {
+      case "source-items":
+      case "source-lookup-nodes":
+      case "source-path-copy-nodes":
+      case "source-leaf-items":
+      case "flow-atoms":
+      case "flow-tree-nodes":
+        return calibrationSourceFlowLocked(row.unit)
+      default:
+        return row
+    }
+  }),
+])
+const policy5b2AuthorityCalibrationTestOnlyFacts = {
+  source: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_SOURCE,
+  contractVersion: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_V1_VERSION,
+  policyId: "5b-2-authority-calibration-test-only",
+  checkpoint: "5B-2" as const,
+  stages: policy5b2AuthorityCalibrationTestOnlyStages,
+}
+
+/** Active V2 authority calibration seam; never selected by public bootstrap. */
+export const VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2:
+VNextTextBlockUnifiedLayoutWorkPolicyV1 = Object.freeze({
+  ...policy5b2AuthorityCalibrationTestOnlyFacts,
+  fingerprint: fingerprint(policy5b2AuthorityCalibrationTestOnlyFacts),
 })
 
 export function isExactVNextTextBlockUnifiedLayoutWorkPolicyInternalV1(
@@ -631,6 +681,8 @@ export function isExactVNextTextBlockUnifiedLayoutWorkPolicyInternalV1(
   return value === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3
     || value
       === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1
+    || value
+      === VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2
     || (value != null
       && typeof value === "object"
       && exact5B2EvidenceCalibrationPolicies.has(

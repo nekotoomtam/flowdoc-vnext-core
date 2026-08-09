@@ -36,7 +36,7 @@ import { transitionVNextTextBlockUnifiedLayoutSourceInternalV1 } from "../src/la
 import { transitionVNextTextBlockUnifiedLayoutFlowInternalV1 } from "../src/layout/textBlockUnifiedLayoutTransitionFlowInternalsV1.js"
 import { setVNextTextBlockPostBindingLimitOverrideForTestInternalV1 } from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import { transitionVNextTextBlockUnifiedLayoutSourceAndFlowInternalV1 } from "../src/layout/textBlockUnifiedLayoutTransitionV1.js"
-import { VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
+import { VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import { unifiedLayoutRootBuildInputFixtureV2 } from "./helpers/textBlockUnifiedLayoutRootV2.js"
 import { repeatedUnifiedLayoutRootSourceFixtureV1 } from "./helpers/textBlockUnifiedLayoutRootV1.js"
 import {
@@ -79,7 +79,7 @@ function textRoot(text: string): VNextTextBlockUnifiedLayoutRootV2 {
       }),
       fontFaces: CORE_FONT_FACES,
     }),
-    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1,
+    VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2,
   )
   if (built.status !== "accepted") throw new Error("root blocked")
   return admit5B2RootFixture(built.root)
@@ -97,7 +97,7 @@ function adjacentTextRoot(itemCount: number): VNextTextBlockUnifiedLayoutRootV2 
     initialFlow: source.initialFlow,
     evidence: source.evidence,
     spatialEntries: source.spatialEntries,
-  }, VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1)
+  }, VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2)
   if (built.status !== "accepted") throw new Error("adjacent root blocked")
   return admit5B2RootFixture(built.root)
 }
@@ -114,7 +114,7 @@ function mixedBoundaryRoot(): VNextTextBlockUnifiedLayoutRootV2 {
     initialFlow: source.initialFlow,
     evidence: source.evidence,
     spatialEntries: source.spatialEntries,
-  }, VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_CALIBRATION_TEST_ONLY_INTERNAL_V1)
+  }, VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2)
   if (built.status !== "accepted") throw new Error("mixed root blocked")
   return admit5B2RootFixture(built.root)
 }
