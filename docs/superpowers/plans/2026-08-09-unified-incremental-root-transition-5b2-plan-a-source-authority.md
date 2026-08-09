@@ -84,6 +84,24 @@ structures, canonical JSON fingerprints as integrity facts only.
   successor entries. It must reject an out-of-range or non-boundary offset,
   must not enumerate the complete order tree, and must not add a retained
   anchor to `nextPhysicalItems` or Source emission work.
+- **Approved Task 7 collision-bound amendment (2026-08-10):** a style
+  collision bucket is execution-bounded, not cardinality-capped. There is no
+  new structural bucket-overflow cause. Incremental code must begin the exact
+  `source-style-buckets` or `source-style-entries` permit before every owned
+  bucket/item-slot payload read, comparison, emission, or reconstruction. A
+  deterministic work-limit stops before the next observation, discards every
+  partial candidate, and returns only the exact evaluator authority. Complete
+  construction may visit the complete bucket only in the separate complete
+  ledger. No incremental accepted path may exceed its versioned work policy.
+- **Approved Task 7 exact physical-item amendment (2026-08-10):** physical
+  sidecars may own one task-specific process-local `WeakMap` from an exact
+  frozen Source item object to its exact physical entry. Complete construction
+  registers each exact pair; incremental path copy registers new pairs and
+  retains old pairs by object identity. Exact registered Source-candidate
+  authority plus exact previous sidecars authorizes removed-item lookup. The
+  hot path must not enumerate every fragment sharing an `inlineId`, expose this
+  map publicly, place it in canonical fingerprints/JSON, or generalize it into
+  an identity framework.
 - Position keys are signed safe integers, process-local only, and excluded from
   Source/Root/Scene canonical identity and public JSON.
 - `source-position-key-space-exhausted` is an exact candidate-free structural
