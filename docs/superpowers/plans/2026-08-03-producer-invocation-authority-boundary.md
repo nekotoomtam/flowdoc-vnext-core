@@ -1,5 +1,12 @@
 # Producer Invocation Authority Boundary Implementation Plan
 
+> **Completed foundation (2026-08-09):** Tasks 1-5 and the 5B-2A review stop
+> passed at `e2c9792` with all twelve acceptance criteria satisfied and no open
+> Critical, Important, or Minor finding. This document remains the frozen
+> implementation record for the accepted Evidence/authority foundation. The
+> remaining Phase 5B-2 continuation is governed by
+> `docs/superpowers/specs/2026-08-09-unified-incremental-root-transition-5b2-continuation-rebaseline-design.md`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace the untrusted detached producer-ceiling bootstrap with one

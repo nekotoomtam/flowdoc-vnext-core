@@ -1,5 +1,13 @@
 # Unified Incremental Root Transition 5B-2 Rebaseline Implementation Plan
 
+> **Continuation superseded (2026-08-09):** Do not execute Tasks 4-11 from
+> this document. The verified implementation baseline is `e2c9792`, and the
+> remaining continuation is governed by
+> `docs/superpowers/specs/2026-08-09-unified-incremental-root-transition-5b2-continuation-rebaseline-design.md`
+> plus its five-plan just-in-time implementation family. This file remains
+> historical evidence for completed/stopped work only. Do not infer push,
+> merge, production activation, or permission to restore rejected WIP.
+
 > **Task 3 architecture stop (2026-08-03):** Do not continue this document's
 > Task 3 or start Task 4 from implementation head `ac81d46`. The reviewed
 > Producer Invocation Authority correction in
