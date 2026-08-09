@@ -54,6 +54,9 @@ import type { TextRunStyleV4Target } from "../src/schema/documentV4Foundation.js
 import type {
   VNextTextBlockTransitionProducerResponseV1,
 } from "../src/layout/textBlockUnifiedLayoutEvidenceContractV1.js"
+import type {
+  VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.js"
 
 function frozen<T>(value: T): T {
   if (value != null && typeof value === "object") {
@@ -309,11 +312,17 @@ function coveredItems(
   startRenderedUtf16 = 0,
   endRenderedUtf16 = root.sourceState.summary.renderedUtf16Length,
 ) {
+  const permits = new WeakSet<object>()
   const result = visitVNextTextBlockTransitionSourceCoverageInternalV1({
     sourceState: root.sourceState,
     range: { startRenderedUtf16, endRenderedUtf16 },
-    beforeVisitNode: () => true,
-    beforeEmitItem: () => true,
+    beforeVisit: () => {
+      const permit = Object.freeze({}) as
+        VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1
+      permits.add(permit)
+      return permit
+    },
+    completeVisit: (permit) => permits.has(permit),
   })
   if (result.status !== "accepted") throw new Error("source coverage missing")
   return result.fragments

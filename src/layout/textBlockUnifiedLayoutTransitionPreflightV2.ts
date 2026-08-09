@@ -17,8 +17,21 @@ import {
   getVNextTextBlockLimitExceededAuthorityRecordInternalV1,
 } from "./textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
+  hasVNextTextBlockUnifiedLayoutTrivialAdmissionRegistrationInternalV1,
   resolveVNextTextBlockUnifiedLayoutTrivialAdmissionInternalV1,
 } from "./textBlockUnifiedLayoutTrivialAdmissionInternalsV1.js"
+import {
+  registerVNextTextBlockUnifiedLayout5B2FoundationCandidateWorkInternalV1,
+  type VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1,
+  type VNextTextBlockUnifiedLayout5B2WorkReceiptInternalV1,
+} from "./textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.js"
+import {
+  resolveVNextTextBlockUnifiedLayout5B2RootPolicyCompositionInternalV1,
+  type VNextTextBlockUnifiedLayout5B2PolicyCompositionInternalV1,
+} from "./textBlockUnifiedLayoutWorkPolicyCompositionInternalsV1.js"
+import {
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2_OWNER_ROWS_INTERNAL_V1,
+} from "./textBlockUnifiedLayoutWorkOwnerRegistryV1.js"
 import {
   validateVNextTextBlockUnifiedLayoutChangeShapeInternalV1,
 } from "./textBlockUnifiedLayoutTransitionChangeInternalsV1.js"
@@ -88,6 +101,8 @@ interface RegisteredPreflightTupleInternalV2 {
   readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
   readonly sourceReplacement:
     VNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1 | null
+  readonly foundationReceipts:
+    readonly VNextTextBlockUnifiedLayout5B2WorkReceiptInternalV1[] | null
 }
 
 const preflights = new WeakMap<object, RegisteredPreflightTupleInternalV2>()
@@ -188,6 +203,8 @@ function registerPreflightTuple(input: {
   readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
   readonly sourceReplacement:
     VNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1 | null
+  readonly foundationReceipts:
+    readonly VNextTextBlockUnifiedLayout5B2WorkReceiptInternalV1[] | null
 }): void {
   preflights.set(input.preflight, Object.freeze({
     request: input.request,
@@ -198,6 +215,93 @@ function registerPreflightTuple(input: {
     validatedChange: input.validatedChange,
     completedCandidateWork: input.completedCandidateWork,
     sourceReplacement: input.sourceReplacement,
+    foundationReceipts: input.foundationReceipts,
+  }))
+}
+
+interface FoundationReceiptMeterInternalV2 {
+  readonly composition:
+    VNextTextBlockUnifiedLayout5B2PolicyCompositionInternalV1 | null
+  readonly receipts: {
+    readonly ownerRow: typeof VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2_OWNER_ROWS_INTERNAL_V1[number]
+    attemptedWork: number
+    completedWork: number
+  }[]
+  readonly permits: WeakMap<object, {
+    readonly receipt: FoundationReceiptMeterInternalV2["receipts"][number]
+    completed: boolean
+  }>
+}
+
+function createFoundationReceiptMeter(
+  composition: VNextTextBlockUnifiedLayout5B2PolicyCompositionInternalV1 | null,
+): FoundationReceiptMeterInternalV2 {
+  return {
+    composition,
+    receipts: VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2_OWNER_ROWS_INTERNAL_V1.map(
+      (ownerRow) => ({ ownerRow, attemptedWork: 0, completedWork: 0 }),
+    ),
+    permits: new WeakMap(),
+  }
+}
+
+function beginFoundationReceipt(
+  meter: FoundationReceiptMeterInternalV2,
+  unit: "admission-authority-lookups" | "source-coverage-nodes" | "source-coverage-items",
+): VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1 | null {
+  if (meter.composition == null) return null
+  const row = meter.composition.rows.find((candidate) =>
+    candidate.ownerRow.unit === unit)
+  const receipt = meter.receipts.find((candidate) =>
+    candidate.ownerRow.unit === unit)
+  if (
+    row == null
+    || receipt == null
+    || row.ownerRow !== receipt.ownerRow
+    || row.execution.kind !== "accepted-foundation"
+  ) return null
+  receipt.attemptedWork += 1
+  const permit = Object.freeze({}) as VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1
+  meter.permits.set(permit, { receipt, completed: false })
+  return permit
+}
+
+function completeFoundationReceipt(
+  meter: FoundationReceiptMeterInternalV2,
+  permit: VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1,
+): boolean {
+  const record = meter.permits.get(permit)
+  if (record == null || record.completed) return false
+  record.completed = true
+  record.receipt.completedWork += 1
+  return true
+}
+
+function foundationReceiptSnapshot(
+  meter: FoundationReceiptMeterInternalV2,
+  evidenceCounts?: Readonly<{
+    readonly requestDescriptors: number
+    readonly contextAtoms: number
+    readonly materialDescriptors: number
+  }>,
+): readonly VNextTextBlockUnifiedLayout5B2WorkReceiptInternalV1[] | null {
+  if (meter.composition == null) return null
+  const evidenceByUnit = {
+    "evidence-request-descriptors": evidenceCounts?.requestDescriptors ?? 0,
+    "evidence-context-atoms": evidenceCounts?.contextAtoms ?? 0,
+    "evidence-material-descriptors": evidenceCounts?.materialDescriptors ?? 0,
+  } as const
+  return Object.freeze(meter.receipts.map((receipt) => {
+    const count = Object.hasOwn(evidenceByUnit, receipt.ownerRow.unit)
+      ? evidenceByUnit[
+          receipt.ownerRow.unit as keyof typeof evidenceByUnit
+        ]
+      : null
+    return Object.freeze({
+      ownerRow: receipt.ownerRow,
+      attemptedWork: count ?? receipt.attemptedWork,
+      completedWork: count ?? receipt.completedWork,
+    })
   }))
 }
 
@@ -937,10 +1041,46 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
     shaped.change.expectedPreviousRootFingerprint !== input.previousRoot.fingerprint
     || shaped.change.expectedPreviousSourceFingerprint !== input.previousRoot.sourceState.fingerprint
   ) return freeze({ status: "blocked" as const, completedCandidateWork: shaped.incrementalCandidateWork, issues: freeze([issue("stale-previous-root", "change", "preflight change has stale Root expectations")]) })
+  const composition =
+    resolveVNextTextBlockUnifiedLayout5B2RootPolicyCompositionInternalV1(
+      input.previousRoot,
+    )
+  const foundationMeter = createFoundationReceiptMeter(composition)
+  if (!hasVNextTextBlockUnifiedLayoutTrivialAdmissionRegistrationInternalV1(
+    input.previousRoot,
+  )) return fallback({
+    previousRoot: input.previousRoot,
+    change: shaped.change,
+    workPolicy: input.workPolicy,
+    unit: evidenceRequestWorkUnit(input.workPolicy),
+    effectiveLimit: 0,
+    work: shaped.incrementalCandidateWork,
+    reason: "unadmitted-root",
+  })
+  const admissionPermit = composition == null
+    ? null
+    : beginFoundationReceipt(
+        foundationMeter,
+        "admission-authority-lookups",
+      )
+  if (composition != null && admissionPermit == null) {
+    return freeze({
+      status: "blocked" as const,
+      completedCandidateWork: shaped.incrementalCandidateWork,
+      issues: freeze([issue(
+        "evidence-authority-mismatch",
+        "previousRoot",
+        "preflight admission ownership is unavailable",
+      )]),
+    })
+  }
   const admission = resolveVNextTextBlockUnifiedLayoutTrivialAdmissionInternalV1({
     root: input.previousRoot,
     workPolicy: input.workPolicy,
   })
+  if (admissionPermit != null) {
+    completeFoundationReceipt(foundationMeter, admissionPermit)
+  }
   if (admission == null) return fallback({
     previousRoot: input.previousRoot,
     change: shaped.change,
@@ -1003,6 +1143,30 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
       validatedChange,
       completedCandidateWork: bound.incrementalCandidateWork,
       sourceReplacement: null,
+      foundationReceipts: foundationReceiptSnapshot(foundationMeter),
+    })
+    const foundationReceipts = foundationReceiptSnapshot(foundationMeter)
+    if (
+      composition != null
+      && (
+        foundationReceipts == null
+        || registerVNextTextBlockUnifiedLayout5B2FoundationCandidateWorkInternalV1({
+          previousRoot: input.previousRoot,
+          change: input.change,
+          composition,
+          candidateWork: bound.incrementalCandidateWork,
+          receipts: foundationReceipts,
+          producingStageAuthority: preflight,
+        }) == null
+      )
+    ) return freeze({
+      status: "blocked" as const,
+      completedCandidateWork: bound.incrementalCandidateWork,
+      issues: freeze([issue(
+        "evidence-authority-mismatch",
+        "candidateWork",
+        "preflight candidate-work authority registration failed",
+      )]),
     })
     return freeze({ status: "not-required" as const, preflight, request: null, sourceMaterial: null, completedCandidateWork: bound.incrementalCandidateWork, issues: freeze([]) })
   }
@@ -1095,8 +1259,19 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
   const sourceCoverage = visitVNextTextBlockTransitionSourceCoverageInternalV1({
     sourceState: input.previousRoot.sourceState,
     range: sourceCoverageRange,
-    beforeVisitNode: meter.beforeVisitNode,
-    beforeEmitItem: () => true,
+    beforeVisit(unit) {
+      const permit = composition == null
+        ? Object.freeze({}) as VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1
+        : beginFoundationReceipt(foundationMeter, unit)
+      if (permit == null) return null
+      if (unit === "source-coverage-nodes" && !meter.beforeVisitNode()) {
+        return null
+      }
+      return permit
+    },
+    completeVisit: (permit) => composition == null
+      ? true
+      : completeFoundationReceipt(foundationMeter, permit),
   })
   if (sourceCoverage.status !== "accepted") {
     return fallback({
@@ -1317,6 +1492,38 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
       validatedChange,
       completedCandidateWork: meter.completedCandidateWork,
       sourceReplacement,
+      foundationReceipts: foundationReceiptSnapshot(foundationMeter, {
+        requestDescriptors: meter.visitedNodeCount,
+        contextAtoms: meter.materializedAtomCount,
+        materialDescriptors: meter.materialDescriptorCount,
+      }),
+    })
+    const foundationReceipts = foundationReceiptSnapshot(foundationMeter, {
+      requestDescriptors: meter.visitedNodeCount,
+      contextAtoms: meter.materializedAtomCount,
+      materialDescriptors: meter.materialDescriptorCount,
+    })
+    if (
+      composition != null
+      && (
+        foundationReceipts == null
+        || registerVNextTextBlockUnifiedLayout5B2FoundationCandidateWorkInternalV1({
+          previousRoot: input.previousRoot,
+          change: input.change,
+          composition,
+          candidateWork: meter.completedCandidateWork,
+          receipts: foundationReceipts,
+          producingStageAuthority: preflight,
+        }) == null
+      )
+    ) return freeze({
+      status: "blocked" as const,
+      completedCandidateWork: meter.completedCandidateWork,
+      issues: freeze([issue(
+        "evidence-authority-mismatch",
+        "candidateWork",
+        "preflight candidate-work authority registration failed",
+      )]),
     })
     return freeze({
       status: "not-required" as const,
@@ -1561,6 +1768,11 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
     validatedChange,
     completedCandidateWork: work,
     sourceReplacement,
+    foundationReceipts: foundationReceiptSnapshot(foundationMeter, {
+      requestDescriptors: meter.visitedNodeCount,
+      contextAtoms: meter.materializedAtomCount,
+      materialDescriptors: meter.materialDescriptorCount,
+    }),
   })
   return freeze({ status: "required" as const, preflight, request, sourceMaterial, completedCandidateWork: work, issues: freeze([]) })
 }

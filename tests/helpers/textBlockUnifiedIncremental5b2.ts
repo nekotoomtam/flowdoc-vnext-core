@@ -267,6 +267,28 @@ export function admitted5B2AuthorityRootFixture(input: {
   if (registration.status !== "committed") {
     throw new Error(`5B-2 authority Root registration blocked: ${registration.message}`)
   }
+  const composition =
+    createVNextTextBlockUnifiedLayout5B2PlanAPolicyForTestInternalV1({
+      publicWorkPolicy: policy,
+      sourceLimits: {
+        sourceItems: Number.MAX_SAFE_INTEGER,
+        sourceTreeLookupNodes: Number.MAX_SAFE_INTEGER,
+        sourceTreePathCopyNodes: Number.MAX_SAFE_INTEGER,
+        sourceLeafSlots: Number.MAX_SAFE_INTEGER,
+        sourceIndexNodes: Number.MAX_SAFE_INTEGER,
+        sourceIndexEntries: Number.MAX_SAFE_INTEGER,
+        sourceIndexComparisons: Number.MAX_SAFE_INTEGER,
+        sourceStyleNodes: Number.MAX_SAFE_INTEGER,
+        sourceStyleBuckets: Number.MAX_SAFE_INTEGER,
+        sourceStyleEntries: Number.MAX_SAFE_INTEGER,
+      },
+    })
+  if (!registerVNextTextBlockUnifiedLayout5B2RootPolicyCompositionInternalV1({
+    root: prepared.root,
+    composition,
+  })) {
+    throw new Error("5B-2 authority Root composition registration blocked")
+  }
   markVNextTextBlockUnifiedLayout5B2CompleteKernelProfileInternalV1({
     root: prepared.root,
     source: prepared.root.sourceState,

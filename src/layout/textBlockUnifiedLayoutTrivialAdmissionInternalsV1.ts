@@ -95,3 +95,9 @@ export function resolveVNextTextBlockUnifiedLayoutTrivialAdmissionInternalV1(inp
     ? authority
     : null
 }
+
+export function hasVNextTextBlockUnifiedLayoutTrivialAdmissionRegistrationInternalV1(
+  root: VNextTextBlockUnifiedLayoutRootV2,
+): boolean {
+  return admissions.has(root)
+}

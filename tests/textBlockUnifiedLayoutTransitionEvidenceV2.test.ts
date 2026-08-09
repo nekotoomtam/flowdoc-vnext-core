@@ -27,6 +27,12 @@ import type {
   VNextTextBlockTransitionProducerResponseV2,
   VNextTextBlockTransitionProducerRuntimeIdentityV2,
 } from "../src/layout/textBlockUnifiedLayoutEvidenceContractV2.js"
+import {
+  resolveVNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.js"
+import {
+  resolveVNextTextBlockUnifiedLayout5B2RootPolicyCompositionInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutWorkPolicyCompositionInternalsV1.js"
 
 function frozen<T>(value: T): T {
   if (value != null && typeof value === "object") {
@@ -339,6 +345,31 @@ describe("Core authorized acceptance and vertical authority boundary", () => {
       expectedRequest: fixture.request,
       expectedSourceMaterial: fixture.sourceMaterial,
     })).toBe(true)
+    const composition =
+      resolveVNextTextBlockUnifiedLayout5B2RootPolicyCompositionInternalV1(
+        fixture.previousRoot,
+      )
+    expect(composition).not.toBeNull()
+    if (composition == null) return
+    const candidateAuthority =
+      resolveVNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1({
+        previousRoot: fixture.previousRoot,
+        change: fixture.change,
+        composition,
+        candidateWork: accepted.completedCandidateWork,
+      })
+    expect(candidateAuthority).toMatchObject({
+      producingStageAuthority: accepted.evidence,
+      receipts: expect.arrayContaining([
+        expect.objectContaining({
+          ownerRow: expect.objectContaining({
+            unit: "evidence-acceptance-registrations",
+          }),
+          attemptedWork: 1,
+          completedWork: 1,
+        }),
+      ]),
+    })
   }, 30_000)
 
   it("authorized acceptance follows consumed authority rows instead of the legacy mirrored producer formula", () => {

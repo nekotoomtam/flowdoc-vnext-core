@@ -22,7 +22,18 @@ import type {
 import type { VNextTextBlockUnifiedLayoutRootV2 } from "./textBlockUnifiedLayoutRootContractV2.js"
 import {
   prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2,
+  getVNextTextBlockUnifiedLayoutSourceStagePreflightRecordInternalV2,
 } from "./textBlockUnifiedLayoutTransitionPreflightV2.js"
+import {
+  registerVNextTextBlockUnifiedLayout5B2FoundationCandidateWorkInternalV1,
+  type VNextTextBlockUnifiedLayout5B2WorkReceiptInternalV1,
+} from "./textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.js"
+import {
+  resolveVNextTextBlockUnifiedLayout5B2RootPolicyCompositionInternalV1,
+} from "./textBlockUnifiedLayoutWorkPolicyCompositionInternalsV1.js"
+import {
+  VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2_OWNER_ROWS_INTERNAL_V1,
+} from "./textBlockUnifiedLayoutWorkOwnerRegistryV1.js"
 import {
   createVNextTextBlockTransitionProducerInvocationAuthorityInternalV2,
   consumeVNextTextBlockTransitionProducerInvocationAuthorityInternalV2,
@@ -186,11 +197,32 @@ interface RequestTupleV2 {
   readonly request: VNextTextBlockTransitionEvidenceRequestV2
   readonly sourceMaterial: VNextTextBlockTransitionProducerSourceMaterialV2
   readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+  readonly foundationReceipts:
+    readonly VNextTextBlockUnifiedLayout5B2WorkReceiptInternalV1[] | null
 }
 
 const requests = new WeakMap<object, RequestTupleV2>()
 const evidenceRecords = new WeakMap<object, RequestTupleV2>()
 const evidenceCompletedWorkRecords = new WeakMap<object, VNextTextBlockIncrementalCandidateWorkV1>()
+interface AcceptedEvidenceCandidateOwnerRecordInternalV2 {
+  readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+  readonly change: VNextTextBlockUnifiedLayoutChangeV1
+  readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+  readonly foundationReceipts:
+    readonly VNextTextBlockUnifiedLayout5B2WorkReceiptInternalV1[]
+}
+const acceptedEvidenceCandidateOwnerRecords = new WeakMap<
+  object,
+  Readonly<AcceptedEvidenceCandidateOwnerRecordInternalV2>
+>()
+
+export function getVNextTextBlockUnifiedLayoutAcceptedEvidenceCandidateOwnerRecordInternalV2(
+  value: unknown,
+): Readonly<AcceptedEvidenceCandidateOwnerRecordInternalV2> | null {
+  return value != null && typeof value === "object"
+    ? acceptedEvidenceCandidateOwnerRecords.get(value as object) ?? null
+    : null
+}
 
 interface AuthorizedFallbackAuthorityRecordInternalV2 {
   readonly terminal: Readonly<AuthorityRecordSnapshotV2>
@@ -251,12 +283,18 @@ export function createVNextTextBlockUnifiedLayoutTransitionEvidenceRequestV2(inp
   })
   if (result.status === "required") {
     const workPolicy = input.previousRoot.workPolicy
+    const preflightRecord =
+      getVNextTextBlockUnifiedLayoutSourceStagePreflightRecordInternalV2({
+        preflight: result.preflight,
+        previousRoot: input.previousRoot,
+      })
     requests.set(result.request, freeze({
       previousRoot: input.previousRoot,
       change: input.change,
       request: result.request,
       sourceMaterial: result.sourceMaterial,
       completedCandidateWork: result.completedCandidateWork,
+      foundationReceipts: preflightRecord?.foundationReceipts ?? null,
     }))
     const producerInvocationAuthority =
       createVNextTextBlockTransitionProducerInvocationAuthorityInternalV2({
@@ -453,6 +491,36 @@ function producerCompletedCount(
   unit: string,
 ): number {
   return terminal.completedWork.find((row) => row.unit === unit)?.completedWork ?? 0
+}
+
+function acceptedEvidenceFoundationReceipts(
+  tuple: RequestTupleV2,
+  terminal: Readonly<AuthorityRecordSnapshotV2>,
+  meter: AuthorizedAcceptanceMeterV2,
+): readonly VNextTextBlockUnifiedLayout5B2WorkReceiptInternalV1[] | null {
+  if (
+    tuple.foundationReceipts == null
+    || tuple.foundationReceipts.length
+      !== VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2_OWNER_ROWS_INTERNAL_V1.length
+  ) return null
+  const producerCounts = new Map<string, number>(terminal.completedWork.map((row) => [
+    row.unit,
+    row.completedWork,
+  ]))
+  return Object.freeze(tuple.foundationReceipts.map((receipt, index) => {
+    const ownerRow = VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_5B2_OWNER_ROWS_INTERNAL_V1[index]
+    if (ownerRow == null || receipt.ownerRow !== ownerRow) return receipt
+    const producerCount = producerCounts.get(ownerRow.unit)
+    const acceptanceCount = Object.hasOwn(meter.counts, ownerRow.unit)
+      ? meter.counts[ownerRow.unit as AuthorizedAcceptanceUnitV2]
+      : null
+    const count = producerCount ?? acceptanceCount
+    return count == null ? receipt : Object.freeze({
+      ownerRow,
+      attemptedWork: count,
+      completedWork: count,
+    })
+  }))
 }
 
 function zeroAuthorizedProducerWork(
@@ -2463,6 +2531,49 @@ export function acceptVNextTextBlockUnifiedLayoutAuthorizedTransitionEvidenceInt
     validation.response.work,
     context.meter,
   )
+  const composition =
+    resolveVNextTextBlockUnifiedLayout5B2RootPolicyCompositionInternalV1(
+      input.previousRoot,
+    )
+  if (composition != null) {
+    const foundationReceipts = acceptedEvidenceFoundationReceipts(
+      context.tuple,
+      context.terminal,
+      context.meter,
+    )
+    if (foundationReceipts == null) {
+      return authorizedEvidenceBlocked(
+        context.tuple,
+        context.terminal,
+        context.meter,
+        "accepted Evidence has no exact foundation receipt authority",
+        validation.response.work,
+      )
+    }
+    acceptedEvidenceCandidateOwnerRecords.set(evidence, Object.freeze({
+      previousRoot: input.previousRoot,
+      change: input.change,
+      completedCandidateWork: acceptedWork,
+      foundationReceipts,
+    }))
+    if (registerVNextTextBlockUnifiedLayout5B2FoundationCandidateWorkInternalV1({
+      previousRoot: input.previousRoot,
+      change: input.change,
+      composition,
+      candidateWork: acceptedWork,
+      receipts: foundationReceipts,
+      producingStageAuthority: evidence,
+    }) == null) {
+      acceptedEvidenceCandidateOwnerRecords.delete(evidence)
+      return authorizedEvidenceBlocked(
+        context.tuple,
+        context.terminal,
+        context.meter,
+        "accepted Evidence candidate-work authority registration failed",
+        validation.response.work,
+      )
+    }
+  }
   evidenceRecords.set(evidence, context.tuple)
   evidenceCompletedWorkRecords.set(evidence, acceptedWork)
   return freeze({

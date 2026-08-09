@@ -27,6 +27,12 @@ import {
 import {
   createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
+import {
+  resolveVNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.js"
+import {
+  resolveVNextTextBlockUnifiedLayout5B2RootPolicyCompositionInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutWorkPolicyCompositionInternalsV1.js"
 import type {
   VNextTextBlockTransitionEvidenceRequestV2,
   VNextTextBlockTransitionProducerInvocationAuthorityV2,
@@ -431,6 +437,18 @@ describe("authorized producer execution and factual work V2", () => {
 
   it("rejects hostile exact-result shapes from begin, charge, bind, and close without invoking result getters", () => {
     const bundle = authorizedEvidenceRequestBundle5B2({ insertedText: "X" })
+    const composition =
+      resolveVNextTextBlockUnifiedLayout5B2RootPolicyCompositionInternalV1(
+        bundle.root,
+      )
+    expect(composition).not.toBeNull()
+    if (composition == null) return
+    expect(resolveVNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1({
+      previousRoot: bundle.root,
+      change: bundle.change,
+      composition,
+      candidateWork: bundle.result.completedCandidateWork,
+    })).toBeNull()
     const runtime = nodeRuntimeForRequest(bundle.request)
     let resultGetterCalls = 0
     let closeProxyOwnKeysCalls = 0

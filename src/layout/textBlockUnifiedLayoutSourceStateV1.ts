@@ -48,6 +48,9 @@ import type {
   VNextTextBlockValidatedChangeV1,
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
 import type {
+  VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1,
+} from "./textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.js"
+import type {
   VNextTextBlockUnifiedLayoutRootV2,
 } from "./textBlockUnifiedLayoutRootContractV2.js"
 
@@ -3868,9 +3871,18 @@ export function visitVNextTextBlockTransitionSourceItemByInlineIdInternalV1(
 export function visitVNextTextBlockTransitionSourceCoverageInternalV1(input: {
   readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
   readonly range: { readonly startRenderedUtf16: number; readonly endRenderedUtf16: number }
+} & ({
+  readonly beforeVisit: (
+    unit: "source-coverage-nodes" | "source-coverage-items",
+  ) => VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1 | null
+  readonly completeVisit: (
+    permit: VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1,
+  ) => boolean
+} | {
+  /** Retained only for frozen pre-5B-2 internal test callers. */
   readonly beforeVisitNode: () => boolean
   readonly beforeEmitItem: () => boolean
-}): VNextTextBlockTransitionSourceCoverageResultInternalV1 {
+})): VNextTextBlockTransitionSourceCoverageResultInternalV1 {
   if (
     inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1(input.sourceState)
       .status !== "prepared-unregistered"
@@ -3885,29 +3897,62 @@ export function visitVNextTextBlockTransitionSourceCoverageInternalV1(input: {
   let visitedNodeCount = 0
   let emittedItemCount = 0
   let stopped = false
+  const legacyPermits = new WeakSet<object>()
+  const beforeVisit = (
+    unit: "source-coverage-nodes" | "source-coverage-items",
+  ): VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1 | null => {
+    if ("beforeVisit" in input) return input.beforeVisit(unit)
+    const accepted = unit === "source-coverage-nodes"
+      ? input.beforeVisitNode()
+      : input.beforeEmitItem()
+    if (!accepted) return null
+    const permit = Object.freeze({}) as VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1
+    legacyPermits.add(permit)
+    return permit
+  }
+  const completeVisit = (
+    permit: VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1,
+  ): boolean => "completeVisit" in input
+    ? input.completeVisit(permit)
+    : legacyPermits.has(permit)
   const visit = (
     node: VNextTextBlockUnifiedLayoutSourceNodeV1,
     start: number,
-  ): void => {
-    if (stopped || input.range.endRenderedUtf16 <= start || input.range.startRenderedUtf16 >= start + node.summary.renderedUtf16Length) return
-    if (!input.beforeVisitNode()) { stopped = true; return }
+  ): number | null => {
+    if (stopped || input.range.endRenderedUtf16 <= start) return null
+    const nodePermit = beforeVisit("source-coverage-nodes")
+    if (nodePermit == null) { stopped = true; return null }
+    const nodeKind = node.nodeKind
+    const nodeSummary = node.summary
+    const children = nodeKind === "branch" ? node.children : null
+    const items = nodeKind === "leaf" ? node.items : null
+    if (!completeVisit(nodePermit)) { stopped = true; return null }
+    if (input.range.startRenderedUtf16 >= start + nodeSummary.renderedUtf16Length) {
+      return nodeSummary.renderedUtf16Length
+    }
     visitedNodes.add(node)
     visitedNodeCount += 1
-    if (node.nodeKind === "branch") {
+    if (nodeKind === "branch" && children != null) {
       let childStart = start
-      for (const child of node.children) {
-        if (childStart >= input.range.endRenderedUtf16) return
-        visit(child, childStart)
-        childStart += child.summary.renderedUtf16Length
-        if (stopped) return
+      for (const child of children) {
+        if (childStart >= input.range.endRenderedUtf16) break
+        const childLength = visit(child, childStart)
+        if (stopped) return null
+        if (childLength == null) break
+        childStart += childLength
       }
-      return
+      return nodeSummary.renderedUtf16Length
     }
     let itemStart = start
-    for (const item of node.items) {
+    if (items == null) { stopped = true; return null }
+    for (let index = 0; index < items.length; index += 1) {
+      const itemPermit = beforeVisit("source-coverage-items")
+      if (itemPermit == null) { stopped = true; return null }
+      const item = items[index]
+      if (!completeVisit(itemPermit)) { stopped = true; return null }
+      if (item == null) { stopped = true; return null }
       const itemEnd = itemStart + item.renderedUtf16Length
       if (input.range.startRenderedUtf16 < itemEnd && input.range.endRenderedUtf16 > itemStart) {
-        if (!input.beforeEmitItem()) { stopped = true; return }
         emittedItemCount += 1
         fragments.push(Object.freeze({
           item,
@@ -3919,6 +3964,7 @@ export function visitVNextTextBlockTransitionSourceCoverageInternalV1(input: {
       }
       itemStart = itemEnd
     }
+    return nodeSummary.renderedUtf16Length
   }
   visit(input.sourceState.root, 0)
   if (stopped) {
