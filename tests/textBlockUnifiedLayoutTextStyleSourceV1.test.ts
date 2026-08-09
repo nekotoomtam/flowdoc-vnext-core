@@ -31,10 +31,13 @@ import {
 } from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
   createVNextTextBlockTransitionReplacementSourceItemInternalV1,
+  forceVNextTextBlockRegisteredSourceStyleCollisionForTestInternalV1,
+  inspectVNextTextBlockUnifiedLayoutSourceLegacyStorageForTestInternalV1,
   lookupVNextTextBlockUnifiedLayoutSourceItemByInlineIdInternalV1,
   prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1,
   registerVNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1,
   resolveVNextTextBlockRegisteredSourceStyleInternalV1,
+  setVNextTextBlockUnifiedLayoutSourceIndexLookupObserverForTestInternalV1,
   setVNextTextBlockSourceReplacementItemReadObserverForTestInternalV1,
   visitVNextTextBlockTransitionSourceCoverageInternalV1,
   visitVNextTextBlockTransitionSourceItemByInlineIdInternalV1,
@@ -53,6 +56,7 @@ import {
 } from "./helpers/textBlockUnifiedLayoutRootV1.js"
 import {
   admit5B2RootFixture,
+  admitted5B2PlanARootFixture,
   admitted5B2HardBreakRootFixture,
   unrestrictedSourceCoveragePermits5B2,
 } from "./helpers/textBlockUnifiedIncremental5b2.js"
@@ -422,6 +426,92 @@ function batchItems(
 }
 
 describe("5B-2 text/style Source path copy", () => {
+  it("resolves registered Plan A styles from the exact style sidecar", () => {
+    // Catches filtering the cloned legacy style registry after Plan A registration.
+    const { root } = admitted5B2PlanARootFixture({ text: "ABCD" })
+    const item = sourceItems(root.sourceState.root)[0]
+    if (item?.kind !== "text") throw new Error("Plan A text item missing")
+    expect(forceVNextTextBlockRegisteredSourceStyleCollisionForTestInternalV1(
+      root.sourceState,
+    )).toBe(true)
+    expect(resolveVNextTextBlockRegisteredSourceStyleInternalV1({
+      sourceState: root.sourceState,
+      measurementStyleKey: item.style.measurementStyleKey,
+      effectiveShapingStyleKey: item.style.effectiveShapingStyleKey,
+    })).toEqual({ status: "resolved", style: item.style })
+  })
+
+  it("visits registered Plan A items through physical sidecars before observation", () => {
+    const { root } = admitted5B2PlanARootFixture({ text: "ABCD" })
+    const item = sourceItems(root.sourceState.root)[0]
+    if (item == null) throw new Error("Plan A item missing")
+    const legacyLookups: unknown[] = []
+    setVNextTextBlockUnifiedLayoutSourceIndexLookupObserverForTestInternalV1(
+      (observation) => legacyLookups.push(observation),
+    )
+    try {
+      let visits = 0
+      expect(visitVNextTextBlockTransitionSourceItemByInlineIdInternalV1({
+        sourceState: root.sourceState,
+        inlineId: item.inlineId,
+        beforeVisitNode() {
+          visits += 1
+          return true
+        },
+      })).toMatchObject({
+        status: "found",
+        item,
+        absoluteStartRenderedUtf16: 0,
+        absoluteEndRenderedUtf16: item.renderedUtf16Length,
+        completeTreeTraversalCount: 0,
+      })
+      expect(visits).toBeGreaterThan(0)
+      expect(legacyLookups).toEqual([])
+
+      let hostileVisits = 0
+      expect(visitVNextTextBlockTransitionSourceItemByInlineIdInternalV1({
+        sourceState: root.sourceState,
+        inlineId: item.inlineId,
+        beforeVisitNode() {
+          hostileVisits += 1
+          return false
+        },
+      })).toMatchObject({
+        status: "limit-exceeded",
+        item: null,
+        visitedNodeCount: 0,
+      })
+      expect(hostileVisits).toBe(1)
+      expect(legacyLookups).toEqual([])
+    } finally {
+      setVNextTextBlockUnifiedLayoutSourceIndexLookupObserverForTestInternalV1(null)
+    }
+  })
+
+  it("does not grow legacy range-delta or style-clone storage across three Plan A states", () => {
+    const { root } = admitted5B2PlanARootFixture({ text: "ABCD" })
+    const states = [root.sourceState]
+    for (let index = 0; index < 2; index += 1) {
+      const previous = states.at(-1)!
+      const result = ownerReplacement({
+        sourceState: previous,
+        startRenderedUtf16: 0,
+        endRenderedUtf16: previous.summary.renderedUtf16Length,
+        nextItems: batchItems(previous, 1),
+      })
+      expect(result.status).toBe("prepared")
+      if (result.status !== "prepared") return
+      states.push(result.sourceState)
+    }
+    expect(states.map(
+      inspectVNextTextBlockUnifiedLayoutSourceLegacyStorageForTestInternalV1,
+    )).toEqual([
+      { rangeDeltaDepth: 0, hasLegacyStyleRegistry: true },
+      { rangeDeltaDepth: 0, hasLegacyStyleRegistry: false },
+      { rangeDeltaDepth: 0, hasLegacyStyleRegistry: false },
+    ])
+  })
+
   it.each([
     { name: "Latin insertion at start", text: "ABCD", change: (root: VNextTextBlockUnifiedLayoutRootV2) => insertion(root, 0, "X"), expected: "XABCD" },
     { name: "Thai insertion in middle", text: "ภาษา", change: (root: VNextTextBlockUnifiedLayoutRootV2) => insertion(root, 2, "ไ"), expected: "ภาไษา" },

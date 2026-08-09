@@ -38,6 +38,8 @@ import {
 import {
   resolveVNextTextBlockSupportedStyleOverlayInternalV1,
   forceVNextTextBlockRegisteredSourceStyleCollisionForTestInternalV1,
+  getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInternalV1,
+  prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1,
   visitVNextTextBlockTransitionSourceCoverageInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
 import {
@@ -391,6 +393,36 @@ function expectedCanonicalInsertedTextItem(input: {
 }
 
 describe("Text-block unified transition preflight V2", () => {
+  it("binds the exact public change through Source replacement preparation", () => {
+    const { root } = admitted5B2PlanARootFixture({ text: "ABCD" })
+    admit5B2RootFixture(root)
+    const change = styleChange(root, { textColor: "FF0000" })
+    const result = prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2({
+      previousRoot: root,
+      change,
+      workPolicy: root.workPolicy,
+    })
+    expect(result.status, JSON.stringify(result)).toBe("not-required")
+    if (result.status !== "not-required") return
+    const registered = getVNextTextBlockUnifiedLayoutSourceStagePreflightRecordInternalV2({
+      preflight: result.preflight,
+      previousRoot: root,
+    })
+    if (registered?.sourceReplacement == null) {
+      throw new Error("Source replacement authority missing")
+    }
+    const prepared = prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1({
+      previousSourceState: root.sourceState,
+      replacement: registered.sourceReplacement,
+      beforeVisit: () => true,
+    })
+    expect(prepared.status).toBe("prepared")
+    if (prepared.status !== "prepared") return
+    expect(getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInternalV1(
+      prepared.pathCopyCandidateAuthority,
+    )?.change).toBe(change)
+  })
+
   it("meters the Core-owned request and material rows while producer rows remain zero", () => {
     const workPolicy =
       createVNextTextBlockUnifiedLayout5B2EvidenceCalibrationPolicyInternalV2({})

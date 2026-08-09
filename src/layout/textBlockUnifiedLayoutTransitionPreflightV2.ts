@@ -1473,6 +1473,7 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
   if (!registerVNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1({
     previousSourceState: input.previousRoot.sourceState,
     replacement: sourceReplacement,
+    change: input.change,
   })) {
     return freeze({
       status: "blocked" as const,

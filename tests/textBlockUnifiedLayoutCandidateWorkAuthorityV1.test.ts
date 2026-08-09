@@ -5,6 +5,7 @@ import {
   beginVNextTextBlockUnifiedLayout5B2OperationInternalV1,
   completeVNextTextBlockUnifiedLayout5B2OperationInternalV1,
   inspectVNextTextBlockUnifiedLayout5B2CandidateWorkMeterForTestInternalV1,
+  matchesVNextTextBlockUnifiedLayout5B2CandidateWorkMeterSeedInternalV1,
   openVNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
   projectVNextTextBlockUnifiedLayout5B2CompatibilityWorkInternalV1,
   publishVNextTextBlockUnifiedLayout5B2CandidateWorkInternalV1,
@@ -140,6 +141,75 @@ function receipt(
 }
 
 describe("5B-2 candidate-work authority", () => {
+  it("matches only an eligible meter with the exact Root, change, and composition seed", () => {
+    const exact = foundation({ label: "meter-seed-exact" })
+    const other = foundation({ label: "meter-seed-other" })
+    const meter = meterFor(exact)
+    const matches = (input: Partial<{
+      previousRoot: typeof exact.root
+      change: typeof exact.change
+      composition: typeof exact.composition
+      meter: typeof meter
+    }> = {}) => matchesVNextTextBlockUnifiedLayout5B2CandidateWorkMeterSeedInternalV1({
+      previousRoot: input.previousRoot ?? exact.root,
+      change: input.change ?? exact.change,
+      composition: input.composition ?? exact.composition,
+      meter: input.meter ?? meter,
+    })
+    expect(matches()).toBe(true)
+    expect(matches({ previousRoot: other.root })).toBe(false)
+    expect(matches({ change: other.change })).toBe(false)
+    expect(matches({ composition: other.composition })).toBe(false)
+    expect(matches({ meter: structuredClone(meter) })).toBe(false)
+    expect(matches({ meter: {} as typeof meter })).toBe(false)
+
+    const openPermit = beginVNextTextBlockUnifiedLayout5B2OperationInternalV1({
+      meter,
+      unit: "source-items",
+    })
+    expect(openPermit.status).toBe("permitted")
+    expect(matches()).toBe(false)
+    if (openPermit.status === "permitted") {
+      expect(completeVNextTextBlockUnifiedLayout5B2OperationInternalV1(
+        openPermit.permit,
+      )).toBe(true)
+    }
+
+    const failed = foundation({
+      label: "meter-seed-failed",
+      sourceLimits: { sourceItems: 0 },
+    })
+    const failedMeter = meterFor(failed)
+    expect(beginVNextTextBlockUnifiedLayout5B2OperationInternalV1({
+      meter: failedMeter,
+      unit: "source-items",
+    }).status).toBe("limit-exceeded")
+    expect(matchesVNextTextBlockUnifiedLayout5B2CandidateWorkMeterSeedInternalV1({
+      previousRoot: failed.root,
+      change: failed.change,
+      composition: failed.composition,
+      meter: failedMeter,
+    })).toBe(false)
+
+    const published = foundation({ label: "meter-seed-published" })
+    const publishedMeter = meterFor(published)
+    const projected = projectVNextTextBlockUnifiedLayout5B2CompatibilityWorkInternalV1(
+      publishedMeter,
+    )
+    if (projected == null) throw new Error("published projection missing")
+    expect(publishVNextTextBlockUnifiedLayout5B2CandidateWorkInternalV1({
+      meter: publishedMeter,
+      nextCandidateWork: projected,
+      producingStageAuthority: published.preflight,
+    })).not.toBeNull()
+    expect(matchesVNextTextBlockUnifiedLayout5B2CandidateWorkMeterSeedInternalV1({
+      previousRoot: published.root,
+      change: published.change,
+      composition: published.composition,
+      meter: publishedMeter,
+    })).toBe(false)
+  })
+
   it("binds exact foundation work to the exact Root, change, composition, and candidate", () => {
     const exact = foundation()
     expect(exact.authorityRecord).toMatchObject({

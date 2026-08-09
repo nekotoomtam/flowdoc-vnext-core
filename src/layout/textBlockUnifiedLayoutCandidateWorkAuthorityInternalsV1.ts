@@ -41,6 +41,10 @@ export interface VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1 {
   readonly __candidateWorkMeterOpaque: never
 }
 
+export interface VNextTextBlockUnifiedLayout5B2ReceiptSnapshotAuthorityInternalV1 {
+  readonly __receiptSnapshotAuthorityOpaque: never
+}
+
 export interface VNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityRecordInternalV1 {
   readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
   readonly change: VNextTextBlockUnifiedLayoutChangeV1
@@ -89,6 +93,14 @@ const openedAuthorities = new WeakSet<
 const meterRecords = new WeakMap<
   VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
   MeterRecord
+>()
+const receiptSnapshotRecords = new WeakMap<
+  VNextTextBlockUnifiedLayout5B2ReceiptSnapshotAuthorityInternalV1,
+  Readonly<{
+    readonly meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
+    readonly revision: number
+    readonly receipts: readonly VNextTextBlockUnifiedLayout5B2WorkReceiptInternalV1[]
+  }>
 >()
 const permitRecords = new WeakMap<
   VNextTextBlockUnifiedLayout5B2WorkPermitInternalV1,
@@ -270,6 +282,64 @@ export function openVNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1(
   })
   openedAuthorities.add(input.candidateWorkAuthority)
   return meter
+}
+
+export function matchesVNextTextBlockUnifiedLayout5B2CandidateWorkMeterSeedInternalV1(
+  input: {
+    readonly meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
+    readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+    readonly change: VNextTextBlockUnifiedLayoutChangeV1
+    readonly composition: VNextTextBlockUnifiedLayout5B2PolicyCompositionInternalV1
+  },
+): boolean {
+  const meter = meterRecords.get(input.meter)
+  return meter != null
+    && !meter.failed
+    && !meter.published
+    && meter.openPermits.size === 0
+    && meter.seed.previousRoot === input.previousRoot
+    && meter.seed.change === input.change
+    && meter.seed.composition === input.composition
+    && exactComposition(input)
+}
+
+export function captureVNextTextBlockUnifiedLayout5B2CandidateWorkMeterReceiptSnapshotInternalV1(
+  meterAuthority: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+): VNextTextBlockUnifiedLayout5B2ReceiptSnapshotAuthorityInternalV1 | null {
+  const meter = meterRecords.get(meterAuthority)
+  if (
+    meter == null
+    || meter.failed
+    || meter.published
+    || meter.openPermits.size !== 0
+  ) return null
+  const snapshotAuthority = Object.freeze({}) as
+    VNextTextBlockUnifiedLayout5B2ReceiptSnapshotAuthorityInternalV1
+  receiptSnapshotRecords.set(snapshotAuthority, Object.freeze({
+    meter: meterAuthority,
+    revision: meter.revision,
+    receipts: cloneReceipts(meter.receipts),
+  }))
+  return snapshotAuthority
+}
+
+export function matchesVNextTextBlockUnifiedLayout5B2CandidateWorkMeterReceiptSnapshotInternalV1(
+  input: {
+    readonly meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
+    readonly snapshotAuthority:
+      VNextTextBlockUnifiedLayout5B2ReceiptSnapshotAuthorityInternalV1
+  },
+): boolean {
+  const meter = meterRecords.get(input.meter)
+  const snapshot = receiptSnapshotRecords.get(input.snapshotAuthority)
+  return meter != null
+    && snapshot != null
+    && snapshot.meter === input.meter
+    && !meter.failed
+    && !meter.published
+    && meter.openPermits.size === 0
+    && meter.revision === snapshot.revision
+    && receiptsEqual(meter.receipts, snapshot.receipts)
 }
 
 export function beginVNextTextBlockUnifiedLayout5B2OperationInternalV1(input: {

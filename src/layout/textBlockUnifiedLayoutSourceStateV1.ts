@@ -1,6 +1,7 @@
 import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint.js"
 import { stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
 import type {
+  VNextTextBlockUnifiedLayoutChangeV1,
   VNextTextBlockSourceRangeV1,
 } from "./textBlockUnifiedLayoutChangeContractV1.js"
 import type {
@@ -287,7 +288,12 @@ export interface VNextTextBlockSourcePathCopyCandidateRecordInternalV1 {
   readonly nextSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
   readonly replacement:
     VNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1
+  readonly change: VNextTextBlockUnifiedLayoutChangeV1 | null
   readonly nextLeafItems:
+    readonly VNextTextBlockUnifiedLayoutSourceItemV1[]
+  readonly removedItems:
+    readonly VNextTextBlockUnifiedLayoutSourceItemV1[]
+  readonly nextPhysicalItems:
     readonly VNextTextBlockUnifiedLayoutSourceItemV1[]
   readonly nextLeafStartRenderedUtf16: number
   readonly visitedLookupNodeCount: number
@@ -300,6 +306,7 @@ const sourceRangePathCopyCandidateAuthorities = new WeakMap<
 >()
 const sourceRangeReplacementAuthorities = new WeakMap<object, {
   readonly previousSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly change: VNextTextBlockUnifiedLayoutChangeV1 | null
 }>()
 
 export function registerVNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1(
@@ -307,6 +314,7 @@ export function registerVNextTextBlockUnifiedLayoutSourceRangeReplacementInterna
     readonly previousSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
     readonly replacement:
       VNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1
+    readonly change?: VNextTextBlockUnifiedLayoutChangeV1
   },
 ): boolean {
   if (
@@ -315,8 +323,15 @@ export function registerVNextTextBlockUnifiedLayoutSourceRangeReplacementInterna
     || !Object.isFrozen(input.replacement.previousRange)
     || !Object.isFrozen(input.replacement.nextItems)
   ) return false
+  const change = input.change ?? null
+  const existing = sourceRangeReplacementAuthorities.get(input.replacement)
+  if (existing != null) {
+    return existing.previousSourceState === input.previousSourceState
+      && existing.change === change
+  }
   sourceRangeReplacementAuthorities.set(input.replacement, Object.freeze({
     previousSourceState: input.previousSourceState,
+    change,
   }))
   return true
 }
@@ -340,6 +355,59 @@ const registeredStylesBySourceState = new WeakMap<
   VNextTextBlockUnifiedLayoutSourceStateV1,
   RegisteredStyleSetInternalV1
 >()
+
+type RegisteredSourceStyleResolutionInternalV1 =
+  | { readonly status: "resolved"; readonly style: VNextTextBlockUnifiedLayoutSourceStyleV1 }
+  | { readonly status: "unavailable" | "ambiguous"; readonly style: null }
+
+interface RegisteredPlanASourceSidecarAccessInternalV1 {
+  readonly resolveStyle: (input: {
+    readonly measurementStyleKey: string
+    readonly effectiveShapingStyleKey: string
+  }) => RegisteredSourceStyleResolutionInternalV1
+  readonly visitItemByInlineId: (input: {
+    readonly inlineId: string
+    readonly beforeVisitNode: () => boolean
+  }) => VNextTextBlockTransitionSourceItemLookupResultInternalV1
+  readonly checkInlineIdConflict: (input: {
+    readonly inlineId: string
+    readonly incomingKind: VNextTextBlockUnifiedLayoutSourceItemV1["kind"]
+    readonly beforeVisitNode: () => boolean
+  }) =>
+    | { readonly status: "checked"; readonly conflict: boolean }
+    | { readonly status: "limit-exceeded" }
+}
+
+const registeredPlanASourceSidecarAccessBySourceState = new WeakMap<
+  VNextTextBlockUnifiedLayoutSourceStateV1,
+  RegisteredPlanASourceSidecarAccessInternalV1
+>()
+const planASidecarStorageSourceStates = new WeakSet<
+  VNextTextBlockUnifiedLayoutSourceStateV1
+>()
+
+export function registerVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessInternalV1(
+  input: {
+    readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly resolveStyle: RegisteredPlanASourceSidecarAccessInternalV1["resolveStyle"]
+    readonly visitItemByInlineId: RegisteredPlanASourceSidecarAccessInternalV1["visitItemByInlineId"]
+    readonly checkInlineIdConflict: RegisteredPlanASourceSidecarAccessInternalV1["checkInlineIdConflict"]
+  },
+): boolean {
+  if (
+    !preparedStates.has(input.sourceState)
+    || typeof input.resolveStyle !== "function"
+    || typeof input.visitItemByInlineId !== "function"
+    || typeof input.checkInlineIdConflict !== "function"
+    || registeredPlanASourceSidecarAccessBySourceState.has(input.sourceState)
+  ) return false
+  registeredPlanASourceSidecarAccessBySourceState.set(input.sourceState, Object.freeze({
+    resolveStyle: input.resolveStyle,
+    visitItemByInlineId: input.visitItemByInlineId,
+    checkInlineIdConflict: input.checkInlineIdConflict,
+  }))
+  return true
+}
 
 function registeredStyleSetFromItems(
   items: readonly VNextTextBlockUnifiedLayoutSourceItemV1[],
@@ -2343,15 +2411,49 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
   if (nextRoot == null) return blockedResult("source path copy produced no root")
 
   const removedInlineIds = new Set(removedItems.map((item) => item.inlineId))
+  const registeredPlanASidecars =
+    registeredPlanASourceSidecarAccessBySourceState.get(input.previousSourceState)
+  const usesRegisteredPlanASidecars = registeredPlanASidecars != null
+    || planASidecarStorageSourceStates.has(input.previousSourceState)
   const inheritedEntriesByCreatedInlineId = new Map<
     string,
     readonly SourceItemIndexEntryInternalV1[]
   >()
+  const inheritedPlanAConflictByCreatedInlineId = new Map<string, boolean>()
   for (const item of createdItems) {
     if (
       removedInlineIds.has(item.inlineId)
       || inheritedEntriesByCreatedInlineId.has(item.inlineId)
+      || inheritedPlanAConflictByCreatedInlineId.has(item.inlineId)
     ) continue
+    if (registeredPlanASidecars != null) {
+      const checked = registeredPlanASidecars.checkInlineIdConflict({
+        inlineId: item.inlineId,
+        incomingKind: item.kind,
+        beforeVisitNode: () => {
+          if (!input.beforeVisit("source-lookup-nodes")) return false
+          visitedLookupNodeCount += 1
+          return true
+        },
+      })
+      if (checked.status === "limit-exceeded") return limitResult()
+      inheritedPlanAConflictByCreatedInlineId.set(
+        item.inlineId,
+        checked.conflict,
+      )
+      continue
+    }
+    if (usesRegisteredPlanASidecars) {
+      // A prepared-but-unpublished Plan A state has no registered next sidecar
+      // yet. Its exact physical-index owner performs the uniqueness check.
+      inheritedPlanAConflictByCreatedInlineId.set(item.inlineId, false)
+      continue
+    }
+    sourceIndexLookupObserverForTest?.({
+      inlineId: item.inlineId,
+      indexProbeCount: 1,
+      found: false,
+    })
     const inheritedLookup = sourceItemIndexEntriesInternalV1(
       prepared.itemIndex,
       item.inlineId,
@@ -2425,6 +2527,9 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
     const item = nextLeafItems[index]!
     const inherited = inheritedEntriesByCreatedInlineId.get(item.inlineId)
       ?? Object.freeze([])
+    if (inheritedPlanAConflictByCreatedInlineId.get(item.inlineId) === true) {
+      return blockedResult("atomic Source inline authority must remain unique")
+    }
     const inheritedOutsideReplacement = inherited.filter((entry) =>
         entry.itemOrdinal < removedItemOrdinalStart
         || entry.itemOrdinal >= removedItemOrdinalEnd
@@ -2452,18 +2557,20 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
     localEntries.set(item.inlineId, entries)
     localStartRenderedUtf16 += item.renderedUtf16Length
   }
-  const itemIndex: SourceItemIndex = Object.freeze({
-    indexKind: "range-delta" as const,
-    previous: prepared.itemIndex,
-    removedItemOrdinalStart,
-    removedItemOrdinalEnd,
-    itemOrdinalDelta: nextLeafItems.length - affectedItems.length,
-    previousLeafEndRenderedUtf16: leafEndRenderedUtf16,
-    renderedUtf16Delta:
-      nextRoot.summary.renderedUtf16Length
-      - input.previousSourceState.summary.renderedUtf16Length,
-    localEntries,
-  })
+  const itemIndex: SourceItemIndex = usesRegisteredPlanASidecars
+    ? prepared.itemIndex
+    : Object.freeze({
+        indexKind: "range-delta" as const,
+        previous: prepared.itemIndex,
+        removedItemOrdinalStart,
+        removedItemOrdinalEnd,
+        itemOrdinalDelta: nextLeafItems.length - affectedItems.length,
+        previousLeafEndRenderedUtf16: leafEndRenderedUtf16,
+        renderedUtf16Delta:
+          nextRoot.summary.renderedUtf16Length
+          - input.previousSourceState.summary.renderedUtf16Length,
+        localEntries,
+      })
   preparedStates.set(sourceState, {
     fingerprint: sourceState.fingerprint,
     canonicalFacts,
@@ -2471,54 +2578,74 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
     itemIndex,
     sourceEnvelopeFacts: prepared.sourceEnvelopeFacts,
   })
+  if (usesRegisteredPlanASidecars) planASidecarStorageSourceStates.add(sourceState)
 
-  const previousStyles = registeredStylesBySourceState.get(
-    input.previousSourceState,
-  )
-  if (previousStyles == null) return blockedResult("previous style authority is unavailable")
-  const counts = new Map(
-    previousStyles.entries.map((entry) => [entry.style, entry.referenceCount]),
-  )
-  const adjustStyle = (
-    item: VNextTextBlockUnifiedLayoutSourceItemV1,
-    delta: 1 | -1,
-  ): boolean => {
-    if (
-      item.kind !== "text"
-      && item.kind !== "resolved-field"
-      && item.kind !== "generated-page-number"
-    ) return true
-    const next = (counts.get(item.style) ?? 0) + delta
-    if (!Number.isSafeInteger(next) || next < 0) return false
-    if (next === 0) counts.delete(item.style)
-    else counts.set(item.style, next)
-    return true
+  if (!usesRegisteredPlanASidecars) {
+    const previousStyles = registeredStylesBySourceState.get(
+      input.previousSourceState,
+    )
+    if (previousStyles == null) return blockedResult("previous style authority is unavailable")
+    const counts = new Map(
+      previousStyles.entries.map((entry) => [entry.style, entry.referenceCount]),
+    )
+    const adjustStyle = (
+      item: VNextTextBlockUnifiedLayoutSourceItemV1,
+      delta: 1 | -1,
+    ): boolean => {
+      if (
+        item.kind !== "text"
+        && item.kind !== "resolved-field"
+        && item.kind !== "generated-page-number"
+      ) return true
+      const next = (counts.get(item.style) ?? 0) + delta
+      if (!Number.isSafeInteger(next) || next < 0) return false
+      if (next === 0) counts.delete(item.style)
+      else counts.set(item.style, next)
+      return true
+    }
+    for (const item of removedItems) {
+      if (!adjustStyle(item, -1)) return blockedResult("style references underflowed")
+    }
+    for (const item of createdItems) {
+      if (!adjustStyle(item, 1)) return blockedResult("style references overflowed")
+    }
+    registeredStylesBySourceState.set(sourceState, Object.freeze({
+      entries: Object.freeze([...counts.entries()].map(
+        ([style, referenceCount]) => Object.freeze({ style, referenceCount }),
+      )),
+    }))
   }
-  for (const item of removedItems) {
-    if (!adjustStyle(item, -1)) return blockedResult("style references underflowed")
-  }
-  for (const item of createdItems) {
-    if (!adjustStyle(item, 1)) return blockedResult("style references overflowed")
-  }
-  registeredStylesBySourceState.set(sourceState, Object.freeze({
-    entries: Object.freeze([...counts.entries()].map(
-      ([style, referenceCount]) => Object.freeze({ style, referenceCount }),
-    )),
-  }))
 
   const pathCopyCandidateAuthority = Object.freeze(
     {},
   ) as VNextTextBlockSourcePathCopyCandidateAuthorityInternalV1
-  sourceRangePathCopyCandidateAuthorities.set(pathCopyCandidateAuthority, {
+  const removedItemsAuthority = Object.freeze([...removedItems])
+  const nextPhysicalItemsAuthority = Object.freeze([...createdItems])
+  const pathCopyCandidateRecord = Object.freeze({
     previousSourceState: input.previousSourceState,
     nextSourceState: sourceState,
     replacement: input.replacement,
+    change: replacementAuthority.change,
     nextLeafItems: Object.freeze([...nextLeafItems]),
+    removedItems: removedItemsAuthority,
+    nextPhysicalItems: nextPhysicalItemsAuthority,
     nextLeafStartRenderedUtf16: nodeStartRenderedUtf16,
     visitedLookupNodeCount,
     copiedPathNodeCount,
     visitedChangedLeafItemCount,
   })
+  sourceRangePathCopyCandidateAuthorities.set(
+    pathCopyCandidateAuthority,
+    pathCopyCandidateRecord,
+  )
+  sourceRangePathCopyCandidateAuthorities.set(
+    removedItemsAuthority,
+    pathCopyCandidateRecord,
+  )
+  sourceRangePathCopyCandidateAuthorities.set(
+    nextPhysicalItemsAuthority,
+    pathCopyCandidateRecord,
+  )
   const removedLineageIds = new Set(removedItems.map((item) => item.lineageId))
   const existingLineageIds = Object.freeze([
     ...new Set(createdItems
@@ -2758,6 +2885,27 @@ export function inspectVNextTextBlockPreparedSourceEnvelopeFactsInternalV1(
   const prepared = preparedStates.get(sourceState)
   if (prepared == null) return null
   return prepared.sourceEnvelopeFacts
+}
+
+/** Test-only structural inspection of legacy storage retained beside Source State. */
+export function inspectVNextTextBlockUnifiedLayoutSourceLegacyStorageForTestInternalV1(
+  sourceState: VNextTextBlockUnifiedLayoutSourceStateV1,
+): {
+  readonly rangeDeltaDepth: number
+  readonly hasLegacyStyleRegistry: boolean
+} | null {
+  const prepared = preparedStates.get(sourceState)
+  if (prepared == null) return null
+  let rangeDeltaDepth = 0
+  let itemIndex = prepared.itemIndex
+  while (itemIndex.indexKind === "range-delta") {
+    rangeDeltaDepth += 1
+    itemIndex = itemIndex.previous
+  }
+  return Object.freeze({
+    rangeDeltaDepth,
+    hasLegacyStyleRegistry: registeredStylesBySourceState.has(sourceState),
+  })
 }
 
 export function hasVNextTextBlockUnifiedLayoutSourceStatePreparedBindingInternalV1(
@@ -3731,6 +3879,10 @@ export function resolveVNextTextBlockRegisteredSourceStyleInternalV1(input: {
 }):
   | { readonly status: "resolved"; readonly style: VNextTextBlockUnifiedLayoutSourceStyleV1 }
   | { readonly status: "unavailable" | "ambiguous"; readonly style: null } {
+  const planASidecars = registeredPlanASourceSidecarAccessBySourceState.get(
+    input.sourceState,
+  )
+  if (planASidecars != null) return planASidecars.resolveStyle(input)
   const registered = registeredStylesBySourceState.get(input.sourceState)
   if (registered == null) return { status: "unavailable", style: null }
   const candidates = registered.entries
@@ -3777,6 +3929,10 @@ export function visitVNextTextBlockTransitionSourceItemByInlineIdInternalV1(
     readonly beforeVisitNode: () => boolean
   },
 ): VNextTextBlockTransitionSourceItemLookupResultInternalV1 {
+  const planASidecars = registeredPlanASourceSidecarAccessBySourceState.get(
+    input.sourceState,
+  )
+  if (planASidecars != null) return planASidecars.visitItemByInlineId(input)
   const prepared = preparedStates.get(input.sourceState)
   let visitedNodeCount = 0
   const authority = prepared == null
