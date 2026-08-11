@@ -852,6 +852,7 @@ approved Task 3 sources.
 - Create: `docs/project/KNOWN_UNKNOWNS.md`
 - Create: `docs/project/ROADMAP.md`
 - Modify: `docs/manifest.json`
+- Modify: `scripts/documentation/canonical-docs-model.mjs`
 - Modify: `tests/canonicalDocumentationSpine.test.ts`
 - Regenerate: `docs/DOCUMENT_MAP.md`
 
@@ -904,7 +905,20 @@ UNKNOWN-FLOWDOC-COORDINATION-REPOSITORY-001
 
 Each states the missing evidence, why it matters, the decision it blocks, and the gate/work item that can close it.
 
-`ROADMAP.md` must create stable work IDs for D3-D7 and the later agent-system task. Each work item references motivating risks/unknowns and states explicit non-goals. It must not include dates as promises.
+`ROADMAP.md` must create these exact stable work IDs for D3-D7 and the later
+agent-system task:
+
+```text
+WORK-CORE-LAYOUT-CUTOVER-001
+WORK-CORE-REMAINING-SUBSYSTEM-CUTOVER-001
+WORK-CORE-PACKAGE-RELEASE-BOUNDARY-001
+WORK-FLOWDOC-EDITOR-BACKEND-ADOPTION-001
+WORK-FLOWDOC-COORDINATION-TRANSFER-001
+WORK-FLOWDOC-AGENT-SYSTEM-REDESIGN-001
+```
+
+Each work item references motivating risks/unknowns and states explicit
+non-goals. It must not include dates as promises.
 
 `VERSION_POLICY.md` must lock:
 
@@ -916,11 +930,80 @@ Each states the missing evidence, why it matters, the decision it blocks, and th
 - schema/contract versions are independent from package SemVer;
 - no auto-promotion from a Development Baseline to package release.
 
+**Task 4 embedded-record contract:**
+
+Task 4 restores and exports only this narrow parser, then invokes it from the
+real canonical model validation path used by `scripts/check-canonical-docs.mjs`:
+
+```js
+export function collectEmbeddedCanonicalRecords(markdown, { documentKind, path })
+```
+
+It accepts `documentKind` only as `risk-register`, `known-unknowns`, or
+`roadmap`. Each level-two record heading is exactly
+`## <recordId> — <non-empty title>`, followed immediately by one
+`FLOWDOC-RECORD` JSON block. The metadata has one of these exact shapes; no
+missing or extra field is accepted:
+
+```json
+{"recordId":"RISK-CORE-DOCUMENTATION-DUAL-TRUTH-001","recordKind":"risk","lifecycle":"active","affects":["DOC-CORE-NAVIGATION-MANIFEST"]}
+{"recordId":"UNKNOWN-CORE-DOCUMENTATION-CONTRACT-INVENTORY-001","recordKind":"unknown","lifecycle":"active","affects":["DOC-CORE-VERSION-0-1-RELEASE-COMPOSITION"],"closedBy":["WORK-CORE-LAYOUT-CUTOVER-001"]}
+{"recordId":"WORK-CORE-LAYOUT-CUTOVER-001","recordKind":"work","lifecycle":"active","motivatedBy":["RISK-CORE-DOCUMENTATION-DUAL-TRUTH-001","UNKNOWN-CORE-DOCUMENTATION-CONTRACT-INVENTORY-001"]}
+```
+
+For all three record kinds, `lifecycle` uses only the closed values `draft`,
+`active`, `superseded`, or `retired`; every Task 4-authored record is
+`active`. `recordId` must use the exact prefix implied by `recordKind`, and the
+heading ID, metadata ID, document kind, and record kind must agree. Reference
+arrays are non-empty arrays of distinct typed IDs. `affects` resolves through
+the unified canonical identity set and cannot contain the record's own ID;
+`closedBy` contains only resolvable `GATE-*` or `WORK-*` IDs; and
+`motivatedBy` contains only resolvable `RISK-*` or `UNKNOWN-*` IDs.
+
+The parser rejects duplicate record IDs within one document, across the three
+record documents, or against an identity already owned by another canonical
+category. It parses all three documents before resolving outbound references,
+adds their RISK/UNKNOWN/WORK identities to the model's known-ID closure, and
+then checks both metadata arrays and authored Markdown references. This makes
+cross-category roadmap motivation and affected/closing references resolvable
+without treating a reference as an identity definition.
+
+Required prose is also closed and checked against metadata. A risk record has
+non-empty `### Adverse event`, `### Trigger`, `### Affected IDs`,
+`### Mitigation`, `### Evidence`, and `### Lifecycle` sections. A known
+unknown has non-empty `### Missing evidence`, `### Why it matters`,
+`### Blocked decision`, `### Affected IDs`,
+`### Closing gate or work item`, and `### Lifecycle` sections. A roadmap work
+record has non-empty `### Motivating risks and unknowns`, `### Non-goals`, and
+`### Lifecycle` sections. The stable IDs in the affected, closing, and
+motivating prose sections must equal their metadata arrays exactly, and the
+prose lifecycle value must equal metadata `lifecycle`.
+
+This is a task-specific FLOWDOC-RECORD parser and validator, not a generic
+Markdown parser, schema engine, plugin system, or reusable documentation
+framework. Task 4 must not add or restore
+`validateDevelopmentBaselineEvolution`, parse or publish
+`DEVELOPMENT_BASELINE.json`, change pending-baseline semantics, or implement
+the Task 6 multi-repository baseline contract. Development Baseline
+publication and evolution validation remain Task 6 work.
+
 - [ ] **Step 1: Write truth-plane validation REDs**
 
-Tests fail when:
+Add fixture and repository-root tests that use the production
+`scripts/check-canonical-docs.mjs` entrypoint. Tests fail when:
 
-- the same ID appears in fact/risk/unknown/work categories;
+- `collectEmbeddedCanonicalRecords` is missing or embedded records do not
+  participate in real `docs:check`;
+- a record block is absent, is not immediately after its matching heading, or
+  contains invalid JSON;
+- heading ID, typed ID prefix, `recordKind`, document kind, or closed
+  `lifecycle` disagrees;
+- metadata has a missing/extra field, an empty/duplicate outbound array, or a
+  duplicate identity within/across risk, unknown, and work categories;
+- a required prose section is missing/empty or its lifecycle/outbound IDs do
+  not exactly match the metadata;
+- an affected, closing, motivating, or authored canonical reference is
+  unresolved, including cross-category RISK/UNKNOWN/WORK references;
 - current state claims a migrated capability while release composition is empty;
 - a risk lacks an adverse event or mitigation;
 - an unknown lacks missing-evidence and closing-gate fields;
@@ -928,11 +1011,30 @@ Tests fail when:
 - version policy claims `0.1.0-a.1` is released;
 - authored truth references an unregistered ID/path.
 
-- [ ] **Step 2: Author the five documents and register them**
+- [ ] **Step 2: GREEN only the Task 4 model behavior**
+
+Extend the closed document kinds with `version-policy`, `risk-register`,
+`known-unknowns`, and `roadmap`. Implement the exact parser contract above in
+`scripts/documentation/canonical-docs-model.mjs`, collect all embedded
+identities before reference resolution, and include the records in the same
+model-validation path exercised by `docs:check`. Do not add a second CLI or a
+helper-only validation path.
+
+Run:
+
+```powershell
+npx vitest run tests/canonicalDocumentationSpine.test.ts --maxWorkers=1
+```
+
+Expected: fixture-level embedded-record tests pass; repository-root
+truth-plane assertions remain RED only because the five authored Task 4
+documents and regenerated document map do not exist yet.
+
+- [ ] **Step 3: Author the five documents and register them**
 
 Every canonical reference uses stable ID plus clickable relative path. Do not copy long Phase 5B designs or test counts into current state; link legacy evidence only as explicitly non-canonical migration input when necessary.
 
-- [ ] **Step 3: Generate, prove GREEN, and commit**
+- [ ] **Step 4: Generate, prove GREEN, and commit the exact nine paths**
 
 ```powershell
 npm run docs:generate
@@ -940,12 +1042,14 @@ npm run docs:check -- --allow-pending-baseline BASELINE-FLOWDOC-20260811-01
 npx vitest run tests/canonicalDocumentationSpine.test.ts --maxWorkers=1
 npm run type-check
 git diff --check
-git add -- docs/VERSION_POLICY.md docs/project/CURRENT_STATE.md docs/project/RISK_REGISTER.md docs/project/KNOWN_UNKNOWNS.md docs/project/ROADMAP.md docs/manifest.json docs/DOCUMENT_MAP.md tests/canonicalDocumentationSpine.test.ts
+git add -- docs/VERSION_POLICY.md docs/project/CURRENT_STATE.md docs/project/RISK_REGISTER.md docs/project/KNOWN_UNKNOWNS.md docs/project/ROADMAP.md docs/manifest.json docs/DOCUMENT_MAP.md scripts/documentation/canonical-docs-model.mjs tests/canonicalDocumentationSpine.test.ts
 git diff --cached --name-only
 git commit -m "docs: establish core project truth plane"
 ```
 
-Expected staged paths: exactly eight.
+Expected staged paths: exactly nine, matching the nine paths listed in Task 4
+`**Files:**`. No renderer, generator, checker, package, baseline, runtime, or
+other documentation path is staged.
 
 ---
 
@@ -974,7 +1078,9 @@ arguments into the record and emits no placeholder value.
 
 Add or confirm real-repository tests for every Section 12.3 rule expressible in D1-D2:
 
-- duplicate/mistyped IDs;
+- duplicate/mistyped document, term, and embedded RISK/UNKNOWN/WORK IDs;
+- embedded-record heading/metadata/prose consistency and real `docs:check`
+  closure for affected, closing, motivating, and authored references;
 - path existence and canonical-root completeness;
 - unresolved and backward-invalid references;
 - generated drift;
