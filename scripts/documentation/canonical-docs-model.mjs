@@ -268,8 +268,8 @@ function stripAliasScanExclusions(markdown) {
   return markdown
     .replace(/```[\s\S]*?```|~~~[\s\S]*?~~~/g, " ")
     .replace(/`[^`\r\n]*`/g, " ")
-    .replace(/^[ \t]{0,3}\[[^\]\r\n]+\]:[^\r\n]*(?:\r?\n[ \t]+[^\r\n]*)*/gm, " ")
-    .replace(/<(?:https?:\/\/|mailto:)[^>\r\n]+>|<[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9.-]+>/gi, " ")
+    .replace(/^[ \t]{0,3}\[(?:\\.|[^\[\]\\\r\n])+\]:[ \t]+(?:<[^<>\r\n]+>|[^\s<>\r\n]+)(?:[ \t]+(?:"[^"\r\n]*"|'[^'\r\n]*'|\([^()\r\n]*\)))?[ \t]*\r?$/gm, " ")
+    .replace(/<[A-Za-z][A-Za-z0-9+.-]{1,31}:[^<>\s]+>|<[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9.-]+>/g, " ")
     .replace(/\]\([^)]*\)/g, "]")
     .replace(/(\[[^\]\r\n]*\])\s*\[[^\]\r\n]*\]/g, "$1")
     .replace(REFERENCE_PATTERN, " ")

@@ -348,11 +348,14 @@ describe("canonical documentation spine", () => {
 
 [safe reference][status]
 [safe destination identifier][destination-id]
+[safe scheme autolink reference][status-ref]
 
 [status]: https://example.test/status
 [destination-id]: https://example.test/status
+[status-ref]: <https://example.test/status> "qualified destination"
 
 <https://example.test/status>
+<foo:status>
 <status@example.test>
 <mailto:status@example.test>
 
@@ -369,8 +372,18 @@ A dual-status token is qualified.
     expect(() => loadPending(visibleInline)).toThrow(/ambiguous alias status/i)
 
     const visibleReference = fixture()
-    write(visibleReference, "docs/coordination/BOUNDARY.md", "# Boundary\n\n[status][safe-label] remains visible.\n\n[safe-label]: https://example.test/safe\n")
+    write(visibleReference, "docs/coordination/BOUNDARY.md", "# Boundary\n\n[status][ref] remains visible.\n\n[ref]: https://example.test/safe\n")
     expect(() => loadPending(visibleReference)).toThrow(/ambiguous alias status/i)
+  })
+
+  test("does not treat malformed reference definitions as hidden link destinations", () => {
+    const missingDestination = fixture()
+    write(missingDestination, "docs/coordination/BOUNDARY.md", "# Boundary\n\n[status]:\n")
+    expect(() => loadPending(missingDestination)).toThrow(/ambiguous alias status/i)
+
+    const invalidTitle = fixture()
+    write(invalidTitle, "docs/coordination/BOUNDARY.md", "# Boundary\n\n[safe]: https://example.test/safe \"status\n")
+    expect(() => loadPending(invalidTitle)).toThrow(/ambiguous alias status/i)
   })
 
   test("collects stable references and rejects unresolved active normative references", () => {
