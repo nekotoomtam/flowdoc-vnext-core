@@ -113,6 +113,16 @@ describe("canonical documentation spine", () => {
     expect(() => loadCanonicalDocumentationModel(root)).toThrow(/prefix.*risk/i)
   })
 
+  test("accepts roadmap records with their required WORK identity prefix", () => {
+    expect(collectEmbeddedCanonicalRecords(`## WORK-CORE-DOCUMENTATION-001 — Documentation roadmap item
+
+<!-- FLOWDOC-RECORD
+{"recordId":"WORK-CORE-DOCUMENTATION-001","recordKind":"roadmap","lifecycle":"active","affects":[]}
+-->`)).toEqual([
+      { recordId: "WORK-CORE-DOCUMENTATION-001", recordKind: "roadmap", lifecycle: "active", affects: [] },
+    ])
+  })
+
   test("rejects a manifest path that is not present on disk", () => {
     const root = fixture()
     rewriteJson(root, "docs/manifest.json", (manifest) => { manifest.documents[5].path = "docs/coordination/MISSING.md" })
@@ -158,6 +168,18 @@ describe("canonical documentation spine", () => {
     expect(() => loadCanonicalDocumentationModel(root)).toThrow(/accepted gate/i)
   })
 
+  test("rejects an unselected accepted capability without a selected-baseline gate", () => {
+    const root = fixture()
+    rewriteJson(root, "docs/coordination/REPOSITORY_INDEX.json", (index) => index.capabilities.push({ capabilityId: "CAP-CORE-UNSELECTED", maturity: "accepted", acceptedGateIds: ["GATE-CORE-UNSELECTED-001"] }))
+    expect(() => loadCanonicalDocumentationModel(root)).toThrow(/CAP-CORE-UNSELECTED.*accepted gate/i)
+  })
+
+  test("rejects a repository-index decision without the complete decision event shape", () => {
+    const root = fixture()
+    rewriteJson(root, "docs/coordination/REPOSITORY_INDEX.json", (index) => { index.decisions = ["DECISION-CORE-INCOMPLETE"] })
+    expect(() => loadCanonicalDocumentationModel(root)).toThrow(/DECISION-<SCOPE>-<SUBSYSTEM>-YYYYMMDD-NN/i)
+  })
+
   test("rejects a changed pinned tuple for the same development baseline", () => {
     const previous = { baselineId: "BASELINE-FLOWDOC-20260811-01", pinned: { repository: "flowdoc-vnext-core", branch: "main", commit: "0123456789abcdef0123456789abcdef01234567" } }
     const next = { baselineId: "BASELINE-FLOWDOC-20260811-01", pinned: { repository: "flowdoc-vnext-core", branch: "main", commit: "abcdef0123456789abcdef0123456789abcdef01" } }
@@ -181,6 +203,24 @@ FlowDoc is deliberately ambiguous.\n`)
     const root = fixture()
     rewriteJson(root, "docs/glossary.json", (glossary) => { glossary.terms = [glossary.terms[0]] })
     expect(() => loadCanonicalDocumentationModel(root)).toThrow(/retired.*tombstone/i)
+  })
+
+  test("resolves an earlier embedded record reference to a later manifest document", () => {
+    const root = fixture()
+    write(root, "docs/coordination/LATER_RISK.md", `## RISK-CORE-LATER-001 — Later risk
+
+<!-- FLOWDOC-RECORD
+{"recordId":"RISK-CORE-LATER-001","recordKind":"risk","lifecycle":"active","affects":[]}
+-->
+`)
+    rewriteJson(root, "docs/manifest.json", (manifest) => manifest.documents.push({ documentId: "DOC-CORE-LATER-RISK", path: "docs/coordination/LATER_RISK.md", kind: "risk-register", scope: "core", audience: "internal", authority: "normative", lifecycle: "active" }))
+    write(root, "docs/coordination/RISK_REGISTER.md", `## RISK-CORE-DOCUMENTATION-DUAL-TRUTH-001 — Dual canonical truth
+
+<!-- FLOWDOC-RECORD
+{"recordId":"RISK-CORE-DOCUMENTATION-DUAL-TRUTH-001","recordKind":"risk","lifecycle":"active","affects":["RISK-CORE-LATER-001"]}
+-->
+`)
+    expect(() => loadCanonicalDocumentationModel(root)).not.toThrow()
   })
 
   test("parses only heading-bound FLOWDOC records and rejects malformed record metadata", () => {

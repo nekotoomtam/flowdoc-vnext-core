@@ -27,6 +27,7 @@ const TERM_LIFECYCLES = new Set(["draft", "active", "compatibility", "retired"])
 const FORM_KINDS = new Set(["localized-label", "exact-alias", "historical-alias", "abbreviation", "deprecated-alias", "ambiguous-alias", "explanatory-alias"])
 const RECORD_KINDS = new Set(["risk", "unknown", "roadmap"])
 const ID_PREFIXES = Object.freeze({ document: "DOC", term: "TERM", concept: "CONCEPT", contract: "CONTRACT", capability: "CAP", risk: "RISK", unknown: "UNKNOWN", gate: "GATE", work: "WORK", baseline: "BASELINE", decision: "DECISION" })
+const RECORD_ID_PREFIXES = Object.freeze({ risk: ID_PREFIXES.risk, unknown: ID_PREFIXES.unknown, roadmap: ID_PREFIXES.work })
 const REFERENCE_PATTERN = /\b(?:DOC|CONTRACT|CAP|RISK|UNKNOWN|GATE|TERM|CONCEPT|WORK|BASELINE|DECISION)-[A-Z0-9][A-Z0-9-]*\b/g
 
 function fail(message) {
@@ -62,6 +63,12 @@ function closed(value, values, label) {
 function id(value, prefix, label) {
   string(value, label)
   if (!new RegExp(`^${prefix}-[A-Z0-9][A-Z0-9-]*$`).test(value)) fail(`${label} must use the ${prefix} prefix for ${label}`)
+  return value
+}
+
+function decisionId(value, label) {
+  id(value, ID_PREFIXES.decision, label)
+  if (!/^DECISION-[A-Z][A-Z0-9-]*-[A-Z0-9-]+-\d{8}-\d{2}$/.test(value)) fail(`${label} must match DECISION-<SCOPE>-<SUBSYSTEM>-YYYYMMDD-NN`)
   return value
 }
 
@@ -160,7 +167,10 @@ function parseRepositoryIndex(value) {
     for (const gate of array(capability.acceptedGateIds, "capability acceptedGateIds")) id(gate, ID_PREFIXES.gate, "accepted gate ID")
   }
   for (const [label, prefix] of [["risks", "RISK"], ["unknowns", "UNKNOWN"], ["workItems", "WORK"], ["decisions", "DECISION"]]) {
-    for (const entry of array(value[label], label)) id(entry, prefix, label)
+    for (const entry of array(value[label], label)) {
+      if (prefix === ID_PREFIXES.decision) decisionId(entry, label)
+      else id(entry, prefix, label)
+    }
   }
   return { ...value, contracts, capabilities }
 }
@@ -175,8 +185,7 @@ function parseBaseline(value) {
   if (!/^[0-9a-f]{40}$/.test(value.pinned.commit)) fail("pinned commit must be a full lowercase Git hash")
   for (const gate of array(value.acceptedGateIds, "baseline acceptedGateIds")) id(gate, ID_PREFIXES.gate, "baseline accepted gate")
   for (const decision of array(value.decisionIds, "baseline decisionIds")) {
-    id(decision, ID_PREFIXES.decision, "baseline decision ID")
-    if (!/^DECISION-[A-Z][A-Z0-9-]*-[A-Z0-9-]+-\d{8}-\d{2}$/.test(decision)) fail("decision ID must match DECISION-<SCOPE>-<SUBSYSTEM>-YYYYMMDD-NN")
+    decisionId(decision, "baseline decision ID")
   }
   return value
 }
@@ -213,7 +222,6 @@ export function collectEmbeddedCanonicalRecords(markdown) {
   let match
   while ((match = block.exec(markdown)) !== null) {
     const before = markdown.slice(0, match.index)
-    const heading = /^(#{2,6})\s+([^\n]+)\n\s*$/m.exec(before.slice(before.lastIndexOf("\n", before.length - 1) + 1))
     const headingLine = before.trimEnd().split("\n").pop()
     const identifier = headingLine && /^#{2,6}\s+([A-Z][A-Z0-9-]*)\s+—\s+.+$/.exec(headingLine)
     if (!identifier) fail("FLOWDOC-RECORD requires a matching heading immediately before it")
@@ -224,7 +232,7 @@ export function collectEmbeddedCanonicalRecords(markdown) {
     }
     if (record.recordId !== identifier[1]) fail("FLOWDOC-RECORD recordId must match its heading")
     closed(record.recordKind, RECORD_KINDS, "FLOWDOC-RECORD recordKind")
-    id(record.recordId, ID_PREFIXES[record.recordKind], `FLOWDOC-RECORD ${record.recordKind} recordId`)
+    id(record.recordId, RECORD_ID_PREFIXES[record.recordKind], `FLOWDOC-RECORD ${record.recordKind} recordId`)
     closed(record.lifecycle, LIFECYCLES, "FLOWDOC-RECORD lifecycle")
     array(record.affects, "FLOWDOC-RECORD affects").forEach((reference) => string(reference, "FLOWDOC-RECORD affected ID"))
     const following = markdown.slice(block.lastIndex, markdown.indexOf("\n##", block.lastIndex) === -1 ? markdown.length : markdown.indexOf("\n##", block.lastIndex))
@@ -308,15 +316,29 @@ export function validateCanonicalDocumentationModel(model, options = {}) {
   for (const capabilityId of release.capabilityIds) {
     const capability = repositoryIndex.capabilities.find((candidate) => candidate.capabilityId === capabilityId)
     if (!capability) fail(`release has unresolved capability ${capabilityId}`)
-    if (["accepted", "active", "production"].includes(capability.maturity) && !capability.acceptedGateIds.some((gate) => baseline.acceptedGateIds.includes(gate))) fail(`accepted capability ${capabilityId} requires a referenced accepted gate in the selected baseline`)
+  }
+  for (const capability of repositoryIndex.capabilities) {
+    if (["accepted", "active", "production"].includes(capability.maturity) && !capability.acceptedGateIds.some((gate) => baseline.acceptedGateIds.includes(gate))) fail(`accepted capability ${capability.capabilityId} requires a referenced accepted gate in the selected baseline`)
   }
 
-  for (const [path, markdown] of Object.entries(markdownByPath)) {
-    const document = documents.find((candidate) => candidate.path === path)
+  const embeddedRecordsByPath = new Map()
+  const embeddedRecordIds = new Set()
+  for (const document of documents) {
+    const markdown = markdownByPath[document.path]
+    if (markdown === undefined) continue
     const records = collectEmbeddedCanonicalRecords(markdown)
-    duplicate(records.map((record) => record.recordId), "embedded record")
     for (const record of records) {
+      if (embeddedRecordIds.has(record.recordId)) fail(`duplicate embedded record identity: ${record.recordId}`)
+      embeddedRecordIds.add(record.recordId)
       knownIds.add(record.recordId)
+    }
+    embeddedRecordsByPath.set(document.path, records)
+  }
+  for (const document of documents) {
+    const markdown = markdownByPath[document.path]
+    if (markdown === undefined) continue
+    const records = embeddedRecordsByPath.get(document.path)
+    for (const record of records) {
       for (const reference of record.affects) if (!knownIds.has(reference)) fail(`unresolved canonical reference ${reference}`)
     }
     for (const reference of collectCanonicalReferences(markdown)) {
