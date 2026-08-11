@@ -382,10 +382,56 @@ Expected staged paths: exactly five.
 - Create: `docs/coordination/BOUNDARY.md`
 - Create: `docs/versions/0_1/release.json`
 - Create: `docs/versions/0_1/COMPATIBILITY.md`
+- Modify: `scripts/documentation/canonical-docs-model.mjs`
+- Modify: `scripts/documentation/canonical-docs-render.mjs`
+- Modify: `scripts/generate-canonical-docs.mjs`
+- Modify: `scripts/check-canonical-docs.mjs`
 - Modify: `tests/canonicalDocumentationSpine.test.ts`
 - Generate: the five approved generated Markdown paths.
 
-**Manifest minimum shape:**
+**Approved reconciliation rationale:** Task 1-2 established a test-driven
+executable scaffold before the real D1 source shapes were locked. Task 3
+forward-corrects that cumulative state so the approved sources, validator,
+renderer, CLI behavior, and real-repository tests agree before the D1
+checkpoint is published. This is not a D3 expansion: no Layout source, local
+contract/capability/gate registry, accepted capability, or verification claim
+is added. Keep the Task 1-2 commits as incremental history; do not revert them.
+
+**Interfaces and exact contracts:**
+
+`loadCanonicalDocumentationModel` has this Task 3 interface:
+
+```text
+loadCanonicalDocumentationModel(root, {
+  allowPendingBaselineId?: string
+}) -> {
+  root,
+  manifest,
+  glossary,
+  repositoryIndex,
+  release,
+  baseline: null,
+  pendingBaselineId: string | null,
+  documents,
+  markdownByPath,
+  compatibility
+}
+```
+
+The option is absent by default. When the Development Baseline file is absent,
+the loader accepts exactly one pending ID only when
+`allowPendingBaselineId === release.baselineId`, `release.lifecycle ===
+"planned"`, `release.releaseVersion === "unversioned"`, and
+`release.releaseReady === false`; it then returns `baseline: null` and that
+exact `pendingBaselineId`. All other missing-baseline cases fail.
+
+`generateCanonicalDocs(root)` may read the release first and auto-select its
+exact `baselineId` as the pending loader option only under those same three
+non-claim conditions. `checkCanonicalDocs(root, { pendingBaseline })` never
+auto-selects: its CLI requires explicit `--allow-pending-baseline <ID>` and
+passes that ID into the loader before baseline presence is validated.
+
+**Manifest exact shape:**
 
 ```json
 {
@@ -399,6 +445,39 @@ Expected staged paths: exactly five.
   "documents": []
 }
 ```
+
+The manifest top level has exactly `manifestSchemaVersion`, `repositoryId`,
+`canonicalRoots`, and `documents`; unknown or missing fields fail. Every
+document entry has exactly these fields:
+
+```json
+{
+  "documentId": "DOC-...",
+  "title": "Non-empty authored title",
+  "path": "docs/...",
+  "kind": "closed-kind",
+  "scope": "closed-scope",
+  "subsystem": "documentation",
+  "audience": "closed-audience",
+  "authority": "closed-authority",
+  "lifecycle": "closed-lifecycle",
+  "appliesTo": {
+    "repositoryIds": [],
+    "releaseLines": [],
+    "contractIds": [],
+    "schemaIds": []
+  }
+}
+```
+
+`appliesTo` has exactly `repositoryIds`, `releaseLines`, `contractIds`, and
+`schemaIds`, each an array. The closed D1-D2 subsystem values are exactly
+`documentation`, `terminology`, `coordination`, `versioning`, and `project`.
+Manifest/glossary/repository records define only the identities they own;
+selectors and references never define identities. Validate every `appliesTo`
+reference whose owner is available in D1. A non-empty capability, contract, or
+gate selector fails in Task 3 because its later repository-owned registry does
+not exist yet; full contract applicability semantics remain deferred to D3.
 
 Populate `documents` with exact records for every D1-D2 authored/generated path
 except the not-yet-published Development Baseline. Task 6 adds that one record
@@ -424,7 +503,107 @@ DOC-CORE-VERSION-0-1-CAPABILITY-SET
 DOC-CORE-VERSION-0-1-COMPATIBILITY
 ```
 
-**Repository index minimum facts:**
+**Glossary exact shape:**
+
+```json
+{
+  "glossarySchemaVersion": 1,
+  "concepts": [],
+  "terms": [],
+  "lexicalForms": []
+}
+```
+
+The glossary top level has exactly `glossarySchemaVersion`, `concepts`,
+`terms`, and `lexicalForms`. Each Concept has exactly:
+
+```json
+{
+  "conceptId": "CONCEPT-...",
+  "labels": {
+    "technical": "Non-empty technical label",
+    "thai": "ป้ายชื่อภาษาไทยที่ไม่ว่าง"
+  }
+}
+```
+
+Each exact Term has exactly:
+
+```json
+{
+  "termId": "TERM-...",
+  "conceptId": "CONCEPT-...",
+  "canonicalName": "Qualified canonical name",
+  "definitions": {
+    "technical": "Non-empty technical definition",
+    "thai": "คำจำกัดความภาษาไทยที่ไม่ว่าง"
+  },
+  "lifecycle": "active",
+  "appliesTo": {
+    "repositoryIds": [],
+    "releaseLines": [],
+    "contractIds": [],
+    "schemaIds": []
+  },
+  "relations": {
+    "meansSameAs": [],
+    "relatedTo": [],
+    "supersededBy": null
+  }
+}
+```
+
+Term `appliesTo` is the same exact four-array object used by manifest
+documents. `relations` has exactly `meansSameAs`, `relatedTo`, and
+`supersededBy`; the first two are Term-ID arrays and the last is `null` or one
+Term ID. Exact-equivalence and same-family checks apply to `meansSameAs`;
+`relatedTo` never asserts equivalence; `supersededBy` resolves to a different
+Term ID. Retired terms remain in `terms` as tombstones. There is no
+`retiredTermIds` field or parallel retirement authority.
+
+Each Lexical Form has exactly:
+
+```json
+{
+  "value": "lexical text",
+  "language": "language-neutral",
+  "kind": "ambiguous-alias",
+  "termId": null,
+  "possibleTermIds": ["TERM-...", "TERM-..."],
+  "resolutionContext": "Non-empty instructions for choosing the exact term"
+}
+```
+
+`language` is exactly `technical`, `thai`, or `language-neutral`; `kind` uses
+the design's closed lexical-form kinds. An `ambiguous-alias` requires
+`termId: null`, at least two distinct resolvable `possibleTermIds`, and a
+non-empty `resolutionContext`. Every other form requires one exact resolvable
+`termId`, an empty `possibleTermIds` array, and `resolutionContext: null`.
+
+Create Concept and exact Term records for:
+
+- Fact, Defect, Unknown, Risk, Decision, Plan, Evidence;
+- Release Line, Release Version, Development Baseline;
+- Provisional Coordination Host;
+- Term Family, Exact Term Definition, Lexical Form;
+- Capability Maturity and Release Readiness.
+
+Each has non-empty technical and Thai labels/definitions. Add aliases only
+when classifiable. The words `status`, `ready`, `active`, and `baseline` must
+not be globally guessed; either use a qualified canonical form or register a
+fully specified ambiguous lexical form.
+
+Before scanning active normative Markdown, remove fenced code, inline code,
+Markdown link targets, and direct stable IDs from the scan text. Tokenize
+letters, digits, and hyphens as one lexical token, so `dual-active` is one
+qualified token and is not the bare ambiguous token `active`. Reject a bare
+ambiguous form that remains in active normative prose.
+
+Technical and Thai glossary renderers use the matching language-specific
+Concept labels and Term definitions. Both outputs sort by the same immutable
+Term-ID order and must contain identical Term-ID sequences.
+
+**Repository index exact shape:**
 
 ```json
 {
@@ -435,16 +614,23 @@ DOC-CORE-VERSION-0-1-COMPATIBILITY
     "lifecycle": "not-created"
   },
   "repositories": [
-    {"repositoryId":"REPO-FLOWDOC-CORE","name":"flowdoc-vnext-core","manifestAdoption":"active"},
-    {"repositoryId":"REPO-FLOWDOC-EDITOR","name":"flowdoc-vnext-editor","manifestAdoption":"not-adopted"},
-    {"repositoryId":"REPO-FLOWDOC-BACKEND","name":"flowdoc-vnext-backend","manifestAdoption":"not-adopted"}
+    {"repositoryId":"REPO-FLOWDOC-CORE","name":"flowdoc-vnext-core","role":"core-engine","manifestAdoption":"active","manifestDocumentId":"DOC-CORE-NAVIGATION-MANIFEST"},
+    {"repositoryId":"REPO-FLOWDOC-EDITOR","name":"flowdoc-vnext-editor","role":"editor-client","manifestAdoption":"not-adopted","manifestDocumentId":null},
+    {"repositoryId":"REPO-FLOWDOC-BACKEND","name":"flowdoc-vnext-backend","role":"backend-service","manifestAdoption":"not-adopted","manifestDocumentId":null}
   ]
 }
 ```
 
-Do not place local checkout paths or readiness claims in this record.
+The repository-index top level and nested objects have exactly the fields
+shown. Repository roles are exactly `core-engine`, `editor-client`, and
+`backend-service`; manifest adoption is exactly `active` or `not-adopted`.
+Only Core is active and resolves to `DOC-CORE-NAVIGATION-MANIFEST`;
+Editor/Backend are not adopted and have `manifestDocumentId: null`. Reject
+local checkout paths, branches, commits, compatibility, release-readiness, and
+other readiness fields as unknown; this neutral index is not a local
+contract/capability/risk registry.
 
-**Release-line minimum facts:**
+**Release-line exact shape:**
 
 ```json
 {
@@ -463,25 +649,93 @@ Do not place local checkout paths or readiness claims in this record.
 }
 ```
 
+The release top level has exactly the fields shown and has no generic
+`composition` field. `capabilityIds`, `contractIds`, and
+`verificationGateIds` are all empty in Task 3 and therefore define no owner
+IDs. `compatibilityDocumentId` resolves to the exact active manifest record
+`DOC-CORE-VERSION-0-1-COMPATIBILITY` at
+`docs/versions/0_1/COMPATIBILITY.md`. The renderer reads authored lifecycle,
+release version, release readiness, baseline ID, and release selectors; it
+never hard-codes or invents those facts. `CAPABILITY_SET.md` uses only release
+selectors, and the three empty arrays render an explicit
+no-subsystem-cutover, no-readiness-claim result.
+
 The baseline ID is reserved for this D0-D2 publication sequence. If D0 execution occurs after 2026-08-11 or that ID already exists in history, allocate the next valid event ID before any source is written and use that exact ID consistently.
 
-**Initial glossary inventory:**
+`docs/coordination/DEVELOPMENT_BASELINE.json` and its manifest record remain
+absent throughout Task 3. Remove or stop exercising the obsolete live
+single-`pinned` baseline parser/evolution semantics; do not publish them as the
+Task 3 contract. Task 6 owns the full multi-repository baseline parser,
+immutable evolution comparison, file, and atomic manifest record. D3 owns the
+repository-local contract/capability/gate registries.
 
-Create Concept and exact Term records for:
+**Compatibility exact metadata:**
 
-- Fact, Defect, Unknown, Risk, Decision, Plan, Evidence;
-- Release Line, Release Version, Development Baseline;
-- Provisional Coordination Host;
-- Term Family, Exact Term Definition, Lexical Form;
-- Capability Maturity and Release Readiness.
+`COMPATIBILITY.md` begins with this authored metadata block before its prose:
 
-Each has technical and Thai definitions. Add aliases only when classifiable. The words `status`, `ready`, `active`, and `baseline` must not be globally guessed; either qualify them or declare the lexical form ambiguous with resolution context.
+```markdown
+<!-- FLOWDOC-COMPATIBILITY
+{"compatibilitySchemaVersion":1,"coreEditor":"not-verified","coreBackend":"not-verified","endToEnd":"not-verified"}
+-->
+```
+
+The metadata object has exactly those four fields and all three compatibility
+values are exactly `not-verified` in Task 3. The following authored prose
+explains that none of Core–Editor, Core–Backend, or end-to-end compatibility is
+inferred. The model parses and validates the exact block. A renderer may
+project those three authored values only after exact parsing; it cannot invent
+them from missing data or release readiness.
 
 - [ ] **Step 1: Add repository-fixture REDs for the real spine**
 
-Tests must fail until all real structured paths exist, every path is registered, generated output matches, the release line remains a non-claim, and Editor/Backend are `not-adopted` plus `not-verified`.
+Replace obsolete fixtures with the exact approved manifest, glossary,
+repository-index, release, compatibility, and pending-baseline shapes above.
+Preserve malformed JSON, missing required field, unknown field, duplicate ID,
+unsafe path, unresolved reference, generated drift, alias misuse, and authored
+path non-mutation unit coverage. Remove tests that publish the obsolete
+single-`pinned` baseline shape as live semantics.
 
-- [ ] **Step 2: Author neutral sources and boundary**
+Add repository-root assertions for all exact 11 D1 IDs and paths, explicit
+registration of top-level generated paths outside `canonicalRoots`, absence
+of both the baseline file and its manifest record, exact pending ID matching,
+byte-stable five generated views, Core active adoption, Editor/Backend
+not-adopted, and all three authored compatibility values equal to
+`not-verified`. Assert that non-empty release capability/contract/gate arrays
+reject because no Task 3 owner registries exist. Assert language-specific
+labels/definitions with identical sorted Term-ID order and the exact alias
+scanner exclusions/tokenization.
+
+Run:
+
+```powershell
+npx vitest run tests/canonicalDocumentationSpine.test.ts --maxWorkers=1
+```
+
+Expected: FAIL because production parsers/renderers still accept the obsolete
+Task 1-2 shapes, require a baseline file, or read capability facts from the
+neutral repository index. A failure caused only by a syntax/import error is
+not an accepted RED.
+
+- [ ] **Step 2: GREEN the reconciled model, renderers, and CLIs**
+
+Update only the four authorized tooling files. Implement the exact closed
+shapes and identity ownership above, the explicit pending-baseline loader
+state, compatibility metadata parsing, language-specific glossary projection,
+authored release projection, empty-selector non-claim, and alias scanner
+exclusions/tokenization. Keep strict unknown-field rejection. Do not add D3
+owner registries or the Task 6 baseline schema.
+
+Run:
+
+```powershell
+npx vitest run tests/canonicalDocumentationSpine.test.ts --maxWorkers=1
+```
+
+Expected: fixture-level schema/renderer/CLI tests pass while repository-root
+tests remain RED only because the six authored sources and five generated
+views do not exist yet.
+
+- [ ] **Step 3: Author exact neutral sources, boundary, and compatibility**
 
 `BOUNDARY.md` must say:
 
@@ -491,22 +745,39 @@ Tests must fail until all real structured paths exist, every path is registered,
 - no worker/queue/scheduler/remote mutation protocol exists;
 - future transfer is one-owner atomic relocation; dual-active copies are forbidden.
 
-`COMPATIBILITY.md` records Core–Editor, Core–Backend, and end-to-end as `not-verified`; it makes no inferred compatibility statement.
+Author the manifest, glossary, repository index, release composition,
+`BOUNDARY.md`, and `COMPATIBILITY.md` using only the exact contracts above.
+`COMPATIBILITY.md` starts with the exact metadata block and records Core–Editor,
+Core–Backend, and end-to-end as `not-verified`; it makes no inferred
+compatibility statement.
 
-- [ ] **Step 3: Generate, validate, and commit**
+Run:
 
 ```powershell
 npm run docs:generate
 npm run docs:check -- --allow-pending-baseline BASELINE-FLOWDOC-20260811-01
 npx vitest run tests/canonicalDocumentationSpine.test.ts --maxWorkers=1
+```
+
+Expected: PASS; generation writes only the five approved paths, checker accepts
+the absent baseline only for the exact explicit reserved ID, and all generated
+views remain non-claims.
+
+- [ ] **Step 4: Validate the exact 16-path checkpoint and commit**
+
+```powershell
 npm run type-check
 git diff --check
-git add -- docs/manifest.json docs/glossary.json docs/coordination/REPOSITORY_INDEX.json docs/coordination/BOUNDARY.md docs/versions/0_1/release.json docs/versions/0_1/COMPATIBILITY.md docs/DOCUMENT_MAP.md docs/GLOSSARY.md docs/GLOSSARY_TH.md docs/versions/0_1/VERSION_OVERVIEW.md docs/versions/0_1/CAPABILITY_SET.md tests/canonicalDocumentationSpine.test.ts
+git add -- docs/manifest.json docs/glossary.json docs/coordination/REPOSITORY_INDEX.json docs/coordination/BOUNDARY.md docs/versions/0_1/release.json docs/versions/0_1/COMPATIBILITY.md docs/DOCUMENT_MAP.md docs/GLOSSARY.md docs/GLOSSARY_TH.md docs/versions/0_1/VERSION_OVERVIEW.md docs/versions/0_1/CAPABILITY_SET.md scripts/documentation/canonical-docs-model.mjs scripts/documentation/canonical-docs-render.mjs scripts/generate-canonical-docs.mjs scripts/check-canonical-docs.mjs tests/canonicalDocumentationSpine.test.ts
 git diff --cached --name-only
 git commit -m "docs: establish canonical documentation spine"
 ```
 
-Expected staged paths: exactly twelve.
+Expected: type-check and diff check pass; staged names are exactly the sixteen
+paths listed in `git add`, with no Development Baseline file or manifest record
+and no unrelated path. Task 1-2 commits remain in history; this commit is the
+forward correction that makes their cumulative scaffold conform to the
+approved Task 3 sources.
 
 ---
 
