@@ -11,6 +11,9 @@ transaction seam.
 **Behavioral design:**
 [Source Commit Transaction Seam Design](./2026-08-10-source-commit-transaction-seam-design.md).
 
+**Active review amendment:**
+[Source Commit Transaction Seam Review Amendment](./2026-08-11-source-commit-transaction-seam-review-amendment-design.md).
+
 ## 1. Normative Role
 
 This file is the normative source for terms used by the Source commit
@@ -51,9 +54,9 @@ bound to the same prospective transaction before authority exists.
 
 ### SCT-T03 — Live Transaction Ticket
 
-The exact SCT-T02 identity after every required detached plan is attached,
-every fallible precondition is satisfied, every active index is installed, and
-the transaction record phase is set to `live`.
+The exact SCT-T02 identity while the transaction record is `committing`, after
+an SCT-T48 Sealed Transaction Ticket passes the final completeness proof and
+crosses SCT-T25. Mint does not itself create SCT-T03.
 
 - It is exact-identity-bound and one-shot.
 - It authorizes only the fixed Source commit tail.
@@ -110,6 +113,8 @@ preallocated facts needed for one participant's post-live registry mutations.
 - Application is void or returns an exact preallocated authority and cannot
   return `null` or `false`.
 - A plan is fixed to one SCT-T02 identity and cannot cross tickets.
+- Once attached, it cannot be discarded until SCT-T50 marks it abandoned.
+- Before sealing it must have one matching owner-issued SCT-T49.
 
 ### SCT-T10 — CandidateWork Publication Plan
 
@@ -121,13 +126,15 @@ and permanent record prepared before live.
 
 The SCT-T09 owned by SourceSidecars. It contains the exact next sidecars,
 physical item-entry pair publication, sidecar-candidate consumption, permanent
-registration record, and prevalidated Source access record.
+registration record, SCT-T53 publication set, and prevalidated Source access
+record identity needed by SCT-T12. It does not publish Source access.
 
 ### SCT-T12 — Source Candidate Commit Plan
 
 The SCT-T09 owned by SourceState. It contains the canonical Source candidate
 authority, exact alias set, exact access reservation, next Source state, and
-candidate retirement mutations.
+candidate retirement mutations. Its apply operation is the sole publisher of
+the exact permanent Source access record.
 
 ### SCT-T13 — Stage Publication Plan
 
@@ -137,6 +144,9 @@ permanent records, the exact Plan A accepted Source-stage object, its private
 Source-stage result record, and the exact precreated commit result. The Plan A
 accepted object is returned directly after commit; TransitionSource does not
 rebuild or freeze it after live.
+
+The plan also binds the exact plan, seal, and planned-output identities from
+SCT-T10, SCT-T11, and SCT-T12. Its apply operation returns SCT-T52 directly.
 
 ### SCT-T14 — Transaction Owner
 
@@ -181,9 +191,9 @@ pairs. Before a ticket is live it remains releasable.
 
 ### SCT-T20 — Transaction Protection
 
-The live transaction owner's active-index fact that prevents release or
-discard of an exact reservation or candidate during commit. Protection starts
-only at successful mint and ends at terminal cleanup.
+The transaction owner's active-index fact that prevents release or discard of
+an exact reservation, candidate, or attached plan. Protection starts when mint
+creates SCT-T48 and ends at terminal cleanup.
 
 - **Not the same as:** SCT-T19 Reservation.
 - Participant modules query protection; they do not own protection maps.
@@ -211,14 +221,18 @@ make the ticket live.
 ### SCT-T24 — Mint
 
 Perform the fixed conflict scan and install every active transaction index for
-a fully attached detached ticket. Mint sets `phase = "live"` only after the
-entire installation succeeds. A failed mint rolls back to absent.
+a fully attached, owner-sealed detached ticket. Mint sets `phase = "sealed"`
+only after the entire installation succeeds. A failed mint performs SCT-T34
+and returns the SCT-T50 abort bundle to the coordinator so every owner plan is
+abandoned before the facade returns `null`; the exact resource tuple can then
+be prepared again with fresh plans.
 
 ### SCT-T25 — Live Boundary
 
 The single point after which no normal rejection, work limit, conflict check,
 duplicate check, allocation, freezing, caller-input read, external code
-execution, or fallback decision remains.
+execution, or fallback decision remains. It is the final fixed write from
+`sealed` to `committing`, not the successful mint write.
 
 ### SCT-T26 — Apply
 
@@ -235,9 +249,9 @@ resolvable. Allocation or preparation of a detached authority is not publish.
 ### SCT-T28 — Commit
 
 The coordinator's single synchronous operation that moves an exact ticket from
-`live` to `committing`, applies the four fixed plans, performs terminal cleanup,
-replaces the full transaction record with SCT-T08, and returns the exact
-precreated result.
+`sealed` across SCT-T25 to `committing`, applies the four fixed plans, performs
+terminal cleanup, replaces the full transaction record with SCT-T08, and
+returns SCT-T52.
 
 ### SCT-T29 — Consume
 
@@ -262,6 +276,10 @@ Remove an uncommitted candidate and its temporary owner-local records. Every
 accepted alias is normalized to the canonical candidate authority before the
 protection decision.
 
+For an SCT-T09, discard is allowed only before attach or after exact SCT-T50
+abandonment. It rejects while attached, minting, sealed, committing, applied,
+or consumed.
+
 ### SCT-T33 — Cleanup
 
 The general removal of temporary candidate or preparation state on a normal
@@ -272,14 +290,15 @@ installed.
 
 Reverse every transaction index installed by a failed SCT-T24 attempt, in
 reverse fixed order, leaving the exact tuple retryable and all candidates and
-reservations releasable. It is not a generic post-live undo mechanism.
+reservations releasable. It completes through SCT-T50 owner-plan abandonment;
+it is not a generic post-live undo mechanism.
 
 ### SCT-T35 — No-Fail Tail
 
-The fixed synchronous code between successful mint and consumed tombstone.
-Every fallible decision and all input-dependent allocation happen before this
-tail. A violated internal invariant throws; it is never converted to fallback
-or a partial accepted result.
+The fixed synchronous code between SCT-T25 and the consumed tombstone. Every
+fallible decision and all input-dependent allocation happen before this tail.
+A violated internal invariant throws; it is never converted to fallback or a
+partial accepted result.
 
 ### SCT-T36 — Plain Internal Operation
 
@@ -287,6 +306,9 @@ A fixed operation over Core-created plain records and exact registry keys that
 does not execute caller code. It excludes getters, Proxy traps, callbacks,
 observers, logging hooks, string conversion of external objects, promises,
 microtasks, scheduling, and traversal of caller-owned payloads.
+
+SCT-T53 is the only permitted variable-count composition of SCT-T36 after
+live.
 
 ## 5. Equality, Failure, And Diagnostics
 
@@ -356,9 +378,66 @@ The same exact candidate/precondition/reservation tuple after rejected plan
 preparation or mint rollback. A retryable tuple must be able to mint
 successfully once the injected fault is removed.
 
+### SCT-T48 — Sealed Transaction Ticket
+
+The exact SCT-T02 identity after four real owner plans and SCT-T49 seals are
+cross-bound, every active protection index is installed, and phase is
+`sealed`. It authorizes protection and one commit attempt but publishes no
+permanent output. It is not yet SCT-T03.
+
+### SCT-T49 — Owner Plan Seal
+
+An owner-issued exact authority binding one prepared owner plan to one fixed
+ticket slot, owner-local plan record, planned outputs, and validated input
+authorities. It also binds one SCT-T54 stored directly in the transaction slot.
+A clone, dummy authority, or seal from another plan/ticket cannot authorize
+production mint.
+
+### SCT-T50 — Detached Abort
+
+The transaction-owner operation that atomically unbinds a pre-sealed ticket,
+removes partial indexes, and returns the exact abort bundle precreated with the
+detached ticket. That bundle contains four precreated owner-specific
+abandonment authorities, so rollback allocates nothing. Participant plan
+records may be removed only after consuming the matching abandonment
+authority.
+
+### SCT-T51 — Closed Four-Plan Tuple
+
+The exact CandidateWork, Sidecar, Source, and Stage plan/seal/output identities
+proved to describe one Root/change/composition/preflight/evidence/Source
+transition before sealing. The Stage plan closes over the other three planned
+outputs.
+
+### SCT-T52 — Exact Stage Result
+
+The exact frozen Plan A accepted Source-stage object precreated in the Stage
+plan before sealing, installed and returned directly by Stage apply, and
+returned unchanged by TransitionSource. No ticket-to-result shadow registry is
+permitted.
+
+### SCT-T53 — Plain Record Publication Loop
+
+The sole variable-count operation allowed after SCT-T25: a numeric indexed
+loop over one prevalidated, Core-created, frozen plain array of frozen plain
+physical pair records. Its exact safe-integer count is work-policy bounded and
+the body contains only direct element access, fixed registry writes, and index
+increment. It uses no iterator, callback, array method, accessor, rejection,
+allocation, or external payload traversal.
+
+### SCT-T54 — Sealed Apply Record
+
+An owner-created frozen plain record containing the exact keys, values, fixed
+counts, and precreated outputs needed by one participant apply operation. The
+matching SCT-T49 binds its exact identity, and the transaction leaf stores it
+before sealed. It is not exposed by owner preparation; `begin` returns it only
+after writing `committing`. Apply consumes it directly without an owner
+registry lookup, authority assertion, allocation, freeze, or nullable branch.
+
 ## 6. Documentation Parity Rules
 
-1. The technical and Thai glossaries use the same `SCT-Txx` identifiers.
+1. The technical and Thai glossaries use the same `SCT-Txx` identifiers,
+   currently SCT-T01 through SCT-T54.
 2. The Thai glossary preserves every exact English term and contract name.
 3. Adding, removing, or changing an identifier requires both files in the same
    documentation change set.

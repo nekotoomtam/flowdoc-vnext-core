@@ -9,6 +9,9 @@
 **สเปกพฤติกรรม:**
 [Source Commit Transaction Seam Design](./2026-08-10-source-commit-transaction-seam-design.md)
 
+**ฉบับแก้ไขที่ใช้งานอยู่:**
+[Source Commit Transaction Seam Review Amendment](./2026-08-11-source-commit-transaction-seam-review-amendment-design.md)
+
 ## 1. วิธีใช้อภิธานศัพท์ฉบับนี้
 
 ฉบับภาษาไทยใช้ `SCT-Txx` และ exact English term ชุดเดียวกับอภิธานศัพท์
@@ -41,8 +44,9 @@ prospective transaction เดียวกัน แต่ยังไม่ม�
 
 ### SCT-T03 — Live Transaction Ticket
 
-SCT-T02 ตัวเดิมหลัง commit plans ครบ การตรวจที่ล้มเหลวได้จบทั้งหมด active
-indexes ติดตั้งครบ และ phase ถูกตั้งเป็น `live` แล้วเท่านั้น
+SCT-T02 ตัวเดิมในช่วงที่ transaction อยู่ phase `committing` หลัง SCT-T48 ผ่าน
+final completeness proof และข้าม SCT-T25 แล้ว Mint สำเร็จอย่างเดียวยังไม่ทำให้
+ticket เป็น SCT-T03
 
 คำว่า live จึงไม่ได้หมายถึง “สร้าง object ticket แล้ว” แต่หมายถึง ticket
 ได้รับ authority จาก exact transaction registry แล้ว
@@ -93,6 +97,8 @@ records และ authority identities ที่ตรวจและจัด�
 - prepare ห้าม publish, reserve, protect หรือ consume permanent state
 - apply ห้ามคืน `null`/`false`
 - plan ใช้ข้าม ticket ไม่ได้
+- เมื่อติดตั้งใน fixed slot แล้ว discard ไม่ได้จนกว่า SCT-T50 จะ mark abandoned
+- ก่อน sealed ต้องมี SCT-T49 จาก owner ตัวจริง
 
 ### SCT-T10 — CandidateWork Publication Plan
 
@@ -102,13 +108,15 @@ frozen receipts และ CandidateWork authority/record ที่เตรี�
 ### SCT-T11 — Source Sidecar Commit Plan
 
 SCT-T09 ของ SourceSidecars เก็บ exact next sidecars, physical item-entry pairs,
-sidecar registration, sidecar-candidate consumption และ prevalidated Source
-access record
+sidecar registration, SCT-T53 publication set, sidecar-candidate consumption
+และ exact Source access record identity ที่ SCT-T12 จะนำไป publish แต่ Sidecar
+plan ไม่ publish Source access เอง
 
 ### SCT-T12 — Source Candidate Commit Plan
 
 SCT-T09 ของ SourceState เก็บ canonical Source candidate authority, aliases,
-access reservation, next Source state และ candidate retirement mutations
+access reservation, next Source state และ candidate retirement mutations Apply
+ของ plan นี้เป็น owner เดียวที่ publish permanent Source access
 
 ### SCT-T13 — Stage Publication Plan
 
@@ -133,6 +141,9 @@ fixed code path ใน SourceAuthority ที่เรียก prepare/apply �
 ของ SourceAuthority เป็นเจ้าของ accepted Source-stage object กับ private result
 record เพื่อให้ result publication อยู่ภายใน SCT-T35
 
+plan นี้ต้อง bind exact plan, seal และ planned output จาก SCT-T10, SCT-T11 และ
+SCT-T12 ด้วย และ apply ต้องคืน SCT-T52 โดยตรง
+
 ### SCT-T16 — Participant Owner
 
 CandidateWork, SourceSidecars, SourceState หรือ SourceAuthority ในบทบาทเจ้าของ
@@ -156,8 +167,9 @@ pairs ก่อน live reservation ยัง release ได้
 
 ### SCT-T20 — Transaction Protection
 
-ข้อเท็จจริงใน active transaction index ที่กัน release/discard ระหว่าง live หรือ
-committing เริ่มตอน mint สำเร็จและจบตอน terminal cleanup
+ข้อเท็จจริงใน active transaction index ที่กัน release/discard ของ reservation,
+candidate หรือ attached plan เริ่มเมื่อ mint สร้าง SCT-T48 และจบตอน terminal
+cleanup
 
 Reservation กับ protection เป็นคนละอย่างกัน Participant ถือ reservation ได้แต่
 ไม่ถือ protection map
@@ -182,14 +194,20 @@ inspection, allocation, copy, freeze และ record construction Prepare ค�
 
 ### SCT-T24 — Mint
 
-ตรวจ conflict และติดตั้ง active transaction indexes ทั้งชุด ตั้ง phase เป็น
-`live` เมื่อการติดตั้งครบเท่านั้น หากล้มเหลวต้อง rollback กลับไป absent
+ตรวจ conflict และติดตั้ง active transaction indexes ของ detached ticket ที่มี
+owner seals ครบ ตั้ง phase เป็น `sealed` เมื่อการติดตั้งครบเท่านั้น หากล้มเหลว
+ต้องทำ SCT-T34 และคืน SCT-T50 abort bundle ให้ coordinator นำไป abandon owner
+plans ทุกตัวก่อน facade คืน `null` เพื่อให้ exact resource tuple เตรียม plans
+ใหม่ได้
 
 ### SCT-T25 — Live Boundary
 
 จุดเดียวที่หลังจากนั้นต้องไม่มี normal rejection, work limit, conflict/duplicate
 check, allocation, freeze, caller-input read, external execution หรือ fallback
 decision เหลืออยู่
+
+จุดนี้คือ final fixed write จาก `sealed` ไป `committing` ไม่ใช่ successful mint
+write
 
 ### SCT-T26 — Apply
 
@@ -204,9 +222,9 @@ prepare detached authority อย่างเดียวยังไม่ใ�
 
 ### SCT-T28 — Commit
 
-operation synchronous ครั้งเดียวของ coordinator ที่เปลี่ยน `live` เป็น
+operation synchronous ครั้งเดียวของ coordinator ที่พา `sealed` ข้าม SCT-T25 ไป
 `committing`, apply fixed plans, cleanup terminal indexes, ยุบ record เป็น SCT-T08
-แล้วคืน precreated result
+แล้วคืน SCT-T52
 
 ### SCT-T29 — Consume
 
@@ -228,6 +246,10 @@ operation synchronous ครั้งเดียวของ coordinator ที
 ลบ uncommitted candidate และ temporary records ทุก handle ต้อง normalize ไป
 canonical authority ก่อนตรวจ protection
 
+สำหรับ SCT-T09 discard ได้เฉพาะก่อน attach หรือหลัง exact SCT-T50 abandonment
+เท่านั้น และต้อง reject ระหว่าง attached, minting, sealed, committing, applied
+หรือ consumed
+
 ### SCT-T33 — Cleanup
 
 การเก็บ temporary preparation/candidate state หลัง pre-live rejection โดยทั่วไป
@@ -239,11 +261,13 @@ canonical authority ก่อนตรวจ protection
 ทำให้ exact tuple retry ได้และ candidates/reservations release ได้ ไม่ใช่ generic
 undo หลัง live
 
+rollback ต้องจบด้วย SCT-T50 owner-plan abandonment ด้วย
+
 ### SCT-T35 — No-Fail Tail
 
-fixed synchronous code ตั้งแต่ mint สำเร็จจนเป็น consumed tombstone การตัดสินใจ
-ที่ล้มเหลวได้และ allocation ตาม input ต้องจบก่อน tail หาก internal invariant
-ผิดให้ throw ห้ามเปลี่ยนเป็น fallback หรือ partial accepted result
+fixed synchronous code ตั้งแต่ SCT-T25 จนเป็น consumed tombstone การตัดสินใจที่
+ล้มเหลวได้และ allocation ตาม input ต้องจบก่อน tail หาก internal invariantผิดให้
+throw ห้ามเปลี่ยนเป็น fallback หรือ partial accepted result
 
 ### SCT-T36 — Plain Internal Operation
 
@@ -251,6 +275,8 @@ operation ตายตัวบน Core-created plain records และ exact re
 caller code จึงไม่รวม getter, Proxy trap, callback, observer, logging hook,
 external string conversion, Promise, microtask, scheduling หรือ traversal ของ
 caller-owned payload
+
+หลัง live อนุญาต composition แบบ variable-count ได้เพียง SCT-T53 เท่านั้น
 
 ## 5. Equality, failures และ diagnostics
 
@@ -314,9 +340,61 @@ fault เกิดได้หลังติดตั้งบางส่ว�
 candidate/precondition/reservation tuple ชุดเดิมหลัง plan rejection หรือ mint
 rollback ซึ่งต้อง mint สำเร็จได้เมื่อเอา injected fault ออก
 
+### SCT-T48 — Sealed Transaction Ticket
+
+SCT-T02 exact identity หลัง plans และ SCT-T49 จาก owner ตัวจริงทั้งสี่ถูก
+cross-bind, protection indexes ติดตั้งครบ และ phase เป็น `sealed` Ticket นี้
+ป้องกัน resources และเริ่ม commit ได้หนึ่งครั้ง แต่ยังไม่ publish permanent
+output และยังไม่ใช่ SCT-T03
+
+### SCT-T49 — Owner Plan Seal
+
+exact authority ที่ participant owner สร้างเพื่อผูก prepared plan หนึ่งตัวกับ
+fixed ticket slot, owner-local plan record, planned outputs และ input authorities
+ที่ตรวจแล้ว รวมถึง exact SCT-T54 ที่ transaction slot เก็บโดยตรง Clone, dummy
+หรือ seal จาก plan/ticket อื่นใช้กับ production mint ไม่ได้
+
+### SCT-T50 — Detached Abort
+
+operation ของ transaction owner ที่ unbind pre-sealed ticket, ลบ partial indexes
+และคืน exact abort bundle ที่ precreate พร้อม detached ticket ภายในมี
+owner-specific abandonment authorities ทั้งสี่ที่สร้างไว้แล้ว ทำให้ rollback ไม่
+allocate Participant จะลบ plan record ได้หลัง consume abandonment authority ที่
+ตรงกันเท่านั้น
+
+### SCT-T51 — Closed Four-Plan Tuple
+
+ชุด exact CandidateWork, Sidecar, Source และ Stage plan/seal/output ที่พิสูจน์ว่า
+เป็น Root/change/composition/preflight/evidence/Source transition เดียวกันก่อน
+sealed โดย Stage plan ต้องปิดครอบ planned outputs ของอีกสาม plan
+
+### SCT-T52 — Exact Stage Result
+
+exact frozen Plan A accepted Source-stage object ที่สร้างใน Stage plan ก่อน
+sealed, Stage apply ติดตั้งและคืน object นี้โดยตรง และ TransitionSource คืน
+identity เดิม ห้ามมี ticket-to-result shadow registry
+
+### SCT-T53 — Plain Record Publication Loop
+
+variable-count operation เดียวที่อนุญาตหลัง SCT-T25 เป็น numeric indexed loop
+บน Core-created frozen plain array หนึ่งชุดที่มี frozen plain physical-pair
+records จำนวนเป็น exact safe integer และถูก work-policy bound แล้ว Body มีเพียง
+direct element access, fixed registry write และ index increment โดยไม่มี iterator,
+callback, array method, accessor, rejection, allocation หรือ external payload
+traversal
+
+### SCT-T54 — Sealed Apply Record
+
+owner-created frozen plain record ที่เก็บ exact keys, values, fixed counts และ
+precreated outputs ที่ participant apply หนึ่งตัวต้องใช้ SCT-T49 ผูก exact
+identity และ transaction leaf เก็บไว้ก่อน sealed Owner prepare ไม่เปิด record นี้
+ให้ coordinator; `begin` คืนให้หลังเขียน `committing` เท่านั้น Apply ใช้ record
+โดยตรงโดยไม่ทำ owner registry lookup, authority assertion, allocation, freeze
+หรือ nullable branch
+
 ## 6. กฎ parity ระหว่างสองฉบับ
 
-1. ทั้งสองฉบับต้องมี `SCT-T01` ถึง `SCT-T47` ตรงกัน
+1. ทั้งสองฉบับต้องมี `SCT-T01` ถึง `SCT-T54` ตรงกัน
 2. Exact English term และ contract identifier ต้องคงเดิมในฉบับภาษาไทย
 3. เพิ่ม ลบ หรือเปลี่ยน Term ID ต้องแก้สองไฟล์ใน change set เดียวกัน
 4. Micro-spec, implementation plan, active task briefs และ final reports ต้อง

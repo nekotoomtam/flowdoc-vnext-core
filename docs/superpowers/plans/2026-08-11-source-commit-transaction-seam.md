@@ -1,5 +1,10 @@
 # Source Commit Transaction Seam Implementation Plan
 
+> **Status:** Superseded before implementation closure by
+> [Source Commit Transaction Seam Revised Implementation Plan](./2026-08-11-source-commit-transaction-seam-revised.md).
+> This file remains historical evidence for the first implementation attempt
+> and must not be used as an active execution contract.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace the callback-based Phase 5B-2 Plan A Source commit handshake with one exact, process-local, one-way Source Commit Transaction whose live boundary has no remaining fallible or externally executable work.

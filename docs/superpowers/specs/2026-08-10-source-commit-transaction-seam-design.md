@@ -1,6 +1,13 @@
 # Source Commit Transaction Seam Design
 
-**Status:** Proposed for user review.
+**Status:** Superseded in part by the approved review amendment below.
+
+**Active review amendment:**
+[Source Commit Transaction Seam Review Amendment](./2026-08-11-source-commit-transaction-seam-review-amendment-design.md)
+
+The amendment is normative where it changes lifecycle, owner-plan sealing,
+Source-access ownership, the bounded post-live publication rule, or Stage
+result identity. Unchanged sections of this document remain normative.
 
 **Scope:** Phase 5B-2A Plan A, Task 7 closure only.
 
