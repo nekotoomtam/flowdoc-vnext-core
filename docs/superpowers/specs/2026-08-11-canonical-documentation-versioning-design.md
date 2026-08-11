@@ -2,9 +2,11 @@
 
 **Status:** User-approved design; implementation has not started.
 
-**Scope owner:** `flowdoc-vnext-core` first, with one Core-held cross-repository
-Development Baseline that references `flowdoc-vnext-editor` and
-`flowdoc-vnext-backend` without taking ownership of their release lifecycles.
+**Scope owner:** `flowdoc-vnext-core` first as the Provisional Coordination
+Host, with one neutral cross-repository Development Baseline that references
+`flowdoc-vnext-editor` and `flowdoc-vnext-backend` without taking ownership of
+their release lifecycles. The coordination records are designed for a later
+ownership transfer to a dedicated FlowDoc coordination repository.
 
 **Design date:** 2026-08-11
 
@@ -26,8 +28,9 @@ The design has six load-bearing decisions:
    classes and may not silently substitute for one another;
 2. release-line folders compose independently versioned contracts and
    subsystem facts; they do not copy those facts into every release;
-3. every repository owns an independent SemVer lifecycle, while one Core-held
-   Development Baseline records exact cross-repository reference tuples;
+3. every repository owns an independent SemVer lifecycle, while one neutral,
+   provisionally Core-hosted Development Baseline records exact
+   cross-repository reference tuples;
 4. document, contract, capability, risk, unknown, gate, term, baseline, and
    work identities use typed immutable IDs;
 5. one structured glossary source generates the technical and Thai glossaries,
@@ -36,6 +39,12 @@ The design has six load-bearing decisions:
 6. Core documentation is migrated subsystem by subsystem as an atomic cutover:
    canonical claims and tests move before superseded files are deleted in the
    same checkpoint.
+
+Core's hosting role is temporary. The future dedicated coordination repository
+may become the human and agent entrypoint for selecting a cross-repository
+baseline, dispatching repository-scoped work, and collecting exact results.
+That future orchestration role does not move implementation, contract,
+verification, or release ownership out of Core, Editor, or Backend.
 
 This is intentionally not a full documentation framework. It creates the
 smallest structured spine needed to make routing, identity, applicability, and
@@ -104,6 +113,8 @@ proven schema later without moving their documentation ownership into Core.
 9. Keep internal project memory out of package artifacts by default.
 10. Prepare a stable truth interface that a later `AGENTS.md` and FlowDoc skill
     can consume without duplicating architecture or status.
+11. Make the Core-hosted coordination records relocatable without changing
+    their IDs, schema meanings, or repository ownership claims.
 
 ## 4. Non-Goals
 
@@ -114,6 +125,8 @@ This design does not authorize or implement:
 - a Core package version bump or registry publication;
 - a Git tag, branch merge, push, or stash mutation;
 - a public documentation portal or site generator;
+- creation of the future dedicated FlowDoc coordination repository or its
+  dispatch runtime;
 - a generic content-management system;
 - automatic generation of architecture, risk reasoning, or migration prose;
 - Editor or Backend documentation migration;
@@ -137,17 +150,18 @@ docs/
 |- glossary.json                      authored structured terminology source
 |- GLOSSARY.md                        generated technical glossary
 |- GLOSSARY_TH.md                     generated Thai glossary
-|- DEVELOPMENT_BASELINE.json          authored exact reference snapshot
 |- VERSION_POLICY.md                  authored version rules
+|
+|- coordination/                      provisionally hosted neutral records
+|  |- REPOSITORY_INDEX.json           stable repository identities and roles
+|  |- DEVELOPMENT_BASELINE.json       exact cross-repository reference snapshot
+|  `- BOUNDARY.md                     authored cross-repository ownership
 |
 |- project/
 |  |- CURRENT_STATE.md                authored current facts and defects
 |  |- RISK_REGISTER.md                authored future adverse possibilities
 |  |- KNOWN_UNKNOWNS.md               authored evidence gaps
 |  `- ROADMAP.md                      authored future work
-|
-|- cross-repo/
-|  `- BOUNDARY.md                     authored ownership boundary
 |
 |- contracts/
 |  |- layout/
@@ -185,6 +199,7 @@ reviewed designs.
 | Where should a reader start? | `DOCUMENT_MAP.md` |
 | What exact document IDs and paths exist? | `manifest.json` |
 | What does a term mean? | `glossary.json` and generated glossaries |
+| Which repositories participate and what roles do they own? | `coordination/REPOSITORY_INDEX.json` |
 | What is true now? | `project/CURRENT_STATE.md` |
 | What adverse event may happen? | `project/RISK_REGISTER.md` |
 | What is not yet known? | `project/KNOWN_UNKNOWNS.md` |
@@ -192,7 +207,8 @@ reviewed designs.
 | What is the active contract? | matching file under `contracts/` |
 | How does a subsystem fit together? | matching file under `subsystems/` |
 | What does release line `0.1` compose? | `versions/0_1/release.json` |
-| What exact commits and gates form a reference snapshot? | `DEVELOPMENT_BASELINE.json` |
+| What exact commits and gates form a reference snapshot? | `coordination/DEVELOPMENT_BASELINE.json` |
+| Who owns a cross-repository concern? | `coordination/BOUNDARY.md` |
 | What does runtime actually do? | code, tests, and fixtures |
 
 ### 5.2 Fact Taxonomy
@@ -221,8 +237,10 @@ The first structured sources are limited to:
 
 - `manifest.json` for document identity, routing metadata, and lifecycle;
 - `glossary.json` for terminology identity and language parity;
-- `DEVELOPMENT_BASELINE.json` for exact repository and verification snapshots;
-  and
+- `coordination/REPOSITORY_INDEX.json` for stable neutral repository IDs,
+  roles, and independently owned manifest references;
+- `coordination/DEVELOPMENT_BASELINE.json` for exact repository and
+  verification snapshots; and
 - one `release.json` for each authored release line.
 
 Architecture, contracts, current state, risks, unknowns, compatibility
@@ -351,9 +369,11 @@ policy, and a proven cross-repository compatibility baseline.
 
 ## 8. Shared Development Baseline
 
-The current baseline is stored in Core because Core is the coordination
-repository. That storage does not make Core the owner of Editor or Backend
-release readiness.
+The current baseline is provisionally stored under `docs/coordination/` in
+Core because no dedicated coordination repository exists yet. Core is the
+Provisional Coordination Host, not the semantic owner of the shared record.
+That storage does not make Core the owner of Editor or Backend release
+readiness.
 
 The record shape includes the following illustrative inspected heads. These
 values are evidence for the design example only; they do not declare an
@@ -415,6 +435,64 @@ documentation validation gates run on Y before handoff. Any source, test,
 contract, or semantic-document change invalidates the sequence and requires a
 new content commit X. Git identifies the exact commit containing the baseline
 record; no recursive self-hash field is introduced.
+
+### 8.1 Future Dedicated Coordination Repository
+
+The neutral coordination records are designed for a later ownership transfer
+to a dedicated repository, with `flowdoc-vnext-coordination` as a working name
+only. The final repository identity and creation are separate future decisions.
+
+That repository may own:
+
+- the shared Development Baseline;
+- stable repository IDs and declared repository roles;
+- the cross-repository compatibility view;
+- the global ID namespace and cross-repository term families;
+- cross-repository release-set references; and
+- future human or agent navigation for coordinated work.
+
+It must not own or copy as canonical truth:
+
+- Core, Editor, or Backend implementation;
+- repository-local architecture and contracts;
+- repository-local risks, unknowns, and verification evidence;
+- repository-local Release Version or readiness decisions; or
+- repository-local worktree, branch, commit, and publication operations.
+
+The future orchestration north star is:
+
+```text
+coordination entrypoint
+  -> select exact shared baseline
+  -> issue repository-scoped work request
+  -> repository owner executes under its own contract
+  -> return exact commit, verification, and manifest receipt
+  -> coordination owner evaluates a new shared baseline
+```
+
+This design records only the ownership boundary and relocation seam. It does
+not define a worker protocol, queue, scheduler, remote command API, automatic
+cross-repository mutation, or agent dispatch implementation.
+
+### 8.2 Relocation Rules
+
+Shared records use neutral repository IDs such as `REPO-FLOWDOC-CORE`, not
+Core-relative ownership or filesystem paths. References bind repository ID,
+exact commit, and repository-owned manifest ID. Their schema names do not use a
+Core prefix merely because Core is the temporary host.
+
+When the dedicated coordination repository exists:
+
+1. freeze the exact Core-hosted coordination record set;
+2. transfer those identities and contents without changing IDs or semantic
+   meanings;
+3. make the dedicated repository the sole active owner in one cutover;
+4. replace Core-hosted records with one non-authoritative pointer only if a
+   durable consumer requires it; otherwise delete them; and
+5. prove that no active baseline, manifest, glossary, or agent instruction
+   still treats Core as coordination authority.
+
+Copying the records and leaving both repositories active is forbidden.
 
 ## 9. Typed Immutable IDs
 
@@ -725,8 +803,8 @@ migrated merely because infrastructure exists.
 #### D2 — Project Truth Plane
 
 Create Current State, Risk Register, Known Unknowns, Roadmap, Version Policy,
-Development Baseline, and cross-repository boundary. A later agent-system task
-may then replace `AGENTS.md` required-reading rules.
+the provisional coordination records, and cross-repository boundary. A later
+agent-system task may then replace `AGENTS.md` required-reading rules.
 
 #### D3 — Layout And Incremental Transition
 
@@ -749,8 +827,16 @@ prepare—but do not automatically trigger—the Core `0.1.0-a.1` entry decision
 #### D6 — Cross-Repository Adoption
 
 After Core proves the model, design and migrate Editor and Backend separately.
-Core's baseline references their exact commits and declared versions but cannot
-promote their readiness.
+The provisionally Core-hosted baseline references their exact commits and
+declared versions but cannot promote their readiness.
+
+#### D7 — Future Coordination Ownership Transfer
+
+After all three repositories expose stable local manifests and the dedicated
+coordination repository has its own approved design, transfer the neutral
+records through the one-owner relocation protocol in Section 8.2. D7 is a
+future program boundary and is not part of the initial Core implementation
+plan.
 
 ## 15. Risks And Decisions
 
@@ -768,7 +854,10 @@ promote their readiness.
 | One generic status field conflates concepts | Lifecycle, maturity, readiness, and verification result are distinct axes. |
 | Core implies Editor/Backend compatibility | Baseline uses explicit `not-verified` until cross-repository evidence exists. |
 | Internal project memory ships in package | Package documentation changes to an explicit consumer-facing allowlist. |
-| Structured documentation becomes a framework | Only four structured source classes and five generated views are initially allowed. |
+| Structured documentation becomes a framework | Only five structured source classes and five generated views are initially allowed. |
+| Core becomes permanent owner of shared coordination truth | Core is explicitly provisional; neutral IDs and schemas support one-owner relocation. |
+| Future orchestration takes over repository contracts | Coordination dispatches scoped work and consumes receipts; each repository retains semantic and release ownership. |
+| Coordination records are copied instead of transferred | D7 permits one active owner and forbids dual-active records. |
 | Historical audit trail is lost | Git history and release tags retain deleted documents and exact snapshots. |
 | Future agents still scan history by default | Later `AGENTS.md` and FlowDoc skill must start from generated current maps and active release composition. |
 
@@ -781,8 +870,8 @@ The design is ready for implementation planning only when the user confirms:
 3. exact prerelease snapshots use tags/artifacts rather than copied authored
    folders;
 4. Core, Editor, and Backend own independent SemVer lifecycles;
-5. the Core-held Development Baseline is coordination evidence, not ownership
-   of other repositories;
+5. the provisionally Core-hosted Development Baseline is neutral coordination
+   evidence, not ownership of other repositories;
 6. typed semantic IDs and timestamp-only event IDs are accepted;
 7. Term Family, Exact Term Definition, and Lexical Form are the terminology
    model;
@@ -793,9 +882,12 @@ The design is ready for implementation planning only when the user confirms:
 11. internal agent, risk, unknown, roadmap, and baseline documents are excluded
     from package artifacts by default;
 12. D0 resolves the stale-main/latest-worktree split before content migration;
-13. Core migrates before Editor and Backend; and
+13. Core migrates before Editor and Backend;
 14. agent working agreements and FlowDoc-specific skills are designed only
-    after canonical project memory is established.
+    after canonical project memory is established; and
+15. shared coordination records are relocatable to one future dedicated owner,
+    while repository-local contracts, evidence, and release decisions remain
+    local.
 
 Implementation must not begin until this written design passes self-review,
 the user reviews the committed specification, and a separate detailed
