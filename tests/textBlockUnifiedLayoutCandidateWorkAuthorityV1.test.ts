@@ -5,15 +5,81 @@ import {
   beginVNextTextBlockUnifiedLayout5B2OperationInternalV1,
   completeVNextTextBlockUnifiedLayout5B2OperationInternalV1,
   inspectVNextTextBlockUnifiedLayout5B2CandidateWorkMeterForTestInternalV1,
+  hasVNextTextBlockUnifiedLayout5B2SourcePublicationPreconditionRecordForTestInternalV1,
   matchesVNextTextBlockUnifiedLayout5B2CandidateWorkMeterSeedInternalV1,
   openVNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+  applyVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanInternalV1,
+  abandonVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanInternalV1,
+  matchesVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanSealInternalV1,
+  prepareVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanInternalV1,
   prepareVNextTextBlockUnifiedLayout5B2SourceCandidateWorkPublicationInternalV1,
   projectVNextTextBlockUnifiedLayout5B2CompatibilityWorkInternalV1,
   publishVNextTextBlockUnifiedLayout5B2CandidateWorkInternalV1,
   registerVNextTextBlockUnifiedLayout5B2FoundationCandidateWorkInternalV1,
   resolveVNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1,
+  setVNextTextBlockUnifiedLayout5B2CandidateRegistrationObserverForTestInternalV1,
   type VNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.js"
+import {
+  abortDetachedVNextTextBlockUnifiedLayoutSourceCommitInternalV1,
+  attachVNextTextBlockUnifiedLayoutSourceCandidateCommitPlanInternalV1 as attachSourceCandidatePlanLeafInternalV1,
+  attachVNextTextBlockUnifiedLayoutSourceSidecarCommitPlanInternalV1 as attachSidecarPlanLeafInternalV1,
+  attachVNextTextBlockUnifiedLayoutSourceStagePublicationPlanInternalV1 as attachStagePlanLeafInternalV1,
+  beginVNextTextBlockUnifiedLayoutSourceCommitInternalV1,
+  consumeVNextTextBlockUnifiedLayoutSourceCandidateCommitStepInternalV1,
+  consumeVNextTextBlockUnifiedLayoutSourceSidecarCommitStepInternalV1,
+  consumeVNextTextBlockUnifiedLayoutSourceStageCommitStepInternalV1,
+  createDetachedVNextTextBlockUnifiedLayoutSourceCommitInternalV1,
+  finishVNextTextBlockUnifiedLayoutSourceCommitInternalV1,
+  mintVNextTextBlockUnifiedLayoutSourceCommitInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceCommitFinishStepInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceCandidateCommitPlanAuthorityInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceCandidateCommitStepInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceSidecarCommitPlanAuthorityInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceSidecarCommitStepInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceStageCommitStepInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceStagePublicationPlanAuthorityInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutSourceCommitTransactionInternalsV1.js"
+
+const dummySidecarStepConsumerAuthority = Object.freeze({})
+const dummySourceStepConsumerAuthority = Object.freeze({})
+const dummyStageStepConsumerAuthority = Object.freeze({})
+
+function attachVNextTextBlockUnifiedLayoutSourceSidecarCommitPlanInternalV1(
+  input: Omit<Parameters<typeof attachSidecarPlanLeafInternalV1>[0], "consumerAuthority">,
+): boolean {
+  return attachSidecarPlanLeafInternalV1({
+    ...input,
+    consumerAuthority: dummySidecarStepConsumerAuthority as never,
+  })
+}
+
+function attachVNextTextBlockUnifiedLayoutSourceCandidateCommitPlanInternalV1(
+  input: Omit<Parameters<typeof attachSourceCandidatePlanLeafInternalV1>[0], "consumerAuthority">,
+): boolean {
+  return attachSourceCandidatePlanLeafInternalV1({
+    ...input,
+    consumerAuthority: dummySourceStepConsumerAuthority as never,
+  })
+}
+
+function attachVNextTextBlockUnifiedLayoutSourceStagePublicationPlanInternalV1(
+  input: Omit<Parameters<typeof attachStagePlanLeafInternalV1>[0], "consumerAuthority">,
+): boolean {
+  return attachStagePlanLeafInternalV1({
+    ...input,
+    consumerAuthority: dummyStageStepConsumerAuthority as never,
+  })
+}
+import type {
+  VNextTextBlockUnifiedLayoutSourceStageSidecarPreconditionAuthorityInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutSourceAuthorityInternalsV1.js"
+import type {
+  VNextTextBlockUnifiedLayoutSourceSidecarCandidateAuthorityInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutSourceSidecarsInternalsV1.js"
+import type {
+  VNextTextBlockSourcePathCopyCandidateAuthorityInternalV1,
+} from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
 import {
   getVNextTextBlockUnifiedLayoutSourceStagePreflightRecordInternalV2,
   prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2,
@@ -50,6 +116,26 @@ function freeze<T>(value: T): T {
 
 function fingerprint(value: unknown): string {
   return createVNextCompactFingerprint(stringifyVNextCanonicalJson(value))
+}
+
+function finishStepFromSidecarStepForTest(
+  sidecarStep: unknown,
+): VNextTextBlockUnifiedLayoutSourceCommitFinishStepInternalV1 {
+  const sidecar =
+    consumeVNextTextBlockUnifiedLayoutSourceSidecarCommitStepInternalV1({
+      step: sidecarStep as VNextTextBlockUnifiedLayoutSourceSidecarCommitStepInternalV1,
+      consumerAuthority: dummySidecarStepConsumerAuthority as never,
+    })
+  const source =
+    consumeVNextTextBlockUnifiedLayoutSourceCandidateCommitStepInternalV1({
+      step: sidecar.nextStep as VNextTextBlockUnifiedLayoutSourceCandidateCommitStepInternalV1,
+      consumerAuthority: dummySourceStepConsumerAuthority as never,
+    })
+  const stage = consumeVNextTextBlockUnifiedLayoutSourceStageCommitStepInternalV1({
+    step: source.nextStep as VNextTextBlockUnifiedLayoutSourceStageCommitStepInternalV1,
+    consumerAuthority: dummyStageStepConsumerAuthority as never,
+  })
+  return stage.finishStep
 }
 
 function paintChange(
@@ -467,6 +553,356 @@ describe("5B-2 candidate-work authority", () => {
       nextCandidateWork: detachedWork!,
       producingStageAuthority: {},
     })).toBeNull()
+  })
+
+  it("prepares Source publication without publishing before the transaction begins", () => {
+    const exact = foundation({ label: "detached-source-publication-plan" })
+    const meter = meterFor(exact)
+    const begun = beginVNextTextBlockUnifiedLayout5B2OperationInternalV1({
+      meter,
+      unit: "source-items",
+    })
+    expect(begun.status).toBe("permitted")
+    if (begun.status !== "permitted") return
+    expect(completeVNextTextBlockUnifiedLayout5B2OperationInternalV1(
+      begun.permit,
+    )).toBe(true)
+    const nextCandidateWork =
+      projectVNextTextBlockUnifiedLayout5B2CompatibilityWorkInternalV1(meter)
+    expect(nextCandidateWork).not.toBeNull()
+    if (nextCandidateWork == null) return
+    const publicationPreconditionAuthority =
+      prepareVNextTextBlockUnifiedLayout5B2SourceCandidateWorkPublicationInternalV1({
+        meter,
+        nextCandidateWork,
+        completedSourceEmissionCount: 1,
+        producingStageAuthority: exact.preflight,
+      })
+    expect(publicationPreconditionAuthority).not.toBeNull()
+    if (publicationPreconditionAuthority == null) return
+    expect(
+      hasVNextTextBlockUnifiedLayout5B2SourcePublicationPreconditionRecordForTestInternalV1(
+        publicationPreconditionAuthority,
+      ),
+    ).toBe(true)
+
+    const detachedTicket =
+      createDetachedVNextTextBlockUnifiedLayoutSourceCommitInternalV1()
+    expect(
+      prepareVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanInternalV1({
+        detachedTicket,
+        publicationPreconditionAuthority:
+          structuredClone(publicationPreconditionAuthority),
+        candidateWorkMeter: meter,
+        nextCandidateWork,
+        completedSourceEmissionCount: 1,
+      }),
+    ).toBeNull()
+    expect(
+      prepareVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanInternalV1({
+        detachedTicket,
+        publicationPreconditionAuthority,
+        candidateWorkMeter: Object.freeze({}) as typeof meter,
+        nextCandidateWork,
+        completedSourceEmissionCount: 1,
+      }),
+    ).toBeNull()
+    expect(
+      prepareVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanInternalV1({
+        detachedTicket,
+        publicationPreconditionAuthority,
+        candidateWorkMeter: meter,
+        nextCandidateWork,
+        completedSourceEmissionCount: 0,
+      }),
+    ).toBeNull()
+    const prepared =
+      prepareVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanInternalV1({
+        detachedTicket,
+        publicationPreconditionAuthority,
+        candidateWorkMeter: meter,
+        nextCandidateWork,
+        completedSourceEmissionCount: 1,
+      })
+    expect(prepared).not.toBeNull()
+    if (prepared == null) return
+    const leakedApplyRecord = (prepared as unknown as {
+      readonly applyRecord?: object
+    }).applyRecord
+    if (leakedApplyRecord !== undefined) {
+      applyVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanInternalV1(
+        Object.freeze({
+          applyRecord: leakedApplyRecord,
+          nextStep: Object.freeze({}),
+        }) as never,
+      )
+    }
+    expect(resolveVNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1({
+      previousRoot: exact.root,
+      change: exact.change,
+      composition: exact.composition,
+      candidateWork: nextCandidateWork,
+    })).toBeNull()
+    expect(leakedApplyRecord).toBeUndefined()
+    expect(Object.isFrozen(prepared.candidateWorkAuthority)).toBe(true)
+    expect(resolveVNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1({
+      previousRoot: exact.root,
+      change: exact.change,
+      composition: exact.composition,
+      candidateWork: nextCandidateWork,
+    })).toBeNull()
+    const sidecarPlanAuthority = Object.freeze({}) as
+      VNextTextBlockUnifiedLayoutSourceSidecarCommitPlanAuthorityInternalV1
+    const sourcePlanAuthority = Object.freeze({}) as
+      VNextTextBlockUnifiedLayoutSourceCandidateCommitPlanAuthorityInternalV1
+    const stagePlanAuthority = Object.freeze({}) as
+      VNextTextBlockUnifiedLayoutSourceStagePublicationPlanAuthorityInternalV1
+    const sidecarPlanSealAuthority = Object.freeze({})
+    const sourcePlanSealAuthority = Object.freeze({})
+    const stagePlanSealAuthority = Object.freeze({})
+    expect(attachVNextTextBlockUnifiedLayoutSourceSidecarCommitPlanInternalV1({
+      detachedTicket,
+      planAuthority: sidecarPlanAuthority,
+      sealAuthority: sidecarPlanSealAuthority as never,
+      applyRecord: sidecarPlanAuthority as never,
+    })).toBe(true)
+    expect(attachVNextTextBlockUnifiedLayoutSourceCandidateCommitPlanInternalV1({
+      detachedTicket,
+      planAuthority: sourcePlanAuthority,
+      sealAuthority: sourcePlanSealAuthority as never,
+      applyRecord: sourcePlanAuthority as never,
+    })).toBe(true)
+    expect(attachVNextTextBlockUnifiedLayoutSourceStagePublicationPlanInternalV1({
+      detachedTicket,
+      planAuthority: stagePlanAuthority,
+      sealAuthority: stagePlanSealAuthority as never,
+      applyRecord: stagePlanAuthority as never,
+    })).toBe(true)
+    const sidecarRegistrationPreconditionAuthority = Object.freeze({}) as
+      VNextTextBlockUnifiedLayoutSourceStageSidecarPreconditionAuthorityInternalV1
+    const nextSidecarCandidateAuthority = Object.freeze({}) as
+      VNextTextBlockUnifiedLayoutSourceSidecarCandidateAuthorityInternalV1
+    const sourcePathCopyCandidateAuthority = Object.freeze({}) as
+      VNextTextBlockSourcePathCopyCandidateAuthorityInternalV1
+    const mintResult = mintVNextTextBlockUnifiedLayoutSourceCommitInternalV1({
+      detachedTicket,
+      candidateWorkPlanAuthority: prepared.planAuthority,
+      sidecarPlanAuthority,
+      sourcePlanAuthority,
+      stagePlanAuthority,
+      candidateWorkPlanSealAuthority: prepared.sealAuthority,
+      sidecarPlanSealAuthority: sidecarPlanSealAuthority as never,
+      sourcePlanSealAuthority: sourcePlanSealAuthority as never,
+      stagePlanSealAuthority: stagePlanSealAuthority as never,
+      candidateWorkPublicationPreconditionAuthority:
+        publicationPreconditionAuthority,
+      sidecarRegistrationPreconditionAuthority,
+      candidateWorkMeter: meter,
+      nextSidecarCandidateAuthority,
+      sourcePathCopyCandidateAuthority,
+    })
+    expect(mintResult?.status).toBe("sealed")
+    if (mintResult?.status !== "sealed") {
+      throw new Error("candidate publication sealed ticket missing")
+    }
+    const ticket = mintResult.ticket
+    const candidateWorkStep =
+      beginVNextTextBlockUnifiedLayoutSourceCommitInternalV1(ticket)
+    let fabricatedStepGetterCount = 0
+    expect(() =>
+      applyVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanInternalV1(
+        new Proxy(Object.freeze({}), {
+          get() {
+            fabricatedStepGetterCount += 1
+            throw new Error("fabricated step getter observed")
+          },
+        }) as never,
+      ),
+    ).toThrow(/commit step invariant/i)
+    expect(fabricatedStepGetterCount).toBe(0)
+    expect(() =>
+      applyVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanInternalV1(
+        structuredClone(candidateWorkStep),
+      ),
+    ).toThrow(/commit step invariant/i)
+    setVNextTextBlockUnifiedLayout5B2CandidateRegistrationObserverForTestInternalV1(
+      () => { throw new Error("post-live candidate observer invoked") },
+    )
+    try {
+      var sidecarStep =
+        applyVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanInternalV1(
+          candidateWorkStep,
+        )
+    } finally {
+      setVNextTextBlockUnifiedLayout5B2CandidateRegistrationObserverForTestInternalV1(
+        null,
+      )
+    }
+    expect(() =>
+      applyVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanInternalV1(
+        candidateWorkStep,
+      ),
+    ).toThrow(/commit step invariant/i)
+    const publishedRecord =
+      resolveVNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1({
+      previousRoot: exact.root,
+      change: exact.change,
+      composition: exact.composition,
+      candidateWork: nextCandidateWork,
+      })
+    expect(publishedRecord).toMatchObject({
+      candidateWork: nextCandidateWork,
+      producingStageAuthority: ticket,
+    })
+    expect(Object.isFrozen(publishedRecord?.receipts)).toBe(true)
+    expect(publishedRecord?.receipts.every(Object.isFrozen)).toBe(true)
+    expect(
+      hasVNextTextBlockUnifiedLayout5B2SourcePublicationPreconditionRecordForTestInternalV1(
+        publicationPreconditionAuthority,
+      ),
+    ).toBe(false)
+    finishVNextTextBlockUnifiedLayoutSourceCommitInternalV1(
+      finishStepFromSidecarStepForTest(sidecarStep!),
+    )
+  })
+
+  it("binds an owner-issued plan seal to one detached ticket and planned output", () => {
+    const prepare = (label: string) => {
+      const exact = foundation({ label })
+      const meter = meterFor(exact)
+      const begun = beginVNextTextBlockUnifiedLayout5B2OperationInternalV1({
+        meter,
+        unit: "source-items",
+      })
+      expect(begun.status).toBe("permitted")
+      if (begun.status !== "permitted") {
+        throw new Error("candidate-work owner-seal meter was not permitted")
+      }
+      expect(completeVNextTextBlockUnifiedLayout5B2OperationInternalV1(
+        begun.permit,
+      )).toBe(true)
+      const nextCandidateWork =
+        projectVNextTextBlockUnifiedLayout5B2CompatibilityWorkInternalV1(meter)
+      expect(nextCandidateWork).not.toBeNull()
+      if (nextCandidateWork == null) {
+        throw new Error("candidate-work owner-seal projection missing")
+      }
+      const publicationPreconditionAuthority =
+        prepareVNextTextBlockUnifiedLayout5B2SourceCandidateWorkPublicationInternalV1({
+          meter,
+          nextCandidateWork,
+          completedSourceEmissionCount: 1,
+          producingStageAuthority: exact.preflight,
+        })
+      expect(publicationPreconditionAuthority).not.toBeNull()
+      if (publicationPreconditionAuthority == null) {
+        throw new Error("candidate-work owner-seal precondition missing")
+      }
+      const detachedTicket =
+        createDetachedVNextTextBlockUnifiedLayoutSourceCommitInternalV1()
+      const prepared =
+        prepareVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanInternalV1({
+          detachedTicket,
+          publicationPreconditionAuthority,
+          candidateWorkMeter: meter,
+          nextCandidateWork,
+          completedSourceEmissionCount: 1,
+        })
+      expect(prepared).not.toBeNull()
+      if (prepared == null) {
+        throw new Error("candidate-work owner-seal plan missing")
+      }
+      return {
+        detachedTicket,
+        publicationPreconditionAuthority,
+        meter,
+        nextCandidateWork,
+        prepared,
+      }
+    }
+
+    const first = prepare("candidate-work-owner-seal-first")
+    const second = prepare("candidate-work-owner-seal-second")
+    const exactMatch = {
+      detachedTicket: first.detachedTicket,
+      planAuthority: first.prepared.planAuthority,
+      sealAuthority: first.prepared.sealAuthority,
+      plannedOutput: first.prepared.candidateWorkAuthority,
+    }
+    expect(
+      matchesVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanSealInternalV1(
+        exactMatch,
+      ),
+    ).toBe(true)
+    expect(
+      matchesVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanSealInternalV1({
+        ...exactMatch,
+        sealAuthority: structuredClone(first.prepared.sealAuthority),
+      }),
+    ).toBe(false)
+    expect(
+      matchesVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanSealInternalV1({
+        ...exactMatch,
+        planAuthority: second.prepared.planAuthority,
+      }),
+    ).toBe(false)
+    expect(
+      matchesVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanSealInternalV1({
+        ...exactMatch,
+        detachedTicket: second.detachedTicket,
+      }),
+    ).toBe(false)
+    expect(
+      matchesVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanSealInternalV1({
+        ...exactMatch,
+        sealAuthority: Object.freeze({}) as typeof first.prepared.sealAuthority,
+      }),
+    ).toBe(false)
+
+    const abort = abortDetachedVNextTextBlockUnifiedLayoutSourceCommitInternalV1(
+      first.detachedTicket,
+    )
+    expect(abort).not.toBeNull()
+    if (abort == null) throw new Error("candidate-work detached abort missing")
+    expect(abort.candidateWork).not.toBeNull()
+    if (abort.candidateWork == null) {
+      throw new Error("candidate-work detached abandonment slot missing")
+    }
+    const candidateWorkAbort = abort.candidateWork
+    expect(() =>
+      abandonVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanInternalV1({
+        planAuthority: first.prepared.planAuthority,
+        abandonmentAuthority: structuredClone(
+          candidateWorkAbort.abandonmentAuthority,
+        ),
+      }),
+    ).toThrow(/abandonment invariant/i)
+    expect(
+      matchesVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanSealInternalV1(
+        exactMatch,
+      ),
+    ).toBe(true)
+    abandonVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanInternalV1({
+      planAuthority: first.prepared.planAuthority,
+      abandonmentAuthority: candidateWorkAbort.abandonmentAuthority,
+    })
+    expect(
+      matchesVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanSealInternalV1(
+        exactMatch,
+      ),
+    ).toBe(false)
+
+    expect(
+      prepareVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanInternalV1({
+        detachedTicket:
+          createDetachedVNextTextBlockUnifiedLayoutSourceCommitInternalV1(),
+        publicationPreconditionAuthority:
+          first.publicationPreconditionAuthority,
+        candidateWorkMeter: first.meter,
+        nextCandidateWork: first.nextCandidateWork,
+        completedSourceEmissionCount: 1,
+      }),
+    ).not.toBeNull()
   })
 
   it("rejects replay of one candidate authority after its meter opens", () => {

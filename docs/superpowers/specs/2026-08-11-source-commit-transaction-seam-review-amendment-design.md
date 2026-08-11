@@ -1,7 +1,7 @@
 # Source Commit Transaction Seam Review Amendment Design
 
-**Status:** Written from the user-approved review direction; awaiting written
-spec review before implementation resumes.
+**Status:** User-approved active amendment; implementation and verification in
+progress.
 
 **Amends:**
 [Source Commit Transaction Seam Design](./2026-08-10-source-commit-transaction-seam-design.md)
@@ -34,8 +34,10 @@ The amendment also makes six load-bearing decisions:
 5. the Stage plan binds the complete four-plan output tuple and returns one
    SCT-T52 Exact Stage Result directly, without a ticket-to-result shadow map;
    and
-6. `begin` returns four pre-sealed SCT-T54 records so participant apply performs
-   no owner lookup or authority assertion after live.
+6. the leaf precreates one SCT-T55 Sequential Commit Capability chain from the
+   four exact SCT-T54 records; `begin` returns only the CandidateWork step,
+   each participant returns only the next fixed step, and only Stage returns
+   the finish step.
 
 These decisions supersede conflicting lifecycle, ownership, and Stage-result
 clauses in the amended design and its first implementation plan.
@@ -193,7 +195,11 @@ bindings are absent or ordinarily releasable.
 Each participant preparation returns one fixed owner-issued bundle:
 
 ```ts
-interface PreparedOwnerPlan<PlanAuthority, SealAuthority, PlannedOutput> {
+interface PreparedOwnerPlan<
+  PlanAuthority,
+  SealAuthority,
+  PlannedOutput,
+> {
   readonly planAuthority: PlanAuthority
   readonly sealAuthority: SealAuthority
   readonly plannedOutput: PlannedOutput
@@ -221,11 +227,19 @@ Dummy authorities remain valid only in isolated transaction-leaf unit tests.
 Production facade tests and every retry/fault matrix must use real owner-issued
 plans and seals.
 
-Owner preparation does not expose SCT-T54 to SourceAuthority. The matching
-owner function passes it directly to the fixed leaf attachment operation. The
-leaf stores it in the detached record, owner sealing proves the same identity,
-and `begin` returns it only after SCT-T25. This removes participant plan-record
-resolution and apply-authority assertions from the live tail.
+Owner preparation does not expose SCT-T54 in its prepared bundle. The matching
+owner function passes the record directly to the fixed leaf attachment
+operation. SourceAuthority passes only the four exact plan/seal/planned-output
+bundles to mint, and mint rejects unless they match the records already
+attached to the four fixed slots. The leaf obtains SCT-T54 only from those
+slots; an internal caller cannot supply an independent apply payload to mint.
+
+Before sealed, the leaf precreates five empty SCT-T55 identities and fixed
+private WeakMap records from those four SCT-T54 records. `begin` returns only
+the CandidateWork identity after SCT-T25. Each participant consumes the exact
+current identity once with its module-private consumer authority; only then
+does the leaf return that owner's SCT-T54 and the next empty identity. No
+participant or caller can inspect or obtain an independent later step.
 
 ## 9. Cross-Plan Exact Tuple
 
@@ -292,6 +306,8 @@ check over transaction-owned plain records:
 
 - phase is `sealed`;
 - all four exact plan, seal, and SCT-T54 identities are present in the leaf;
+- the five exact SCT-T55 registry records link those four records in the fixed
+  order and end in one finish identity bound to the same live record;
 - every fixed protection index points to this ticket;
 - the Stage cross-plan tuple is the exact sealed tuple; and
 - no transaction-owned slot is abandoned, applied, consumed, or missing.
@@ -302,9 +318,15 @@ the leaf record.
 
 Only then does `begin` write `phase = "committing"`. After that write:
 
-- `begin` returns the four exact SCT-T54 records stored before sealed;
-- participant apply functions consume SCT-T54 directly and perform no
-  nullable/boolean owner lookup or apply-authority assertion;
+- `begin` returns only the first SCT-T55 step;
+- each participant uses one fixed transaction-owned WeakMap lookup to consume
+  its exact SCT-T55 identity with its private consumer authority before reading
+  SCT-T54, mutates only its permanent owner records, and returns only the next
+  empty identity;
+- participant apply functions perform no owner-plan lookup, phase assertion,
+  caller-property read, or apply-authority assertion;
+- Stage returns the precreated finish step, and `finish` accepts only that
+  step—not a sealed ticket, earlier step, or independently supplied record;
 - no duplicate/conflict/policy/work-limit decision remains;
 - no object/array authority is allocated, copied, spread, sorted, or frozen;
 - no external getter, Proxy, callback, observer, logger, iterator, promise,
@@ -340,9 +362,11 @@ Stage preparation creates and freezes SCT-T52, its private result record, and
 all Stage/structural/optional-delta authority records before sealed. The Stage
 plan record and Stage SCT-T54 own that exact identity.
 
-Stage apply installs the exact precreated permanent records and returns SCT-T52
-directly. Returning the existing object is a plain operation; it performs no
-lookup after publication and cannot return `null` or `false`.
+SourceAuthority captures the exact SCT-T52 identity before SCT-T25. Stage apply
+installs the exact precreated permanent records and returns the precreated
+SCT-T55 finish step. After `finish` consumes the same live record,
+SourceAuthority returns the captured SCT-T52 identity. Neither operation
+performs a lookup after publication or can return `null` or `false`.
 
 There is no ticket-to-result, transaction-to-result, or duplicate Stage result
 registry. TransitionSource returns the exact object returned by the Stage
@@ -407,7 +431,8 @@ Tests prove:
 
 - Sidecar apply never resolves Source access;
 - Source apply makes the exact precreated access record resolvable;
-- Stage apply returns the exact precreated accepted result;
+- SourceAuthority returns the exact precreated accepted result only after the
+  Stage-produced finish step is consumed;
 - no ticket-to-result registry exists;
 - TransitionSource returns the same exact result identity;
 - consumed inspection exposes only tombstone facts; and
@@ -425,8 +450,10 @@ Tests prove:
 | hidden multiple sources of truth | leaf owns lifecycle/protection; participants own only plans/permanent records |
 | variable pair count after live | one named SCT-T53 bounded plain-record loop, no framework |
 | Stage/output cross-binding | Stage closes over all four real owner bundles before sealed |
-| result shadow registry | Stage apply returns exact precreated SCT-T52 directly |
-| owner plan lookup after live | `begin` returns pre-sealed SCT-T54 records directly |
+| result shadow registry | SourceAuthority captures exact SCT-T52 before live and returns it after finish |
+| out-of-order or partial apply | private one-shot SCT-T55 registries expose no link on external identities |
+| premature finish | only Stage returns the exact finish step accepted by `finish` |
+| owner plan lookup after live | SCT-T55 carries the exact pre-sealed SCT-T54 record to each owner |
 
 ## 16. Acceptance Criteria
 
@@ -440,8 +467,8 @@ This amendment is ready for implementation only when:
 5. Stage binds the full exact four-plan output tuple;
 6. SCT-T53 is the only variable-count post-live operation and is numerically
    bounded by fixture-derived policy;
-7. every participant apply receives SCT-T54 from `begin` and performs no
-   post-live owner lookup;
+7. SCT-T55 enforces CandidateWork → Sidecars → Source → Stage → finish with one
+   exact fixed step-registry consume per participant and no owner-plan lookup;
 8. every early rejection and fault position has exact cleanup/retry evidence;
 9. no placeholder, generic participant/framework hook, or public surface is
    introduced; and

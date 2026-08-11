@@ -51,6 +51,7 @@ function runMeteredPositionKeyOperationInternalV1<T>(input: {
     return { status: "work-limit", evaluatorAuthority: begun.evaluatorAuthority }
   }
   if (begun.status !== "permitted") return { status: "invalid" }
+  sourcePhysicalPayloadObserverForTestInternalV1?.(input.unit)
   const value = input.operation()
   return completeVNextTextBlockUnifiedLayout5B2OperationInternalV1(begun.permit)
     ? { status: "completed", value }
@@ -212,6 +213,22 @@ export interface VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1 {
   readonly item: VNextTextBlockUnifiedLayoutSourceItemV1
   readonly positionKey: VNextTextBlockSourcePositionKeyInternalV1
   readonly renderedUtf16Length: number
+}
+
+let resolveExactPhysicalEntryForSourceItemInternalV1: ((
+  item: VNextTextBlockUnifiedLayoutSourceItemV1,
+) => VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1 | null) | null = null
+
+/** One-time task-specific binding; exact pair storage remains private to Sidecars. */
+export function bindVNextTextBlockUnifiedLayoutSourceExactPhysicalEntryResolverInternalV1(
+  resolver: NonNullable<typeof resolveExactPhysicalEntryForSourceItemInternalV1>,
+): boolean {
+  if (
+    resolveExactPhysicalEntryForSourceItemInternalV1 != null
+    || typeof resolver !== "function"
+  ) return false
+  resolveExactPhysicalEntryForSourceItemInternalV1 = resolver
+  return true
 }
 
 interface IdentityKeyInternalV1 {
@@ -625,6 +642,111 @@ class SourcePhysicalPathCopyStopInternalV1 {
   }
 }
 
+let sourcePhysicalPayloadObserverForTestInternalV1:
+  | ((unit: "source-index-nodes" | "source-index-entries" | "source-index-comparisons") => void)
+  | null = null
+
+const sourcePhysicalEntryReadViewsForTest = new WeakMap<object, object>()
+
+type SourcePhysicalLocalArrayKindForTestInternalV1 =
+  | "combine-groups"
+  | "combine-group"
+  | "identity-leaf-entries"
+  | "identity-leaf-snapshots"
+  | "order-leaf-entries"
+  | "order-leaf-snapshots"
+  | "identity-insertion-entries"
+  | "order-insertion-entries"
+  | "identity-deletion-entries"
+  | "order-deletion-entries"
+  | "identity-singleton-entries"
+  | "order-singleton-entries"
+  | "coordinator-next-items"
+  | "coordinator-original-removed-entries"
+  | "coordinator-removed-entries"
+  | "coordinator-new-entries"
+
+export interface VNextTextBlockUnifiedLayoutSourcePhysicalLocalArrayReadViewRegistrationForTestInternalV1 {
+  readonly authority: object
+  readonly createReadView: (input: Readonly<{
+    readonly kind: SourcePhysicalLocalArrayKindForTestInternalV1
+    readonly raw: readonly object[]
+  }>) => readonly object[]
+}
+
+let sourcePhysicalLocalArrayReadViewRegistrationForTest:
+  VNextTextBlockUnifiedLayoutSourcePhysicalLocalArrayReadViewRegistrationForTestInternalV1
+  | null = null
+
+export function registerVNextTextBlockUnifiedLayoutSourcePhysicalLocalArrayReadViewForTestInternalV1(
+  registration:
+    VNextTextBlockUnifiedLayoutSourcePhysicalLocalArrayReadViewRegistrationForTestInternalV1,
+): boolean {
+  if (
+    registration.authority == null
+    || typeof registration.authority !== "object"
+    || sourcePhysicalLocalArrayReadViewRegistrationForTest != null
+  ) return false
+  sourcePhysicalLocalArrayReadViewRegistrationForTest = registration
+  return true
+}
+
+export function removeVNextTextBlockUnifiedLayoutSourcePhysicalLocalArrayReadViewForTestInternalV1(
+  registration:
+    VNextTextBlockUnifiedLayoutSourcePhysicalLocalArrayReadViewRegistrationForTestInternalV1,
+): boolean {
+  if (sourcePhysicalLocalArrayReadViewRegistrationForTest !== registration) return false
+  sourcePhysicalLocalArrayReadViewRegistrationForTest = null
+  return true
+}
+
+function sourcePhysicalLocalArrayReadViewInternalV1<
+  T extends readonly object[],
+>(kind: SourcePhysicalLocalArrayKindForTestInternalV1, raw: T): T {
+  const registration = sourcePhysicalLocalArrayReadViewRegistrationForTest
+  return registration == null
+    ? raw
+    : registration.createReadView(Object.freeze({ kind, raw })) as T
+}
+
+/** Test-only hostile read view; exact raw entry identity remains authoritative. */
+export function registerVNextTextBlockUnifiedLayoutSourcePhysicalEntryReadViewForTestInternalV1(
+  input: {
+    readonly entry: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1
+    readonly readView: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1
+  },
+): boolean {
+  if (input.entry === input.readView || sourcePhysicalEntryReadViewsForTest.has(input.entry)) {
+    return false
+  }
+  sourcePhysicalEntryReadViewsForTest.set(input.entry, input.readView)
+  return true
+}
+
+export function removeVNextTextBlockUnifiedLayoutSourcePhysicalEntryReadViewForTestInternalV1(
+  input: {
+    readonly entry: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1
+    readonly readView: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1
+  },
+): boolean {
+  if (sourcePhysicalEntryReadViewsForTest.get(input.entry) !== input.readView) return false
+  sourcePhysicalEntryReadViewsForTest.delete(input.entry)
+  return true
+}
+
+function sourcePhysicalEntryReadViewInternalV1(
+  entry: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1,
+): VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1 {
+  return (sourcePhysicalEntryReadViewsForTest.get(entry) ?? entry) as
+    VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1
+}
+
+export function setVNextTextBlockUnifiedLayoutSourcePhysicalPayloadObserverForTestInternalV1(
+  observer: typeof sourcePhysicalPayloadObserverForTestInternalV1,
+): void {
+  sourcePhysicalPayloadObserverForTestInternalV1 = observer
+}
+
 function meteredPhysicalOperationInternalV1<T>(input: {
   readonly meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
   readonly unit: "source-index-nodes" | "source-index-entries" | "source-index-comparisons"
@@ -643,11 +765,51 @@ function meteredPhysicalOperationInternalV1<T>(input: {
   if (begun.status !== "permitted") {
     throw new SourcePhysicalPathCopyStopInternalV1("invalid")
   }
+  sourcePhysicalPayloadObserverForTestInternalV1?.(input.unit)
   const value = input.operation()
   if (!completeVNextTextBlockUnifiedLayout5B2OperationInternalV1(begun.permit)) {
     throw new SourcePhysicalPathCopyStopInternalV1("invalid")
   }
   return value
+}
+
+function sourcePhysicalLocalArrayLengthMeteredInternalV1(
+  array: readonly object[],
+  meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+): number {
+  return meteredPhysicalOperationInternalV1({
+    meter,
+    unit: "source-index-entries",
+    operation: () => array.length,
+  })
+}
+
+function sourcePhysicalLocalArrayItemMeteredInternalV1<T extends object>(
+  array: readonly T[],
+  index: number,
+  meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+): T {
+  return meteredPhysicalOperationInternalV1({
+    meter,
+    unit: "source-index-entries",
+    operation: () => {
+      const value = array[index]
+      if (value == null) throw new SourcePhysicalPathCopyStopInternalV1("invalid")
+      return value
+    },
+  })
+}
+
+function emitSourcePhysicalLocalArrayItemMeteredInternalV1<T extends object>(
+  output: T[],
+  value: T,
+  meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+): void {
+  meteredPhysicalOperationInternalV1({
+    meter,
+    unit: "source-index-entries",
+    operation: () => { output.push(value) },
+  })
 }
 
 function compareIdentityKeysMeteredInternalV1(
@@ -670,63 +832,304 @@ function identityKeyMeteredInternalV1(
   entry: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1,
   meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
 ): IdentityKeyInternalV1 {
+  const facts = physicalEntryFactsMeteredInternalV1(entry, meter)
+  return Object.freeze({
+    inlineId: facts.inlineId,
+    kindOrdinal: facts.kindOrdinal,
+    positionKey: facts.positionKey,
+  })
+}
+
+interface PhysicalEntryFactsMeteredInternalV1 {
+  readonly entry: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1
+  readonly item: VNextTextBlockUnifiedLayoutSourceItemV1
+  readonly inlineId: string
+  readonly kind: VNextTextBlockUnifiedLayoutSourceItemV1["kind"]
+  readonly kindOrdinal: number
+  readonly itemFingerprint: string
+  readonly positionKey: number
+  readonly renderedUtf16Length: number
+}
+
+function physicalEntryFactsAtMeteredInternalV1(
+  entries: readonly VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[],
+  index: number,
+  meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+): {
+  readonly entry: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1
+  readonly item: VNextTextBlockUnifiedLayoutSourceItemV1
+  readonly positionKey: number
+  readonly renderedUtf16Length: number
+} & PhysicalEntryFactsMeteredInternalV1 {
   return meteredPhysicalOperationInternalV1({
     meter,
-    unit: "source-index-comparisons",
-    operation: () => identityKey(entry),
+    unit: "source-index-entries",
+    operation: () => {
+      const entry = entries[index]
+      if (entry == null) throw new SourcePhysicalPathCopyStopInternalV1("invalid")
+      const entryReadView = sourcePhysicalEntryReadViewInternalV1(entry)
+      const item = entryReadView.item
+      return {
+        entry,
+        item,
+        inlineId: item.inlineId,
+        kind: item.kind,
+        kindOrdinal: KIND_ORDINAL[item.kind],
+        itemFingerprint: item.fingerprint,
+        positionKey: entryReadView.positionKey,
+        renderedUtf16Length: entryReadView.renderedUtf16Length,
+      }
+    },
   })
+}
+
+function physicalEntryFactsMeteredInternalV1(
+  entry: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1,
+  meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+): PhysicalEntryFactsMeteredInternalV1 {
+  return meteredPhysicalOperationInternalV1({
+    meter,
+    unit: "source-index-entries",
+    operation: () => {
+      const entryReadView = sourcePhysicalEntryReadViewInternalV1(entry)
+      const item = entryReadView.item
+      return {
+        entry,
+        item,
+        inlineId: item.inlineId,
+        kind: item.kind,
+        kindOrdinal: KIND_ORDINAL[item.kind],
+        itemFingerprint: item.fingerprint,
+        positionKey: entryReadView.positionKey,
+        renderedUtf16Length: entryReadView.renderedUtf16Length,
+      }
+    },
+  })
+}
+
+function emitPhysicalEntryMeteredInternalV1(
+  output: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[],
+  entry: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1,
+  meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+): void {
+  meteredPhysicalOperationInternalV1({
+    meter,
+    unit: "source-index-entries",
+    operation: () => { output.push(entry) },
+  })
+}
+
+function copyPhysicalEntriesMeteredInternalV1(
+  entries: readonly VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[],
+  start: number,
+  end: number,
+  meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+): readonly VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[] {
+  const output: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[] = []
+  for (let index = start; index < end; index += 1) {
+    emitPhysicalEntryMeteredInternalV1(
+      output,
+      physicalEntryFactsAtMeteredInternalV1(entries, index, meter).entry,
+      meter,
+    )
+  }
+  return output
+}
+
+function combinePhysicalEntriesMeteredInternalV1(
+  groups: readonly (readonly VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[])[],
+  meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+): readonly VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[] {
+  const output: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[] = []
+  const groupsReadView = sourcePhysicalLocalArrayReadViewInternalV1(
+    "combine-groups",
+    groups,
+  )
+  const groupCount = sourcePhysicalLocalArrayLengthMeteredInternalV1(
+    groupsReadView,
+    meter,
+  )
+  for (let groupIndex = 0; groupIndex < groupCount; groupIndex += 1) {
+    const group = sourcePhysicalLocalArrayItemMeteredInternalV1(
+      groupsReadView,
+      groupIndex,
+      meter,
+    )
+    const groupReadView = sourcePhysicalLocalArrayReadViewInternalV1(
+      "combine-group",
+      group,
+    )
+    const entryCount = sourcePhysicalLocalArrayLengthMeteredInternalV1(
+      groupReadView,
+      meter,
+    )
+    for (let index = 0; index < entryCount; index += 1) {
+      emitPhysicalEntryMeteredInternalV1(
+        output,
+        sourcePhysicalLocalArrayItemMeteredInternalV1(groupReadView, index, meter),
+        meter,
+      )
+    }
+  }
+  return output
 }
 
 function identityNodePayloadMeteredInternalV1(
   node: VNextTextBlockUnifiedLayoutSourceIdentityIndexNodeInternalV1,
   meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
 ) {
-  return meteredPhysicalOperationInternalV1({
+  const nodePayload = meteredPhysicalOperationInternalV1({
     meter,
     unit: "source-index-nodes",
     operation: () => node.nodeKind === "leaf"
-      ? {
-          kind: "leaf" as const,
-          entries: node.entries,
-          occupancy: node.entries.length,
-        }
+      ? { kind: "leaf" as const }
       : {
           kind: "branch" as const,
           children: node.children,
           occupancy: node.children.length,
         },
   })
+  return nodePayload.kind === "branch"
+    ? nodePayload
+    : meteredPhysicalOperationInternalV1({
+        meter,
+        unit: "source-index-entries",
+        operation: () => {
+          const leaf = node as VNextTextBlockUnifiedLayoutSourceIdentityIndexLeafInternalV1
+          return {
+            kind: "leaf" as const,
+            entries: leaf.entries,
+            occupancy: leaf.entries.length,
+          }
+        },
+      })
 }
 
 function orderNodePayloadMeteredInternalV1(
   node: VNextTextBlockUnifiedLayoutSourceOrderIndexNodeInternalV1,
   meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
 ) {
-  return meteredPhysicalOperationInternalV1({
+  const nodePayload = meteredPhysicalOperationInternalV1({
     meter,
     unit: "source-index-nodes",
     operation: () => node.nodeKind === "leaf"
-      ? {
-          kind: "leaf" as const,
-          entries: node.entries,
-          occupancy: node.entries.length,
-        }
+      ? { kind: "leaf" as const }
       : {
           kind: "branch" as const,
           children: node.children,
           occupancy: node.children.length,
         },
   })
+  return nodePayload.kind === "branch"
+    ? nodePayload
+    : meteredPhysicalOperationInternalV1({
+        meter,
+        unit: "source-index-entries",
+        operation: () => {
+          const leaf = node as VNextTextBlockUnifiedLayoutSourceOrderIndexLeafInternalV1
+          return {
+            kind: "leaf" as const,
+            entries: leaf.entries,
+            occupancy: leaf.entries.length,
+          }
+        },
+      })
 }
 
 function identityLeafMeteredInternalV1(
   entries: readonly VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[],
   meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
 ): VNextTextBlockUnifiedLayoutSourceIdentityIndexLeafInternalV1 {
+  const entriesReadView = sourcePhysicalLocalArrayReadViewInternalV1(
+    "identity-leaf-entries",
+    entries,
+  )
+  const entryCount = sourcePhysicalLocalArrayLengthMeteredInternalV1(
+    entriesReadView,
+    meter,
+  )
+  const snapshots: PhysicalEntryFactsMeteredInternalV1[] = []
+  for (let index = 0; index < entryCount; index += 1) {
+    emitSourcePhysicalLocalArrayItemMeteredInternalV1(
+      snapshots,
+      physicalEntryFactsAtMeteredInternalV1(entriesReadView, index, meter),
+      meter,
+    )
+  }
+  const snapshotsReadView = sourcePhysicalLocalArrayReadViewInternalV1(
+    "identity-leaf-snapshots",
+    snapshots,
+  )
+  const snapshotCount = sourcePhysicalLocalArrayLengthMeteredInternalV1(
+    snapshotsReadView,
+    meter,
+  )
+  const frozenEntriesOutput: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[] = []
+  const entryFactsOutput: Array<Readonly<{
+    readonly itemFingerprint: string
+    readonly positionKey: number
+    readonly renderedUtf16Length: number
+  }>> = []
+  let firstKey: IdentityKeyInternalV1 | null = null
+  let lastKey: IdentityKeyInternalV1 | null = null
+  for (let index = 0; index < snapshotCount; index += 1) {
+    const payload = meteredPhysicalOperationInternalV1({
+      meter,
+      unit: "source-index-entries",
+      operation: () => {
+        const facts = snapshotsReadView[index]
+        if (facts == null) throw new SourcePhysicalPathCopyStopInternalV1("invalid")
+        return {
+          entry: facts.entry,
+          key: Object.freeze({
+            inlineId: facts.inlineId,
+            kindOrdinal: facts.kindOrdinal,
+            positionKey: facts.positionKey,
+          }),
+          entryFacts: Object.freeze({
+            itemFingerprint: facts.itemFingerprint,
+            positionKey: facts.positionKey,
+            renderedUtf16Length: facts.renderedUtf16Length,
+          }),
+        }
+      },
+    })
+    emitSourcePhysicalLocalArrayItemMeteredInternalV1(
+      frozenEntriesOutput,
+      payload.entry,
+      meter,
+    )
+    emitSourcePhysicalLocalArrayItemMeteredInternalV1(
+      entryFactsOutput,
+      payload.entryFacts,
+      meter,
+    )
+    firstKey ??= payload.key
+    lastKey = payload.key
+  }
+  if (firstKey == null || lastKey == null) {
+    throw new SourcePhysicalPathCopyStopInternalV1("invalid")
+  }
+  const frozenEntries = Object.freeze(frozenEntriesOutput)
+  const entryFacts = Object.freeze(entryFactsOutput)
   return meteredPhysicalOperationInternalV1({
     meter,
     unit: "source-index-nodes",
-    operation: () => identityLeaf(entries),
+    operation: () => {
+      const facts = {
+        nodeKind: "leaf" as const,
+        firstKey,
+        lastKey,
+        entryCount: snapshotCount,
+        height: 0 as const,
+        entries: entryFacts,
+      }
+      return Object.freeze({
+        ...facts,
+        entries: frozenEntries,
+        fingerprint: fingerprint(facts),
+      })
+    },
   })
 }
 
@@ -745,10 +1148,105 @@ function orderLeafMeteredInternalV1(
   entries: readonly VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[],
   meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
 ): VNextTextBlockUnifiedLayoutSourceOrderIndexLeafInternalV1 {
+  const entriesReadView = sourcePhysicalLocalArrayReadViewInternalV1(
+    "order-leaf-entries",
+    entries,
+  )
+  const itemCount = sourcePhysicalLocalArrayLengthMeteredInternalV1(
+    entriesReadView,
+    meter,
+  )
+  const snapshots: PhysicalEntryFactsMeteredInternalV1[] = []
+  for (let index = 0; index < itemCount; index += 1) {
+    emitSourcePhysicalLocalArrayItemMeteredInternalV1(
+      snapshots,
+      physicalEntryFactsAtMeteredInternalV1(entriesReadView, index, meter),
+      meter,
+    )
+  }
+  const snapshotsReadView = sourcePhysicalLocalArrayReadViewInternalV1(
+    "order-leaf-snapshots",
+    snapshots,
+  )
+  const snapshotCount = sourcePhysicalLocalArrayLengthMeteredInternalV1(
+    snapshotsReadView,
+    meter,
+  )
+  const frozenEntriesOutput: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[] = []
+  const entryFactsOutput: Array<Readonly<{
+    readonly itemFingerprint: string
+    readonly positionKey: number
+    readonly renderedUtf16Length: number
+  }>> = []
+  let firstPositionKey: number | null = null
+  let lastPositionKey: number | null = null
+  let firstEntry: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1 | null = null
+  let lastEntry: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1 | null = null
+  let renderedUtf16Length = 0
+  for (let index = 0; index < snapshotCount; index += 1) {
+    const payload = meteredPhysicalOperationInternalV1({
+      meter,
+      unit: "source-index-entries",
+      operation: () => {
+        const facts = snapshotsReadView[index]
+        if (facts == null) throw new SourcePhysicalPathCopyStopInternalV1("invalid")
+        return {
+          entry: facts.entry,
+          positionKey: facts.positionKey,
+          renderedUtf16Length: facts.renderedUtf16Length,
+          entryFacts: Object.freeze({
+            itemFingerprint: facts.itemFingerprint,
+            positionKey: facts.positionKey,
+            renderedUtf16Length: facts.renderedUtf16Length,
+          }),
+        }
+      },
+    })
+    emitSourcePhysicalLocalArrayItemMeteredInternalV1(
+      frozenEntriesOutput,
+      payload.entry,
+      meter,
+    )
+    emitSourcePhysicalLocalArrayItemMeteredInternalV1(
+      entryFactsOutput,
+      payload.entryFacts,
+      meter,
+    )
+    firstPositionKey ??= payload.positionKey
+    firstEntry ??= payload.entry
+    lastPositionKey = payload.positionKey
+    lastEntry = payload.entry
+    renderedUtf16Length += payload.renderedUtf16Length
+  }
+  if (
+    firstPositionKey == null
+    || lastPositionKey == null
+    || firstEntry == null
+    || lastEntry == null
+  ) throw new SourcePhysicalPathCopyStopInternalV1("invalid")
+  const frozenEntries = Object.freeze(frozenEntriesOutput)
+  const entryFacts = Object.freeze(entryFactsOutput)
   return meteredPhysicalOperationInternalV1({
     meter,
     unit: "source-index-nodes",
-    operation: () => orderLeaf(entries),
+    operation: () => {
+      const facts = {
+        nodeKind: "leaf" as const,
+        itemCount: snapshotCount,
+        renderedUtf16Length,
+        height: 0 as const,
+        firstPositionKey,
+        lastPositionKey,
+        entries: entryFacts,
+      }
+      return Object.freeze({
+        ...facts,
+        firstEntry,
+        lastEntry,
+        entries: frozenEntries,
+        fingerprint: fingerprint(facts),
+      })
+    },
   })
 }
 
@@ -763,45 +1261,146 @@ function orderBranchMeteredInternalV1(
   })
 }
 
-function lookupIdentityEntriesMeteredInternalV1(input: {
+function firstIdentityEntryAtOrAfterMeteredInternalV1(input: {
   readonly root: VNextTextBlockUnifiedLayoutSourceIdentityIndexNodeInternalV1 | null
-  readonly inlineId: string
+  readonly key: IdentityKeyInternalV1
   readonly meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
-}): readonly VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[] {
-  const output: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[] = []
-  const visit = (
-    node: VNextTextBlockUnifiedLayoutSourceIdentityIndexNodeInternalV1,
-  ): void => {
-    const payload = meteredPhysicalOperationInternalV1({
-      meter: input.meter,
-      unit: "source-index-nodes",
-      operation: () => node.nodeKind === "leaf"
-        ? { kind: "leaf" as const, entries: node.entries }
-        : { kind: "branch" as const, children: node.children },
-    })
+}): PhysicalEntryFactsMeteredInternalV1 | null {
+  if (input.root == null) return null
+  let node = input.root
+  while (true) {
+    const payload = identityNodePayloadMeteredInternalV1(node, input.meter)
     if (payload.kind === "leaf") {
-      for (const entry of payload.entries) {
-        const matches = meteredPhysicalOperationInternalV1({
-          meter: input.meter,
-          unit: "source-index-comparisons",
-          operation: () => entry.item.inlineId === input.inlineId,
-        })
-        if (matches) output.push(entry)
+      for (let index = 0; index < payload.occupancy; index += 1) {
+        const facts = physicalEntryFactsAtMeteredInternalV1(
+          payload.entries,
+          index,
+          input.meter,
+        )
+        const relation = compareIdentityKeysMeteredInternalV1(
+          Object.freeze({
+            inlineId: facts.inlineId,
+            kindOrdinal: facts.kindOrdinal,
+            positionKey: facts.positionKey,
+          }),
+          input.key,
+          input.meter,
+        )
+        if (relation >= 0) return facts
       }
-      return
+      return null
     }
-    for (const child of payload.children) {
-      const intersects = meteredPhysicalOperationInternalV1({
+    let selected:
+      VNextTextBlockUnifiedLayoutSourceIdentityIndexNodeInternalV1 | null = null
+    for (let index = 0; index < payload.occupancy; index += 1) {
+      const child = payload.children[index]!
+      const lastKey = meteredPhysicalOperationInternalV1({
         meter: input.meter,
         unit: "source-index-comparisons",
-        operation: () => child.firstKey.inlineId <= input.inlineId
-          && child.lastKey.inlineId >= input.inlineId,
+        operation: () => child.lastKey,
       })
-      if (intersects) visit(child)
+      if (compareIdentityKeysMeteredInternalV1(
+        input.key,
+        lastKey,
+        input.meter,
+      ) <= 0) {
+        selected = child
+        break
+      }
     }
+    if (selected == null) return null
+    node = selected
   }
-  if (input.root != null) visit(input.root)
-  return Object.freeze(output)
+}
+
+function lookupExactIdentityEntryMeteredInternalV1(input: {
+  readonly root: VNextTextBlockUnifiedLayoutSourceIdentityIndexNodeInternalV1
+  readonly item: VNextTextBlockUnifiedLayoutSourceItemV1
+  readonly meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
+}): VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1 | null {
+  const authority = meteredPhysicalOperationInternalV1({
+    meter: input.meter,
+    unit: "source-index-entries",
+    operation: () => {
+      const entry = resolveExactPhysicalEntryForSourceItemInternalV1?.(
+        input.item,
+      ) ?? null
+      return entry == null
+        ? null
+        : (() => {
+            const item = entry.item
+            return {
+              entry,
+              item,
+              key: Object.freeze({
+                inlineId: item.inlineId,
+                kindOrdinal: KIND_ORDINAL[item.kind],
+                positionKey: entry.positionKey,
+              }),
+            }
+          })()
+    },
+  })
+  if (authority == null) return null
+  if (!meteredPhysicalOperationInternalV1({
+    meter: input.meter,
+    unit: "source-index-comparisons",
+    operation: () => authority.item === input.item,
+  })) return null
+
+  let node = input.root
+  while (true) {
+    const payload = identityNodePayloadMeteredInternalV1(node, input.meter)
+    if (payload.kind === "leaf") {
+      for (let index = 0; index < payload.occupancy; index += 1) {
+        const facts = physicalEntryFactsAtMeteredInternalV1(
+          payload.entries,
+          index,
+          input.meter,
+        )
+        const relation = compareIdentityKeysMeteredInternalV1(
+          Object.freeze({
+            inlineId: facts.inlineId,
+            kindOrdinal: facts.kindOrdinal,
+            positionKey: facts.positionKey,
+          }),
+          authority.key,
+          input.meter,
+        )
+        if (relation > 0) return null
+        if (
+          relation === 0
+          && meteredPhysicalOperationInternalV1({
+            meter: input.meter,
+            unit: "source-index-comparisons",
+            operation: () => facts.item === input.item
+              && facts.entry === authority.entry,
+          })
+        ) return facts.entry
+      }
+      return null
+    }
+    let selected:
+      VNextTextBlockUnifiedLayoutSourceIdentityIndexNodeInternalV1 | null = null
+    for (let index = 0; index < payload.occupancy; index += 1) {
+      const child = payload.children[index]!
+      const lastKey = meteredPhysicalOperationInternalV1({
+        meter: input.meter,
+        unit: "source-index-comparisons",
+        operation: () => child.lastKey,
+      })
+      if (compareIdentityKeysMeteredInternalV1(
+        authority.key,
+        lastKey,
+        input.meter,
+      ) <= 0) {
+        selected = child
+        break
+      }
+    }
+    if (selected == null) return null
+    node = selected
+  }
 }
 
 function predecessorOrderEntryMeteredInternalV1(input: {
@@ -809,21 +1408,19 @@ function predecessorOrderEntryMeteredInternalV1(input: {
   readonly positionKey: number
   readonly meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
 }): VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1 | null {
-  const payload = meteredPhysicalOperationInternalV1({
-    meter: input.meter,
-    unit: "source-index-nodes",
-    operation: () => input.node.nodeKind === "leaf"
-      ? { kind: "leaf" as const, entries: input.node.entries }
-      : { kind: "branch" as const, children: input.node.children },
-  })
+  const payload = orderNodePayloadMeteredInternalV1(input.node, input.meter)
   if (payload.kind === "leaf") {
-    for (let index = payload.entries.length - 1; index >= 0; index -= 1) {
-      const entry = payload.entries[index]!
+    for (let index = payload.occupancy - 1; index >= 0; index -= 1) {
+      const facts = physicalEntryFactsAtMeteredInternalV1(
+        payload.entries,
+        index,
+        input.meter,
+      )
       if (meteredPhysicalOperationInternalV1({
         meter: input.meter,
         unit: "source-index-comparisons",
-        operation: () => entry.positionKey < input.positionKey,
-      })) return entry
+        operation: () => facts.positionKey < input.positionKey,
+      })) return facts.entry
     }
     return null
   }
@@ -850,20 +1447,19 @@ function successorOrderEntryMeteredInternalV1(input: {
   readonly positionKey: number
   readonly meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
 }): VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1 | null {
-  const payload = meteredPhysicalOperationInternalV1({
-    meter: input.meter,
-    unit: "source-index-nodes",
-    operation: () => input.node.nodeKind === "leaf"
-      ? { kind: "leaf" as const, entries: input.node.entries }
-      : { kind: "branch" as const, children: input.node.children },
-  })
+  const payload = orderNodePayloadMeteredInternalV1(input.node, input.meter)
   if (payload.kind === "leaf") {
-    for (const entry of payload.entries) {
+    for (let index = 0; index < payload.occupancy; index += 1) {
+      const facts = physicalEntryFactsAtMeteredInternalV1(
+        payload.entries,
+        index,
+        input.meter,
+      )
       if (meteredPhysicalOperationInternalV1({
         meter: input.meter,
         unit: "source-index-comparisons",
-        operation: () => entry.positionKey > input.positionKey,
-      })) return entry
+        operation: () => facts.positionKey > input.positionKey,
+      })) return facts.entry
     }
     return null
   }
@@ -904,12 +1500,23 @@ function rebalanceIdentityChildMeteredInternalV1(input: {
       throw new SourcePhysicalPathCopyStopInternalV1("invalid")
     }
     if (payload.kind === "leaf" && childPayload.kind === "leaf") {
+      const retainedLeft = copyPhysicalEntriesMeteredInternalV1(
+        payload.entries, 0, payload.occupancy - 1, input.meter,
+      )
+      const borrowed = physicalEntryFactsAtMeteredInternalV1(
+        payload.entries, payload.occupancy - 1, input.meter,
+      ).entry
+      const childEntries = copyPhysicalEntriesMeteredInternalV1(
+        childPayload.entries, 0, childPayload.occupancy, input.meter,
+      )
       children.splice(input.childIndex - 1, 2,
-        identityLeafMeteredInternalV1(payload.entries.slice(0, -1), input.meter),
-        identityLeafMeteredInternalV1([
-          payload.entries.at(-1)!,
-          ...childPayload.entries,
-        ], input.meter))
+        identityLeafMeteredInternalV1(retainedLeft, input.meter),
+        identityLeafMeteredInternalV1(
+          combinePhysicalEntriesMeteredInternalV1(
+            [[borrowed], childEntries], input.meter,
+          ),
+          input.meter,
+        ))
     } else if (payload.kind === "branch" && childPayload.kind === "branch") {
       children.splice(input.childIndex - 1, 2,
         identityBranchMeteredInternalV1(payload.children.slice(0, -1), input.meter),
@@ -930,12 +1537,23 @@ function rebalanceIdentityChildMeteredInternalV1(input: {
       throw new SourcePhysicalPathCopyStopInternalV1("invalid")
     }
     if (payload.kind === "leaf" && childPayload.kind === "leaf") {
+      const childEntries = copyPhysicalEntriesMeteredInternalV1(
+        childPayload.entries, 0, childPayload.occupancy, input.meter,
+      )
+      const borrowed = physicalEntryFactsAtMeteredInternalV1(
+        payload.entries, 0, input.meter,
+      ).entry
+      const retainedRight = copyPhysicalEntriesMeteredInternalV1(
+        payload.entries, 1, payload.occupancy, input.meter,
+      )
       children.splice(input.childIndex, 2,
-        identityLeafMeteredInternalV1([
-          ...childPayload.entries,
-          payload.entries[0]!,
-        ], input.meter),
-        identityLeafMeteredInternalV1(payload.entries.slice(1), input.meter))
+        identityLeafMeteredInternalV1(
+          combinePhysicalEntriesMeteredInternalV1(
+            [childEntries, [borrowed]], input.meter,
+          ),
+          input.meter,
+        ),
+        identityLeafMeteredInternalV1(retainedRight, input.meter))
     } else if (payload.kind === "branch" && childPayload.kind === "branch") {
       children.splice(input.childIndex, 2,
         identityBranchMeteredInternalV1([
@@ -952,10 +1570,17 @@ function rebalanceIdentityChildMeteredInternalV1(input: {
       throw new SourcePhysicalPathCopyStopInternalV1("invalid")
     }
     const merged = payload.kind === "leaf" && childPayload.kind === "leaf"
-      ? identityLeafMeteredInternalV1([
-          ...payload.entries,
-          ...childPayload.entries,
-        ], input.meter)
+      ? identityLeafMeteredInternalV1(
+          combinePhysicalEntriesMeteredInternalV1([
+            copyPhysicalEntriesMeteredInternalV1(
+              payload.entries, 0, payload.occupancy, input.meter,
+            ),
+            copyPhysicalEntriesMeteredInternalV1(
+              childPayload.entries, 0, childPayload.occupancy, input.meter,
+            ),
+          ], input.meter),
+          input.meter,
+        )
       : payload.kind === "branch" && childPayload.kind === "branch"
         ? identityBranchMeteredInternalV1([
             ...payload.children,
@@ -972,10 +1597,17 @@ function rebalanceIdentityChildMeteredInternalV1(input: {
       throw new SourcePhysicalPathCopyStopInternalV1("invalid")
     }
     const merged = payload.kind === "leaf" && childPayload.kind === "leaf"
-      ? identityLeafMeteredInternalV1([
-          ...childPayload.entries,
-          ...payload.entries,
-        ], input.meter)
+      ? identityLeafMeteredInternalV1(
+          combinePhysicalEntriesMeteredInternalV1([
+            copyPhysicalEntriesMeteredInternalV1(
+              childPayload.entries, 0, childPayload.occupancy, input.meter,
+            ),
+            copyPhysicalEntriesMeteredInternalV1(
+              payload.entries, 0, payload.occupancy, input.meter,
+            ),
+          ], input.meter),
+          input.meter,
+        )
       : payload.kind === "branch" && childPayload.kind === "branch"
         ? identityBranchMeteredInternalV1([
             ...childPayload.children,
@@ -996,27 +1628,34 @@ function deleteIdentityEntryMeteredInternalV1(input: {
   readonly isRoot: boolean
 }): VNextTextBlockUnifiedLayoutSourceIdentityIndexNodeInternalV1 | null {
   const key = identityKeyMeteredInternalV1(input.entry, input.meter)
-  const payload = meteredPhysicalOperationInternalV1({
-    meter: input.meter,
-    unit: "source-index-nodes",
-    operation: () => input.node.nodeKind === "leaf"
-      ? { kind: "leaf" as const, entries: input.node.entries }
-      : { kind: "branch" as const, children: input.node.children },
-  })
+  const payload = identityNodePayloadMeteredInternalV1(input.node, input.meter)
   if (payload.kind === "leaf") {
     const entries: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[] = []
+    const entriesReadView = sourcePhysicalLocalArrayReadViewInternalV1(
+      "identity-deletion-entries",
+      entries,
+    )
     let removed = false
-    for (const current of payload.entries) {
+    for (let index = 0; index < payload.occupancy; index += 1) {
+      const current = physicalEntryFactsAtMeteredInternalV1(
+        payload.entries,
+        index,
+        input.meter,
+      ).entry
       const equal = compareIdentityKeysMeteredInternalV1(
         identityKeyMeteredInternalV1(current, input.meter),
         key,
         input.meter,
       ) === 0 && current === input.entry
       if (equal) removed = true
-      else entries.push(current)
+      else emitPhysicalEntryMeteredInternalV1(entriesReadView, current, input.meter)
     }
     if (!removed) throw new SourcePhysicalPathCopyStopInternalV1("invalid")
-    return entries.length === 0 ? null : identityLeafMeteredInternalV1(entries, input.meter)
+    const entryCount = sourcePhysicalLocalArrayLengthMeteredInternalV1(
+      entriesReadView,
+      input.meter,
+    )
+    return entryCount === 0 ? null : identityLeafMeteredInternalV1(entries, input.meter)
   }
   let childIndex = -1
   for (let index = 0; index < payload.children.length; index += 1) {
@@ -1075,12 +1714,23 @@ function rebalanceOrderChildMeteredInternalV1(input: {
       throw new SourcePhysicalPathCopyStopInternalV1("invalid")
     }
     if (payload.kind === "leaf" && childPayload.kind === "leaf") {
+      const retainedLeft = copyPhysicalEntriesMeteredInternalV1(
+        payload.entries, 0, payload.occupancy - 1, input.meter,
+      )
+      const borrowed = physicalEntryFactsAtMeteredInternalV1(
+        payload.entries, payload.occupancy - 1, input.meter,
+      ).entry
+      const childEntries = copyPhysicalEntriesMeteredInternalV1(
+        childPayload.entries, 0, childPayload.occupancy, input.meter,
+      )
       children.splice(input.childIndex - 1, 2,
-        orderLeafMeteredInternalV1(payload.entries.slice(0, -1), input.meter),
-        orderLeafMeteredInternalV1([
-          payload.entries.at(-1)!,
-          ...childPayload.entries,
-        ], input.meter))
+        orderLeafMeteredInternalV1(retainedLeft, input.meter),
+        orderLeafMeteredInternalV1(
+          combinePhysicalEntriesMeteredInternalV1(
+            [[borrowed], childEntries], input.meter,
+          ),
+          input.meter,
+        ))
     } else if (payload.kind === "branch" && childPayload.kind === "branch") {
       children.splice(input.childIndex - 1, 2,
         orderBranchMeteredInternalV1(payload.children.slice(0, -1), input.meter),
@@ -1101,12 +1751,23 @@ function rebalanceOrderChildMeteredInternalV1(input: {
       throw new SourcePhysicalPathCopyStopInternalV1("invalid")
     }
     if (payload.kind === "leaf" && childPayload.kind === "leaf") {
+      const childEntries = copyPhysicalEntriesMeteredInternalV1(
+        childPayload.entries, 0, childPayload.occupancy, input.meter,
+      )
+      const borrowed = physicalEntryFactsAtMeteredInternalV1(
+        payload.entries, 0, input.meter,
+      ).entry
+      const retainedRight = copyPhysicalEntriesMeteredInternalV1(
+        payload.entries, 1, payload.occupancy, input.meter,
+      )
       children.splice(input.childIndex, 2,
-        orderLeafMeteredInternalV1([
-          ...childPayload.entries,
-          payload.entries[0]!,
-        ], input.meter),
-        orderLeafMeteredInternalV1(payload.entries.slice(1), input.meter))
+        orderLeafMeteredInternalV1(
+          combinePhysicalEntriesMeteredInternalV1(
+            [childEntries, [borrowed]], input.meter,
+          ),
+          input.meter,
+        ),
+        orderLeafMeteredInternalV1(retainedRight, input.meter))
     } else if (payload.kind === "branch" && childPayload.kind === "branch") {
       children.splice(input.childIndex, 2,
         orderBranchMeteredInternalV1([
@@ -1123,10 +1784,17 @@ function rebalanceOrderChildMeteredInternalV1(input: {
       throw new SourcePhysicalPathCopyStopInternalV1("invalid")
     }
     const merged = payload.kind === "leaf" && childPayload.kind === "leaf"
-      ? orderLeafMeteredInternalV1([
-          ...payload.entries,
-          ...childPayload.entries,
-        ], input.meter)
+      ? orderLeafMeteredInternalV1(
+          combinePhysicalEntriesMeteredInternalV1([
+            copyPhysicalEntriesMeteredInternalV1(
+              payload.entries, 0, payload.occupancy, input.meter,
+            ),
+            copyPhysicalEntriesMeteredInternalV1(
+              childPayload.entries, 0, childPayload.occupancy, input.meter,
+            ),
+          ], input.meter),
+          input.meter,
+        )
       : payload.kind === "branch" && childPayload.kind === "branch"
         ? orderBranchMeteredInternalV1([
             ...payload.children,
@@ -1143,10 +1811,17 @@ function rebalanceOrderChildMeteredInternalV1(input: {
       throw new SourcePhysicalPathCopyStopInternalV1("invalid")
     }
     const merged = payload.kind === "leaf" && childPayload.kind === "leaf"
-      ? orderLeafMeteredInternalV1([
-          ...childPayload.entries,
-          ...payload.entries,
-        ], input.meter)
+      ? orderLeafMeteredInternalV1(
+          combinePhysicalEntriesMeteredInternalV1([
+            copyPhysicalEntriesMeteredInternalV1(
+              childPayload.entries, 0, childPayload.occupancy, input.meter,
+            ),
+            copyPhysicalEntriesMeteredInternalV1(
+              payload.entries, 0, payload.occupancy, input.meter,
+            ),
+          ], input.meter),
+          input.meter,
+        )
       : payload.kind === "branch" && childPayload.kind === "branch"
         ? orderBranchMeteredInternalV1([
             ...childPayload.children,
@@ -1166,35 +1841,51 @@ function deleteOrderEntryMeteredInternalV1(input: {
   readonly meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
   readonly isRoot: boolean
 }): VNextTextBlockUnifiedLayoutSourceOrderIndexNodeInternalV1 | null {
-  const payload = meteredPhysicalOperationInternalV1({
-    meter: input.meter,
-    unit: "source-index-nodes",
-    operation: () => input.node.nodeKind === "leaf"
-      ? { kind: "leaf" as const, entries: input.node.entries }
-      : { kind: "branch" as const, children: input.node.children },
-  })
+  const inputEntryFacts = physicalEntryFactsMeteredInternalV1(
+    input.entry,
+    input.meter,
+  )
+  const payload = orderNodePayloadMeteredInternalV1(input.node, input.meter)
   if (payload.kind === "leaf") {
     const entries: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[] = []
+    const entriesReadView = sourcePhysicalLocalArrayReadViewInternalV1(
+      "order-deletion-entries",
+      entries,
+    )
     let removed = false
-    for (const current of payload.entries) {
+    for (let index = 0; index < payload.occupancy; index += 1) {
+      const currentFacts = physicalEntryFactsAtMeteredInternalV1(
+        payload.entries,
+        index,
+        input.meter,
+      )
       const equal = meteredPhysicalOperationInternalV1({
         meter: input.meter,
         unit: "source-index-comparisons",
-        operation: () => current.positionKey === input.entry.positionKey
-          && current === input.entry,
+        operation: () => currentFacts.positionKey === inputEntryFacts.positionKey
+          && currentFacts.entry === input.entry,
       })
       if (equal) removed = true
-      else entries.push(current)
+      else emitPhysicalEntryMeteredInternalV1(
+        entriesReadView,
+        currentFacts.entry,
+        input.meter,
+      )
     }
     if (!removed) throw new SourcePhysicalPathCopyStopInternalV1("invalid")
-    return entries.length === 0 ? null : orderLeafMeteredInternalV1(entries, input.meter)
+    const entryCount = sourcePhysicalLocalArrayLengthMeteredInternalV1(
+      entriesReadView,
+      input.meter,
+    )
+    return entryCount === 0 ? null : orderLeafMeteredInternalV1(entries, input.meter)
   }
   let childIndex = -1
   for (let index = 0; index < payload.children.length; index += 1) {
     if (meteredPhysicalOperationInternalV1({
       meter: input.meter,
       unit: "source-index-comparisons",
-      operation: () => input.entry.positionKey <= payload.children[index]!.lastPositionKey,
+      operation: () => inputEntryFacts.positionKey
+        <= payload.children[index]!.lastPositionKey,
     })) {
       childIndex = index
       break
@@ -1229,34 +1920,65 @@ function insertIdentityEntryMeteredInternalV1(input: {
   VNextTextBlockUnifiedLayoutSourceIdentityIndexNodeInternalV1,
   VNextTextBlockUnifiedLayoutSourceIdentityIndexNodeInternalV1 | null,
 ] {
-  if (input.node == null) return [identityLeafMeteredInternalV1([input.entry], input.meter), null]
-  const payload = meteredPhysicalOperationInternalV1({
-    meter: input.meter,
-    unit: "source-index-nodes",
-    operation: () => input.node!.nodeKind === "leaf"
-      ? { kind: "leaf" as const, entries: input.node!.entries }
-      : { kind: "branch" as const, children: input.node!.children },
-  })
+  if (input.node == null) {
+    const entries: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[] = []
+    const entriesReadView = sourcePhysicalLocalArrayReadViewInternalV1(
+      "identity-singleton-entries",
+      entries,
+    )
+    emitPhysicalEntryMeteredInternalV1(entriesReadView, input.entry, input.meter)
+    return [identityLeafMeteredInternalV1(entries, input.meter), null]
+  }
+  const payload = identityNodePayloadMeteredInternalV1(input.node, input.meter)
   const key = identityKeyMeteredInternalV1(input.entry, input.meter)
   if (payload.kind === "leaf") {
     const entries: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[] = []
     let inserted = false
-    for (const current of payload.entries) {
+    for (let index = 0; index < payload.occupancy; index += 1) {
+      const current = physicalEntryFactsAtMeteredInternalV1(
+        payload.entries,
+        index,
+        input.meter,
+      )
       if (!inserted && compareIdentityKeysMeteredInternalV1(
         key,
-        identityKeyMeteredInternalV1(current, input.meter),
+        Object.freeze({
+          inlineId: current.inlineId,
+          kindOrdinal: current.kindOrdinal,
+          positionKey: current.positionKey,
+        }),
         input.meter,
       ) < 0) {
-        entries.push(input.entry)
+        emitPhysicalEntryMeteredInternalV1(entries, input.entry, input.meter)
         inserted = true
       }
-      entries.push(current)
+      emitPhysicalEntryMeteredInternalV1(entries, current.entry, input.meter)
     }
-    if (!inserted) entries.push(input.entry)
-    if (entries.length <= 8) return [identityLeafMeteredInternalV1(entries, input.meter), null]
+    if (!inserted) {
+      emitPhysicalEntryMeteredInternalV1(entries, input.entry, input.meter)
+    }
+    const entriesReadView = sourcePhysicalLocalArrayReadViewInternalV1(
+      "identity-insertion-entries",
+      entries,
+    )
+    const entryCount = sourcePhysicalLocalArrayLengthMeteredInternalV1(
+      entriesReadView,
+      input.meter,
+    )
+    if (entryCount <= 8) {
+      return [identityLeafMeteredInternalV1(entries, input.meter), null]
+    }
     return [
-      identityLeafMeteredInternalV1(entries.slice(0, 4), input.meter),
-      identityLeafMeteredInternalV1(entries.slice(4), input.meter),
+      identityLeafMeteredInternalV1(
+        copyPhysicalEntriesMeteredInternalV1(entriesReadView, 0, 4, input.meter),
+        input.meter,
+      ),
+      identityLeafMeteredInternalV1(
+        copyPhysicalEntriesMeteredInternalV1(
+          entriesReadView, 4, entryCount, input.meter,
+        ),
+        input.meter,
+      ),
     ]
   }
   let childIndex = payload.children.length - 1
@@ -1297,34 +2019,65 @@ function insertOrderEntryMeteredInternalV1(input: {
   VNextTextBlockUnifiedLayoutSourceOrderIndexNodeInternalV1,
   VNextTextBlockUnifiedLayoutSourceOrderIndexNodeInternalV1 | null,
 ] {
-  if (input.node == null) return [orderLeafMeteredInternalV1([input.entry], input.meter), null]
-  const payload = meteredPhysicalOperationInternalV1({
-    meter: input.meter,
-    unit: "source-index-nodes",
-    operation: () => input.node!.nodeKind === "leaf"
-      ? { kind: "leaf" as const, entries: input.node!.entries }
-      : { kind: "branch" as const, children: input.node!.children },
-  })
+  if (input.node == null) {
+    const entries: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[] = []
+    const entriesReadView = sourcePhysicalLocalArrayReadViewInternalV1(
+      "order-singleton-entries",
+      entries,
+    )
+    emitPhysicalEntryMeteredInternalV1(entriesReadView, input.entry, input.meter)
+    return [orderLeafMeteredInternalV1(entries, input.meter), null]
+  }
+  const payload = orderNodePayloadMeteredInternalV1(input.node, input.meter)
+  const inputEntryFacts = physicalEntryFactsMeteredInternalV1(
+    input.entry,
+    input.meter,
+  )
   if (payload.kind === "leaf") {
     const entries: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[] = []
     let inserted = false
-    for (const current of payload.entries) {
+    for (let index = 0; index < payload.occupancy; index += 1) {
+      const current = physicalEntryFactsAtMeteredInternalV1(
+        payload.entries,
+        index,
+        input.meter,
+      )
       const before = meteredPhysicalOperationInternalV1({
         meter: input.meter,
         unit: "source-index-comparisons",
-        operation: () => input.entry.positionKey < current.positionKey,
+        operation: () => inputEntryFacts.positionKey < current.positionKey,
       })
       if (!inserted && before) {
-        entries.push(input.entry)
+        emitPhysicalEntryMeteredInternalV1(entries, input.entry, input.meter)
         inserted = true
       }
-      entries.push(current)
+      emitPhysicalEntryMeteredInternalV1(entries, current.entry, input.meter)
     }
-    if (!inserted) entries.push(input.entry)
-    if (entries.length <= 8) return [orderLeafMeteredInternalV1(entries, input.meter), null]
+    if (!inserted) {
+      emitPhysicalEntryMeteredInternalV1(entries, input.entry, input.meter)
+    }
+    const entriesReadView = sourcePhysicalLocalArrayReadViewInternalV1(
+      "order-insertion-entries",
+      entries,
+    )
+    const entryCount = sourcePhysicalLocalArrayLengthMeteredInternalV1(
+      entriesReadView,
+      input.meter,
+    )
+    if (entryCount <= 8) {
+      return [orderLeafMeteredInternalV1(entries, input.meter), null]
+    }
     return [
-      orderLeafMeteredInternalV1(entries.slice(0, 4), input.meter),
-      orderLeafMeteredInternalV1(entries.slice(4), input.meter),
+      orderLeafMeteredInternalV1(
+        copyPhysicalEntriesMeteredInternalV1(entriesReadView, 0, 4, input.meter),
+        input.meter,
+      ),
+      orderLeafMeteredInternalV1(
+        copyPhysicalEntriesMeteredInternalV1(
+          entriesReadView, 4, entryCount, input.meter,
+        ),
+        input.meter,
+      ),
     ]
   }
   let childIndex = payload.children.length - 1
@@ -1332,7 +2085,8 @@ function insertOrderEntryMeteredInternalV1(input: {
     if (meteredPhysicalOperationInternalV1({
       meter: input.meter,
       unit: "source-index-comparisons",
-      operation: () => input.entry.positionKey <= payload.children[index]!.lastPositionKey,
+      operation: () => inputEntryFacts.positionKey
+        <= payload.children[index]!.lastPositionKey,
     })) {
       childIndex = index
       break
@@ -1389,19 +2143,11 @@ function lookupOrderBoundaryMeteredInternalV1(input: {
       let prefix = 0
       let predecessor = inheritedPredecessor
       for (let index = 0; index < payload.occupancy; index += 1) {
-        const entry = meteredPhysicalOperationInternalV1({
-          meter: input.meter,
-          unit: "source-index-entries",
-          operation: () => payload.entries[index]!,
-        })
-        const entryFacts = meteredPhysicalOperationInternalV1({
-          meter: input.meter,
-          unit: "source-index-comparisons",
-          operation: () => ({
-            renderedUtf16Length: entry.renderedUtf16Length,
-            positionKey: entry.positionKey,
-          }),
-        })
+        const entryFacts = physicalEntryFactsAtMeteredInternalV1(
+          payload.entries,
+          index,
+          input.meter,
+        )
         const relation = meteredPhysicalOperationInternalV1({
           meter: input.meter,
           unit: "source-index-comparisons",
@@ -1418,14 +2164,14 @@ function lookupOrderBoundaryMeteredInternalV1(input: {
           return Object.freeze({
             status: "found" as const,
             predecessor,
-            successor: entry,
+            successor: entryFacts.entry,
           })
         }
         if (relation === "inside") {
           return Object.freeze({ status: "invalid" as const })
         }
         prefix += entryFacts.renderedUtf16Length
-        predecessor = entry
+        predecessor = entryFacts.entry
       }
       return meteredPhysicalOperationInternalV1({
         meter: input.meter,
@@ -1450,6 +2196,12 @@ function lookupOrderBoundaryMeteredInternalV1(input: {
         unit: "source-index-comparisons",
         operation: () => ({
           renderedUtf16Length: child.renderedUtf16Length,
+        }),
+      })
+      const boundaryEntries = meteredPhysicalOperationInternalV1({
+        meter: input.meter,
+        unit: "source-index-entries",
+        operation: () => ({
           firstEntry: child.firstEntry,
           lastEntry: child.lastEntry,
         }),
@@ -1461,7 +2213,7 @@ function lookupOrderBoundaryMeteredInternalV1(input: {
       })
       if (!contains) {
         prefix += summary.renderedUtf16Length
-        inheritedPredecessor = summary.lastEntry
+        inheritedPredecessor = boundaryEntries.lastEntry
         continue
       }
       const nextChild = payload.children[index + 1] ?? null
@@ -1469,7 +2221,7 @@ function lookupOrderBoundaryMeteredInternalV1(input: {
         ? inheritedSuccessor
         : meteredPhysicalOperationInternalV1({
             meter: input.meter,
-            unit: "source-index-comparisons",
+            unit: "source-index-entries",
             operation: () => nextChild.firstEntry,
           })
       localBoundary -= prefix
@@ -1497,6 +2249,8 @@ export function pathCopyVNextTextBlockUnifiedLayoutSourcePhysicalIndexInternalV1
       readonly status: "prepared"
       readonly identityRoot: VNextTextBlockUnifiedLayoutSourceIdentityIndexNodeInternalV1 | null
       readonly orderRoot: VNextTextBlockUnifiedLayoutSourceOrderIndexNodeInternalV1 | null
+      readonly newEntries:
+        readonly VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[]
     }
   | {
       readonly status: "key-space-exhausted"
@@ -1515,23 +2269,103 @@ export function pathCopyVNextTextBlockUnifiedLayoutSourcePhysicalIndexInternalV1
       input.identityRoot == null
       || input.orderRoot == null
     ) return Object.freeze({ status: "blocked" as const })
+    const removedPayload = meteredPhysicalOperationInternalV1({
+      meter: input.workMeter,
+      unit: "source-index-entries",
+      operation: () => {
+        const items = input.removedItems
+        return { items, itemCount: items.length }
+      },
+    })
+    const nextPhysicalPayload = meteredPhysicalOperationInternalV1({
+      meter: input.workMeter,
+      unit: "source-index-entries",
+      operation: () => {
+        const items = input.nextPhysicalItems
+        return { items, itemCount: items.length }
+      },
+    })
+    const nextItems: VNextTextBlockUnifiedLayoutSourceItemV1[] = []
+    const nextItemsReadView = sourcePhysicalLocalArrayReadViewInternalV1(
+      "coordinator-next-items",
+      nextItems,
+    )
+    const nextItemSet = new WeakSet<VNextTextBlockUnifiedLayoutSourceItemV1>()
+    for (let index = 0; index < nextPhysicalPayload.itemCount; index += 1) {
+      meteredPhysicalOperationInternalV1({
+        meter: input.workMeter,
+          unit: "source-index-entries",
+          operation: () => {
+            const item = nextPhysicalPayload.items[index]!
+            nextItemsReadView.push(item)
+            nextItemSet.add(item)
+        },
+      })
+    }
+    const originalRemovedEntries:
+      VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[] = []
+    const originalRemovedEntriesReadView = sourcePhysicalLocalArrayReadViewInternalV1(
+      "coordinator-original-removed-entries",
+      originalRemovedEntries,
+    )
     const removedEntries: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[] = []
-    for (const item of input.removedItems) {
-      const candidates = lookupIdentityEntriesMeteredInternalV1({
+    const removedEntriesReadView = sourcePhysicalLocalArrayReadViewInternalV1(
+      "coordinator-removed-entries",
+      removedEntries,
+    )
+    const retainedEntryByItem = new WeakMap<
+      VNextTextBlockUnifiedLayoutSourceItemV1,
+      VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1
+    >()
+    for (let index = 0; index < removedPayload.itemCount; index += 1) {
+      const item = meteredPhysicalOperationInternalV1({
+        meter: input.workMeter,
+        unit: "source-index-entries",
+        operation: () => removedPayload.items[index]!,
+      })
+      const entry = lookupExactIdentityEntryMeteredInternalV1({
         root: input.identityRoot,
-        inlineId: item.inlineId,
+        item,
         meter: input.workMeter,
       })
-      const matches: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[] = []
-      for (const entry of candidates) {
-        if (meteredPhysicalOperationInternalV1({
-          meter: input.workMeter,
-          unit: "source-index-comparisons",
-          operation: () => entry.item === item,
-        })) matches.push(entry)
-      }
-      if (matches.length !== 1) return Object.freeze({ status: "blocked" as const })
-      removedEntries.push(matches[0]!)
+      if (entry == null) return Object.freeze({ status: "blocked" as const })
+      emitPhysicalEntryMeteredInternalV1(
+        originalRemovedEntriesReadView,
+        entry,
+        input.workMeter,
+      )
+      if (nextItemSet.has(item)) retainedEntryByItem.set(item, entry)
+      else emitPhysicalEntryMeteredInternalV1(
+        removedEntriesReadView,
+        entry,
+        input.workMeter,
+      )
+    }
+    const nextItemCount = sourcePhysicalLocalArrayLengthMeteredInternalV1(
+      nextItemsReadView,
+      input.workMeter,
+    )
+    const removedEntryCount = sourcePhysicalLocalArrayLengthMeteredInternalV1(
+      removedEntriesReadView,
+      input.workMeter,
+    )
+    const originalRemovedEntryCount = sourcePhysicalLocalArrayLengthMeteredInternalV1(
+      originalRemovedEntriesReadView,
+      input.workMeter,
+    )
+    let firstNewItemIndex = -1
+    let lastNewItemIndex = -1
+    let newItemCount = 0
+    for (let index = 0; index < nextItemCount; index += 1) {
+      const item = sourcePhysicalLocalArrayItemMeteredInternalV1(
+        nextItemsReadView,
+        index,
+        input.workMeter,
+      )
+      if (retainedEntryByItem.has(item)) continue
+      if (firstNewItemIndex < 0) firstNewItemIndex = index
+      lastNewItemIndex = index
+      newItemCount += 1
     }
     let predecessor:
       VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1 | null
@@ -1539,9 +2373,9 @@ export function pathCopyVNextTextBlockUnifiedLayoutSourcePhysicalIndexInternalV1
       VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1 | null
     let allocationLeft: number | null
     let allocationRight: number | null
-    if (removedEntries.length === 0) {
+    if (originalRemovedEntryCount === 0) {
       if (
-        input.nextPhysicalItems.length === 0
+        newItemCount === 0
         || input.previousRenderedBoundary == null
       ) return Object.freeze({ status: "blocked" as const })
       const boundary = lookupOrderBoundaryMeteredInternalV1({
@@ -1557,36 +2391,39 @@ export function pathCopyVNextTextBlockUnifiedLayoutSourcePhysicalIndexInternalV1
       allocationLeft = input.forcedPositionIntervalForTest == null
         ? predecessor == null
           ? null
-          : meteredPhysicalOperationInternalV1({
-              meter: input.workMeter,
-              unit: "source-index-comparisons",
-              operation: () => predecessor!.positionKey,
-            })
+          : physicalEntryFactsMeteredInternalV1(
+              predecessor,
+              input.workMeter,
+            ).positionKey
         : input.forcedPositionIntervalForTest.left
       allocationRight = input.forcedPositionIntervalForTest == null
         ? successor == null
           ? null
-          : meteredPhysicalOperationInternalV1({
-              meter: input.workMeter,
-              unit: "source-index-comparisons",
-              operation: () => successor!.positionKey,
-            })
+          : physicalEntryFactsMeteredInternalV1(
+              successor,
+              input.workMeter,
+            ).positionKey
         : input.forcedPositionIntervalForTest.right
     } else {
-      const initialPositionKey = meteredPhysicalOperationInternalV1({
-        meter: input.workMeter,
-        unit: "source-index-comparisons",
-        operation: () => removedEntries[0]!.positionKey,
-      })
+      const initialPositionKey = physicalEntryFactsAtMeteredInternalV1(
+        originalRemovedEntriesReadView,
+        0,
+        input.workMeter,
+      ).positionKey
       let minimumPositionKey = initialPositionKey
       let maximumPositionKey = initialPositionKey
-      for (const entry of removedEntries.slice(1)) {
+      for (let index = 1; index < originalRemovedEntryCount; index += 1) {
+        const entryFacts = physicalEntryFactsAtMeteredInternalV1(
+          originalRemovedEntriesReadView,
+          index,
+          input.workMeter,
+        )
         const values = meteredPhysicalOperationInternalV1({
           meter: input.workMeter,
           unit: "source-index-comparisons",
           operation: () => ({
-            minimum: Math.min(minimumPositionKey, entry.positionKey),
-            maximum: Math.max(maximumPositionKey, entry.positionKey),
+            minimum: Math.min(minimumPositionKey, entryFacts.positionKey),
+            maximum: Math.max(maximumPositionKey, entryFacts.positionKey),
           }),
         })
         minimumPositionKey = values.minimum
@@ -1605,26 +2442,77 @@ export function pathCopyVNextTextBlockUnifiedLayoutSourcePhysicalIndexInternalV1
       allocationLeft = input.forcedPositionIntervalForTest == null
         ? predecessor == null
           ? successor == null ? minimumPositionKey : null
-          : meteredPhysicalOperationInternalV1({
-              meter: input.workMeter,
-              unit: "source-index-comparisons",
-              operation: () => predecessor!.positionKey,
-            })
+          : physicalEntryFactsMeteredInternalV1(
+              predecessor,
+              input.workMeter,
+            ).positionKey
         : input.forcedPositionIntervalForTest.left
       allocationRight = input.forcedPositionIntervalForTest == null
         ? successor == null
           ? null
-          : meteredPhysicalOperationInternalV1({
-              meter: input.workMeter,
-              unit: "source-index-comparisons",
-              operation: () => successor!.positionKey,
-            })
+          : physicalEntryFactsMeteredInternalV1(
+              successor,
+              input.workMeter,
+            ).positionKey
         : input.forcedPositionIntervalForTest.right
+    }
+    if (
+      input.forcedPositionIntervalForTest == null
+      && firstNewItemIndex >= 0
+    ) {
+      for (
+        let index = firstNewItemIndex;
+        index <= lastNewItemIndex;
+        index += 1
+      ) {
+        const item = sourcePhysicalLocalArrayItemMeteredInternalV1(
+          nextItemsReadView,
+          index,
+          input.workMeter,
+        )
+        if (retainedEntryByItem.has(item)) {
+          return Object.freeze({ status: "blocked" as const })
+        }
+      }
+      for (let index = firstNewItemIndex - 1; index >= 0; index -= 1) {
+        const item = sourcePhysicalLocalArrayItemMeteredInternalV1(
+          nextItemsReadView,
+          index,
+          input.workMeter,
+        )
+        const retained = retainedEntryByItem.get(item)
+        if (retained == null) continue
+        allocationLeft = physicalEntryFactsMeteredInternalV1(
+          retained,
+          input.workMeter,
+        ).positionKey
+        predecessor = retained
+        break
+      }
+      for (
+        let index = lastNewItemIndex + 1;
+        index < nextItemCount;
+        index += 1
+      ) {
+        const item = sourcePhysicalLocalArrayItemMeteredInternalV1(
+          nextItemsReadView,
+          index,
+          input.workMeter,
+        )
+        const retained = retainedEntryByItem.get(item)
+        if (retained == null) continue
+        allocationRight = physicalEntryFactsMeteredInternalV1(
+          retained,
+          input.workMeter,
+        ).positionKey
+        successor = retained
+        break
+      }
     }
     const allocation = allocatePositionKeysDetailedInternalV1({
       left: allocationLeft,
       right: allocationRight,
-      count: input.nextPhysicalItems.length,
+      count: newItemCount,
       workMeter: input.workMeter,
     })
     if (allocation.status === "key-space-exhausted") {
@@ -1634,7 +2522,7 @@ export function pathCopyVNextTextBlockUnifiedLayoutSourcePhysicalIndexInternalV1
         right: allocationRight,
         leftNeighbor: predecessor,
         rightNeighbor: successor,
-        requestedCount: input.nextPhysicalItems.length,
+        requestedCount: newItemCount,
       })
     }
     if (allocation.status === "work-limit") {
@@ -1650,7 +2538,17 @@ export function pathCopyVNextTextBlockUnifiedLayoutSourcePhysicalIndexInternalV1
       input.identityRoot
     let orderRoot: VNextTextBlockUnifiedLayoutSourceOrderIndexNodeInternalV1 | null =
       input.orderRoot
-    for (const entry of removedEntries) {
+    const newEntries: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[] = []
+    const newEntriesReadView = sourcePhysicalLocalArrayReadViewInternalV1(
+      "coordinator-new-entries",
+      newEntries,
+    )
+    for (let index = 0; index < removedEntryCount; index += 1) {
+      const entry = sourcePhysicalLocalArrayItemMeteredInternalV1(
+        removedEntriesReadView,
+        index,
+        input.workMeter,
+      )
       if (identityRoot == null || orderRoot == null) {
         return Object.freeze({ status: "blocked" as const })
       }
@@ -1670,40 +2568,51 @@ export function pathCopyVNextTextBlockUnifiedLayoutSourcePhysicalIndexInternalV1
         return Object.freeze({ status: "blocked" as const })
       }
     }
-    for (let index = 0; index < input.nextPhysicalItems.length; index += 1) {
-      const item = input.nextPhysicalItems[index]!
-      const entry = meteredPhysicalOperationInternalV1({
+    let newItemIndex = 0
+    for (let index = 0; index < nextItemCount; index += 1) {
+      const item = sourcePhysicalLocalArrayItemMeteredInternalV1(
+        nextItemsReadView,
+        index,
+        input.workMeter,
+      )
+      if (retainedEntryByItem.has(item)) continue
+      const created = meteredPhysicalOperationInternalV1({
         meter: input.workMeter,
         unit: "source-index-entries",
-        operation: () => Object.freeze({
-          item,
-          positionKey: allocation.keys[index]!,
-          renderedUtf16Length: item.renderedUtf16Length,
-        }),
+        operation: () => {
+          const entry = Object.freeze({
+            item,
+            positionKey: allocation.keys[newItemIndex]!,
+            renderedUtf16Length: item.renderedUtf16Length,
+          })
+          newEntriesReadView.push(entry)
+          return {
+            entry,
+            item,
+            inlineId: item.inlineId,
+            kind: item.kind,
+          }
+        },
       })
-      const conflicts = lookupIdentityEntriesMeteredInternalV1({
+      const conflict = firstIdentityEntryAtOrAfterMeteredInternalV1({
         root: identityRoot,
-        inlineId: item.inlineId,
+        key: Object.freeze({
+          inlineId: created.inlineId,
+          kindOrdinal: created.kind === "text" ? 1 : 0,
+          positionKey: Number.MIN_SAFE_INTEGER,
+        }),
         meter: input.workMeter,
       })
-      let atomicConflict = false
-      for (const value of conflicts) {
-        if (meteredPhysicalOperationInternalV1({
+      const hasConflict = conflict != null
+        && meteredPhysicalOperationInternalV1({
           meter: input.workMeter,
           unit: "source-index-comparisons",
-          operation: () => value.item.kind !== "text",
-        })) {
-          atomicConflict = true
-          break
-        }
-      }
-      if (
-        conflicts.length > 0
-        && (item.kind !== "text" || atomicConflict)
-      ) return Object.freeze({ status: "blocked" as const })
+          operation: () => conflict.inlineId === created.inlineId,
+        })
+      if (hasConflict) return Object.freeze({ status: "blocked" as const })
       const identityInserted = insertIdentityEntryMeteredInternalV1({
         node: identityRoot,
-        entry,
+        entry: created.entry,
         meter: input.workMeter,
       })
       identityRoot = identityInserted[1] == null
@@ -1714,7 +2623,7 @@ export function pathCopyVNextTextBlockUnifiedLayoutSourcePhysicalIndexInternalV1
           )
       const orderInserted = insertOrderEntryMeteredInternalV1({
         node: orderRoot,
-        entry,
+        entry: created.entry,
         meter: input.workMeter,
       })
       orderRoot = orderInserted[1] == null
@@ -1723,8 +2632,22 @@ export function pathCopyVNextTextBlockUnifiedLayoutSourcePhysicalIndexInternalV1
             [orderInserted[0], orderInserted[1]],
             input.workMeter,
           )
+      newItemIndex += 1
     }
-    return Object.freeze({ status: "prepared" as const, identityRoot, orderRoot })
+    const frozenNewEntries = meteredPhysicalOperationInternalV1({
+      meter: input.workMeter,
+      unit: "source-index-entries",
+      operation: () => {
+        Object.freeze(newEntriesReadView)
+        return newEntries
+      },
+    })
+    return Object.freeze({
+      status: "prepared" as const,
+      identityRoot,
+      orderRoot,
+      newEntries: frozenNewEntries,
+    })
   } catch (error) {
     if (
       error instanceof SourcePhysicalPathCopyStopInternalV1

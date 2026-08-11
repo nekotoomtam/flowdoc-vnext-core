@@ -1,6 +1,7 @@
 import { createVNextCompactFingerprint } from "../fingerprint/compactFingerprint.js"
 import { stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
 import {
+  bindVNextTextBlockUnifiedLayoutSourceExactPhysicalEntryResolverInternalV1,
   insertVNextTextBlockUnifiedLayoutSourcePhysicalEntryCompleteInternalV1,
   lookupVNextTextBlockUnifiedLayoutSourcePhysicalEntriesInternalV1,
   pathCopyVNextTextBlockUnifiedLayoutSourcePhysicalIndexInternalV1,
@@ -19,12 +20,18 @@ import {
 } from "./textBlockUnifiedLayoutSourceStyleRefcountsInternalsV1.js"
 import {
   canRegisterVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessInternalV1,
+  discardVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessPublicationInternalV1,
   getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInternalV1,
   inspectVNextTextBlockUnifiedLayoutSourceStateInternalV1,
+  matchesVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessReservationInternalV1,
+  prepareVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessPublicationInternalV1,
   registerVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessInternalV1,
+  releaseVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessReservationInternalV1,
+  reserveVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessInternalV1,
 } from "./textBlockUnifiedLayoutSourceStateV1.js"
 import type {
   VNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1,
+  VNextTextBlockUnifiedLayoutSourceAccessRecordInternalV1,
 } from "./textBlockUnifiedLayoutSourceStateV1.js"
 import type {
   VNextTextBlockUnifiedLayoutSourceItemV1,
@@ -42,9 +49,7 @@ import type {
   VNextTextBlockUnifiedLayoutRootV2,
 } from "./textBlockUnifiedLayoutRootContractV2.js"
 import {
-  beginVNextTextBlockUnifiedLayout5B2OperationInternalV1,
   captureVNextTextBlockUnifiedLayout5B2CandidateWorkMeterReceiptSnapshotInternalV1,
-  completeVNextTextBlockUnifiedLayout5B2OperationInternalV1,
   matchesVNextTextBlockUnifiedLayout5B2CandidateWorkMeterReceiptSnapshotInternalV1,
   matchesVNextTextBlockUnifiedLayout5B2CandidateWorkMeterSeedInternalV1,
   projectVNextTextBlockUnifiedLayout5B2CompatibilityWorkInternalV1,
@@ -54,14 +59,26 @@ import {
 import type {
   VNextTextBlockUnifiedLayoutIssueV1,
 } from "./textBlockUnifiedLayoutTransitionContractV1.js"
-import {
-  bindVNextTextBlockUnifiedLayoutSourceStageCommitSidecarsInternalV1,
-  isVNextTextBlockUnifiedLayoutSourceStageSidecarCandidateAbortProtectedInternalV1,
-  matchesVNextTextBlockUnifiedLayoutSourceStageCommitSidecarCandidateInternalV1,
-  registerVNextTextBlockUnifiedLayoutSourceStageSidecarPreconditionInternalV1,
-  type VNextTextBlockUnifiedLayoutSourceStageCommitTicketInternalV1,
-  type VNextTextBlockUnifiedLayoutSourceStageSidecarPreconditionAuthorityInternalV1,
+import type {
+  VNextTextBlockUnifiedLayoutSourceStageSidecarPreconditionAuthorityInternalV1,
 } from "./textBlockUnifiedLayoutSourceAuthorityInternalsV1.js"
+import {
+  attachVNextTextBlockUnifiedLayoutSourceSidecarCommitPlanInternalV1,
+  consumeVNextTextBlockUnifiedLayoutSourceSidecarCommitStepInternalV1,
+  consumeVNextTextBlockUnifiedLayoutSourceSidecarPlanAbandonmentInternalV1,
+  isVNextTextBlockUnifiedLayoutSourceCommitSidecarCandidateProtectedInternalV1,
+  type VNextTextBlockUnifiedLayoutDetachedSourceCommitTicketInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceSidecarApplyRecordInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceSidecarCommitStepInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceSidecarStepConsumerAuthorityInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceSidecarPlanAbandonmentAuthorityInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceSidecarCommitPlanAuthorityInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceSidecarCommitPlanSealAuthorityInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceCandidateCommitStepInternalV1,
+} from "./textBlockUnifiedLayoutSourceCommitTransactionInternalsV1.js"
+
+const SOURCE_SIDECAR_STEP_CONSUMER_AUTHORITY_INTERNAL_V1 = Object.freeze({}) as
+  VNextTextBlockUnifiedLayoutSourceSidecarStepConsumerAuthorityInternalV1
 
 export interface VNextTextBlockUnifiedLayoutSourceSidecarsInternalV1 {
   readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
@@ -78,6 +95,39 @@ export interface VNextTextBlockUnifiedLayoutSourceSidecarsInternalV1 {
 
 export interface VNextTextBlockUnifiedLayoutSourceSidecarCandidateAuthorityInternalV1 {
   readonly __sourceSidecarCandidateAuthorityOpaque: never
+}
+
+export interface VNextTextBlockUnifiedLayoutPreparedSourceSidecarCommitPlanInternalV1 {
+  readonly planAuthority:
+    VNextTextBlockUnifiedLayoutSourceSidecarCommitPlanAuthorityInternalV1
+  readonly sealAuthority:
+    VNextTextBlockUnifiedLayoutSourceSidecarCommitPlanSealAuthorityInternalV1
+  readonly plannedOutput:
+    VNextTextBlockUnifiedLayoutPreparedSourceSidecarOutputInternalV1
+  readonly candidateAuthority:
+    VNextTextBlockUnifiedLayoutSourceSidecarCandidateAuthorityInternalV1
+}
+
+export interface VNextTextBlockUnifiedLayoutPhysicalPairPublicationSetInternalV1 {
+  readonly reservationAuthority:
+    VNextTextBlockUnifiedLayoutSourceStageSidecarPreconditionAuthorityInternalV1
+  readonly candidateAuthority:
+    VNextTextBlockUnifiedLayoutSourceSidecarCandidateAuthorityInternalV1
+  readonly records: readonly Readonly<{
+    readonly item: VNextTextBlockUnifiedLayoutSourceItemV1
+    readonly entry: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1
+  }>[]
+  readonly count: number
+}
+
+export interface VNextTextBlockUnifiedLayoutPreparedSourceSidecarOutputInternalV1 {
+  readonly nextSidecars: VNextTextBlockUnifiedLayoutSourceSidecarsInternalV1
+  readonly registration:
+    VNextTextBlockUnifiedLayoutSourceSidecarRegistrationInternalV1
+  readonly pairPublicationSet:
+    VNextTextBlockUnifiedLayoutPhysicalPairPublicationSetInternalV1
+  readonly sourceAccessRecord:
+    VNextTextBlockUnifiedLayoutSourceAccessRecordInternalV1
 }
 
 export type VNextTextBlockUnifiedLayoutSourceSidecarCompleteIssueInternalV1 =
@@ -122,6 +172,8 @@ interface CompleteCandidateRecordInternalV1 {
   readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
   readonly sidecars: VNextTextBlockUnifiedLayoutSourceSidecarsInternalV1
   readonly completeReceipt: VNextTextBlockUnifiedLayoutSourceSidecarCompleteReceiptInternalV1
+  readonly physicalEntries:
+    readonly VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[]
 }
 
 interface PathCopyCandidateRecordInternalV1 {
@@ -133,23 +185,27 @@ interface PathCopyCandidateRecordInternalV1 {
   readonly removedItems: readonly VNextTextBlockUnifiedLayoutSourceItemV1[]
   readonly nextPhysicalItems: readonly VNextTextBlockUnifiedLayoutSourceItemV1[]
   readonly workMeter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
+  readonly newPhysicalEntries:
+    readonly VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[]
 }
 
 type CandidateRecordInternalV1 =
   | CompleteCandidateRecordInternalV1
   | PathCopyCandidateRecordInternalV1
 
-interface RegistrationInternalV1 {
-  readonly constructionKind: "complete" | "source-checkpoint"
+export interface VNextTextBlockUnifiedLayoutSourceSidecarRegistrationInternalV1 {
+  readonly constructionKind:
+    | "complete"
+    | "source-transaction"
   readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
   readonly sidecars: VNextTextBlockUnifiedLayoutSourceSidecarsInternalV1
   readonly root: VNextTextBlockUnifiedLayoutRootV2
   readonly composition: VNextTextBlockUnifiedLayout5B2PolicyCompositionInternalV1
-  readonly sourceStageCommitTicket:
-    VNextTextBlockUnifiedLayoutSourceStageCommitTicketInternalV1 | null
   readonly sidecarCandidateAuthority:
     VNextTextBlockUnifiedLayoutSourceSidecarCandidateAuthorityInternalV1 | null
 }
+type RegistrationInternalV1 =
+  VNextTextBlockUnifiedLayoutSourceSidecarRegistrationInternalV1
 
 const candidateRecords = new WeakMap<
   VNextTextBlockUnifiedLayoutSourceSidecarCandidateAuthorityInternalV1,
@@ -176,10 +232,18 @@ export function discardVNextTextBlockUnifiedLayoutSourceSidecarCandidateInternal
 ): boolean {
   if (
     consumedCandidates.has(authority)
-    || isVNextTextBlockUnifiedLayoutSourceStageSidecarCandidateAbortProtectedInternalV1(
+    || isVNextTextBlockUnifiedLayoutSourceCommitSidecarCandidateProtectedInternalV1(
       authority,
     )
   ) return false
+  const reservation = exactPhysicalPairReservationByCandidate.get(authority)
+  if (reservation != null) {
+    releaseVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessReservationInternalV1({
+      sourceState: reservation.sourceState,
+      reservationAuthority: reservation.reservationAuthority,
+    })
+    releaseExactPhysicalEntryPairReservation(reservation)
+  }
   return candidateRecords.delete(authority)
 }
 
@@ -187,6 +251,79 @@ const registrationsBySource = new WeakMap<
   VNextTextBlockUnifiedLayoutSourceStateV1,
   RegistrationInternalV1
 >()
+const pathCopyRegistrationPreconditionRecords = new WeakMap<
+  VNextTextBlockUnifiedLayoutSourceStageSidecarPreconditionAuthorityInternalV1,
+  Readonly<{
+    readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+    readonly composition: VNextTextBlockUnifiedLayout5B2PolicyCompositionInternalV1
+    readonly previousSidecars: VNextTextBlockUnifiedLayoutSourceSidecarsInternalV1
+    readonly nextSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly nextSidecars: VNextTextBlockUnifiedLayoutSourceSidecarsInternalV1
+    readonly candidateAuthority:
+      VNextTextBlockUnifiedLayoutSourceSidecarCandidateAuthorityInternalV1
+    readonly sourcePathCopyCandidateAuthority:
+      import("./textBlockUnifiedLayoutSourceStateV1.js")
+        .VNextTextBlockSourcePathCopyCandidateAuthorityInternalV1
+    readonly workMeter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
+  }>
+>()
+type SourceSidecarCommitPlanRecordInternalV1 = Readonly<{
+    readonly planAuthority:
+      VNextTextBlockUnifiedLayoutSourceSidecarCommitPlanAuthorityInternalV1
+    readonly registrationPreconditionAuthority:
+      VNextTextBlockUnifiedLayoutSourceStageSidecarPreconditionAuthorityInternalV1
+    readonly candidateAuthority:
+      VNextTextBlockUnifiedLayoutSourceSidecarCandidateAuthorityInternalV1
+    readonly registration: RegistrationInternalV1
+    readonly pairPublicationSet:
+      VNextTextBlockUnifiedLayoutPhysicalPairPublicationSetInternalV1
+    readonly detachedTicket:
+      VNextTextBlockUnifiedLayoutDetachedSourceCommitTicketInternalV1
+    readonly sealAuthority:
+      VNextTextBlockUnifiedLayoutSourceSidecarCommitPlanSealAuthorityInternalV1
+    readonly sourceAccessRecord:
+      VNextTextBlockUnifiedLayoutSourceAccessRecordInternalV1
+    readonly plannedOutput:
+      VNextTextBlockUnifiedLayoutPreparedSourceSidecarOutputInternalV1
+  }>
+const sidecarCommitPlanRecords = new WeakMap<
+  VNextTextBlockUnifiedLayoutSourceSidecarCommitPlanAuthorityInternalV1,
+  SourceSidecarCommitPlanRecordInternalV1
+>()
+const exactPhysicalEntryBySourceItem = new WeakMap<
+  VNextTextBlockUnifiedLayoutSourceItemV1,
+  VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1
+>()
+const reservedExactPhysicalEntryBySourceItem = new WeakMap<
+  VNextTextBlockUnifiedLayoutSourceItemV1,
+  Readonly<{
+    readonly entry: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1
+    readonly reservationAuthority:
+      VNextTextBlockUnifiedLayoutSourceStageSidecarPreconditionAuthorityInternalV1
+  }>
+>()
+interface ExactPhysicalPairReservationInternalV1 {
+  readonly reservationAuthority:
+    VNextTextBlockUnifiedLayoutSourceStageSidecarPreconditionAuthorityInternalV1
+  readonly candidateAuthority:
+    VNextTextBlockUnifiedLayoutSourceSidecarCandidateAuthorityInternalV1
+  readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly entries:
+    readonly VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[]
+  readonly publicationSet:
+    VNextTextBlockUnifiedLayoutPhysicalPairPublicationSetInternalV1
+}
+const exactPhysicalPairReservationByCandidate = new WeakMap<
+  VNextTextBlockUnifiedLayoutSourceSidecarCandidateAuthorityInternalV1,
+  ExactPhysicalPairReservationInternalV1
+>()
+const exactPhysicalPairReservationByAuthority = new WeakMap<
+  VNextTextBlockUnifiedLayoutSourceStageSidecarPreconditionAuthorityInternalV1,
+  ExactPhysicalPairReservationInternalV1
+>()
+if (!bindVNextTextBlockUnifiedLayoutSourceExactPhysicalEntryResolverInternalV1(
+  (item) => exactPhysicalEntryBySourceItem.get(item) ?? null,
+)) throw new Error("Source exact physical-entry resolver already bound")
 const positionKeyExhaustionProofRecords = new WeakMap<object, Readonly<{
   readonly previousSidecars: VNextTextBlockUnifiedLayoutSourceSidecarsInternalV1
   readonly replacement: VNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1
@@ -353,6 +490,7 @@ function prepareComplete(
   let identityRoot: VNextTextBlockUnifiedLayoutSourceIdentityIndexNodeInternalV1 | null = null
   let orderRoot: VNextTextBlockUnifiedLayoutSourceOrderIndexNodeInternalV1 | null = null
   let styleRoot: VNextTextBlockUnifiedLayoutSourceStyleRefcountNodeInternalV1 | null = null
+  const physicalEntries: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[] = []
   try {
     const items = sourceItemsInCanonicalOrder(
       input.sourceState.root,
@@ -374,6 +512,7 @@ function prepareComplete(
           positionKey,
           renderedUtf16Length: item.renderedUtf16Length,
         })
+      physicalEntries.push(physicalEntry)
       const inserted =
         insertVNextTextBlockUnifiedLayoutSourcePhysicalEntryCompleteInternalV1({
           identityRoot,
@@ -449,11 +588,13 @@ function prepareComplete(
   })
   const candidateAuthority = Object.freeze({}) as
     VNextTextBlockUnifiedLayoutSourceSidecarCandidateAuthorityInternalV1
+  const exactPhysicalEntries = Object.freeze(physicalEntries)
   candidateRecords.set(candidateAuthority, Object.freeze({
     constructionKind: "complete" as const,
     sourceState: input.sourceState,
     sidecars,
     completeReceipt,
+    physicalEntries: exactPhysicalEntries,
   }))
   return Object.freeze({
     status: "prepared" as const,
@@ -485,12 +626,132 @@ export function prepareVNextTextBlockUnifiedLayoutSourceSidecarsWithForcedStyleC
   return prepareComplete(input, () => `sha256:${"0".repeat(64)}`)
 }
 
-function registerPlanASidecarAccess(input: {
+function validateExactPhysicalEntryPairs(input: {
+  readonly entries:
+    readonly VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[]
+  readonly reservationAuthority?:
+    VNextTextBlockUnifiedLayoutSourceStageSidecarPreconditionAuthorityInternalV1
+}): readonly VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[] | null {
+  const items = new Set<VNextTextBlockUnifiedLayoutSourceItemV1>()
+  const exactEntries: VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[] = []
+  for (const entry of input.entries) {
+    const item = entry.item
+    const exact = exactPhysicalEntryBySourceItem.get(item)
+    const reserved = reservedExactPhysicalEntryBySourceItem.get(item)
+    if (
+      !Object.isFrozen(entry)
+      || !Object.isFrozen(item)
+      || items.has(item)
+      || entry.renderedUtf16Length !== item.renderedUtf16Length
+      || (exact != null && exact !== entry)
+      || (
+        reserved != null
+        && reserved.reservationAuthority !== input.reservationAuthority
+      )
+    ) return null
+    items.add(item)
+    exactEntries.push(entry)
+  }
+  return Object.freeze(exactEntries)
+}
+
+function reserveExactPhysicalEntryPairs(input: {
+  readonly reservationAuthority:
+    VNextTextBlockUnifiedLayoutSourceStageSidecarPreconditionAuthorityInternalV1
+  readonly candidateAuthority:
+    VNextTextBlockUnifiedLayoutSourceSidecarCandidateAuthorityInternalV1
+  readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly entries:
+    readonly VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[]
+}): boolean {
+  if (
+    exactPhysicalPairReservationByCandidate.has(input.candidateAuthority)
+    || exactPhysicalPairReservationByAuthority.has(input.reservationAuthority)
+  ) return false
+  const entries = validateExactPhysicalEntryPairs({
+    entries: input.entries,
+    reservationAuthority: input.reservationAuthority,
+  })
+  if (entries == null) return false
+  const pairs = Object.freeze(entries.map((entry) => Object.freeze({
+    item: entry.item,
+    entry,
+  })))
+  const publicationSet = Object.freeze({
+    reservationAuthority: input.reservationAuthority,
+    candidateAuthority: input.candidateAuthority,
+    records: pairs,
+    count: pairs.length,
+  })
+  const reservation: ExactPhysicalPairReservationInternalV1 = Object.freeze({
+    reservationAuthority: input.reservationAuthority,
+    candidateAuthority: input.candidateAuthority,
+    sourceState: input.sourceState,
+    entries,
+    publicationSet,
+  })
+  for (const entry of entries) {
+    if (exactPhysicalEntryBySourceItem.has(entry.item)) continue
+    reservedExactPhysicalEntryBySourceItem.set(entry.item, Object.freeze({
+      entry,
+      reservationAuthority: input.reservationAuthority,
+    }))
+  }
+  exactPhysicalPairReservationByCandidate.set(input.candidateAuthority, reservation)
+  exactPhysicalPairReservationByAuthority.set(input.reservationAuthority, reservation)
+  return true
+}
+
+function releaseExactPhysicalEntryPairReservation(
+  reservation: ExactPhysicalPairReservationInternalV1,
+): void {
+  for (const entry of reservation.entries) {
+    if (
+      reservedExactPhysicalEntryBySourceItem.get(entry.item)
+        ?.reservationAuthority === reservation.reservationAuthority
+    ) reservedExactPhysicalEntryBySourceItem.delete(entry.item)
+  }
+  exactPhysicalPairReservationByCandidate.delete(reservation.candidateAuthority)
+  exactPhysicalPairReservationByAuthority.delete(reservation.reservationAuthority)
+}
+
+function publishExactPhysicalEntryPairs(
+  entries: readonly VNextTextBlockUnifiedLayoutSourcePhysicalEntryInternalV1[],
+): void {
+  for (const entry of entries) {
+    exactPhysicalEntryBySourceItem.set(entry.item, entry)
+    reservedExactPhysicalEntryBySourceItem.delete(entry.item)
+  }
+}
+
+function commitPreparedExactPhysicalEntryPairPublication(
+  publication: VNextTextBlockUnifiedLayoutPhysicalPairPublicationSetInternalV1,
+): void {
+  let pairIndex = 0
+  while (pairIndex < publication.count) {
+    const pair = publication.records[pairIndex]!
+    exactPhysicalEntryBySourceItem.set(pair.item, pair.entry)
+    reservedExactPhysicalEntryBySourceItem.delete(pair.item)
+    pairIndex += 1
+  }
+  exactPhysicalPairReservationByCandidate.delete(
+    publication.candidateAuthority,
+  )
+  exactPhysicalPairReservationByAuthority.delete(
+    publication.reservationAuthority,
+  )
+}
+
+function planASidecarAccessCallbacks(input: {
   readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
   readonly sidecars: VNextTextBlockUnifiedLayoutSourceSidecarsInternalV1
-}): boolean {
-  return registerVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessInternalV1({
-    sourceState: input.sourceState,
+}): Omit<
+  Parameters<
+    typeof registerVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessInternalV1
+  >[0],
+  "sourceState"
+> {
+  return {
     resolveStyle: (styleKeys) =>
       resolveVNextTextBlockUnifiedLayoutSourceStyleFromRefcountRootInternalV1({
         root: input.sidecars.styleRoot,
@@ -527,6 +788,16 @@ function registerPlanASidecarAccess(input: {
         throw error
       }
     },
+  }
+}
+
+function registerPlanASidecarAccess(input: {
+  readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly sidecars: VNextTextBlockUnifiedLayoutSourceSidecarsInternalV1
+}): boolean {
+  return registerVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessInternalV1({
+    sourceState: input.sourceState,
+    ...planASidecarAccessCallbacks(input),
   })
 }
 
@@ -548,25 +819,53 @@ export function registerVNextTextBlockUnifiedLayoutSourceSidecarsCompleteInterna
       input.root,
     ) !== input.composition
     || registrationsBySource.has(candidate.sourceState)
+    || !canRegisterVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessInternalV1(
+      candidate.sourceState,
+    )
   ) return false
+  const exactEntries = validateExactPhysicalEntryPairs({
+    entries: candidate.physicalEntries,
+  })
+  if (exactEntries == null) return false
   const registration: RegistrationInternalV1 = Object.freeze({
     constructionKind: "complete" as const,
     sourceState: candidate.sourceState,
     sidecars: candidate.sidecars,
     root: input.root,
     composition: input.composition,
-    sourceStageCommitTicket: null,
     sidecarCandidateAuthority: input.candidateAuthority,
   })
-  registrationsBySource.set(candidate.sourceState, registration)
-  const registeredAccess = registerPlanASidecarAccess({
+  if (!registerPlanASidecarAccess({
     sourceState: candidate.sourceState,
     sidecars: candidate.sidecars,
+  })) return false
+  registrationsBySource.set(candidate.sourceState, registration)
+  publishExactPhysicalEntryPairs(exactEntries)
+  consumedCandidates.add(input.candidateAuthority)
+  return true
+}
+
+/** Test-only exact complete-candidate activation; accepts no caller-supplied pairs. */
+export function activateVNextTextBlockUnifiedLayoutSourceSidecarsCompletePhysicalPairsForTestInternalV1(
+  input: {
+    readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly sidecars: VNextTextBlockUnifiedLayoutSourceSidecarsInternalV1
+    readonly candidateAuthority:
+      VNextTextBlockUnifiedLayoutSourceSidecarCandidateAuthorityInternalV1
+  },
+): boolean {
+  const candidate = candidateRecords.get(input.candidateAuthority)
+  if (
+    candidate?.constructionKind !== "complete"
+    || candidate.sourceState !== input.sourceState
+    || candidate.sidecars !== input.sidecars
+    || consumedCandidates.has(input.candidateAuthority)
+  ) return false
+  const exactEntries = validateExactPhysicalEntryPairs({
+    entries: candidate.physicalEntries,
   })
-  if (!registeredAccess) {
-    registrationsBySource.delete(candidate.sourceState)
-    return false
-  }
+  if (exactEntries == null) return false
+  publishExactPhysicalEntryPairs(exactEntries)
   consumedCandidates.add(input.candidateAuthority)
   return true
 }
@@ -588,24 +887,7 @@ export function resolveVNextTextBlockUnifiedLayoutSourceSidecarsInternalV1(
     || (
       registration.constructionKind === "complete"
         ? registration.root.sourceState !== input.sourceState
-        : registration.sourceStageCommitTicket == null
-          || registration.sidecarCandidateAuthority == null
-          || !matchesVNextTextBlockUnifiedLayoutSourceStageCommitSidecarCandidateInternalV1({
-            ticket: registration.sourceStageCommitTicket,
-            previousRoot: registration.root,
-            previousSidecars: candidateRecords.get(
-              registration.sidecarCandidateAuthority,
-            )?.constructionKind === "path-copy"
-              ? (candidateRecords.get(
-                  registration.sidecarCandidateAuthority,
-                ) as PathCopyCandidateRecordInternalV1).previousSidecars
-              : registration.sidecars,
-            nextSourceState: registration.sourceState,
-            nextSidecars: registration.sidecars,
-            nextSidecarCandidateAuthority:
-              registration.sidecarCandidateAuthority,
-            committed: true,
-          })
+        : false
     )
   ) return null
   return registration.sidecars
@@ -689,37 +971,11 @@ function preparePathCopyInternalV1(
     ) == null
   ) return blocked("Source sidecar path copy requires exact candidate authority")
 
-  const observedNextItems: VNextTextBlockUnifiedLayoutSourceItemV1[] = []
-  for (let index = 0; index < input.nextPhysicalItems.length; index += 1) {
-    const begun = beginVNextTextBlockUnifiedLayout5B2OperationInternalV1({
-      meter: input.workMeter,
-      unit: "source-items",
-    })
-    if (begun.status === "limit-exceeded") {
-      return Object.freeze({
-        status: "fallback-required" as const,
-        cause: "work-limit" as const,
-        evaluatorOrProofAuthority: begun.evaluatorAuthority,
-        sidecars: null,
-        issues: Object.freeze([]) as readonly [],
-      })
-    }
-    if (begun.status !== "permitted") {
-      return blocked("Source item emission requires an exact open permit")
-    }
-    const item = input.nextPhysicalItems[index]
-    if (
-      item == null
-      || !completeVNextTextBlockUnifiedLayout5B2OperationInternalV1(begun.permit)
-    ) return blocked("Source physical item emission was incomplete")
-    observedNextItems.push(item)
-  }
-
   const physical = pathCopyVNextTextBlockUnifiedLayoutSourcePhysicalIndexInternalV1({
     identityRoot: input.previousSidecars.identityRoot,
     orderRoot: input.previousSidecars.orderRoot,
     removedItems: input.removedItems,
-    nextPhysicalItems: Object.freeze(observedNextItems),
+    nextPhysicalItems: input.nextPhysicalItems,
     workMeter: input.workMeter,
     previousRenderedBoundary:
       input.replacement.previousRange.startRenderedUtf16,
@@ -772,7 +1028,7 @@ function preparePathCopyInternalV1(
   const styles = pathCopyVNextTextBlockUnifiedLayoutSourceStyleRefcountsInternalV1({
     root: input.previousSidecars.styleRoot,
     removedItems: input.removedItems,
-    nextPhysicalItems: observedNextItems,
+    nextPhysicalItems: input.nextPhysicalItems,
     workMeter: input.workMeter,
   })
   if (styles.status === "work-limit") {
@@ -813,6 +1069,7 @@ function preparePathCopyInternalV1(
     removedItems: input.removedItems,
     nextPhysicalItems: input.nextPhysicalItems,
     workMeter: input.workMeter,
+    newPhysicalEntries: physical.newEntries,
   }))
   pathCopyCandidateObserverForTestInternalV1?.(Object.freeze({
     authority: candidateAuthority,
@@ -849,6 +1106,9 @@ export function canRegisterVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyInte
   const previousRegistration = registrationsBySource.get(
     input.previousSidecars.sourceState,
   )
+  const pairReservation = exactPhysicalPairReservationByCandidate.get(
+    input.candidateAuthority,
+  )
   return candidate != null
     && candidate.constructionKind === "path-copy"
     && !consumedCandidates.has(input.candidateAuthority)
@@ -864,8 +1124,17 @@ export function canRegisterVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyInte
       input.previousRoot,
     ) === input.composition
     && !registrationsBySource.has(input.nextSourceState)
-    && canRegisterVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessInternalV1(
-      input.nextSourceState,
+    && (
+      canRegisterVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessInternalV1(
+        input.nextSourceState,
+      )
+      || (
+        pairReservation?.sourceState === input.nextSourceState
+        && matchesVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessReservationInternalV1({
+          sourceState: input.nextSourceState,
+          reservationAuthority: pairReservation.reservationAuthority,
+        })
+      )
     )
 }
 
@@ -894,8 +1163,23 @@ export function prepareVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyRegistra
   ) return null
   const authority = Object.freeze({}) as
     VNextTextBlockUnifiedLayoutSourceStageSidecarPreconditionAuthorityInternalV1
-  return registerVNextTextBlockUnifiedLayoutSourceStageSidecarPreconditionInternalV1({
-    authority,
+  if (!reserveVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessInternalV1({
+    sourceState: input.nextSourceState,
+    reservationAuthority: authority,
+  })) return null
+  if (!reserveExactPhysicalEntryPairs({
+    reservationAuthority: authority,
+    candidateAuthority: input.candidateAuthority,
+    sourceState: input.nextSourceState,
+    entries: sidecarCandidate.newPhysicalEntries,
+  })) {
+    releaseVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessReservationInternalV1({
+      sourceState: input.nextSourceState,
+      reservationAuthority: authority,
+    })
+    return null
+  }
+  pathCopyRegistrationPreconditionRecords.set(authority, Object.freeze({
     previousRoot: input.previousRoot,
     composition: input.composition,
     previousSidecars: input.previousSidecars,
@@ -904,56 +1188,189 @@ export function prepareVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyRegistra
     candidateAuthority: input.candidateAuthority,
     sourcePathCopyCandidateAuthority: input.sourcePathCopyCandidateAuthority,
     workMeter: input.workMeter,
-  }) ? authority : null
+  }))
+  return authority
 }
 
-export function registerVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyInternalV1(
-  input: {
-    readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
-    readonly composition: VNextTextBlockUnifiedLayout5B2PolicyCompositionInternalV1
+export function prepareVNextTextBlockUnifiedLayoutSourceSidecarCommitPlanInternalV1(
+  input: Readonly<{
+    readonly detachedTicket:
+      VNextTextBlockUnifiedLayoutDetachedSourceCommitTicketInternalV1
+    readonly registrationPreconditionAuthority:
+      VNextTextBlockUnifiedLayoutSourceStageSidecarPreconditionAuthorityInternalV1
     readonly previousSidecars: VNextTextBlockUnifiedLayoutSourceSidecarsInternalV1
-    readonly nextSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
     readonly nextSidecars: VNextTextBlockUnifiedLayoutSourceSidecarsInternalV1
-    readonly candidateAuthority: VNextTextBlockUnifiedLayoutSourceSidecarCandidateAuthorityInternalV1
-    readonly workMeter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
-    readonly sourceStageCommitTicket: VNextTextBlockUnifiedLayoutSourceStageCommitTicketInternalV1
-  },
-): boolean {
-  if (
-    !canRegisterVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyInternalV1(
-      input,
-    )
-    || !matchesVNextTextBlockUnifiedLayoutSourceStageCommitSidecarCandidateInternalV1({
-      ticket: input.sourceStageCommitTicket,
-      previousRoot: input.previousRoot,
-      previousSidecars: input.previousSidecars,
-      nextSourceState: input.nextSourceState,
-      nextSidecars: input.nextSidecars,
-      nextSidecarCandidateAuthority: input.candidateAuthority,
-      committed: false,
-    })
-  ) return false
-  const registration: RegistrationInternalV1 = Object.freeze({
-    constructionKind: "source-checkpoint" as const,
-    sourceState: input.nextSourceState,
-    sidecars: input.nextSidecars,
-    root: input.previousRoot,
-    composition: input.composition,
-    sourceStageCommitTicket: input.sourceStageCommitTicket,
-    sidecarCandidateAuthority: input.candidateAuthority,
-  })
-  registrationsBySource.set(input.nextSourceState, registration)
-  if (!registerPlanASidecarAccess({
-    sourceState: input.nextSourceState,
-    sidecars: input.nextSidecars,
-  })) {
-    throw new Error("Source sidecar access commit invariant violated")
-  }
-  consumedCandidates.add(input.candidateAuthority)
-  bindVNextTextBlockUnifiedLayoutSourceStageCommitSidecarsInternalV1(
-    input.sourceStageCommitTicket,
+    readonly candidateWorkMeter:
+      VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
+    readonly nextSidecarCandidateAuthority:
+      VNextTextBlockUnifiedLayoutSourceSidecarCandidateAuthorityInternalV1
+    readonly sourcePathCopyCandidateAuthority:
+      import("./textBlockUnifiedLayoutSourceStateV1.js")
+        .VNextTextBlockSourcePathCopyCandidateAuthorityInternalV1
+  }>,
+): VNextTextBlockUnifiedLayoutPreparedSourceSidecarCommitPlanInternalV1 | null {
+  const precondition = pathCopyRegistrationPreconditionRecords.get(
+    input.registrationPreconditionAuthority,
   )
-  return true
+  const candidate = candidateRecords.get(input.nextSidecarCandidateAuthority)
+  const sourceCandidate = getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInternalV1(
+    input.sourcePathCopyCandidateAuthority,
+  )
+  const pairReservation = exactPhysicalPairReservationByAuthority.get(
+    input.registrationPreconditionAuthority,
+  )
+  if (
+    precondition == null
+    || candidate?.constructionKind !== "path-copy"
+    || sourceCandidate == null
+    || pairReservation == null
+    || precondition.previousSidecars !== input.previousSidecars
+    || precondition.nextSidecars !== input.nextSidecars
+    || precondition.workMeter !== input.candidateWorkMeter
+    || precondition.candidateAuthority
+      !== input.nextSidecarCandidateAuthority
+    || precondition.sourcePathCopyCandidateAuthority
+      !== input.sourcePathCopyCandidateAuthority
+    || candidate.sourceState !== precondition.nextSourceState
+    || candidate.sidecars !== input.nextSidecars
+    || candidate.previousSidecars !== input.previousSidecars
+    || candidate.workMeter !== input.candidateWorkMeter
+    || sourceCandidate.nextSourceState !== precondition.nextSourceState
+    || sourceCandidate.replacement !== candidate.replacement
+    || sourceCandidate.removedItems !== candidate.removedItems
+    || sourceCandidate.nextPhysicalItems !== candidate.nextPhysicalItems
+    || pairReservation.candidateAuthority
+      !== input.nextSidecarCandidateAuthority
+    || pairReservation.sourceState !== precondition.nextSourceState
+    || registrationsBySource.has(precondition.nextSourceState)
+    || !matchesVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessReservationInternalV1({
+      sourceState: precondition.nextSourceState,
+      reservationAuthority: input.registrationPreconditionAuthority,
+    })
+  ) return null
+
+  const planAuthority = Object.freeze({}) as
+    VNextTextBlockUnifiedLayoutSourceSidecarCommitPlanAuthorityInternalV1
+  const sealAuthority = Object.freeze({}) as
+    VNextTextBlockUnifiedLayoutSourceSidecarCommitPlanSealAuthorityInternalV1
+  const access = planASidecarAccessCallbacks({
+    sourceState: precondition.nextSourceState,
+    sidecars: input.nextSidecars,
+  })
+  const sourceAccessRecord =
+    prepareVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessPublicationInternalV1({
+      planAuthority,
+      sourceState: precondition.nextSourceState,
+      reservationAuthority: input.registrationPreconditionAuthority,
+      ...access,
+    })
+  if (sourceAccessRecord == null) return null
+  const registration: RegistrationInternalV1 = Object.freeze({
+    constructionKind: "source-transaction" as const,
+    sourceState: precondition.nextSourceState,
+    sidecars: input.nextSidecars,
+    root: precondition.previousRoot,
+    composition: precondition.composition,
+    sidecarCandidateAuthority: null,
+  })
+  const plannedOutput = Object.freeze({
+    nextSidecars: input.nextSidecars,
+    registration,
+    pairPublicationSet: pairReservation.publicationSet,
+    sourceAccessRecord,
+  })
+  const planRecord = Object.freeze({
+    planAuthority,
+    registrationPreconditionAuthority:
+      input.registrationPreconditionAuthority,
+    candidateAuthority: input.nextSidecarCandidateAuthority,
+    registration,
+    pairPublicationSet: pairReservation.publicationSet,
+    detachedTicket: input.detachedTicket,
+    sealAuthority,
+    sourceAccessRecord,
+    plannedOutput,
+  }) as SourceSidecarCommitPlanRecordInternalV1
+  const applyRecord = planRecord as unknown as
+    VNextTextBlockUnifiedLayoutSourceSidecarApplyRecordInternalV1
+  const prepared = Object.freeze({
+    planAuthority,
+    sealAuthority,
+    plannedOutput,
+    candidateAuthority: input.nextSidecarCandidateAuthority,
+  })
+  sidecarCommitPlanRecords.set(planAuthority, planRecord)
+  if (!attachVNextTextBlockUnifiedLayoutSourceSidecarCommitPlanInternalV1({
+    detachedTicket: input.detachedTicket,
+    planAuthority,
+    sealAuthority,
+    applyRecord,
+    consumerAuthority: SOURCE_SIDECAR_STEP_CONSUMER_AUTHORITY_INTERNAL_V1,
+  })) {
+    sidecarCommitPlanRecords.delete(planAuthority)
+    discardVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessPublicationInternalV1(
+      planAuthority,
+    )
+    return null
+  }
+  return prepared
+}
+
+export function matchesVNextTextBlockUnifiedLayoutSourceSidecarCommitPlanSealInternalV1(
+  input: Readonly<{
+    detachedTicket:
+      VNextTextBlockUnifiedLayoutDetachedSourceCommitTicketInternalV1
+    planAuthority:
+      VNextTextBlockUnifiedLayoutSourceSidecarCommitPlanAuthorityInternalV1
+    sealAuthority:
+      VNextTextBlockUnifiedLayoutSourceSidecarCommitPlanSealAuthorityInternalV1
+    plannedOutput:
+      VNextTextBlockUnifiedLayoutPreparedSourceSidecarOutputInternalV1
+  }>,
+): boolean {
+  const plan = sidecarCommitPlanRecords.get(input.planAuthority)
+  return plan != null
+    && plan.detachedTicket === input.detachedTicket
+    && plan.sealAuthority === input.sealAuthority
+    && plan.plannedOutput === input.plannedOutput
+}
+
+export function abandonVNextTextBlockUnifiedLayoutSourceSidecarCommitPlanInternalV1(
+  input: Readonly<{
+    planAuthority:
+      VNextTextBlockUnifiedLayoutSourceSidecarCommitPlanAuthorityInternalV1
+    abandonmentAuthority:
+      VNextTextBlockUnifiedLayoutSourceSidecarPlanAbandonmentAuthorityInternalV1
+  }>,
+): void {
+  if (!sidecarCommitPlanRecords.has(input.planAuthority)) {
+    throw new Error("Source sidecar commit plan abandonment invariant violated")
+  }
+  consumeVNextTextBlockUnifiedLayoutSourceSidecarPlanAbandonmentInternalV1(input)
+  discardVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessPublicationInternalV1(
+    input.planAuthority,
+  )
+  sidecarCommitPlanRecords.delete(input.planAuthority)
+}
+
+export function applyVNextTextBlockUnifiedLayoutSourceSidecarCommitPlanInternalV1(
+  step: VNextTextBlockUnifiedLayoutSourceSidecarCommitStepInternalV1,
+): VNextTextBlockUnifiedLayoutSourceCandidateCommitStepInternalV1 {
+  const { applyRecord, nextStep } =
+    consumeVNextTextBlockUnifiedLayoutSourceSidecarCommitStepInternalV1({
+      step,
+      consumerAuthority: SOURCE_SIDECAR_STEP_CONSUMER_AUTHORITY_INTERNAL_V1,
+    })
+  const plan = applyRecord as unknown as SourceSidecarCommitPlanRecordInternalV1
+  registrationsBySource.set(plan.registration.sourceState, plan.registration)
+  commitPreparedExactPhysicalEntryPairPublication(plan.pairPublicationSet)
+  consumedCandidates.add(plan.candidateAuthority)
+  candidateRecords.delete(plan.candidateAuthority)
+  pathCopyRegistrationPreconditionRecords.delete(
+    plan.registrationPreconditionAuthority,
+  )
+  sidecarCommitPlanRecords.delete(plan.planAuthority)
+  return nextStep
 }
 
 export function prepareVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyWithForcedPositionIntervalForTestInternalV1(
@@ -974,13 +1391,18 @@ export function matchesVNextTextBlockUnifiedLayoutSourcePositionKeyExhaustionPro
   },
 ): boolean {
   const proof = positionKeyExhaustionProofRecords.get(input.proofAuthority)
+  const retainedItems = new WeakSet(input.removedItems)
+  const requestedCount = input.nextPhysicalItems.reduce(
+    (count, item) => count + (retainedItems.has(item) ? 0 : 1),
+    0,
+  )
   return proof != null
     && proof.previousSidecars === input.previousSidecars
     && proof.replacement === input.replacement
     && proof.removedItems === input.removedItems
     && proof.nextPhysicalItems === input.nextPhysicalItems
     && proof.workMeter === input.workMeter
-    && proof.requestedCount === input.nextPhysicalItems.length
+    && proof.requestedCount === requestedCount
     && matchesVNextTextBlockUnifiedLayout5B2CandidateWorkMeterReceiptSnapshotInternalV1({
       meter: input.workMeter,
       snapshotAuthority: proof.receiptSnapshotAuthority,

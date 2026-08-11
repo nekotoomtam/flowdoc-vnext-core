@@ -30,9 +30,16 @@
 - After sealed, plan/candidate/access release or discard rejects. After SCT-T25, no normal rejection, allocation, freeze, descriptor check, duplicate check, external execution, or caller-owned traversal remains.
 - Fixed apply order is CandidateWork → SourceSidecars → SourceState → SourceAuthority Stage.
 - SourceSidecars never publishes Source access. SourceState is the sole Source access publisher.
-- Stage preparation binds SCT-T51 and precreates SCT-T52. Stage apply returns SCT-T52 directly; no ticket-to-result shadow registry exists.
-- Every participant apply consumes SCT-T54 returned by `begin`; it performs no
-  post-live plan lookup or authority assertion.
+- Stage preparation binds SCT-T51 and precreates SCT-T52. SourceAuthority
+  captures that identity before live and returns it after Stage and finish; no
+  ticket-to-result shadow registry exists.
+- The leaf precreates five empty SCT-T55 identities and fixed private WeakMap
+  records from the four exact SCT-T54 records. `begin` returns only the
+  CandidateWork identity; each participant consumes it with a module-private
+  token and returns only the next empty identity; Stage alone receives finish.
+- Every participant apply performs exactly one fixed transaction step-registry
+  consume and no post-live owner-plan lookup, caller-property read, phase
+  assertion, or apply-authority assertion.
 - SCT-T53 is the only variable-count post-live operation. It is limited to the prevalidated physical pair publication set.
 - Preserve exact authority, forced collision, all-ten work ownership, bounded same-inline lookup, complete-hot-path prohibitions, compatibility behavior, and candidate-free fallback behavior.
 - Preserve current factual owner calibration unless the implementation changes a factual owner operation; any changed value needs a behavior RED, exact receipt evidence, and user-visible report.
@@ -180,12 +187,18 @@ export function mintVNextTextBlockUnifiedLayoutSourceCommitInternalV1(
 
 export function beginVNextTextBlockUnifiedLayoutSourceCommitInternalV1(
   ticket: VNextTextBlockUnifiedLayoutSealedSourceCommitTicketInternalV1,
-): VNextTextBlockUnifiedLayoutSourceCommitApplyBundleInternalV1
+): VNextTextBlockUnifiedLayoutCandidateWorkCommitStepInternalV1
+
+export function finishVNextTextBlockUnifiedLayoutSourceCommitInternalV1(
+  finishStep: VNextTextBlockUnifiedLayoutSourceCommitFinishStepInternalV1,
+): void
 ```
 
 The four named `attach...PlanInternalV1` operations take the exact plan,
-SCT-T49 seal authority, and owner-created SCT-T54. SCT-T54 is stored in the
-leaf record and is not returned by owner preparation. Four matching
+SCT-T49 seal authority, and owner-created SCT-T54. SCT-T54 is stored only in
+the leaf record and is absent from the prepared owner bundle and mint input.
+Mint validates the four exact plan/seal bundles against the attached slots and
+precreates SCT-T55 from the stored SCT-T54 records. Four matching
 `consume...PlanAbandonmentInternalV1`
 operations accept only the exact plan/abandonment pair from SCT-T50 and return
 `void` or throw before participant deletion.
@@ -232,11 +245,14 @@ npx vitest run tests/textBlockUnifiedLayoutSourceCommitTransactionV1.test.ts -t 
 
 - [ ] **Step 5: Implement `sealed -> committing -> consumed`**
 
-`begin` checks only transaction-owned fixed plain identities and phase, then
-writes `committing` as its final pre-apply operation. `finish` removes active
-indexes and replaces the record with SCT-T08. No `live` phase remains.
-The returned apply bundle contains the four exact SCT-T54 records stored before
-sealed; participant apply never resolves a plan record after SCT-T25.
+`begin` checks only transaction-owned fixed plain identities, the complete
+SCT-T55 registry set, protection indexes, and phase, then writes `committing`
+as its final pre-apply operation. It returns only the empty CandidateWork
+identity. Each owner consumes its exact registry key once with its private
+consumer authority and returns only the next empty identity. Stage exposes the
+finish identity; `finish` consumes only that exact registry key, removes active
+indexes, and replaces the record with SCT-T08. No `live` phase or independent
+participant apply capability remains.
 
 - [ ] **Step 6: Run the Task 1 gate**
 
@@ -295,10 +311,12 @@ npx vitest run tests/textBlockUnifiedLayoutCandidateWorkAuthorityV1.test.ts test
 - [ ] **Step 3: Implement owner plan/seal registries**
 
 Use exact WeakMaps. Seal records store only owner-local plan facts, exact
-ticket/slot identity, and planned output identities. Attach is the final write
-of successful prepare and passes the exact frozen SCT-T54 directly to the leaf.
-The bundle returned to SourceAuthority exposes plan/seal/planned output but not
-SCT-T54. A plan reservation blocks owner candidate/resource
+ticket/slot identity, planned output identities, and the exact SCT-T54.
+Attach is the final write of successful prepare and passes the same frozen
+SCT-T54 directly to the leaf. The private bundle returned to SourceAuthority
+exposes plan/seal/planned output but not SCT-T54; mint closes SCT-T55 from the
+records already stored in the fixed leaf slots. A plan reservation blocks owner
+candidate/resource
 discard before sealed without becoming a second transaction phase.
 
 - [ ] **Step 4: Implement exact abandonment**
@@ -347,8 +365,9 @@ interface VNextTextBlockUnifiedLayoutPreparedSourceSidecarOutputInternalV1 {
 
 - Source plan consumes the exact `sourceAccessRecord` identity and is the only
   apply operation that publishes it.
-- Sidecar and Source apply consume their exact SCT-T54 records from `begin`.
-  Sidecar apply returns `void`; Source apply returns the exact next Source.
+- Sidecar and Source apply consume their exact SCT-T55 steps. Sidecar returns
+  only the Source step; Source returns only the Stage step. Neither operation
+  receives a ticket or later capability.
 
 - [ ] **Step 1: Write ownership REDs**
 
@@ -421,12 +440,13 @@ git diff --check
 **Interfaces:**
 - Stage prepare consumes the three real prepared owner bundles, not
   caller-selected output identities.
-- Stage apply returns SCT-T52:
+- Stage apply returns only the finish capability; SourceAuthority already owns
+  the exact SCT-T52 identity:
 
 ```ts
 export function applyVNextTextBlockUnifiedLayoutSourceStagePublicationPlanInternalV1(
-  applyRecord: VNextTextBlockUnifiedLayoutSourceStageApplyRecordInternalV1,
-): VNextTextBlockUnifiedLayoutSourceStageAcceptedPlanAV1
+  step: VNextTextBlockUnifiedLayoutSourceStageCommitStepInternalV1,
+): VNextTextBlockUnifiedLayoutSourceCommitFinishStepInternalV1
 ```
 
 - SourceAuthority commit returns the same identity:
@@ -468,11 +488,11 @@ for any ticket-to-result or transaction-to-result registry.
 
 - [ ] **Step 5: Remove the shadow result registry**
 
-Stage plan record and Stage SCT-T54 own SCT-T52. Stage apply installs
-precreated authority/result records and returns `applyRecord.sourceStage`
-directly. SourceAuthority stores
-that local return value, calls transaction finish, and returns the same object.
-No post-live resolver or nullable lookup is allowed.
+Stage plan record and Stage SCT-T54 own SCT-T52. SourceAuthority captures that
+exact identity before SCT-T25. Stage apply installs precreated
+authority/result records and returns only the precreated SCT-T55 finish step.
+SourceAuthority passes that step to transaction finish and then returns the
+captured SCT-T52 object. No post-live resolver or nullable lookup is allowed.
 
 - [ ] **Step 6: Cut TransitionSource to prepare + commit**
 
@@ -539,9 +559,12 @@ lookup hooks, and conversion probes. Commit must produce SCT-T52 while every
 counter remains zero. The SCT-T53 test separately counts only direct plain
 record writes and proves exact publication identities.
 
-Make every participant plan-record resolver throw after `begin`. Commit must
-still succeed through the four SCT-T54 records, proving that no post-live owner
-lookup is reachable.
+Make every participant plan-record resolver and every transaction lookup other
+than the four exact SCT-T55 step consumes plus finish consume throw after
+`begin`. Commit must still succeed, proving that no owner-plan or caller-owned
+lookup is reachable. Assert that a sealed ticket,
+CandidateWork step, Sidecar step, or Source step cannot be passed to `finish`,
+and that no typed operation exposes Stage before the Source step.
 
 - [ ] **Step 4: Add lifecycle, replay, collision, and retention proof**
 
@@ -636,7 +659,7 @@ Only when both reviews are READY with no Critical/Important and all gates pass:
 ```powershell
 git status --short
 git diff --check
-git add -- src/layout/textBlockUnifiedLayoutSourceCommitTransactionInternalsV1.ts src/layout/textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.ts src/layout/textBlockUnifiedLayoutSourceAuthorityInternalsV1.ts src/layout/textBlockUnifiedLayoutSourcePhysicalIndexInternalsV1.ts src/layout/textBlockUnifiedLayoutSourceSidecarsInternalsV1.ts src/layout/textBlockUnifiedLayoutSourceStateV1.ts src/layout/textBlockUnifiedLayoutSourceStyleRefcountsInternalsV1.ts src/layout/textBlockUnifiedLayoutTransitionPreflightV2.ts src/layout/textBlockUnifiedLayoutTransitionSourceInternalsV1.ts tests/textBlockUnifiedLayoutSourceCommitTransactionV1.test.ts tests/textBlockUnifiedLayoutCandidateWorkAuthorityV1.test.ts tests/textBlockUnifiedLayoutSourceSidecarsV1.test.ts tests/textBlockUnifiedLayoutSourceStateV1.test.ts tests/textBlockUnifiedLayoutTextStyleSourceV1.test.ts tests/textBlockUnifiedLayoutTransitionFoundationV1.test.ts
+git add -- docs/superpowers/specs/2026-08-10-source-commit-transaction-glossary.md docs/superpowers/specs/2026-08-10-source-commit-transaction-glossary-th.md docs/superpowers/specs/2026-08-11-source-commit-transaction-seam-review-amendment-design.md docs/superpowers/plans/2026-08-11-source-commit-transaction-seam-revised.md src/layout/textBlockUnifiedLayoutSourceCommitTransactionInternalsV1.ts src/layout/textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.ts src/layout/textBlockUnifiedLayoutSourceAuthorityInternalsV1.ts src/layout/textBlockUnifiedLayoutSourcePhysicalIndexInternalsV1.ts src/layout/textBlockUnifiedLayoutSourceSidecarsInternalsV1.ts src/layout/textBlockUnifiedLayoutSourceStateV1.ts src/layout/textBlockUnifiedLayoutSourceStyleRefcountsInternalsV1.ts src/layout/textBlockUnifiedLayoutTransitionPreflightV2.ts src/layout/textBlockUnifiedLayoutTransitionSourceInternalsV1.ts tests/textBlockUnifiedLayoutSourceCommitTransactionV1.test.ts tests/textBlockUnifiedLayoutCandidateWorkAuthorityV1.test.ts tests/textBlockUnifiedLayoutSourceSidecarsV1.test.ts tests/textBlockUnifiedLayoutSourceStateV1.test.ts tests/textBlockUnifiedLayoutTextStyleSourceV1.test.ts tests/textBlockUnifiedLayoutTransitionFoundationV1.test.ts
 git diff --cached --check
 git commit -m "feat(layout): seal source commit transaction ownership"
 ```
@@ -666,8 +689,9 @@ after user review; do not start Task 8 or 5B-2B/5B-3.
 | SCT-T51 complete cross-plan tuple | Tasks 2, 4, 5 |
 | Sidecar/Source access ownership split | Task 3 |
 | SCT-T53 bounded pair publication | Tasks 3, 5 |
-| SCT-T52 direct Stage result identity | Task 4 |
-| SCT-T54 lookup-free participant apply | Tasks 1, 2, 3, 4, 5 |
+| SCT-T52 exact Stage result identity without a shadow registry | Task 4 |
+| SCT-T54 lookup-free participant payload | Tasks 1, 2, 3, 4, 5 |
+| SCT-T55 fixed apply order and Stage-only finish capability | Tasks 1, 3, 4, 5 |
 | no result shadow registry | Tasks 4, 6 |
 | real every-position fault/retry proof | Tasks 1, 2, 5 |
 | alias/collision/lifetime preservation | Tasks 3, 5, 6 |

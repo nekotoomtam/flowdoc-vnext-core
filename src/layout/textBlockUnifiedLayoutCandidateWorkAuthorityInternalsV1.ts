@@ -23,10 +23,21 @@ import {
   type VNextTextBlockUnifiedLayout5B2WorkOwnerRowInternalV1,
 } from "./textBlockUnifiedLayoutWorkOwnerRegistryV1.js"
 import {
-  bindVNextTextBlockUnifiedLayoutSourceStageCommitCandidateWorkInternalV1,
-  registerVNextTextBlockUnifiedLayoutSourceStageCandidateWorkPreconditionInternalV1,
-  resolveVNextTextBlockUnifiedLayoutSourceStageCommitTicketForCandidateWorkInternalV1,
-} from "./textBlockUnifiedLayoutSourceAuthorityInternalsV1.js"
+  consumeVNextTextBlockUnifiedLayoutCandidateWorkPlanAbandonmentInternalV1,
+  consumeVNextTextBlockUnifiedLayoutCandidateWorkCommitStepInternalV1,
+  attachVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanInternalV1,
+  type VNextTextBlockUnifiedLayoutCandidateWorkApplyRecordInternalV1,
+  type VNextTextBlockUnifiedLayoutCandidateWorkCommitStepInternalV1,
+  type VNextTextBlockUnifiedLayoutCandidateWorkStepConsumerAuthorityInternalV1,
+  type VNextTextBlockUnifiedLayoutCandidateWorkPlanAbandonmentAuthorityInternalV1,
+  type VNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanAuthorityInternalV1,
+  type VNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanSealAuthorityInternalV1,
+  type VNextTextBlockUnifiedLayoutDetachedSourceCommitTicketInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceSidecarCommitStepInternalV1,
+} from "./textBlockUnifiedLayoutSourceCommitTransactionInternalsV1.js"
+
+const CANDIDATE_WORK_STEP_CONSUMER_AUTHORITY_INTERNAL_V1 = Object.freeze({}) as
+  VNextTextBlockUnifiedLayoutCandidateWorkStepConsumerAuthorityInternalV1
 
 export interface VNextTextBlockUnifiedLayout5B2WorkReceiptInternalV1 {
   readonly ownerRow: VNextTextBlockUnifiedLayout5B2WorkOwnerRowInternalV1
@@ -52,6 +63,20 @@ export interface VNextTextBlockUnifiedLayout5B2ReceiptSnapshotAuthorityInternalV
 
 export interface VNextTextBlockUnifiedLayout5B2SourcePublicationPreconditionAuthorityInternalV1 {
   readonly __sourcePublicationPreconditionAuthorityOpaque: never
+}
+
+export interface VNextTextBlockUnifiedLayoutPreparedCandidateWorkPublicationPlanInternalV1 {
+  readonly planAuthority:
+    VNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanAuthorityInternalV1
+  readonly candidateWorkAuthority:
+    VNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1
+  readonly sealAuthority:
+    VNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanSealAuthorityInternalV1
+  readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+  readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+  readonly change: VNextTextBlockUnifiedLayoutChangeV1
+  readonly composition: VNextTextBlockUnifiedLayout5B2PolicyCompositionInternalV1
+  readonly producingInputAuthority: object
 }
 
 export interface VNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityRecordInternalV1 {
@@ -121,7 +146,29 @@ const sourcePublicationPreconditionRecords = new WeakMap<
     readonly meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
     readonly nextCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
     readonly completedSourceEmissionCount: number
+    readonly producingStageAuthority: object
   }>
+>()
+type CandidateWorkPublicationPlanRecordInternalV1 = Readonly<{
+    readonly planAuthority:
+      VNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanAuthorityInternalV1
+    readonly publicationPreconditionAuthority:
+      VNextTextBlockUnifiedLayout5B2SourcePublicationPreconditionAuthorityInternalV1
+    readonly meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
+    readonly nextCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+    readonly authority:
+      VNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1
+    readonly authorityRecord:
+      VNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityRecordInternalV1
+    readonly detachedTicket:
+      VNextTextBlockUnifiedLayoutDetachedSourceCommitTicketInternalV1
+    readonly sealAuthority:
+      VNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanSealAuthorityInternalV1
+    readonly meterRecord: MeterRecord
+  }>
+const candidateWorkPublicationPlanRecords = new WeakMap<
+  VNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanAuthorityInternalV1,
+  CandidateWorkPublicationPlanRecordInternalV1
 >()
 let candidateRegistrationObserverForTestInternalV1: ((input: {
   readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
@@ -496,19 +543,183 @@ export function prepareVNextTextBlockUnifiedLayout5B2SourceCandidateWorkPublicat
   ) return null
   const authority = Object.freeze({}) as
     VNextTextBlockUnifiedLayout5B2SourcePublicationPreconditionAuthorityInternalV1
-  if (!registerVNextTextBlockUnifiedLayoutSourceStageCandidateWorkPreconditionInternalV1({
-    authority,
-    meter: input.meter,
-    nextCandidateWork: input.nextCandidateWork,
-    completedSourceEmissionCount: input.completedSourceEmissionCount,
-    producingStageAuthority: input.producingStageAuthority,
-  })) return null
   sourcePublicationPreconditionRecords.set(authority, Object.freeze({
     meter: input.meter,
     nextCandidateWork: input.nextCandidateWork,
     completedSourceEmissionCount: input.completedSourceEmissionCount,
+    producingStageAuthority: input.producingStageAuthority,
   }))
   return authority
+}
+
+export function prepareVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanInternalV1(
+  input: Readonly<{
+    detachedTicket:
+      VNextTextBlockUnifiedLayoutDetachedSourceCommitTicketInternalV1
+    publicationPreconditionAuthority:
+      VNextTextBlockUnifiedLayout5B2SourcePublicationPreconditionAuthorityInternalV1
+    candidateWorkMeter:
+      VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
+    nextCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+    completedSourceEmissionCount: number
+  }>,
+): VNextTextBlockUnifiedLayoutPreparedCandidateWorkPublicationPlanInternalV1 | null {
+  const meter = meterRecords.get(input.candidateWorkMeter)
+  const precondition = sourcePublicationPreconditionRecords.get(
+    input.publicationPreconditionAuthority,
+  )
+  if (
+    meter == null
+    || precondition == null
+    || meter.failed
+    || meter.published
+    || meter.openPermits.size !== 0
+    || precondition.meter !== input.candidateWorkMeter
+    || precondition.nextCandidateWork !== input.nextCandidateWork
+    || precondition.completedSourceEmissionCount
+      !== input.completedSourceEmissionCount
+    || precondition.producingStageAuthority
+      !== meter.seed.producingStageAuthority
+    || !Number.isSafeInteger(input.completedSourceEmissionCount)
+    || input.completedSourceEmissionCount < 0
+    || authoritiesByCandidate.has(input.nextCandidateWork)
+  ) return null
+  const projected =
+    projectVNextTextBlockUnifiedLayout5B2CompatibilityWorkInternalV1(
+      input.candidateWorkMeter,
+    )
+  const sourceItems =
+    meter.receiptsByUnit.get("source-items")?.completedWork ?? -1
+  if (
+    projected == null
+    || projected !== input.nextCandidateWork
+    || sourceItems !== input.completedSourceEmissionCount
+    || projected.flow.visitedSourceItemCount !== sourceItems
+    || projected.flow.visitedSourceLookupNodeCount
+      !== (meter.receiptsByUnit.get("source-tree-lookup-nodes")?.completedWork ?? 0)
+    || projected.flow.copiedSourcePathNodeCount
+      !== (meter.receiptsByUnit.get("source-tree-path-copy-nodes")?.completedWork ?? 0)
+    || projected.flow.visitedChangedSourceLeafItemCount
+      !== (meter.receiptsByUnit.get("source-leaf-slots")?.completedWork ?? 0)
+    || candidateRegistrationObserverForTestInternalV1?.({
+      previousRoot: meter.seed.previousRoot,
+      change: meter.seed.change,
+      candidateWork: input.nextCandidateWork,
+      producingStageAuthority: input.detachedTicket,
+    }) === false
+  ) return null
+
+  const authorityRecord = Object.freeze({
+    previousRoot: meter.seed.previousRoot,
+    change: meter.seed.change,
+    composition: meter.seed.composition,
+    candidateWork: input.nextCandidateWork,
+    receipts: cloneReceipts(meter.receipts),
+    producingStageAuthority: input.detachedTicket,
+  })
+  const authority = authorityRecord as unknown as
+    VNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1
+  const planAuthority = Object.freeze({}) as
+    VNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanAuthorityInternalV1
+  const sealAuthority = Object.freeze({}) as
+    VNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanSealAuthorityInternalV1
+  const planRecord = Object.freeze({
+    planAuthority,
+    publicationPreconditionAuthority: input.publicationPreconditionAuthority,
+    meter: input.candidateWorkMeter,
+    nextCandidateWork: input.nextCandidateWork,
+    authority,
+    authorityRecord,
+    detachedTicket: input.detachedTicket,
+    sealAuthority,
+    meterRecord: meter,
+  }) as CandidateWorkPublicationPlanRecordInternalV1
+  const applyRecord = planRecord as unknown as
+    VNextTextBlockUnifiedLayoutCandidateWorkApplyRecordInternalV1
+  const prepared = Object.freeze({
+    planAuthority,
+    candidateWorkAuthority: authority,
+    sealAuthority,
+    completedCandidateWork: input.nextCandidateWork,
+    previousRoot: meter.seed.previousRoot,
+    change: meter.seed.change,
+    composition: meter.seed.composition,
+    producingInputAuthority: meter.seed.producingStageAuthority,
+  })
+  candidateWorkPublicationPlanRecords.set(planAuthority, planRecord)
+  if (!attachVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanInternalV1({
+    detachedTicket: input.detachedTicket,
+    planAuthority,
+    sealAuthority,
+    applyRecord,
+    consumerAuthority: CANDIDATE_WORK_STEP_CONSUMER_AUTHORITY_INTERNAL_V1,
+  })) {
+    candidateWorkPublicationPlanRecords.delete(planAuthority)
+    return null
+  }
+  return prepared
+}
+
+export function matchesVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanSealInternalV1(
+  input: Readonly<{
+    detachedTicket:
+      VNextTextBlockUnifiedLayoutDetachedSourceCommitTicketInternalV1
+    planAuthority:
+      VNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanAuthorityInternalV1
+    sealAuthority:
+      VNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanSealAuthorityInternalV1
+    plannedOutput:
+      VNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1
+  }>,
+): boolean {
+  const plan = candidateWorkPublicationPlanRecords.get(input.planAuthority)
+  return plan != null
+    && plan.detachedTicket === input.detachedTicket
+    && plan.sealAuthority === input.sealAuthority
+    && plan.authority === input.plannedOutput
+}
+
+export function abandonVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanInternalV1(
+  input: Readonly<{
+    planAuthority:
+      VNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanAuthorityInternalV1
+    abandonmentAuthority:
+      VNextTextBlockUnifiedLayoutCandidateWorkPlanAbandonmentAuthorityInternalV1
+  }>,
+): void {
+  if (!candidateWorkPublicationPlanRecords.has(input.planAuthority)) {
+    throw new Error("CandidateWork publication plan abandonment invariant violated")
+  }
+  consumeVNextTextBlockUnifiedLayoutCandidateWorkPlanAbandonmentInternalV1(input)
+  candidateWorkPublicationPlanRecords.delete(input.planAuthority)
+}
+
+export function applyVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanInternalV1(
+  step: VNextTextBlockUnifiedLayoutCandidateWorkCommitStepInternalV1,
+): VNextTextBlockUnifiedLayoutSourceSidecarCommitStepInternalV1 {
+  const { applyRecord, nextStep } =
+    consumeVNextTextBlockUnifiedLayoutCandidateWorkCommitStepInternalV1({
+      step,
+      consumerAuthority: CANDIDATE_WORK_STEP_CONSUMER_AUTHORITY_INTERNAL_V1,
+    })
+  const plan = applyRecord as unknown as
+    CandidateWorkPublicationPlanRecordInternalV1
+  const meter = plan.meterRecord
+  authorityRecords.set(plan.authority, plan.authorityRecord)
+  authoritiesByCandidate.set(plan.nextCandidateWork, plan.authority)
+  meter.published = true
+  sourcePublicationPreconditionRecords.delete(
+    plan.publicationPreconditionAuthority,
+  )
+  candidateWorkPublicationPlanRecords.delete(plan.planAuthority)
+  return nextStep
+}
+
+export function hasVNextTextBlockUnifiedLayout5B2SourcePublicationPreconditionRecordForTestInternalV1(
+  authority:
+    VNextTextBlockUnifiedLayout5B2SourcePublicationPreconditionAuthorityInternalV1,
+): boolean {
+  return sourcePublicationPreconditionRecords.has(authority)
 }
 
 export function publishVNextTextBlockUnifiedLayout5B2CandidateWorkInternalV1(
@@ -539,35 +750,9 @@ export function publishVNextTextBlockUnifiedLayout5B2CandidateWorkInternalV1(
       !== (meter.receiptsByUnit.get("source-leaf-slots")?.completedWork ?? 0)
   ) return null
   const sourceItems = meter.receiptsByUnit.get("source-items")?.completedWork ?? 0
-  const sourceTicket =
-    resolveVNextTextBlockUnifiedLayoutSourceStageCommitTicketForCandidateWorkInternalV1({
-      ticket: input.producingStageAuthority,
-      meter: input.meter,
-      previousRoot: meter.seed.previousRoot,
-      change: meter.seed.change,
-      composition: meter.seed.composition,
-      nextCandidateWork: input.nextCandidateWork,
-    })
-  const sourcePublicationPrecondition = sourceTicket == null
-    ? null
-    : sourcePublicationPreconditionRecords.get(
-      sourceTicket.candidateWorkPublicationPreconditionAuthority as
-        VNextTextBlockUnifiedLayout5B2SourcePublicationPreconditionAuthorityInternalV1,
-    )
-  if (sourceTicket == null) {
-    if (
-      sourceItems !== 0
-      || input.producingStageAuthority !== meter.seed.producingStageAuthority
-    ) {
-      return null
-    }
-  } else if (
-    sourceTicket.completedSourceEmissionCount !== sourceItems
-    || sourcePublicationPrecondition?.meter !== input.meter
-    || sourcePublicationPrecondition.nextCandidateWork
-      !== input.nextCandidateWork
-    || sourcePublicationPrecondition.completedSourceEmissionCount
-      !== sourceItems
+  if (
+    sourceItems !== 0
+    || input.producingStageAuthority !== meter.seed.producingStageAuthority
   ) return null
   const receipts = cloneReceipts(meter.receipts)
   const record = Object.freeze({
@@ -582,14 +767,6 @@ export function publishVNextTextBlockUnifiedLayout5B2CandidateWorkInternalV1(
     VNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1
   authorityRecords.set(authority, record)
   authoritiesByCandidate.set(input.nextCandidateWork, authority)
-  if (sourceTicket != null) {
-    bindVNextTextBlockUnifiedLayoutSourceStageCommitCandidateWorkInternalV1({
-      ticket: input.producingStageAuthority as
-        import("./textBlockUnifiedLayoutSourceAuthorityInternalsV1.js")
-          .VNextTextBlockUnifiedLayoutSourceStageCommitTicketInternalV1,
-      candidateWorkAuthority: authority,
-    })
-  }
   meter.published = true
   return authority
 }

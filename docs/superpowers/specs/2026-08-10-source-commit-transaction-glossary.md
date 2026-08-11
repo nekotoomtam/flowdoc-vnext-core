@@ -146,7 +146,9 @@ accepted object is returned directly after commit; TransitionSource does not
 rebuild or freeze it after live.
 
 The plan also binds the exact plan, seal, and planned-output identities from
-SCT-T10, SCT-T11, and SCT-T12. Its apply operation returns SCT-T52 directly.
+SCT-T10, SCT-T11, and SCT-T12. SourceAuthority captures SCT-T52 before live;
+the Stage apply operation returns the SCT-T55 finish step, and SourceAuthority
+returns that same SCT-T52 identity only after finish.
 
 ### SCT-T14 — Transaction Owner
 
@@ -412,9 +414,10 @@ outputs.
 ### SCT-T52 — Exact Stage Result
 
 The exact frozen Plan A accepted Source-stage object precreated in the Stage
-plan before sealing, installed and returned directly by Stage apply, and
-returned unchanged by TransitionSource. No ticket-to-result shadow registry is
-permitted.
+plan before sealing and installed by Stage apply. SourceAuthority captures its
+exact identity before live and returns it only after the Stage-produced finish
+step consumes the transaction. TransitionSource returns it unchanged. No
+ticket-to-result shadow registry is permitted.
 
 ### SCT-T53 — Plain Record Publication Loop
 
@@ -430,14 +433,32 @@ allocation, or external payload traversal.
 An owner-created frozen plain record containing the exact keys, values, fixed
 counts, and precreated outputs needed by one participant apply operation. The
 matching SCT-T49 binds its exact identity, and the transaction leaf stores it
-before sealed. It is not exposed by owner preparation; `begin` returns it only
-after writing `committing`. Apply consumes it directly without an owner
-registry lookup, authority assertion, allocation, freeze, or nullable branch.
+before sealed. It is not exposed in the prepared owner bundle and cannot be
+supplied independently to mint or participant apply. SCT-T55 carries it to its
+one fixed participant after `begin` writes `committing`. Apply obtains it only
+by consuming the exact current SCT-T55 identity with the participant's private
+consumer authority. It performs no owner-plan lookup, allocation, freeze,
+external payload read, or nullable normal branch.
+
+### SCT-T55 — Sequential Commit Capability
+
+Five precreated frozen process-local empty identities owned by the transaction
+leaf, with payload and links held only in fixed private WeakMap registries. They
+bind the four exact SCT-T54 records in the only legal order: CandidateWork →
+SourceSidecars → SourceState → SourceAuthority Stage → finish. `begin` returns
+only the CandidateWork identity. Each participant consumes the exact current
+identity once with its module-private consumer authority, then receives its
+SCT-T54 and only the next empty identity. Stage alone receives the finish
+identity, and `finish` consumes only that exact registry key. A sealed ticket,
+earlier step, clone, replay, cross-ticket object, Proxy, or independently
+supplied SCT-T54 cannot skip, reorder, repeat, inspect, or finish the sequence.
+Deleting each registry entry at consumption prevents a retained external step
+from retaining later steps, apply records, or the live transaction graph.
 
 ## 6. Documentation Parity Rules
 
 1. The technical and Thai glossaries use the same `SCT-Txx` identifiers,
-   currently SCT-T01 through SCT-T54.
+   currently SCT-T01 through SCT-T55.
 2. The Thai glossary preserves every exact English term and contract name.
 3. Adding, removing, or changing an identifier requires both files in the same
    documentation change set.

@@ -55,9 +55,26 @@ import type {
   VNextTextBlockUnifiedLayoutRootV2,
 } from "./textBlockUnifiedLayoutRootContractV2.js"
 import {
-  isVNextTextBlockUnifiedLayoutSourceStageSourceCandidateAbortProtectedInternalV1,
-  isVNextTextBlockUnifiedLayoutSourceStageSourceCandidateCommittedInternalV1,
-} from "./textBlockUnifiedLayoutSourceAuthorityInternalsV1.js"
+  attachVNextTextBlockUnifiedLayoutSourceCandidateCommitPlanInternalV1,
+  consumeVNextTextBlockUnifiedLayoutSourceCandidateCommitStepInternalV1,
+  consumeVNextTextBlockUnifiedLayoutSourceCandidatePlanAbandonmentInternalV1,
+  isVNextTextBlockUnifiedLayoutSourceCommitAccessReservationProtectedInternalV1,
+  isVNextTextBlockUnifiedLayoutSourceCommitPlanActivelyBoundInternalV1,
+  isVNextTextBlockUnifiedLayoutSourceCommitSourceCandidateProtectedInternalV1,
+  matchesVNextTextBlockUnifiedLayoutDetachedSourceCommitSidecarPlanInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceCandidateApplyRecordInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceCandidateCommitStepInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceCandidateStepConsumerAuthorityInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceCandidatePlanAbandonmentAuthorityInternalV1,
+  type VNextTextBlockUnifiedLayoutDetachedSourceCommitTicketInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceCandidateCommitPlanAuthorityInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceCandidateCommitPlanSealAuthorityInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceSidecarCommitPlanAuthorityInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceStageCommitStepInternalV1,
+} from "./textBlockUnifiedLayoutSourceCommitTransactionInternalsV1.js"
+
+const SOURCE_CANDIDATE_STEP_CONSUMER_AUTHORITY_INTERNAL_V1 = Object.freeze({}) as
+  VNextTextBlockUnifiedLayoutSourceCandidateStepConsumerAuthorityInternalV1
 
 type FingerprintFactory = (canonicalFacts: string) => string
 
@@ -74,6 +91,18 @@ interface IndexedSourceItemRecord {
     readonly childIndex: number
   }[]
   readonly visitedSourceLookupNodeCount: number
+}
+
+export interface VNextTextBlockUnifiedLayoutPreparedSourceCandidateCommitPlanInternalV1 {
+  readonly planAuthority:
+    VNextTextBlockUnifiedLayoutSourceCandidateCommitPlanAuthorityInternalV1
+  readonly sealAuthority:
+    VNextTextBlockUnifiedLayoutSourceCandidateCommitPlanSealAuthorityInternalV1
+  readonly plannedOutput: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly sourcePathCopyCandidateAuthority:
+    VNextTextBlockSourcePathCopyCandidateAuthorityInternalV1
+  readonly sourceAccessRecord:
+    VNextTextBlockUnifiedLayoutSourceAccessRecordInternalV1
 }
 
 interface SourceItemIndexEntryInternalV1 {
@@ -323,6 +352,9 @@ export function setVNextTextBlockUnifiedLayoutSourcePathCopyCandidateObserverFor
 const sourceRangeReplacementAuthorities = new WeakMap<object, {
   readonly previousSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
   readonly change: VNextTextBlockUnifiedLayoutChangeV1 | null
+  readonly previousRange: VNextTextBlockSourceRangeV1
+  readonly nextItems: readonly VNextTextBlockUnifiedLayoutSourceItemV1[]
+  readonly nextItemCount: number
 }>()
 
 export function registerVNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1(
@@ -331,25 +363,53 @@ export function registerVNextTextBlockUnifiedLayoutSourceRangeReplacementInterna
     readonly replacement:
       VNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1
     readonly change?: VNextTextBlockUnifiedLayoutChangeV1
+    readonly previousRange: VNextTextBlockSourceRangeV1
+    readonly nextItems: readonly VNextTextBlockUnifiedLayoutSourceItemV1[]
+    readonly nextItemCount: number
   },
 ): boolean {
   if (
     !preparedStates.has(input.previousSourceState)
     || !Object.isFrozen(input.replacement)
-    || !Object.isFrozen(input.replacement.previousRange)
-    || !Object.isFrozen(input.replacement.nextItems)
+    || !Object.isFrozen(input.previousRange)
+    || !Object.isFrozen(input.nextItems)
+    || !Number.isSafeInteger(input.nextItemCount)
+    || input.nextItemCount < 0
   ) return false
   const change = input.change ?? null
   const existing = sourceRangeReplacementAuthorities.get(input.replacement)
   if (existing != null) {
     return existing.previousSourceState === input.previousSourceState
       && existing.change === change
+      && existing.previousRange === input.previousRange
+      && existing.nextItems === input.nextItems
+      && existing.nextItemCount === input.nextItemCount
   }
   sourceRangeReplacementAuthorities.set(input.replacement, Object.freeze({
     previousSourceState: input.previousSourceState,
     change,
+    previousRange: input.previousRange,
+    nextItems: input.nextItems,
+    nextItemCount: input.nextItemCount,
   }))
   return true
+}
+
+export function matchesVNextTextBlockUnifiedLayoutSourceRangeReplacementProducerTupleInternalV1(
+  input: {
+    readonly previousSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly replacement: VNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1
+    readonly change: VNextTextBlockUnifiedLayoutChangeV1 | null
+    readonly previousRange: VNextTextBlockSourceRangeV1
+    readonly nextItems: readonly VNextTextBlockUnifiedLayoutSourceItemV1[]
+  },
+): boolean {
+  const registered = sourceRangeReplacementAuthorities.get(input.replacement)
+  return registered != null
+    && registered.previousSourceState === input.previousSourceState
+    && registered.change === input.change
+    && registered.previousRange === input.previousRange
+    && registered.nextItems === input.nextItems
 }
 
 export function getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInternalV1(
@@ -375,7 +435,7 @@ export function discardVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInterna
     record == null
     || canonicalAuthority == null
     || consumedSourcePathCopyCandidateAuthorities.has(canonicalAuthority)
-    || isVNextTextBlockUnifiedLayoutSourceStageSourceCandidateAbortProtectedInternalV1(
+    || isVNextTextBlockUnifiedLayoutSourceCommitSourceCandidateProtectedInternalV1(
       canonicalAuthority,
     )
   ) return false
@@ -386,28 +446,6 @@ export function discardVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInterna
   planASidecarStorageSourceStates.delete(record.nextSourceState)
   registeredStylesBySourceState.delete(record.nextSourceState)
   registeredPlanASourceSidecarAccessBySourceState.delete(record.nextSourceState)
-  return true
-}
-
-export function consumeVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInternalV1(
-  authority: VNextTextBlockSourcePathCopyCandidateAuthorityInternalV1,
-): boolean {
-  const record = getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInternalV1(
-    authority,
-  )
-  const canonicalAuthority = record?.pathCopyCandidateAuthority
-  if (
-    record == null
-    || canonicalAuthority == null
-    || consumedSourcePathCopyCandidateAuthorities.has(canonicalAuthority)
-    || !isVNextTextBlockUnifiedLayoutSourceStageSourceCandidateCommittedInternalV1(
-      canonicalAuthority,
-    )
-  ) return false
-  sourceRangePathCopyCandidateAuthorities.delete(canonicalAuthority)
-  sourceRangePathCopyCandidateAuthorities.delete(record.removedItems)
-  sourceRangePathCopyCandidateAuthorities.delete(record.nextPhysicalItems)
-  consumedSourcePathCopyCandidateAuthorities.add(canonicalAuthority)
   return true
 }
 
@@ -445,19 +483,305 @@ interface RegisteredPlanASourceSidecarAccessInternalV1 {
     | { readonly status: "limit-exceeded" }
 }
 
+export interface VNextTextBlockUnifiedLayoutSourceAccessRecordInternalV1 {
+  readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly reservationAuthority: object
+  readonly access: RegisteredPlanASourceSidecarAccessInternalV1
+}
+
 const registeredPlanASourceSidecarAccessBySourceState = new WeakMap<
   VNextTextBlockUnifiedLayoutSourceStateV1,
   RegisteredPlanASourceSidecarAccessInternalV1
 >()
+const reservedPlanASourceSidecarAccessBySourceState = new WeakMap<
+  VNextTextBlockUnifiedLayoutSourceStateV1,
+  object
+>()
 const planASidecarStorageSourceStates = new WeakSet<
   VNextTextBlockUnifiedLayoutSourceStateV1
 >()
+const preparedPlanASidecarAccessByPlan = new WeakMap<
+  VNextTextBlockUnifiedLayoutSourceSidecarCommitPlanAuthorityInternalV1,
+  VNextTextBlockUnifiedLayoutSourceAccessRecordInternalV1
+>()
+const preparedPlanASidecarAccessPlanByReservation = new WeakMap<
+  object,
+  VNextTextBlockUnifiedLayoutSourceSidecarCommitPlanAuthorityInternalV1
+>()
+type SourceCandidateCommitPlanRecordInternalV1 = Readonly<{
+    readonly planAuthority:
+      VNextTextBlockUnifiedLayoutSourceCandidateCommitPlanAuthorityInternalV1
+    readonly sourcePathCopyCandidateAuthority:
+      VNextTextBlockSourcePathCopyCandidateAuthorityInternalV1
+    readonly accessReservationAuthority: object
+    readonly nextSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly removedItems: readonly VNextTextBlockUnifiedLayoutSourceItemV1[]
+    readonly nextPhysicalItems: readonly VNextTextBlockUnifiedLayoutSourceItemV1[]
+    readonly detachedTicket:
+      VNextTextBlockUnifiedLayoutDetachedSourceCommitTicketInternalV1
+    readonly sealAuthority:
+      VNextTextBlockUnifiedLayoutSourceCandidateCommitPlanSealAuthorityInternalV1
+    readonly sourceAccessRecord:
+      VNextTextBlockUnifiedLayoutSourceAccessRecordInternalV1
+    readonly sidecarPlanAuthority:
+      VNextTextBlockUnifiedLayoutSourceSidecarCommitPlanAuthorityInternalV1
+  }>
+const sourceCandidateCommitPlanRecords = new WeakMap<
+  VNextTextBlockUnifiedLayoutSourceCandidateCommitPlanAuthorityInternalV1,
+  SourceCandidateCommitPlanRecordInternalV1
+>()
+
+export function prepareVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessPublicationInternalV1(
+  input: Readonly<{
+    readonly planAuthority:
+      VNextTextBlockUnifiedLayoutSourceSidecarCommitPlanAuthorityInternalV1
+    readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly reservationAuthority: object
+    readonly resolveStyle: RegisteredPlanASourceSidecarAccessInternalV1["resolveStyle"]
+    readonly visitItemByInlineId:
+      RegisteredPlanASourceSidecarAccessInternalV1["visitItemByInlineId"]
+    readonly checkInlineIdConflict:
+      RegisteredPlanASourceSidecarAccessInternalV1["checkInlineIdConflict"]
+  }>,
+): VNextTextBlockUnifiedLayoutSourceAccessRecordInternalV1 | null {
+  if (
+    preparedPlanASidecarAccessByPlan.has(input.planAuthority)
+    || registeredPlanASourceSidecarAccessBySourceState.has(input.sourceState)
+    || reservedPlanASourceSidecarAccessBySourceState.get(input.sourceState)
+      !== input.reservationAuthority
+    || typeof input.resolveStyle !== "function"
+    || typeof input.visitItemByInlineId !== "function"
+    || typeof input.checkInlineIdConflict !== "function"
+  ) return null
+  const sourceAccessRecord = Object.freeze({
+    sourceState: input.sourceState,
+    reservationAuthority: input.reservationAuthority,
+    access: Object.freeze({
+      resolveStyle: input.resolveStyle,
+      visitItemByInlineId: input.visitItemByInlineId,
+      checkInlineIdConflict: input.checkInlineIdConflict,
+    }),
+  })
+  preparedPlanASidecarAccessByPlan.set(input.planAuthority, sourceAccessRecord)
+  preparedPlanASidecarAccessPlanByReservation.set(
+    input.reservationAuthority,
+    input.planAuthority,
+  )
+  return sourceAccessRecord
+}
+
+export function discardVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessPublicationInternalV1(
+  planAuthority:
+    VNextTextBlockUnifiedLayoutSourceSidecarCommitPlanAuthorityInternalV1,
+): boolean {
+  const prepared = preparedPlanASidecarAccessByPlan.get(planAuthority)
+  if (
+    prepared == null
+    || isVNextTextBlockUnifiedLayoutSourceCommitPlanActivelyBoundInternalV1(
+      planAuthority,
+    )
+  ) return false
+  preparedPlanASidecarAccessPlanByReservation.delete(
+    prepared.reservationAuthority,
+  )
+  return preparedPlanASidecarAccessByPlan.delete(planAuthority)
+}
+
+export function prepareVNextTextBlockUnifiedLayoutSourceCandidateCommitPlanInternalV1(
+  input: Readonly<{
+    readonly detachedTicket:
+      VNextTextBlockUnifiedLayoutDetachedSourceCommitTicketInternalV1
+    readonly sourcePathCopyCandidateAuthority:
+      VNextTextBlockSourcePathCopyCandidateAuthorityInternalV1
+    readonly accessReservationAuthority: object
+    readonly nextSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  }>,
+): VNextTextBlockUnifiedLayoutPreparedSourceCandidateCommitPlanInternalV1 | null {
+  const candidate = getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInternalV1(
+    input.sourcePathCopyCandidateAuthority,
+  )
+  const sidecarPlanAuthority = preparedPlanASidecarAccessPlanByReservation.get(
+    input.accessReservationAuthority,
+  )
+  const sourceAccessRecord = sidecarPlanAuthority == null
+    ? null
+    : preparedPlanASidecarAccessByPlan.get(sidecarPlanAuthority)
+  if (
+    candidate == null
+    || candidate.pathCopyCandidateAuthority
+      !== input.sourcePathCopyCandidateAuthority
+    || candidate.nextSourceState !== input.nextSourceState
+    || consumedSourcePathCopyCandidateAuthorities.has(
+      input.sourcePathCopyCandidateAuthority,
+    )
+    || reservedPlanASourceSidecarAccessBySourceState.get(input.nextSourceState)
+      !== input.accessReservationAuthority
+    || sidecarPlanAuthority == null
+    || sourceAccessRecord == null
+    || sourceAccessRecord.sourceState !== input.nextSourceState
+    || sourceAccessRecord.reservationAuthority
+      !== input.accessReservationAuthority
+    || !matchesVNextTextBlockUnifiedLayoutDetachedSourceCommitSidecarPlanInternalV1({
+      detachedTicket: input.detachedTicket,
+      sidecarPlanAuthority,
+    })
+  ) return null
+  const planAuthority = Object.freeze({}) as
+    VNextTextBlockUnifiedLayoutSourceCandidateCommitPlanAuthorityInternalV1
+  const sealAuthority = Object.freeze({}) as
+    VNextTextBlockUnifiedLayoutSourceCandidateCommitPlanSealAuthorityInternalV1
+  const planRecord = Object.freeze({
+    planAuthority,
+    sourcePathCopyCandidateAuthority:
+      input.sourcePathCopyCandidateAuthority,
+    accessReservationAuthority: input.accessReservationAuthority,
+    nextSourceState: input.nextSourceState,
+    removedItems: candidate.removedItems,
+    nextPhysicalItems: candidate.nextPhysicalItems,
+    detachedTicket: input.detachedTicket,
+    sealAuthority,
+    sourceAccessRecord,
+    sidecarPlanAuthority,
+  }) as SourceCandidateCommitPlanRecordInternalV1
+  const applyRecord = planRecord as unknown as
+    VNextTextBlockUnifiedLayoutSourceCandidateApplyRecordInternalV1
+  const prepared = Object.freeze({
+    planAuthority,
+    sealAuthority,
+    plannedOutput: input.nextSourceState,
+    sourcePathCopyCandidateAuthority: input.sourcePathCopyCandidateAuthority,
+    sourceAccessRecord,
+  })
+  sourceCandidateCommitPlanRecords.set(planAuthority, planRecord)
+  if (!attachVNextTextBlockUnifiedLayoutSourceCandidateCommitPlanInternalV1({
+    detachedTicket: input.detachedTicket,
+    planAuthority,
+    sealAuthority,
+    applyRecord,
+    consumerAuthority: SOURCE_CANDIDATE_STEP_CONSUMER_AUTHORITY_INTERNAL_V1,
+  })) {
+    sourceCandidateCommitPlanRecords.delete(planAuthority)
+    return null
+  }
+  return prepared
+}
+
+export function matchesVNextTextBlockUnifiedLayoutSourceCandidateCommitPlanSealInternalV1(
+  input: Readonly<{
+    detachedTicket:
+      VNextTextBlockUnifiedLayoutDetachedSourceCommitTicketInternalV1
+    planAuthority:
+      VNextTextBlockUnifiedLayoutSourceCandidateCommitPlanAuthorityInternalV1
+    sealAuthority:
+      VNextTextBlockUnifiedLayoutSourceCandidateCommitPlanSealAuthorityInternalV1
+    plannedOutput: VNextTextBlockUnifiedLayoutSourceStateV1
+  }>,
+): boolean {
+  const plan = sourceCandidateCommitPlanRecords.get(input.planAuthority)
+  return plan != null
+    && plan.detachedTicket === input.detachedTicket
+    && plan.sealAuthority === input.sealAuthority
+    && plan.nextSourceState === input.plannedOutput
+}
+
+export function abandonVNextTextBlockUnifiedLayoutSourceCandidateCommitPlanInternalV1(
+  input: Readonly<{
+    planAuthority:
+      VNextTextBlockUnifiedLayoutSourceCandidateCommitPlanAuthorityInternalV1
+    abandonmentAuthority:
+      VNextTextBlockUnifiedLayoutSourceCandidatePlanAbandonmentAuthorityInternalV1
+  }>,
+): void {
+  if (!sourceCandidateCommitPlanRecords.has(input.planAuthority)) {
+    throw new Error("Source candidate commit plan abandonment invariant violated")
+  }
+  consumeVNextTextBlockUnifiedLayoutSourceCandidatePlanAbandonmentInternalV1(input)
+  sourceCandidateCommitPlanRecords.delete(input.planAuthority)
+}
+
+export function applyVNextTextBlockUnifiedLayoutSourceCandidateCommitPlanInternalV1(
+  step: VNextTextBlockUnifiedLayoutSourceCandidateCommitStepInternalV1,
+): VNextTextBlockUnifiedLayoutSourceStageCommitStepInternalV1 {
+  const { applyRecord, nextStep } =
+    consumeVNextTextBlockUnifiedLayoutSourceCandidateCommitStepInternalV1({
+      step,
+      consumerAuthority: SOURCE_CANDIDATE_STEP_CONSUMER_AUTHORITY_INTERNAL_V1,
+    })
+  const plan = applyRecord as unknown as SourceCandidateCommitPlanRecordInternalV1
+  registeredPlanASourceSidecarAccessBySourceState.set(
+    plan.sourceAccessRecord.sourceState,
+    plan.sourceAccessRecord.access,
+  )
+  reservedPlanASourceSidecarAccessBySourceState.delete(
+    plan.sourceAccessRecord.sourceState,
+  )
+  preparedPlanASidecarAccessPlanByReservation.delete(
+    plan.sourceAccessRecord.reservationAuthority,
+  )
+  preparedPlanASidecarAccessByPlan.delete(plan.sidecarPlanAuthority)
+  consumedSourcePathCopyCandidateAuthorities.add(
+    plan.sourcePathCopyCandidateAuthority,
+  )
+  sourceRangePathCopyCandidateAuthorities.delete(
+    plan.sourcePathCopyCandidateAuthority,
+  )
+  sourceRangePathCopyCandidateAuthorities.delete(plan.removedItems)
+  sourceRangePathCopyCandidateAuthorities.delete(plan.nextPhysicalItems)
+  sourceCandidateCommitPlanRecords.delete(plan.planAuthority)
+  return nextStep
+}
 
 export function canRegisterVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessInternalV1(
   sourceState: VNextTextBlockUnifiedLayoutSourceStateV1,
 ): boolean {
   return preparedStates.has(sourceState)
     && !registeredPlanASourceSidecarAccessBySourceState.has(sourceState)
+    && !reservedPlanASourceSidecarAccessBySourceState.has(sourceState)
+}
+
+export function reserveVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessInternalV1(
+  input: {
+    readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly reservationAuthority: object
+  },
+): boolean {
+  if (
+    input.reservationAuthority == null
+    || typeof input.reservationAuthority !== "object"
+    || !canRegisterVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessInternalV1(
+      input.sourceState,
+    )
+  ) return false
+  reservedPlanASourceSidecarAccessBySourceState.set(
+    input.sourceState,
+    input.reservationAuthority,
+  )
+  return true
+}
+
+export function matchesVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessReservationInternalV1(
+  input: {
+    readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly reservationAuthority: object
+  },
+): boolean {
+  return reservedPlanASourceSidecarAccessBySourceState.get(input.sourceState)
+    === input.reservationAuthority
+}
+
+export function releaseVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessReservationInternalV1(
+  input: {
+    readonly sourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+    readonly reservationAuthority: object
+  },
+): boolean {
+  return !isVNextTextBlockUnifiedLayoutSourceCommitAccessReservationProtectedInternalV1(
+    input.reservationAuthority as
+      import("./textBlockUnifiedLayoutSourceAuthorityInternalsV1.js")
+        .VNextTextBlockUnifiedLayoutSourceStageSidecarPreconditionAuthorityInternalV1,
+  ) && matchesVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessReservationInternalV1(
+    input,
+  ) && reservedPlanASourceSidecarAccessBySourceState.delete(input.sourceState)
 }
 
 export function registerVNextTextBlockUnifiedLayoutSourcePlanASidecarAccessInternalV1(
@@ -764,6 +1088,41 @@ let sourceIndexLookupObserverForTest:
   | ((observation: VNextTextBlockSourceIndexLookupObservationForTestV1) => void)
   | null = null
 let sourceReplacementItemReadObserverForTest: (() => void) | null = null
+let sourceRangePathCopyPayloadObserverForTest:
+  | ((unit:
+      | "source-items"
+      | "source-tree-lookup-nodes"
+      | "source-tree-path-copy-nodes"
+      | "source-leaf-slots") => void)
+  | null = null
+
+const sourceRangePathCopyReadViewsForTest = new WeakMap<object, object>()
+
+/** Test-only hostile read view; exact raw payload identity remains authoritative. */
+export function registerVNextTextBlockSourceRangePathCopyReadViewForTestInternalV1(input: {
+  readonly payload: object
+  readonly readView: object
+}): boolean {
+  if (
+    input.payload === input.readView
+    || sourceRangePathCopyReadViewsForTest.has(input.payload)
+  ) return false
+  sourceRangePathCopyReadViewsForTest.set(input.payload, input.readView)
+  return true
+}
+
+export function removeVNextTextBlockSourceRangePathCopyReadViewForTestInternalV1(input: {
+  readonly payload: object
+  readonly readView: object
+}): boolean {
+  if (sourceRangePathCopyReadViewsForTest.get(input.payload) !== input.readView) return false
+  sourceRangePathCopyReadViewsForTest.delete(input.payload)
+  return true
+}
+
+function sourceRangePathCopyReadViewInternalV1<T extends object>(payload: T): T {
+  return (sourceRangePathCopyReadViewsForTest.get(payload) ?? payload) as T
+}
 
 export interface VNextTextBlockPreBindingSourceVisitGuardInternalV1 {
   readonly __preBindingSourceVisitGuardOpaque: never
@@ -897,6 +1256,12 @@ export function setVNextTextBlockSourceReplacementItemReadObserverForTestInterna
   observer: (() => void) | null,
 ): void {
   sourceReplacementItemReadObserverForTest = observer
+}
+
+export function setVNextTextBlockSourceRangePathCopyPayloadObserverForTestInternalV1(
+  observer: typeof sourceRangePathCopyPayloadObserverForTest,
+): void {
+  sourceRangePathCopyPayloadObserverForTest = observer
 }
 
 export function setVNextTextBlockPreparedSourceEnvelopeFactsForNextCompleteBuildForTestInternalV1(
@@ -1995,6 +2360,7 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
     readonly replacement:
       VNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1
     readonly beforeVisit: (unit:
+      | "source-items"
       | "source-lookup-nodes"
       | "source-path-copy-nodes"
       | "source-leaf-items") => boolean
@@ -2004,7 +2370,6 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
   const replacementAuthority = sourceRangeReplacementAuthorities.get(
     input.replacement,
   )
-  const range = input.replacement.previousRange
   const blockedResult = (message: string):
     VNextTextBlockSourceRangePathCopyResultInternalV1 => Object.freeze({
       status: "blocked" as const,
@@ -2023,7 +2388,36 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
     prepared == null
     || replacementAuthority?.previousSourceState
       !== input.previousSourceState
-    || !Number.isSafeInteger(range.startRenderedUtf16)
+  ) return blockedResult("range path copy requires exact safe Source authority")
+
+  const reserveSourceLookupNodeVisit = (): boolean => {
+    if (!input.beforeVisit("source-lookup-nodes")) return false
+    sourceRangePathCopyPayloadObserverForTest?.("source-tree-lookup-nodes")
+    return true
+  }
+  const reserveSourcePathCopyNode = (): boolean => {
+    if (!input.beforeVisit("source-path-copy-nodes")) return false
+    sourceRangePathCopyPayloadObserverForTest?.("source-tree-path-copy-nodes")
+    return true
+  }
+  const reserveSourceItemObservation = (): boolean => {
+    if (!input.beforeVisit("source-items")) return false
+    sourceRangePathCopyPayloadObserverForTest?.("source-items")
+    return true
+  }
+
+  let visitedLookupNodeCount = 0
+  if (!reserveSourceLookupNodeVisit()) return limitResult()
+  visitedLookupNodeCount += 1
+  const rangeReadView = sourceRangePathCopyReadViewInternalV1(
+    replacementAuthority.previousRange,
+  )
+  const range = {
+    startRenderedUtf16: rangeReadView.startRenderedUtf16,
+    endRenderedUtf16: rangeReadView.endRenderedUtf16,
+  }
+  if (
+    !Number.isSafeInteger(range.startRenderedUtf16)
     || !Number.isSafeInteger(range.endRenderedUtf16)
     || range.startRenderedUtf16 < 0
     || range.endRenderedUtf16 < range.startRenderedUtf16
@@ -2031,17 +2425,14 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
       > input.previousSourceState.summary.renderedUtf16Length
   ) return blockedResult("range path copy requires exact safe Source authority")
 
-  let visitedLookupNodeCount = 0
   let copiedPathNodeCount = 0
   let visitedChangedLeafItemCount = 0
   const reserveSourceLeafItemVisit = (): boolean => {
     if (!input.beforeVisit("source-leaf-items")) return false
+    sourceRangePathCopyPayloadObserverForTest?.("source-leaf-slots")
     visitedChangedLeafItemCount += 1
     return true
   }
-  const lookupVisitedNodes = new WeakSet<
-    VNextTextBlockUnifiedLayoutSourceNodeV1
-  >()
   const ancestors: {
     readonly branch: VNextTextBlockUnifiedLayoutSourceBranchV1
     readonly childIndex: number
@@ -2051,15 +2442,16 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
   let nodeStartRenderedUtf16 = 0
   let nodeStartItemOrdinal = 0
   while (true) {
-    if (!input.beforeVisit("source-lookup-nodes")) return limitResult()
-    visitedLookupNodeCount += 1
-    lookupVisitedNodes.add(node)
-    if (node.nodeKind === "leaf") break
+    const nodeReadView = sourceRangePathCopyReadViewInternalV1(node)
+    if (nodeReadView.nodeKind === "leaf") break
+    const branch = node as VNextTextBlockUnifiedLayoutSourceBranchV1
     let selectedIndex = -1
     let childStart = nodeStartRenderedUtf16
     let childItemOrdinal = nodeStartItemOrdinal
-    for (let index = 0; index < node.children.length; index += 1) {
-      const child = node.children[index]!
+    for (let index = 0; index < branch.children.length; index += 1) {
+      const child = branch.children[index]!
+      if (!reserveSourceLookupNodeVisit()) return limitResult()
+      visitedLookupNodeCount += 1
       const childEnd = childStart + child.summary.renderedUtf16Length
       const containsStart = range.startRenderedUtf16 < childEnd
         || (
@@ -2075,9 +2467,9 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
       childItemOrdinal += child.summary.itemCount
     }
     if (selectedIndex < 0) return blockedResult("source range has no exact boundary leaf")
-    const child = node.children[selectedIndex]!
+    const child = branch.children[selectedIndex]!
     ancestors.push({
-      branch: node,
+      branch,
       childIndex: selectedIndex,
       endChildIndex: selectedIndex,
     })
@@ -2085,7 +2477,9 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
     nodeStartRenderedUtf16 = childStart
     nodeStartItemOrdinal = childItemOrdinal
   }
-  const affectedLeaves: VNextTextBlockUnifiedLayoutSourceLeafV1[] = [node]
+  const affectedLeaves: VNextTextBlockUnifiedLayoutSourceLeafV1[] = [
+    node as VNextTextBlockUnifiedLayoutSourceLeafV1,
+  ]
   const affectedItems: VNextTextBlockUnifiedLayoutSourceItemV1[] = []
   const affectedNodes = new WeakSet<VNextTextBlockUnifiedLayoutSourceNodeV1>()
   const rebalancedDonorNodes = new WeakSet<
@@ -2093,7 +2487,7 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
   >()
   let affectedNodeCount = ancestors.length + 1
   let leafEndRenderedUtf16 = nodeStartRenderedUtf16
-    + node.summary.renderedUtf16Length
+    + sourceRangePathCopyReadViewInternalV1(node).summary.renderedUtf16Length
   if (range.endRenderedUtf16 > leafEndRenderedUtf16) {
     affectedLeaves.length = 0
     affectedNodeCount = 0
@@ -2101,17 +2495,14 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
       current: VNextTextBlockUnifiedLayoutSourceNodeV1,
       currentStartRenderedUtf16: number,
     ): boolean => {
+      if (!reserveSourceLookupNodeVisit()) return false
+      visitedLookupNodeCount += 1
       const currentEndRenderedUtf16 = currentStartRenderedUtf16
         + current.summary.renderedUtf16Length
       if (
         currentEndRenderedUtf16 <= nodeStartRenderedUtf16
         || currentStartRenderedUtf16 >= range.endRenderedUtf16
       ) return true
-      if (!lookupVisitedNodes.has(current)) {
-        if (!input.beforeVisit("source-lookup-nodes")) return false
-        visitedLookupNodeCount += 1
-        lookupVisitedNodes.add(current)
-      }
       affectedNodes.add(current)
       affectedNodeCount += 1
       if (current.nodeKind === "leaf") {
@@ -2136,13 +2527,18 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
   // A node visit authorizes topology only. Authorize every bounded affected
   // item slot separately before reading the item object from the leaf.
   for (const affectedLeaf of affectedLeaves) {
+    if (!reserveSourceLookupNodeVisit()) return limitResult()
+    visitedLookupNodeCount += 1
+    const affectedLeafView = sourceRangePathCopyReadViewInternalV1(affectedLeaf)
+    const itemCount = affectedLeafView.summary.itemCount
+    const leafItems = sourceRangePathCopyReadViewInternalV1(affectedLeafView.items)
     for (
       let itemIndex = 0;
-      itemIndex < affectedLeaf.summary.itemCount;
+      itemIndex < itemCount;
       itemIndex += 1
     ) {
       if (!reserveSourceLeafItemVisit()) return limitResult()
-      const item = affectedLeaf.items[itemIndex]
+      const item = leafItems[itemIndex]
       if (item == null) {
         return blockedResult("affected Source leaf summary is inconsistent")
       }
@@ -2211,10 +2607,12 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
   }
   const emitItems = (
     items: readonly VNextTextBlockUnifiedLayoutSourceItemV1[],
+    itemCount: number,
     created: boolean,
   ): boolean => {
-    for (let itemIndex = 0; itemIndex < items.length; itemIndex += 1) {
+    for (let itemIndex = 0; itemIndex < itemCount; itemIndex += 1) {
       if (!reserveFinalItemSlot()) return false
+      if (!reserveSourceItemObservation()) return false
       sourceReplacementItemReadObserverForTest?.()
       const item = items[itemIndex]
       if (item == null || !Object.isFrozen(item)) {
@@ -2241,7 +2639,11 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
     }
     if (itemStart >= range.endRenderedUtf16) {
       if (!emittedReplacement) {
-        if (!emitItems(input.replacement.nextItems, true)) return emitFailure()
+        if (!emitItems(
+          replacementAuthority.nextItems,
+          replacementAuthority.nextItemCount,
+          true,
+        )) return emitFailure()
         emittedReplacement = true
       }
       if (!emitItem(item, false)) return emitFailure()
@@ -2254,6 +2656,7 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
         return blockedResult("atomic Source items cannot be split")
       }
       if (!reserveFinalItemSlot()) return emitFailure()
+      if (!reserveSourceItemObservation()) return emitFailure()
       const prefix = retainedTextFragmentInternalV1({
         sourceState: input.previousSourceState,
         item,
@@ -2267,7 +2670,11 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
       createdItems.push(prefix)
     }
     if (!emittedReplacement) {
-      if (!emitItems(input.replacement.nextItems, true)) return emitFailure()
+      if (!emitItems(
+        replacementAuthority.nextItems,
+        replacementAuthority.nextItemCount,
+        true,
+      )) return emitFailure()
       emittedReplacement = true
     }
     if (range.endRenderedUtf16 < itemEnd) {
@@ -2275,6 +2682,7 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
         return blockedResult("atomic Source items cannot be split")
       }
       if (!reserveFinalItemSlot()) return emitFailure()
+      if (!reserveSourceItemObservation()) return emitFailure()
       const suffix = retainedTextFragmentInternalV1({
         sourceState: input.previousSourceState,
         item,
@@ -2289,7 +2697,11 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
     itemStart = itemEnd
   }
   if (!emittedReplacement) {
-    if (!emitItems(input.replacement.nextItems, true)) return emitFailure()
+    if (!emitItems(
+      replacementAuthority.nextItems,
+      replacementAuthority.nextItemCount,
+      true,
+    )) return emitFailure()
   }
   if (
     nextLeafItems.length === 0
@@ -2300,7 +2712,7 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
   let replacementNodes: readonly VNextTextBlockUnifiedLayoutSourceNodeV1[] = []
   const nextLeaves: VNextTextBlockUnifiedLayoutSourceNodeV1[] = []
   for (const group of canonicalGroups(nextLeafItems, 8)) {
-    if (!input.beforeVisit("source-path-copy-nodes")) return limitResult()
+    if (!reserveSourcePathCopyNode()) return limitResult()
     copiedPathNodeCount += 1
     nextLeaves.push(deepFreeze(leaf(group, prepared.fingerprintFactory)))
   }
@@ -2349,14 +2761,14 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
             }
           | null = null
         if (left != null) {
-          if (!input.beforeVisit("source-lookup-nodes")) return null
+          if (!reserveSourceLookupNodeVisit()) return null
           visitedLookupNodeCount += 1
           if (left.height === maximumHeight) {
             donor = { side: "left", node: left }
           }
         }
         if (donor == null && right != null) {
-          if (!input.beforeVisit("source-lookup-nodes")) return null
+          if (!reserveSourceLookupNodeVisit()) return null
           visitedLookupNodeCount += 1
           if (right.height === maximumHeight) {
             donor = { side: "right", node: right }
@@ -2385,13 +2797,13 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
           const repairedChildren = donor.side === "left"
             ? [borrowed, underflow]
             : [underflow, borrowed]
-          if (!input.beforeVisit("source-path-copy-nodes")) return null
+          if (!reserveSourcePathCopyNode()) return null
           copiedPathNodeCount += 1
           const repairedDonor = deepFreeze(branch(
             donorChildren,
             prepared.fingerprintFactory,
           ))
-          if (!input.beforeVisit("source-path-copy-nodes")) return null
+          if (!reserveSourcePathCopyNode()) return null
           copiedPathNodeCount += 1
           const repairedUnderflow = deepFreeze(branch(
             repairedChildren,
@@ -2416,7 +2828,7 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
           const mergedChildren = donor.side === "left"
             ? [...donor.node.children, underflow]
             : [underflow, ...donor.node.children]
-          if (!input.beforeVisit("source-path-copy-nodes")) return null
+          if (!reserveSourcePathCopyNode()) return null
           copiedPathNodeCount += 1
           const merged = deepFreeze(branch(
             mergedChildren,
@@ -2435,7 +2847,7 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
           output.push(group[0]!)
           continue
         }
-        if (!input.beforeVisit("source-path-copy-nodes")) return null
+        if (!reserveSourcePathCopyNode()) return null
         copiedPathNodeCount += 1
         output.push(deepFreeze(branch(group, prepared.fingerprintFactory)))
       }
@@ -2462,7 +2874,7 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
           nextLevel.push(group[0]!)
           continue
         }
-        if (!input.beforeVisit("source-path-copy-nodes")) return limitResult()
+        if (!reserveSourcePathCopyNode()) return limitResult()
         copiedPathNodeCount += 1
         nextLevel.push(deepFreeze(branch(group, prepared.fingerprintFactory)))
       }
@@ -2476,7 +2888,7 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
         nextLevel.push(group[0]!)
         continue
       }
-      if (!input.beforeVisit("source-path-copy-nodes")) return limitResult()
+      if (!reserveSourcePathCopyNode()) return limitResult()
       copiedPathNodeCount += 1
       nextLevel.push(deepFreeze(branch(group, prepared.fingerprintFactory)))
     }
@@ -2506,7 +2918,7 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
         inlineId: item.inlineId,
         incomingKind: item.kind,
         beforeVisitNode: () => {
-          if (!input.beforeVisit("source-lookup-nodes")) return false
+          if (!reserveSourceLookupNodeVisit()) return false
           visitedLookupNodeCount += 1
           return true
         },
@@ -2533,7 +2945,7 @@ export function prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1(
       prepared.itemIndex,
       item.inlineId,
       () => {
-        if (!input.beforeVisit("source-lookup-nodes")) return false
+        if (!reserveSourceLookupNodeVisit()) return false
         visitedLookupNodeCount += 1
         return true
       },

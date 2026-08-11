@@ -26,12 +26,11 @@ import {
 } from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV2.js"
 import {
   transitionVNextTextBlockUnifiedLayoutSourceInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceStageAcceptedV1,
 } from "../src/layout/textBlockUnifiedLayoutTransitionSourceInternalsV1.js"
 import {
   commitVNextTextBlockUnifiedLayoutSourceStageInternalV1,
-  resolveVNextTextBlockUnifiedLayoutSourceStageCommitTicketForCandidateWorkInternalV1,
   resolveVNextTextBlockUnifiedLayoutSourceStageAuthorityInternalV1,
-  setVNextTextBlockUnifiedLayoutSourceStageCommitTicketObserverForTestInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutSourceAuthorityInternalsV1.js"
 import {
   canRegisterVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyInternalV1,
@@ -53,7 +52,7 @@ import {
   inspectVNextTextBlockUnifiedLayoutSourceLegacyStorageForTestInternalV1,
   lookupVNextTextBlockUnifiedLayoutSourceItemByInlineIdInternalV1,
   prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1,
-  registerVNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1,
+  registerVNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1 as registerVNextTextBlockUnifiedLayoutSourceRangeReplacementRawInternalV1,
   resolveVNextTextBlockRegisteredSourceStyleInternalV1,
   setVNextTextBlockUnifiedLayoutSourceIndexLookupObserverForTestInternalV1,
   setVNextTextBlockUnifiedLayoutSourcePathCopyCandidateObserverForTestInternalV1,
@@ -94,6 +93,24 @@ function frozen<T>(value: T): T {
     if (!Object.isFrozen(value)) Object.freeze(value)
   }
   return value
+}
+
+function registerVNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1(
+  input: Omit<
+    Parameters<
+      typeof registerVNextTextBlockUnifiedLayoutSourceRangeReplacementRawInternalV1
+    >[0],
+    "previousRange" | "nextItems" | "nextItemCount"
+  >,
+): boolean {
+  const previousRange = input.replacement.previousRange
+  const nextItems = input.replacement.nextItems
+  return registerVNextTextBlockUnifiedLayoutSourceRangeReplacementRawInternalV1({
+    ...input,
+    previousRange,
+    nextItems,
+    nextItemCount: nextItems.length,
+  })
 }
 
 function fingerprint(value: unknown): string {
@@ -363,8 +380,13 @@ function ownerReplacement(input: {
   readonly startRenderedUtf16: number
   readonly endRenderedUtf16: number
   readonly nextItems: readonly VNextTextBlockUnifiedLayoutSourceItemV1[]
+  readonly observeSourceRangeRead?: () => void
   readonly beforeVisit?: (
-    unit: "source-lookup-nodes" | "source-path-copy-nodes" | "source-leaf-items",
+    unit:
+      | "source-items"
+      | "source-lookup-nodes"
+      | "source-path-copy-nodes"
+      | "source-leaf-items",
   ) => boolean
 }) {
   const range = frozen({
@@ -396,8 +418,19 @@ function ownerReplacement(input: {
       provenanceFingerprint: fragment.item.provenanceFingerprint,
     }]
   })
+  const replacementRange = input.observeSourceRangeRead == null
+    ? range
+    : new Proxy(range, {
+        get(target, property, receiver) {
+          if (
+            property === "startRenderedUtf16"
+            || property === "endRenderedUtf16"
+          ) input.observeSourceRangeRead?.()
+          return Reflect.get(target, property, receiver)
+        },
+      })
   const replacement = frozen({
-    previousRange: range,
+    previousRange: replacementRange,
     nextItems: frozen([...input.nextItems]),
     expectedPreviousContentFingerprint: fingerprint(
       selected.map((entry) => entry.renderedText),
@@ -447,6 +480,47 @@ function batchItems(
 }
 
 describe("5B-2 text/style Source path copy", () => {
+  it("never dereferences the Preflight-owned replacement payload outside Source ownership", () => {
+    // Catches Source registration or TransitionSource validating the producer
+    // tuple by reading sourceReplacement.nextItems before a Source meter exists.
+    const fixture = admitted5B2PlanARootFixture()
+    admit5B2RootFixture(fixture.root)
+    const change = styleChange(fixture.root, { textColor: "FF0000" })
+    const originalFreeze = Object.freeze
+    const observations: string[] = []
+    let armed = false
+    Object.freeze = ((value: object) => {
+      if (
+        !armed
+        && value != null
+        && typeof value === "object"
+        && Object.hasOwn(value, "previousRange")
+        && Object.hasOwn(value, "nextItems")
+        && Object.hasOwn(value, "expectedPreviousContentFingerprint")
+      ) {
+        armed = true
+        const nextItems = Reflect.get(value, "nextItems")
+        Object.defineProperty(value, "nextItems", {
+          configurable: true,
+          enumerable: true,
+          get() {
+            observations.push("sourceReplacement.nextItems")
+            return nextItems
+          },
+        })
+      }
+      return originalFreeze(value)
+    }) as typeof Object.freeze
+    try {
+      const { result } = transition(fixture.root, change)
+      expect(result.status, JSON.stringify(result)).toBe("accepted")
+      expect(armed).toBe(true)
+      expect(observations).toEqual([])
+    } finally {
+      Object.freeze = originalFreeze
+    }
+  })
+
   it("publishes the accepted Plan A Source stage only with full private authority", () => {
     const fixture = admitted5B2PlanARootFixture()
     admit5B2RootFixture(fixture.root)
@@ -457,6 +531,7 @@ describe("5B-2 text/style Source path copy", () => {
 
     expect(result.status, JSON.stringify(result)).toBe("accepted")
     if (result.status !== "accepted") return
+    expect(result).toHaveProperty("authorityMode", "plan-a")
     expect("sourceStageAuthority" in result).toBe(true)
     expect("candidateWorkAuthority" in result).toBe(true)
     if (
@@ -561,6 +636,36 @@ describe("5B-2 text/style Source path copy", () => {
       composition: fixture.composition,
       candidateWork: clonedCandidateWork,
     })).toBeNull()
+  })
+
+  it("discriminates compatibility Source acceptance without Plan A authorities", () => {
+    const root = textRoot("ABCD")
+    const { result } = transition(root, styleChange(root, { textColor: "FF0000" }))
+    expect(result.status, JSON.stringify(result)).toBe("accepted")
+    if (result.status !== "accepted") return
+    expect(result).toHaveProperty("authorityMode", "compatibility")
+    expect(result).not.toHaveProperty("sourceStageAuthority")
+    expect(result).not.toHaveProperty("candidateWorkAuthority")
+  })
+
+  it("narrows accepted Source authority fields by the exact internal mode", () => {
+    const assertExactBranch = (
+      value: VNextTextBlockUnifiedLayoutSourceStageAcceptedV1,
+    ): "compatibility" | "plan-a" => {
+      if (value.authorityMode === "plan-a") {
+        const sourceAuthority: object = value.sourceStageAuthority
+        const candidateAuthority: object = value.candidateWorkAuthority
+        expect(sourceAuthority).toBeDefined()
+        expect(candidateAuthority).toBeDefined()
+        return "plan-a"
+      }
+      const sourceAuthority: undefined = value.sourceStageAuthority
+      const candidateAuthority: undefined = value.candidateWorkAuthority
+      expect(sourceAuthority).toBeUndefined()
+      expect(candidateAuthority).toBeUndefined()
+      return "compatibility"
+    }
+    expect(assertExactBranch).toBeTypeOf("function")
   })
 
   it("leaves no Source candidate publication after a forced final precondition rejection", () => {
@@ -679,54 +784,30 @@ describe("5B-2 text/style Source path copy", () => {
     }
   })
 
-  it("binds one Source commit ticket against replay, clone, and cross tuples", () => {
+  it("keeps the consumed Source commit ticket private from replay and cross tuples", () => {
     const exact = admitted5B2PlanARootFixture({ text: "ABCD" })
     const other = admitted5B2PlanARootFixture({ text: "WXYZ" })
     admit5B2RootFixture(exact.root)
     admit5B2RootFixture(other.root)
     const exactChange = styleChange(exact.root, { textColor: "0000FF" })
-    const otherChange = styleChange(other.root, { textColor: "FF00FF" })
-    let ticket: Parameters<
-      typeof commitVNextTextBlockUnifiedLayoutSourceStageInternalV1
-    >[0] | null = null
-    const observations: boolean[] = []
-    setVNextTextBlockUnifiedLayoutSourceStageCommitTicketObserverForTestInternalV1(
-      (candidate) => {
-        ticket = candidate.ticket
-        const resolves = (overrides: Partial<typeof candidate> = {}) =>
-          resolveVNextTextBlockUnifiedLayoutSourceStageCommitTicketForCandidateWorkInternalV1({
-            ticket: overrides.ticket ?? candidate.ticket,
-            meter: overrides.meter ?? candidate.meter,
-            previousRoot: overrides.previousRoot ?? candidate.previousRoot,
-            change: overrides.change ?? candidate.change,
-            composition: overrides.composition ?? candidate.composition,
-            nextCandidateWork:
-              overrides.nextCandidateWork ?? candidate.nextCandidateWork,
-          }) != null
-        observations.push(
-          resolves(),
-          resolves({ ticket: structuredClone(candidate.ticket) }),
-          resolves({ meter: {} as typeof candidate.meter }),
-          resolves({ previousRoot: other.root }),
-          resolves({ change: otherChange }),
-          resolves({ composition: other.composition }),
-          resolves({
-            nextCandidateWork: frozen(structuredClone(candidate.nextCandidateWork)),
-          }),
-        )
-      },
-    )
-    try {
-      const { result } = transition(exact.root, exactChange)
-      expect(result.status).toBe("accepted")
-      expect(observations).toEqual([true, false, false, false, false, false, false])
-      expect(ticket).not.toBeNull()
-      if (ticket == null) return
-      expect(() => commitVNextTextBlockUnifiedLayoutSourceStageInternalV1(ticket!))
-        .toThrow("Source commit ticket was not fully prepared")
-    } finally {
-      setVNextTextBlockUnifiedLayoutSourceStageCommitTicketObserverForTestInternalV1(null)
-    }
+    const { result } = transition(exact.root, exactChange)
+    expect(result.status).toBe("accepted")
+    if (result.status !== "accepted" || result.authorityMode !== "plan-a") return
+    expect(() => commitVNextTextBlockUnifiedLayoutSourceStageInternalV1(
+      result.sourceStageAuthority as never,
+    )).toThrow(/invariant violated/i)
+    expect(resolveVNextTextBlockUnifiedLayoutSourceStageAuthorityInternalV1({
+      authority: structuredClone(result.sourceStageAuthority),
+      previousRoot: exact.root,
+      nextSourceState: result.nextSourceState,
+      completedCandidateWork: result.completedCandidateWork,
+    })).toBeNull()
+    expect(resolveVNextTextBlockUnifiedLayoutSourceStageAuthorityInternalV1({
+      authority: result.sourceStageAuthority,
+      previousRoot: other.root,
+      nextSourceState: result.nextSourceState,
+      completedCandidateWork: result.completedCandidateWork,
+    })).toBeNull()
   })
 
   it.each([
@@ -1109,6 +1190,29 @@ describe("5B-2 text/style Source path copy", () => {
     expect(result.completedCandidateWork.flow.completeSuffixTraversalCount).toBe(0)
   }, 30_000)
 
+  it("begins each multi-leaf lookup permit before Source range observation", () => {
+    // Catches validating range relations or node summaries before lookup ownership.
+    const root = adjacentTextRoot(16)
+    const unownedRangeReads: number[] = []
+    let lookupPermitOpen = false
+    const result = ownerReplacement({
+      sourceState: root.sourceState,
+      startRenderedUtf16: 7 * 12,
+      endRenderedUtf16: 9 * 12,
+      nextItems: batchItems(root.sourceState, 1),
+      observeSourceRangeRead() {
+        if (!lookupPermitOpen) unownedRangeReads.push(unownedRangeReads.length)
+      },
+      beforeVisit(unit) {
+        if (unit !== "source-lookup-nodes") return true
+        lookupPermitOpen = true
+        return false
+      },
+    })
+    expect(result).toMatchObject({ status: "limit-exceeded", sourceState: null })
+    expect(unownedRangeReads).toEqual([])
+  }, 30_000)
+
   it("borrows from the right branch after a bounded non-root underflow", () => {
     const root = adjacentTextRoot(72)
     const previousLastLeaf = lastLeaf(root.sourceState.root)
@@ -1214,7 +1318,7 @@ describe("5B-2 text/style Source path copy", () => {
     expect(result.sourceState.root.height).toBe(2)
     expect(sourceNodes(result.sourceState.root)).toContain(retainedChild)
     expect(result.sourceState.work.completeSuffixTraversalCount).toBe(0)
-  })
+  }, 30_000)
 
   it("propagates an exact ten-child overflow into the next parent level", () => {
     const root = adjacentTextRoot(80)
@@ -1307,9 +1411,11 @@ describe("5B-2 text/style Source path copy", () => {
     })
     expect(second.status).toBe("prepared")
     if (second.status !== "prepared") return
-    expect(second.visitedLookupNodeCount).toBe(3)
-    expect(second.sourceState.work.visitedSummaryNodeCount).toBe(3)
-    expect(units.filter((unit) => unit === "source-lookup-nodes")).toHaveLength(3)
+    // One permit owns the initial range/root facts before the three retained
+    // delta-index layers are consulted.
+    expect(second.visitedLookupNodeCount).toBe(4)
+    expect(second.sourceState.work.visitedSummaryNodeCount).toBe(4)
+    expect(units.filter((unit) => unit === "source-lookup-nodes")).toHaveLength(4)
   })
 
   it("checks a delta-index layer before retained atomic inline lookup", () => {
@@ -1459,6 +1565,34 @@ describe("5B-2 text/style Source path copy", () => {
       expect(replacementItemReadCount).toBe(0)
     } finally {
       setVNextTextBlockPostBindingLimitOverrideForTestInternalV1(null)
+      setVNextTextBlockSourceReplacementItemReadObserverForTestInternalV1(null)
+    }
+  }, 30_000)
+
+  it("begins source-items in the Source owner before replacement observation", () => {
+    // Catches deferring Source emission ownership until sidecar preparation.
+    const fixture = admitted5B2PlanARootFixture({
+      text: "ABCD",
+      sourceLimits: { sourceItems: 0 },
+    })
+    admit5B2RootFixture(fixture.root)
+    let replacementItemReadCount = 0
+    setVNextTextBlockSourceReplacementItemReadObserverForTestInternalV1(
+      () => { replacementItemReadCount += 1 },
+    )
+    try {
+      const { result } = transition(
+        fixture.root,
+        styleChange(fixture.root, { textColor: "FF0000" }),
+      )
+      expect(result).toMatchObject({
+        status: "fallback-required",
+        completedCandidateWork: {
+          flow: { visitedSourceItemCount: 0 },
+        },
+      })
+      expect(replacementItemReadCount).toBe(0)
+    } finally {
       setVNextTextBlockSourceReplacementItemReadObserverForTestInternalV1(null)
     }
   }, 30_000)

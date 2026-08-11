@@ -9,8 +9,8 @@ import type {
 } from "./textBlockUnifiedLayoutSourceStateContractV1.js"
 import {
   discardVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInternalV1,
-  consumeVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInternalV1,
   getVNextTextBlockUnifiedLayoutSourcePathCopyCandidateRecordInternalV1,
+  matchesVNextTextBlockUnifiedLayoutSourceRangeReplacementProducerTupleInternalV1,
   prepareVNextTextBlockUnifiedLayoutSourceRangePathCopyInternalV1,
   type VNextTextBlockIncrementalStructuralTargetAuthorityInternalV1,
   type VNextTextBlockSourceLayoutDeltaAuthorityInternalV1,
@@ -24,13 +24,15 @@ import {
   hasVNextTextBlockSourceLayoutDeltaAuthorityBindingInternalV1,
   hasVNextTextBlockStructuralTargetAuthorityBindingInternalV1,
   prepareVNextTextBlockUnifiedLayoutSourceStageCommitInternalV1,
+  resolveVNextTextBlockUnifiedLayoutSourceStagePlanAResultInternalV1,
+  type VNextTextBlockUnifiedLayoutSourceStageAcceptedPlanAV1,
+  type VNextTextBlockUnifiedLayoutSourceStagePlanAResultRecordInternalV1,
   type VNextTextBlockUnifiedLayoutSourceStageAuthorityInternalV1,
 } from "./textBlockUnifiedLayoutSourceAuthorityInternalsV1.js"
 import {
   discardVNextTextBlockUnifiedLayoutSourceSidecarCandidateInternalV1,
   prepareVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyInternalV1,
   prepareVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyRegistrationInternalV1,
-  registerVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyInternalV1,
   resolveVNextTextBlockUnifiedLayoutSourceSidecarsInternalV1,
 } from "./textBlockUnifiedLayoutSourceSidecarsInternalsV1.js"
 import {
@@ -39,7 +41,6 @@ import {
   openVNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
   prepareVNextTextBlockUnifiedLayout5B2SourceCandidateWorkPublicationInternalV1,
   projectVNextTextBlockUnifiedLayout5B2CompatibilityWorkInternalV1,
-  publishVNextTextBlockUnifiedLayout5B2CandidateWorkInternalV1,
   resolveVNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1,
   type VNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1,
 } from "./textBlockUnifiedLayoutCandidateWorkAuthorityInternalsV1.js"
@@ -73,7 +74,7 @@ export type {
   VNextTextBlockUnifiedLayoutSourceRangeReplacementInternalV1,
 } from "./textBlockUnifiedLayoutSourceStateV1.js"
 
-export interface VNextTextBlockUnifiedLayoutSourceStageAcceptedV1 {
+interface VNextTextBlockUnifiedLayoutSourceStageAcceptedBaseV1 {
   readonly status: "accepted"
   readonly preflight: VNextTextBlockUnifiedLayoutChangePreflightV2
   readonly previousSourceRange: VNextTextBlockSourceRangeV1
@@ -85,13 +86,24 @@ export interface VNextTextBlockUnifiedLayoutSourceStageAcceptedV1 {
     VNextTextBlockIncrementalStructuralTargetAuthorityInternalV1
   readonly sourceLayoutDeltaAuthority:
     VNextTextBlockSourceLayoutDeltaAuthorityInternalV1 | null
-  readonly sourceStageAuthority?:
-    VNextTextBlockUnifiedLayoutSourceStageAuthorityInternalV1
-  readonly candidateWorkAuthority?:
-    VNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1
   readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
   readonly issues: readonly []
 }
+
+export interface VNextTextBlockUnifiedLayoutSourceStageAcceptedCompatibilityV1
+  extends VNextTextBlockUnifiedLayoutSourceStageAcceptedBaseV1 {
+  readonly authorityMode: "compatibility"
+  readonly sourceStageAuthority?: never
+  readonly candidateWorkAuthority?: never
+}
+
+export type {
+  VNextTextBlockUnifiedLayoutSourceStageAcceptedPlanAV1,
+} from "./textBlockUnifiedLayoutSourceAuthorityInternalsV1.js"
+
+export type VNextTextBlockUnifiedLayoutSourceStageAcceptedV1 =
+  | VNextTextBlockUnifiedLayoutSourceStageAcceptedCompatibilityV1
+  | VNextTextBlockUnifiedLayoutSourceStageAcceptedPlanAV1
 
 export interface VNextTextBlockUnifiedLayoutSourceStageRecordInternalV1 {
   readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
@@ -105,6 +117,10 @@ export interface VNextTextBlockUnifiedLayoutSourceStageRecordInternalV1 {
   readonly boundedNextSourceStartRenderedUtf16: number
 }
 
+export type VNextTextBlockUnifiedLayoutAnySourceStageRecordInternalV1 =
+  | VNextTextBlockUnifiedLayoutSourceStageRecordInternalV1
+  | VNextTextBlockUnifiedLayoutSourceStagePlanAResultRecordInternalV1
+
 const sourceStageRecords = new WeakMap<
   object,
   VNextTextBlockUnifiedLayoutSourceStageRecordInternalV1
@@ -116,11 +132,14 @@ export function getVNextTextBlockUnifiedLayoutSourceStageRecordInternalV1(
     readonly sourceStage: unknown
     readonly evidence: VNextTextBlockTransitionEvidenceV2 | null
   },
-): VNextTextBlockUnifiedLayoutSourceStageRecordInternalV1 | null {
+): VNextTextBlockUnifiedLayoutAnySourceStageRecordInternalV1 | null {
   const record = input.sourceStage != null
       && typeof input.sourceStage === "object"
     ? sourceStageRecords.get(input.sourceStage as object)
     : null
+  if (record == null) {
+    return resolveVNextTextBlockUnifiedLayoutSourceStagePlanAResultInternalV1(input)
+  }
   return record != null
       && record.previousRoot === input.previousRoot
       && record.evidence === input.evidence
@@ -153,12 +172,14 @@ function issue(message: string): VNextTextBlockUnifiedLayoutIssueV1 {
 function updateSourceWork(input: {
   readonly work: VNextTextBlockIncrementalCandidateWorkV1
   readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+  readonly visitedSourceItemCount: number
   readonly visitedLookupNodeCount: number
   readonly copiedPathNodeCount: number
   readonly visitedChangedLeafItemCount: number
 }): VNextTextBlockIncrementalCandidateWorkV1 {
   const flow = Object.freeze({
     ...input.work.flow,
+    visitedSourceItemCount: input.visitedSourceItemCount,
     visitedSourceLookupNodeCount: input.visitedLookupNodeCount,
     copiedSourcePathNodeCount: input.copiedPathNodeCount,
     visitedChangedSourceLeafItemCount: input.visitedChangedLeafItemCount,
@@ -166,6 +187,7 @@ function updateSourceWork(input: {
   const counts = new Map(
     input.work.stageWork.map((row) => [`${row.stage}/${row.unit}`, row.count]),
   )
+  counts.set("source-flow/source-items", input.visitedSourceItemCount)
   counts.set("source-flow/source-lookup-nodes", input.visitedLookupNodeCount)
   counts.set("source-flow/source-path-copy-nodes", input.copiedPathNodeCount)
   counts.set("source-flow/source-leaf-items", input.visitedChangedLeafItemCount)
@@ -202,9 +224,13 @@ function finalizeSourceStageAuthorities(input: {
   if (
     candidate == null
     || input.previousRoot.sourceState !== candidate.previousSourceState
-    || input.preflight.previousRanges.changedSourceRange
-      !== candidate.replacement.previousRange
-    || input.preflight.replacementItems !== candidate.replacement.nextItems
+    || !matchesVNextTextBlockUnifiedLayoutSourceRangeReplacementProducerTupleInternalV1({
+      previousSourceState: candidate.previousSourceState,
+      replacement: candidate.replacement,
+      change: candidate.change,
+      previousRange: input.preflight.previousRanges.changedSourceRange,
+      nextItems: input.preflight.replacementItems,
+    })
     || input.completedCandidateWork.flow.visitedSourceLookupNodeCount
       !== candidate.visitedLookupNodeCount
     || input.completedCandidateWork.flow.copiedSourcePathNodeCount
@@ -292,9 +318,13 @@ export function transitionVNextTextBlockUnifiedLayoutSourceInternalV1(input: {
   const replacement = record.sourceReplacement
   if (
     replacement == null
-    || replacement.previousRange
-      !== input.preflight.previousRanges.changedSourceRange
-    || replacement.nextItems !== input.preflight.replacementItems
+    || !matchesVNextTextBlockUnifiedLayoutSourceRangeReplacementProducerTupleInternalV1({
+      previousSourceState: input.previousRoot.sourceState,
+      replacement,
+      change: record.change,
+      previousRange: input.preflight.previousRanges.changedSourceRange,
+      nextItems: input.preflight.replacementItems,
+    })
   ) {
     return blocked(
       input.completedCandidateWork,
@@ -347,7 +377,11 @@ export function transitionVNextTextBlockUnifiedLayoutSourceInternalV1(input: {
       typeof completeVNextTextBlockUnifiedLayout5B2OperationInternalV1
     >[0] | null = null
     const beforeVisit = (
-      unit: "source-lookup-nodes" | "source-path-copy-nodes" | "source-leaf-items",
+      unit:
+        | "source-items"
+        | "source-lookup-nodes"
+        | "source-path-copy-nodes"
+        | "source-leaf-items",
     ): boolean => {
       if (pendingPermit != null) {
         if (!completeVNextTextBlockUnifiedLayout5B2OperationInternalV1(
@@ -358,11 +392,13 @@ export function transitionVNextTextBlockUnifiedLayoutSourceInternalV1(input: {
         }
         pendingPermit = null
       }
-      const mapped = unit === "source-lookup-nodes"
-        ? "source-tree-lookup-nodes" as const
-        : unit === "source-path-copy-nodes"
-          ? "source-tree-path-copy-nodes" as const
-          : "source-leaf-slots" as const
+      const mapped = unit === "source-items"
+        ? "source-items" as const
+        : unit === "source-lookup-nodes"
+          ? "source-tree-lookup-nodes" as const
+          : unit === "source-path-copy-nodes"
+            ? "source-tree-path-copy-nodes" as const
+            : "source-leaf-slots" as const
       const begun = beginVNextTextBlockUnifiedLayout5B2OperationInternalV1({
         meter,
         unit: mapped,
@@ -519,6 +555,13 @@ export function transitionVNextTextBlockUnifiedLayoutSourceInternalV1(input: {
         candidateWorkPublicationPrecondition,
       sidecarRegistrationPreconditionAuthority:
         sidecarRegistrationPrecondition,
+      validatedChange: record.validatedChange,
+      sourceMaterial: record.sourceMaterial,
+      boundedNextSourceItems: sourceCandidateRecord.nextLeafItems,
+      boundedNextSourceStartRenderedUtf16:
+        sourceCandidateRecord.nextLeafStartRenderedUtf16,
+      existingLineageIds: sourceCandidate.existingLineageIds,
+      insertedLineageIds: sourceCandidate.insertedLineageIds,
     })
     if (ticket == null) {
       discardVNextTextBlockUnifiedLayoutSourceSidecarCandidateInternalV1(
@@ -533,61 +576,11 @@ export function transitionVNextTextBlockUnifiedLayoutSourceInternalV1(input: {
       )
     }
 
-    // No-fail synchronous commit tail. Any failure here is an internal
-    // invariant violation, never a fallback result with partial publication.
-    const nextCandidateWorkAuthority =
-      publishVNextTextBlockUnifiedLayout5B2CandidateWorkInternalV1({
-        meter,
-        nextCandidateWork,
-        producingStageAuthority: ticket,
-      })
-    if (nextCandidateWorkAuthority == null) {
-      throw new Error("Source candidate-work commit invariant violated")
-    }
-    if (!registerVNextTextBlockUnifiedLayoutSourceSidecarsPathCopyInternalV1({
-      previousRoot: input.previousRoot,
-      composition,
-      previousSidecars,
-      nextSourceState: sourceCandidate.sourceState,
-      nextSidecars: sidecarCandidate.sidecars,
-      candidateAuthority: sidecarCandidate.candidateAuthority,
-      workMeter: meter,
-      sourceStageCommitTicket: ticket,
-    })) throw new Error("Source sidecar commit invariant violated")
-    const committed =
-      commitVNextTextBlockUnifiedLayoutSourceStageInternalV1(ticket)
-    if (!consumeVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInternalV1(
-      sourceCandidate.pathCopyCandidateAuthority,
-    )) throw new Error("Source path-copy candidate retirement invariant violated")
-    const sourceStage = freeze({
-      status: "accepted" as const,
-      preflight: input.preflight,
-      previousSourceRange: input.preflight.previousRanges.changedSourceRange,
-      nextSourceRange: input.preflight.nextRanges.changedSourceRange,
-      nextSourceState: sourceCandidate.sourceState,
-      existingLineageIds: sourceCandidate.existingLineageIds,
-      insertedLineageIds: sourceCandidate.insertedLineageIds,
-      structuralTargetAuthority: committed.structuralTargetAuthority,
-      sourceLayoutDeltaAuthority: committed.sourceLayoutDeltaAuthority,
-      sourceStageAuthority: committed.sourceStageAuthority,
-      candidateWorkAuthority: nextCandidateWorkAuthority,
-      completedCandidateWork: nextCandidateWork,
-      issues: freeze([]) as readonly [],
-    })
-    sourceStageRecords.set(sourceStage, Object.freeze({
-      previousRoot: input.previousRoot,
-      sourceStage,
-      evidence: input.evidence,
-      validatedChange: record.validatedChange,
-      sourceMaterial: record.sourceMaterial,
-      boundedNextSourceItems: sourceCandidateRecord.nextLeafItems,
-      boundedNextSourceStartRenderedUtf16:
-        sourceCandidateRecord.nextLeafStartRenderedUtf16,
-    }))
-    return sourceStage
+    return commitVNextTextBlockUnifiedLayoutSourceStageInternalV1(ticket)
   }
 
   let work = input.completedCandidateWork
+  let visitedSourceItemCount = 0
   let visitedLookupNodeCount = 0
   let copiedPathNodeCount = 0
   let visitedChangedLeafItemCount = 0
@@ -597,13 +590,19 @@ export function transitionVNextTextBlockUnifiedLayoutSourceInternalV1(input: {
     > | null
   } = { value: null }
   const beforeVisit = (
-    unit: "source-lookup-nodes" | "source-path-copy-nodes" | "source-leaf-items",
+    unit:
+      | "source-items"
+      | "source-lookup-nodes"
+      | "source-path-copy-nodes"
+      | "source-leaf-items",
   ): boolean => {
-    const completedWork = unit === "source-lookup-nodes"
-      ? visitedLookupNodeCount
-      : unit === "source-path-copy-nodes"
-        ? copiedPathNodeCount
-        : visitedChangedLeafItemCount
+    const completedWork = unit === "source-items"
+      ? visitedSourceItemCount
+      : unit === "source-lookup-nodes"
+        ? visitedLookupNodeCount
+        : unit === "source-path-copy-nodes"
+          ? copiedPathNodeCount
+          : visitedChangedLeafItemCount
     const evaluation = evaluateNextVNextTextBlockStageVisitInternalV1({
       validatedChange: record.validatedChange,
       stage: "source-flow",
@@ -615,7 +614,9 @@ export function transitionVNextTextBlockUnifiedLayoutSourceInternalV1(input: {
       failedEvaluation.value = evaluation
       return false
     }
-    if (unit === "source-lookup-nodes") {
+    if (unit === "source-items") {
+      visitedSourceItemCount = evaluation.attemptedWork
+    } else if (unit === "source-lookup-nodes") {
       visitedLookupNodeCount = evaluation.attemptedWork
     } else if (unit === "source-path-copy-nodes") {
       copiedPathNodeCount = evaluation.attemptedWork
@@ -625,6 +626,7 @@ export function transitionVNextTextBlockUnifiedLayoutSourceInternalV1(input: {
     work = updateSourceWork({
       work,
       previousRoot: input.previousRoot,
+      visitedSourceItemCount,
       visitedLookupNodeCount,
       copiedPathNodeCount,
       visitedChangedLeafItemCount,
@@ -676,6 +678,7 @@ export function transitionVNextTextBlockUnifiedLayoutSourceInternalV1(input: {
   }
   const sourceStage = freeze({
     status: "accepted" as const,
+    authorityMode: "compatibility" as const,
     preflight: input.preflight,
     previousSourceRange: input.preflight.previousRanges.changedSourceRange,
     nextSourceRange: input.preflight.nextRanges.changedSourceRange,

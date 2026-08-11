@@ -314,6 +314,71 @@ class SourceStylePathCopyStopInternalV1 {
   }
 }
 
+let sourceStylePayloadObserverForTestInternalV1:
+  | ((unit: "source-style-nodes" | "source-style-buckets" | "source-style-entries") => void)
+  | null = null
+
+type SourceStyleLocalArrayKindForTestInternalV1 =
+  | "style-leaf-entries"
+  | "style-leaf-copied-entries"
+  | "style-singleton-bucket-items"
+  | "style-entry-bucket-items"
+  | "style-created-entry-array"
+  | "style-adjusted-entries"
+  | "style-rebalance-entry-parts"
+  | "style-rebalance-part-entries"
+  | "style-rebalance-copied-entries"
+
+export interface VNextTextBlockUnifiedLayoutSourceStyleLocalArrayReadViewRegistrationForTestInternalV1 {
+  readonly authority: object
+  readonly createReadView: (input: Readonly<{
+    readonly kind: SourceStyleLocalArrayKindForTestInternalV1
+    readonly raw: readonly object[]
+  }>) => readonly object[]
+}
+
+let sourceStyleLocalArrayReadViewRegistrationForTest:
+  VNextTextBlockUnifiedLayoutSourceStyleLocalArrayReadViewRegistrationForTestInternalV1
+  | null = null
+
+export function registerVNextTextBlockUnifiedLayoutSourceStyleLocalArrayReadViewForTestInternalV1(
+  registration:
+    VNextTextBlockUnifiedLayoutSourceStyleLocalArrayReadViewRegistrationForTestInternalV1,
+): boolean {
+  if (
+    registration.authority == null
+    || typeof registration.authority !== "object"
+    || sourceStyleLocalArrayReadViewRegistrationForTest != null
+  ) return false
+  sourceStyleLocalArrayReadViewRegistrationForTest = registration
+  return true
+}
+
+export function removeVNextTextBlockUnifiedLayoutSourceStyleLocalArrayReadViewForTestInternalV1(
+  registration:
+    VNextTextBlockUnifiedLayoutSourceStyleLocalArrayReadViewRegistrationForTestInternalV1,
+): boolean {
+  if (sourceStyleLocalArrayReadViewRegistrationForTest !== registration) return false
+  sourceStyleLocalArrayReadViewRegistrationForTest = null
+  return true
+}
+
+function sourceStyleLocalArrayReadViewInternalV1<T extends readonly object[]>(
+  kind: SourceStyleLocalArrayKindForTestInternalV1,
+  raw: T,
+): T {
+  const registration = sourceStyleLocalArrayReadViewRegistrationForTest
+  return registration == null
+    ? raw
+    : registration.createReadView(Object.freeze({ kind, raw })) as T
+}
+
+export function setVNextTextBlockUnifiedLayoutSourceStylePayloadObserverForTestInternalV1(
+  observer: typeof sourceStylePayloadObserverForTestInternalV1,
+): void {
+  sourceStylePayloadObserverForTestInternalV1 = observer
+}
+
 function meteredStyleOperationInternalV1<T>(input: {
   readonly meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
   readonly unit: "source-style-nodes" | "source-style-buckets" | "source-style-entries"
@@ -327,6 +392,7 @@ function meteredStyleOperationInternalV1<T>(input: {
     throw new SourceStylePathCopyStopInternalV1("work-limit", begun.evaluatorAuthority)
   }
   if (begun.status !== "permitted") throw new SourceStylePathCopyStopInternalV1("invalid")
+  sourceStylePayloadObserverForTestInternalV1?.(input.unit)
   const value = input.operation()
   if (!completeVNextTextBlockUnifiedLayout5B2OperationInternalV1(begun.permit)) {
     throw new SourceStylePathCopyStopInternalV1("invalid")
@@ -362,35 +428,506 @@ function styleEntryKeyMeteredInternalV1(
   })
 }
 
+function styleEntryFactsAtMeteredInternalV1(
+  entries: readonly VNextTextBlockUnifiedLayoutSourceStyleRefcountEntryInternalV1[],
+  index: number,
+  meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+): {
+  readonly entry: VNextTextBlockUnifiedLayoutSourceStyleRefcountEntryInternalV1
+  readonly key: readonly [string, string, string]
+} {
+  return meteredStyleOperationInternalV1({
+    meter,
+    unit: "source-style-entries",
+    operation: () => {
+      const entry = entries[index]
+      if (entry == null) throw new SourceStylePathCopyStopInternalV1("invalid")
+      return {
+        entry,
+        key: Object.freeze([
+          entry.measurementStyleKey,
+          entry.effectiveShapingStyleKey,
+          entry.styleFingerprint,
+        ] as const),
+      }
+    },
+  })
+}
+
+function styleBucketItemFactsAtMeteredInternalV1(
+  bucket: readonly VNextTextBlockUnifiedLayoutSourceStyleBucketItemInternalV1[],
+  index: number,
+  meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+): {
+  readonly item: VNextTextBlockUnifiedLayoutSourceStyleBucketItemInternalV1
+  readonly style: VNextTextBlockUnifiedLayoutSourceStyleV1
+  readonly canonicalFacts: string
+  readonly refcount: number
+} {
+  return meteredStyleOperationInternalV1({
+    meter,
+    unit: "source-style-entries",
+    operation: () => {
+      const item = bucket[index]
+      if (item == null) throw new SourceStylePathCopyStopInternalV1("invalid")
+      return {
+        item,
+        style: item.style,
+        canonicalFacts: item.canonicalFacts,
+        refcount: item.refcount,
+      }
+    },
+  })
+}
+
 function styleNodePayloadMeteredInternalV1(
   node: VNextTextBlockUnifiedLayoutSourceStyleRefcountNodeInternalV1,
   meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
-) {
-  return meteredStyleOperationInternalV1({
+):
+  | {
+      readonly kind: "leaf"
+      readonly entries: readonly VNextTextBlockUnifiedLayoutSourceStyleRefcountEntryInternalV1[]
+      readonly occupancy: number
+    }
+  | {
+      readonly kind: "branch"
+      readonly children: readonly VNextTextBlockUnifiedLayoutSourceStyleRefcountNodeInternalV1[]
+      readonly occupancy: number
+    } {
+  const kindPayload = meteredStyleOperationInternalV1({
     meter,
     unit: "source-style-nodes",
     operation: () => node.nodeKind === "leaf"
-      ? {
-          kind: "leaf" as const,
-          entries: node.entries,
-          occupancy: node.entries.length,
+      ? { kind: "leaf" as const, node }
+      : { kind: "branch" as const, node },
+  })
+  if (kindPayload.kind === "leaf") {
+    return meteredStyleOperationInternalV1({
+      meter,
+      unit: "source-style-entries",
+      operation: () => ({
+        kind: "leaf" as const,
+        entries: kindPayload.node.entries,
+        occupancy: kindPayload.node.entries.length,
+      }),
+    })
+  }
+  return meteredStyleOperationInternalV1({
+    meter,
+    unit: "source-style-nodes",
+      operation: () => ({
+      kind: "branch" as const,
+      children: kindPayload.node.children,
+      occupancy: kindPayload.node.children.length,
+    }),
+  })
+}
+
+function styleEntryAtMeteredInternalV1(
+  entries: readonly VNextTextBlockUnifiedLayoutSourceStyleRefcountEntryInternalV1[],
+  index: number,
+  meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+): VNextTextBlockUnifiedLayoutSourceStyleRefcountEntryInternalV1 {
+  return meteredStyleOperationInternalV1({
+    meter,
+    unit: "source-style-entries",
+    operation: () => {
+      const entry = entries[index]
+      if (entry == null) throw new SourceStylePathCopyStopInternalV1("invalid")
+      return entry
+    },
+  })
+}
+
+function copyStyleEntriesMeteredInternalV1(input: {
+  readonly entries: readonly VNextTextBlockUnifiedLayoutSourceStyleRefcountEntryInternalV1[]
+  readonly start: number
+  readonly end: number
+  readonly meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
+  readonly localOutputKind?:
+    | "style-leaf-copied-entries"
+    | "style-rebalance-copied-entries"
+}): VNextTextBlockUnifiedLayoutSourceStyleRefcountEntryInternalV1[] {
+  const copied: VNextTextBlockUnifiedLayoutSourceStyleRefcountEntryInternalV1[] = []
+  const copiedOutput = input.localOutputKind == null
+    ? copied
+    : sourceStyleLocalArrayReadViewInternalV1(input.localOutputKind, copied)
+  for (let index = input.start; index < input.end; index += 1) {
+    meteredStyleOperationInternalV1({
+      meter: input.meter,
+      unit: "source-style-entries",
+      operation: () => {
+        const entry = input.entries[index]
+        if (entry == null) throw new SourceStylePathCopyStopInternalV1("invalid")
+        copiedOutput.push(entry)
+      },
+    })
+  }
+  return copied
+}
+
+type StyleEntryPartInternalV1 = Readonly<{
+  readonly entries: readonly VNextTextBlockUnifiedLayoutSourceStyleRefcountEntryInternalV1[]
+  readonly start: number
+  readonly end: number
+}>
+
+function createStyleEntryPartsMeteredInternalV1(
+  meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+  createParts: () => readonly StyleEntryPartInternalV1[],
+): readonly StyleEntryPartInternalV1[] {
+  return meteredStyleOperationInternalV1({
+    meter,
+    unit: "source-style-entries",
+    operation: () => {
+      const parts: StyleEntryPartInternalV1[] = []
+      const partsOutput = sourceStyleLocalArrayReadViewInternalV1(
+        "style-rebalance-entry-parts",
+        parts,
+      )
+      for (const part of createParts()) {
+        partsOutput.push(Object.freeze({
+          entries: part.entries,
+          start: part.start,
+          end: part.end,
+        }))
+      }
+      return parts
+    },
+  })
+}
+
+function pushStyleEntryMeteredInternalV1(
+  entries: VNextTextBlockUnifiedLayoutSourceStyleRefcountEntryInternalV1[],
+  entry: VNextTextBlockUnifiedLayoutSourceStyleRefcountEntryInternalV1,
+  meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+): void {
+  meteredStyleOperationInternalV1({
+    meter,
+    unit: "source-style-entries",
+    operation: () => { entries.push(entry) },
+  })
+}
+
+function styleChildAtMeteredInternalV1(
+  children: readonly VNextTextBlockUnifiedLayoutSourceStyleRefcountNodeInternalV1[],
+  index: number,
+  meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+): VNextTextBlockUnifiedLayoutSourceStyleRefcountNodeInternalV1 {
+  return meteredStyleOperationInternalV1({
+    meter,
+    unit: "source-style-nodes",
+    operation: () => {
+      const child = children[index]
+      if (child == null) throw new SourceStylePathCopyStopInternalV1("invalid")
+      return child
+    },
+  })
+}
+
+function copyStyleChildrenMeteredInternalV1(input: {
+  readonly children: readonly VNextTextBlockUnifiedLayoutSourceStyleRefcountNodeInternalV1[]
+  readonly start: number
+  readonly end: number
+  readonly meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
+}): VNextTextBlockUnifiedLayoutSourceStyleRefcountNodeInternalV1[] {
+  const copied: VNextTextBlockUnifiedLayoutSourceStyleRefcountNodeInternalV1[] = []
+  for (let index = input.start; index < input.end; index += 1) {
+    meteredStyleOperationInternalV1({
+      meter: input.meter,
+      unit: "source-style-nodes",
+      operation: () => {
+        const child = input.children[index]
+        if (child == null) throw new SourceStylePathCopyStopInternalV1("invalid")
+        copied.push(child)
+      },
+    })
+  }
+  return copied
+}
+
+function pushStyleChildMeteredInternalV1(
+  children: VNextTextBlockUnifiedLayoutSourceStyleRefcountNodeInternalV1[],
+  child: VNextTextBlockUnifiedLayoutSourceStyleRefcountNodeInternalV1,
+  meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+): void {
+  meteredStyleOperationInternalV1({
+    meter,
+    unit: "source-style-nodes",
+    operation: () => { children.push(child) },
+  })
+}
+
+function combineStyleEntriesMeteredInternalV1(
+  parts: readonly {
+    readonly entries: readonly VNextTextBlockUnifiedLayoutSourceStyleRefcountEntryInternalV1[]
+    readonly start: number
+    readonly end: number
+  }[],
+  meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+): VNextTextBlockUnifiedLayoutSourceStyleRefcountEntryInternalV1[] {
+  const combined: VNextTextBlockUnifiedLayoutSourceStyleRefcountEntryInternalV1[] = []
+  const partsReadView = sourceStyleLocalArrayReadViewInternalV1(
+    "style-rebalance-entry-parts",
+    parts,
+  )
+  const partCount = meteredStyleOperationInternalV1({
+    meter,
+    unit: "source-style-entries",
+    operation: () => partsReadView.length,
+  })
+  for (let partIndex = 0; partIndex < partCount; partIndex += 1) {
+    const part = meteredStyleOperationInternalV1({
+      meter,
+      unit: "source-style-entries",
+      operation: () => {
+        const value = partsReadView[partIndex]
+        if (value == null) throw new SourceStylePathCopyStopInternalV1("invalid")
+        return {
+          entries: value.entries,
+          start: value.start,
+          end: value.end,
         }
-      : {
-          kind: "branch" as const,
-          children: node.children,
-          occupancy: node.children.length,
-        },
+      },
+    })
+    const partEntriesReadView = sourceStyleLocalArrayReadViewInternalV1(
+      "style-rebalance-part-entries",
+      part.entries,
+    )
+    const copied = copyStyleEntriesMeteredInternalV1({
+      entries: partEntriesReadView,
+      start: part.start,
+      end: part.end,
+      meter,
+      localOutputKind: "style-rebalance-copied-entries",
+    })
+    const copiedReadView = sourceStyleLocalArrayReadViewInternalV1(
+      "style-rebalance-copied-entries",
+      copied,
+    )
+    meteredStyleOperationInternalV1({
+      meter,
+      unit: "source-style-entries",
+      operation: () => { combined.push(...copiedReadView) },
+    })
+  }
+  return combined
+}
+
+function combineStyleChildrenMeteredInternalV1(
+  parts: readonly {
+    readonly children: readonly VNextTextBlockUnifiedLayoutSourceStyleRefcountNodeInternalV1[]
+    readonly start: number
+    readonly end: number
+  }[],
+  meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+): VNextTextBlockUnifiedLayoutSourceStyleRefcountNodeInternalV1[] {
+  const combined: VNextTextBlockUnifiedLayoutSourceStyleRefcountNodeInternalV1[] = []
+  for (const part of parts) {
+    const copied = copyStyleChildrenMeteredInternalV1({ ...part, meter })
+    meteredStyleOperationInternalV1({
+      meter,
+      unit: "source-style-nodes",
+      operation: () => { combined.push(...copied) },
+    })
+  }
+  return combined
+}
+
+function replaceStyleChildrenMeteredInternalV1(input: {
+  readonly children: VNextTextBlockUnifiedLayoutSourceStyleRefcountNodeInternalV1[]
+  readonly start: number
+  readonly deleteCount: number
+  readonly replacements: readonly VNextTextBlockUnifiedLayoutSourceStyleRefcountNodeInternalV1[]
+  readonly meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
+}): void {
+  meteredStyleOperationInternalV1({
+    meter: input.meter,
+    unit: "source-style-nodes",
+    operation: () => {
+      input.children.splice(input.start, input.deleteCount, ...input.replacements)
+    },
+  })
+}
+
+function styleBucketPayloadMeteredInternalV1(
+  entry: VNextTextBlockUnifiedLayoutSourceStyleRefcountEntryInternalV1,
+  meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+): {
+  readonly bucket: readonly VNextTextBlockUnifiedLayoutSourceStyleBucketItemInternalV1[]
+  readonly occupancy: number
+} {
+  return meteredStyleOperationInternalV1({
+    meter,
+    unit: "source-style-buckets",
+    operation: () => ({ bucket: entry.bucket, occupancy: entry.bucket.length }),
+  })
+}
+
+function pushStyleBucketItemMeteredInternalV1(
+  bucket: VNextTextBlockUnifiedLayoutSourceStyleBucketItemInternalV1[],
+  item: VNextTextBlockUnifiedLayoutSourceStyleBucketItemInternalV1,
+  meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+): void {
+  meteredStyleOperationInternalV1({
+    meter,
+    unit: "source-style-entries",
+    operation: () => { bucket.push(item) },
+  })
+}
+
+function styleEntryMeteredInternalV1(input: {
+  readonly measurementStyleKey: string
+  readonly effectiveShapingStyleKey: string
+  readonly styleFingerprint: string
+  readonly bucket: readonly VNextTextBlockUnifiedLayoutSourceStyleBucketItemInternalV1[]
+  readonly meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
+  readonly localBucketKind?:
+    | "style-singleton-bucket-items"
+    | "style-entry-bucket-items"
+}): VNextTextBlockUnifiedLayoutSourceStyleRefcountEntryInternalV1 {
+  const bucketReadView = sourceStyleLocalArrayReadViewInternalV1(
+    input.localBucketKind ?? "style-entry-bucket-items",
+    input.bucket,
+  )
+  const bucketOccupancy = meteredStyleOperationInternalV1({
+    meter: input.meter,
+    unit: "source-style-buckets",
+    operation: () => bucketReadView.length,
+  })
+  const bucket: VNextTextBlockUnifiedLayoutSourceStyleBucketItemInternalV1[] = []
+  const itemFacts: { readonly canonicalFacts: string; readonly refcount: number }[] = []
+  let totalRefcount = 0
+  for (let index = 0; index < bucketOccupancy; index += 1) {
+    meteredStyleOperationInternalV1({
+      meter: input.meter,
+      unit: "source-style-entries",
+      operation: () => {
+        const item = bucketReadView[index]
+        if (item == null) throw new SourceStylePathCopyStopInternalV1("invalid")
+        bucket.push(item)
+        itemFacts.push({ canonicalFacts: item.canonicalFacts, refcount: item.refcount })
+        totalRefcount += item.refcount
+      },
+    })
+  }
+  if (!Number.isSafeInteger(totalRefcount) || totalRefcount < 1) {
+    throw new SourceStylePathCopyStopInternalV1("invalid")
+  }
+  const frozenBucket = meteredStyleOperationInternalV1({
+    meter: input.meter,
+    unit: "source-style-buckets",
+    operation: () => Object.freeze(bucket),
+  })
+  return meteredStyleOperationInternalV1({
+    meter: input.meter,
+    unit: "source-style-entries",
+    operation: () => {
+      const facts = {
+        measurementStyleKey: input.measurementStyleKey,
+        effectiveShapingStyleKey: input.effectiveShapingStyleKey,
+        styleFingerprint: input.styleFingerprint,
+        bucket: itemFacts,
+        totalRefcount,
+      }
+      return Object.freeze({
+        ...facts,
+        bucket: frozenBucket,
+        fingerprint: fingerprint(facts),
+      })
+    },
   })
 }
 
 function styleLeafMeteredInternalV1(
   entries: readonly VNextTextBlockUnifiedLayoutSourceStyleRefcountEntryInternalV1[],
   meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+  localEntriesKind:
+    | "style-leaf-entries"
+    | "style-created-entry-array"
+    | "style-adjusted-entries" = "style-leaf-entries",
 ): VNextTextBlockUnifiedLayoutSourceStyleRefcountLeafInternalV1 {
+  const entriesReadView = sourceStyleLocalArrayReadViewInternalV1(
+    localEntriesKind,
+    entries,
+  )
+  const occupancy = meteredStyleOperationInternalV1({
+    meter,
+    unit: "source-style-entries",
+    operation: () => entriesReadView.length,
+  })
+  if (occupancy < 1) throw new SourceStylePathCopyStopInternalV1("invalid")
+  const copiedEntries = copyStyleEntriesMeteredInternalV1({
+    entries: entriesReadView,
+    start: 0,
+    end: occupancy,
+    meter,
+    localOutputKind: "style-leaf-copied-entries",
+  })
+  const frozenEntriesReadView = sourceStyleLocalArrayReadViewInternalV1(
+    "style-leaf-copied-entries",
+    copiedEntries,
+  )
+  const frozenEntries = meteredStyleOperationInternalV1({
+    meter,
+    unit: "source-style-entries",
+    operation: () => {
+      Object.freeze(frozenEntriesReadView)
+      return copiedEntries
+    },
+  })
+  let exactStyleCount = 0
+  let totalRefcount = 0
+  const entryFingerprints: string[] = []
+  for (let index = 0; index < occupancy; index += 1) {
+    const entry = styleEntryAtMeteredInternalV1(frozenEntriesReadView, index, meter)
+    exactStyleCount += styleBucketPayloadMeteredInternalV1(entry, meter).occupancy
+    meteredStyleOperationInternalV1({
+      meter,
+      unit: "source-style-entries",
+      operation: () => {
+        totalRefcount += entry.totalRefcount
+        entryFingerprints.push(entry.fingerprint)
+      },
+    })
+  }
+  const firstEntry = styleEntryAtMeteredInternalV1(
+    frozenEntriesReadView,
+    0,
+    meter,
+  )
+  const lastEntry = styleEntryAtMeteredInternalV1(
+    frozenEntriesReadView,
+    occupancy - 1,
+    meter,
+  )
+  const firstKey = styleEntryKeyMeteredInternalV1(firstEntry, meter)
+  const lastKey = styleEntryKeyMeteredInternalV1(
+    lastEntry,
+    meter,
+  )
+  const facts = meteredStyleOperationInternalV1({
+    meter,
+    unit: "source-style-entries",
+    operation: () => ({
+      nodeKind: "leaf" as const,
+      height: 0 as const,
+      styleKeyCount: occupancy,
+      exactStyleCount,
+      totalRefcount,
+      firstKey,
+      lastKey,
+      entries: entryFingerprints,
+    }),
+  })
   return meteredStyleOperationInternalV1({
     meter,
     unit: "source-style-nodes",
-    operation: () => leaf(entries),
+    operation: () => Object.freeze({
+      ...facts,
+      entries: frozenEntries,
+      fingerprint: fingerprint(facts),
+    }),
   })
 }
 
@@ -398,10 +935,81 @@ function styleBranchMeteredInternalV1(
   children: readonly VNextTextBlockUnifiedLayoutSourceStyleRefcountNodeInternalV1[],
   meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
 ): VNextTextBlockUnifiedLayoutSourceStyleRefcountBranchInternalV1 {
+  const occupancy = meteredStyleOperationInternalV1({
+    meter,
+    unit: "source-style-nodes",
+    operation: () => children.length,
+  })
+  if (occupancy < 1) throw new SourceStylePathCopyStopInternalV1("invalid")
+  const frozenChildren = Object.freeze(copyStyleChildrenMeteredInternalV1({
+    children,
+    start: 0,
+    end: occupancy,
+    meter,
+  }))
+  const firstChild = styleChildAtMeteredInternalV1(frozenChildren, 0, meter)
+  const lastChild = styleChildAtMeteredInternalV1(frozenChildren, occupancy - 1, meter)
+  const nodeFacts = meteredStyleOperationInternalV1({
+    meter,
+    unit: "source-style-nodes",
+    operation: () => {
+      let styleKeyCount = 0
+      let exactStyleCount = 0
+      const childFingerprints: string[] = []
+      for (let index = 0; index < occupancy; index += 1) {
+        const child = frozenChildren[index]!
+        styleKeyCount += child.styleKeyCount
+        exactStyleCount += child.exactStyleCount
+        childFingerprints.push(child.fingerprint)
+      }
+      return {
+        height: firstChild.height + 1,
+        styleKeyCount,
+        exactStyleCount,
+        childFingerprints,
+      }
+    },
+  })
+  const entryFacts = meteredStyleOperationInternalV1({
+    meter,
+    unit: "source-style-entries",
+    operation: () => {
+      let totalRefcount = 0
+      for (let index = 0; index < occupancy; index += 1) {
+        totalRefcount += frozenChildren[index]!.totalRefcount
+      }
+      return {
+        totalRefcount,
+        firstKey: firstChild.firstKey,
+        lastKey: lastChild.lastKey,
+      }
+    },
+  })
+  if (
+    !Number.isSafeInteger(nodeFacts.styleKeyCount)
+    || !Number.isSafeInteger(nodeFacts.exactStyleCount)
+    || !Number.isSafeInteger(entryFacts.totalRefcount)
+  ) throw new SourceStylePathCopyStopInternalV1("invalid")
   return meteredStyleOperationInternalV1({
     meter,
     unit: "source-style-nodes",
-    operation: () => branch(children),
+    operation: () => {
+      const facts = {
+        nodeKind: "branch" as const,
+        height: nodeFacts.height,
+        styleKeyCount: nodeFacts.styleKeyCount,
+        exactStyleCount: nodeFacts.exactStyleCount,
+        totalRefcount: entryFacts.totalRefcount,
+        firstKey: entryFacts.firstKey,
+        lastKey: entryFacts.lastKey,
+        children: nodeFacts.childFingerprints,
+      }
+      return Object.freeze({
+        ...facts,
+        children: frozenChildren,
+        fingerprint: fingerprint(facts),
+      })
+    },
   })
 }
 
@@ -413,22 +1021,46 @@ function nextStyleEntryMeteredInternalV1(input: {
 }): VNextTextBlockUnifiedLayoutSourceStyleRefcountEntryInternalV1 {
   const bucketItem = meteredStyleOperationInternalV1({
     meter: input.meter,
-    unit: "source-style-buckets",
+    unit: "source-style-entries",
     operation: () => Object.freeze({
       style: input.style,
       canonicalFacts: input.canonicalFacts,
       refcount: 1,
     }),
   })
-  return meteredStyleOperationInternalV1({
+  const bucketItems: VNextTextBlockUnifiedLayoutSourceStyleBucketItemInternalV1[] = []
+  const bucketItemsReadView = sourceStyleLocalArrayReadViewInternalV1(
+    "style-singleton-bucket-items",
+    bucketItems,
+  )
+  meteredStyleOperationInternalV1({
     meter: input.meter,
     unit: "source-style-entries",
-    operation: () => styleEntry({
+    operation: () => { bucketItemsReadView[0] = bucketItem },
+  })
+  const bucket = meteredStyleOperationInternalV1({
+    meter: input.meter,
+    unit: "source-style-buckets",
+    operation: () => {
+      Reflect.preventExtensions(bucketItemsReadView)
+      Object.freeze(bucketItems)
+      return bucketItems
+    },
+  })
+  const key = meteredStyleOperationInternalV1({
+    meter: input.meter,
+    unit: "source-style-entries",
+    operation: () => ({
       measurementStyleKey: input.style.measurementStyleKey,
       effectiveShapingStyleKey: input.style.effectiveShapingStyleKey,
-      styleFingerprint: input.styleFingerprint,
-      bucket: [bucketItem],
     }),
+  })
+  return styleEntryMeteredInternalV1({
+    ...key,
+    styleFingerprint: input.styleFingerprint,
+    bucket,
+    meter: input.meter,
+    localBucketKind: "style-singleton-bucket-items",
   })
 }
 
@@ -441,13 +1073,25 @@ function rebalanceStyleChildMeteredInternalV1(input: {
   readonly children: readonly VNextTextBlockUnifiedLayoutSourceStyleRefcountNodeInternalV1[]
   readonly childIndex: number
   readonly meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1
-}): readonly VNextTextBlockUnifiedLayoutSourceStyleRefcountNodeInternalV1[] {
-  const children = [...input.children]
-  const child = children[input.childIndex]
-  if (child == null) return children
+}): VNextTextBlockUnifiedLayoutSourceStyleRefcountNodeInternalV1[] {
+  const childCount = meteredStyleOperationInternalV1({
+    meter: input.meter,
+    unit: "source-style-nodes",
+    operation: () => input.children.length,
+  })
+  const children = copyStyleChildrenMeteredInternalV1({
+    children: input.children,
+    start: 0,
+    end: childCount,
+    meter: input.meter,
+  })
+  if (input.childIndex < 0 || input.childIndex >= childCount) return children
+  const child = styleChildAtMeteredInternalV1(children, input.childIndex, input.meter)
   const childPayload = styleNodePayloadMeteredInternalV1(child, input.meter)
   if (childPayload.occupancy >= 4) return children
-  const left = children[input.childIndex - 1]
+  const left = input.childIndex < 1
+    ? null
+    : styleChildAtMeteredInternalV1(children, input.childIndex - 1, input.meter)
   const leftPayload = left == null
     ? null
     : styleNodePayloadMeteredInternalV1(left, input.meter)
@@ -457,23 +1101,68 @@ function rebalanceStyleChildMeteredInternalV1(input: {
       throw new SourceStylePathCopyStopInternalV1("invalid")
     }
     if (payload.kind === "leaf" && childPayload.kind === "leaf") {
-      children.splice(input.childIndex - 1, 2,
-        styleLeafMeteredInternalV1(payload.entries.slice(0, -1), input.meter),
-        styleLeafMeteredInternalV1([
-          payload.entries.at(-1)!,
-          ...childPayload.entries,
-        ], input.meter))
+      replaceStyleChildrenMeteredInternalV1({
+        children,
+        start: input.childIndex - 1,
+        deleteCount: 2,
+        replacements: [
+          styleLeafMeteredInternalV1(copyStyleEntriesMeteredInternalV1({
+            entries: payload.entries,
+            start: 0,
+            end: payload.occupancy - 1,
+            meter: input.meter,
+          }), input.meter),
+          styleLeafMeteredInternalV1(combineStyleEntriesMeteredInternalV1(
+            createStyleEntryPartsMeteredInternalV1(input.meter, () => [
+              {
+                entries: payload.entries,
+                start: payload.occupancy - 1,
+                end: payload.occupancy,
+              },
+              {
+                entries: childPayload.entries,
+                start: 0,
+                end: childPayload.occupancy,
+              },
+            ]),
+            input.meter,
+          ), input.meter),
+        ],
+        meter: input.meter,
+      })
     } else if (payload.kind === "branch" && childPayload.kind === "branch") {
-      children.splice(input.childIndex - 1, 2,
-        styleBranchMeteredInternalV1(payload.children.slice(0, -1), input.meter),
-        styleBranchMeteredInternalV1([
-          payload.children.at(-1)!,
-          ...childPayload.children,
-        ], input.meter))
+      replaceStyleChildrenMeteredInternalV1({
+        children,
+        start: input.childIndex - 1,
+        deleteCount: 2,
+        replacements: [
+          styleBranchMeteredInternalV1(copyStyleChildrenMeteredInternalV1({
+            children: payload.children,
+            start: 0,
+            end: payload.occupancy - 1,
+            meter: input.meter,
+          }), input.meter),
+          styleBranchMeteredInternalV1(combineStyleChildrenMeteredInternalV1([
+            {
+              children: payload.children,
+              start: payload.occupancy - 1,
+              end: payload.occupancy,
+            },
+            {
+              children: childPayload.children,
+              start: 0,
+              end: childPayload.occupancy,
+            },
+          ], input.meter), input.meter),
+        ],
+        meter: input.meter,
+      })
     }
     return children
   }
-  const right = children[input.childIndex + 1]
+  const right = input.childIndex + 1 >= childCount
+    ? null
+    : styleChildAtMeteredInternalV1(children, input.childIndex + 1, input.meter)
   const rightPayload = right == null
     ? null
     : styleNodePayloadMeteredInternalV1(right, input.meter)
@@ -483,19 +1172,54 @@ function rebalanceStyleChildMeteredInternalV1(input: {
       throw new SourceStylePathCopyStopInternalV1("invalid")
     }
     if (payload.kind === "leaf" && childPayload.kind === "leaf") {
-      children.splice(input.childIndex, 2,
-        styleLeafMeteredInternalV1([
-          ...childPayload.entries,
-          payload.entries[0]!,
-        ], input.meter),
-        styleLeafMeteredInternalV1(payload.entries.slice(1), input.meter))
+      replaceStyleChildrenMeteredInternalV1({
+        children,
+        start: input.childIndex,
+        deleteCount: 2,
+        replacements: [
+          styleLeafMeteredInternalV1(combineStyleEntriesMeteredInternalV1(
+            createStyleEntryPartsMeteredInternalV1(input.meter, () => [
+              {
+                entries: childPayload.entries,
+                start: 0,
+                end: childPayload.occupancy,
+              },
+              { entries: payload.entries, start: 0, end: 1 },
+            ]),
+            input.meter,
+          ), input.meter),
+          styleLeafMeteredInternalV1(copyStyleEntriesMeteredInternalV1({
+            entries: payload.entries,
+            start: 1,
+            end: payload.occupancy,
+            meter: input.meter,
+          }), input.meter),
+        ],
+        meter: input.meter,
+      })
     } else if (payload.kind === "branch" && childPayload.kind === "branch") {
-      children.splice(input.childIndex, 2,
-        styleBranchMeteredInternalV1([
-          ...childPayload.children,
-          payload.children[0]!,
-        ], input.meter),
-        styleBranchMeteredInternalV1(payload.children.slice(1), input.meter))
+      replaceStyleChildrenMeteredInternalV1({
+        children,
+        start: input.childIndex,
+        deleteCount: 2,
+        replacements: [
+          styleBranchMeteredInternalV1(combineStyleChildrenMeteredInternalV1([
+            {
+              children: childPayload.children,
+              start: 0,
+              end: childPayload.occupancy,
+            },
+            { children: payload.children, start: 0, end: 1 },
+          ], input.meter), input.meter),
+          styleBranchMeteredInternalV1(copyStyleChildrenMeteredInternalV1({
+            children: payload.children,
+            start: 1,
+            end: payload.occupancy,
+            meter: input.meter,
+          }), input.meter),
+        ],
+        meter: input.meter,
+      })
     }
     return children
   }
@@ -505,18 +1229,31 @@ function rebalanceStyleChildMeteredInternalV1(input: {
       throw new SourceStylePathCopyStopInternalV1("invalid")
     }
     const merged = payload.kind === "leaf" && childPayload.kind === "leaf"
-      ? styleLeafMeteredInternalV1([
-          ...payload.entries,
-          ...childPayload.entries,
-        ], input.meter)
+      ? styleLeafMeteredInternalV1(combineStyleEntriesMeteredInternalV1(
+          createStyleEntryPartsMeteredInternalV1(input.meter, () => [
+            { entries: payload.entries, start: 0, end: payload.occupancy },
+            { entries: childPayload.entries, start: 0, end: childPayload.occupancy },
+          ]),
+          input.meter,
+        ), input.meter)
       : payload.kind === "branch" && childPayload.kind === "branch"
-        ? styleBranchMeteredInternalV1([
-            ...payload.children,
-            ...childPayload.children,
-          ], input.meter)
+        ? styleBranchMeteredInternalV1(combineStyleChildrenMeteredInternalV1([
+            { children: payload.children, start: 0, end: payload.occupancy },
+            {
+              children: childPayload.children,
+              start: 0,
+              end: childPayload.occupancy,
+            },
+          ], input.meter), input.meter)
         : null
     if (merged == null) throw new SourceStylePathCopyStopInternalV1("invalid")
-    children.splice(input.childIndex - 1, 2, merged)
+    replaceStyleChildrenMeteredInternalV1({
+      children,
+      start: input.childIndex - 1,
+      deleteCount: 2,
+      replacements: [merged],
+      meter: input.meter,
+    })
     return children
   }
   if (rightPayload != null) {
@@ -525,18 +1262,31 @@ function rebalanceStyleChildMeteredInternalV1(input: {
       throw new SourceStylePathCopyStopInternalV1("invalid")
     }
     const merged = payload.kind === "leaf" && childPayload.kind === "leaf"
-      ? styleLeafMeteredInternalV1([
-          ...childPayload.entries,
-          ...payload.entries,
-        ], input.meter)
+      ? styleLeafMeteredInternalV1(combineStyleEntriesMeteredInternalV1(
+          createStyleEntryPartsMeteredInternalV1(input.meter, () => [
+            { entries: childPayload.entries, start: 0, end: childPayload.occupancy },
+            { entries: payload.entries, start: 0, end: payload.occupancy },
+          ]),
+          input.meter,
+        ), input.meter)
       : payload.kind === "branch" && childPayload.kind === "branch"
-        ? styleBranchMeteredInternalV1([
-            ...childPayload.children,
-            ...payload.children,
-          ], input.meter)
+        ? styleBranchMeteredInternalV1(combineStyleChildrenMeteredInternalV1([
+            {
+              children: childPayload.children,
+              start: 0,
+              end: childPayload.occupancy,
+            },
+            { children: payload.children, start: 0, end: payload.occupancy },
+          ], input.meter), input.meter)
         : null
     if (merged == null) throw new SourceStylePathCopyStopInternalV1("invalid")
-    children.splice(input.childIndex, 2, merged)
+    replaceStyleChildrenMeteredInternalV1({
+      children,
+      start: input.childIndex,
+      deleteCount: 2,
+      replacements: [merged],
+      meter: input.meter,
+    })
     return children
   }
   return children
@@ -563,53 +1313,67 @@ function adjustStyleNodeMeteredInternalV1(input: {
   if (input.node == null) {
     if (input.delta < 0) throw new SourceStylePathCopyStopInternalV1("invalid")
     const created = nextStyleEntryMeteredInternalV1(input)
-    return [styleLeafMeteredInternalV1([created], input.meter), null]
+    const createdEntries: VNextTextBlockUnifiedLayoutSourceStyleRefcountEntryInternalV1[] = []
+    const createdEntriesReadView = sourceStyleLocalArrayReadViewInternalV1(
+      "style-created-entry-array",
+      createdEntries,
+    )
+    pushStyleEntryMeteredInternalV1(createdEntriesReadView, created, input.meter)
+    return [styleLeafMeteredInternalV1(
+      createdEntries,
+      input.meter,
+      "style-created-entry-array",
+    ), null]
   }
-  const payload = meteredStyleOperationInternalV1({
-    meter: input.meter,
-    unit: "source-style-nodes",
-    operation: () => input.node!.nodeKind === "leaf"
-      ? { kind: "leaf" as const, entries: input.node!.entries }
-      : { kind: "branch" as const, children: input.node!.children },
-  })
+  const payload = styleNodePayloadMeteredInternalV1(input.node, input.meter)
   if (payload.kind === "leaf") {
     const entries: VNextTextBlockUnifiedLayoutSourceStyleRefcountEntryInternalV1[] = []
     let adjusted = false
-    for (const current of payload.entries) {
+    for (let entryIndex = 0; entryIndex < payload.occupancy; entryIndex += 1) {
+      const currentFacts = styleEntryFactsAtMeteredInternalV1(
+        payload.entries,
+        entryIndex,
+        input.meter,
+      )
+      const current = currentFacts.entry
       const compared = compareStyleKeysMeteredInternalV1(
         key,
-        styleEntryKeyMeteredInternalV1(current, input.meter),
+        currentFacts.key,
         input.meter,
       )
       if (compared === 0) {
-        const bucketPayload = meteredStyleOperationInternalV1({
-          meter: input.meter,
-          unit: "source-style-buckets",
-          operation: () => current.bucket,
-        })
+        const bucketPayload = styleBucketPayloadMeteredInternalV1(current, input.meter)
         const bucket: VNextTextBlockUnifiedLayoutSourceStyleBucketItemInternalV1[] = []
         let exactAdjusted = false
         let insertedCollisionItem = false
         const insertCollisionItem = (): void => {
-          bucket.push(meteredStyleOperationInternalV1({
+          meteredStyleOperationInternalV1({
             meter: input.meter,
-            unit: "source-style-buckets",
-            operation: () => Object.freeze({
-              style: input.style,
-              canonicalFacts: input.canonicalFacts,
-              refcount: 1,
-            }),
-          }))
+            unit: "source-style-entries",
+            operation: () => {
+              const item = Object.freeze({
+                style: input.style,
+                canonicalFacts: input.canonicalFacts,
+                refcount: 1,
+              })
+              bucket.push(item)
+            },
+          })
           insertedCollisionItem = true
           adjusted = true
         }
-        for (const item of bucketPayload) {
+        for (let bucketIndex = 0; bucketIndex < bucketPayload.occupancy; bucketIndex += 1) {
+          const itemFacts = styleBucketItemFactsAtMeteredInternalV1(
+            bucketPayload.bucket,
+            bucketIndex,
+            input.meter,
+          )
           const factsCompared = meteredStyleOperationInternalV1({
             meter: input.meter,
             unit: "source-style-entries",
-            operation: () => item.canonicalFacts === input.canonicalFacts
+            operation: () => itemFacts.canonicalFacts === input.canonicalFacts
               ? 0
-              : item.canonicalFacts < input.canonicalFacts ? -1 : 1,
+              : itemFacts.canonicalFacts < input.canonicalFacts ? -1 : 1,
           })
           if (factsCompared !== 0) {
             if (
@@ -617,23 +1381,28 @@ function adjustStyleNodeMeteredInternalV1(input: {
               && !insertedCollisionItem
               && factsCompared > 0
             ) insertCollisionItem()
-            bucket.push(item)
+            pushStyleBucketItemMeteredInternalV1(bucket, itemFacts.item, input.meter)
             continue
           }
           const nextRefcount = meteredStyleOperationInternalV1({
             meter: input.meter,
             unit: "source-style-entries",
-            operation: () => item.refcount + input.delta,
+            operation: () => itemFacts.refcount + input.delta,
           })
           if (!Number.isSafeInteger(nextRefcount) || nextRefcount < 0) {
             throw new SourceStylePathCopyStopInternalV1("invalid")
           }
           if (nextRefcount > 0) {
-            bucket.push(meteredStyleOperationInternalV1({
+            const nextItem = meteredStyleOperationInternalV1({
               meter: input.meter,
               unit: "source-style-entries",
-              operation: () => Object.freeze({ ...item, refcount: nextRefcount }),
-            }))
+              operation: () => Object.freeze({
+                style: itemFacts.style,
+                canonicalFacts: itemFacts.canonicalFacts,
+                refcount: nextRefcount,
+              }),
+            })
+            pushStyleBucketItemMeteredInternalV1(bucket, nextItem, input.meter)
           }
           exactAdjusted = true
           adjusted = true
@@ -641,38 +1410,82 @@ function adjustStyleNodeMeteredInternalV1(input: {
         if (!exactAdjusted && input.delta > 0) {
           if (!insertedCollisionItem) insertCollisionItem()
         }
-        if (bucket.length > 0) {
-          entries.push(meteredStyleOperationInternalV1({
+        const bucketOccupancy = meteredStyleOperationInternalV1({
+          meter: input.meter,
+          unit: "source-style-buckets",
+          operation: () => bucket.length,
+        })
+        if (bucketOccupancy > 0) {
+          const nextEntry = styleEntryMeteredInternalV1({
+            measurementStyleKey: currentFacts.key[0],
+            effectiveShapingStyleKey: currentFacts.key[1],
+            styleFingerprint: currentFacts.key[2],
+            bucket,
             meter: input.meter,
-            unit: "source-style-entries",
-            operation: () => styleEntry({ ...current, bucket }),
-          }))
+          })
+          pushStyleEntryMeteredInternalV1(entries, nextEntry, input.meter)
         }
       } else {
         if (!adjusted && compared < 0 && input.delta > 0) {
-          entries.push(nextStyleEntryMeteredInternalV1(input))
+          pushStyleEntryMeteredInternalV1(
+            entries,
+            nextStyleEntryMeteredInternalV1(input),
+            input.meter,
+          )
           adjusted = true
         }
-        entries.push(current)
+        meteredStyleOperationInternalV1({
+          meter: input.meter,
+          unit: "source-style-entries",
+          operation: () => { entries.push(current) },
+        })
       }
     }
     if (!adjusted) {
       if (input.delta < 0) throw new SourceStylePathCopyStopInternalV1("invalid")
-      entries.push(nextStyleEntryMeteredInternalV1(input))
+      pushStyleEntryMeteredInternalV1(
+        entries,
+        nextStyleEntryMeteredInternalV1(input),
+        input.meter,
+      )
     }
-    if (entries.length === 0) return [null, null]
-    if (entries.length <= 8) return [styleLeafMeteredInternalV1(entries, input.meter), null]
+    const entryCount = meteredStyleOperationInternalV1({
+      meter: input.meter,
+      unit: "source-style-entries",
+      operation: () => entries.length,
+    })
+    if (entryCount === 0) return [null, null]
+    if (entryCount <= 8) return [styleLeafMeteredInternalV1(
+      entries,
+      input.meter,
+      "style-adjusted-entries",
+    ), null]
+    const entriesReadView = sourceStyleLocalArrayReadViewInternalV1(
+      "style-adjusted-entries",
+      entries,
+    )
     return [
-      styleLeafMeteredInternalV1(entries.slice(0, 4), input.meter),
-      styleLeafMeteredInternalV1(entries.slice(4), input.meter),
+      styleLeafMeteredInternalV1(copyStyleEntriesMeteredInternalV1({
+        entries: entriesReadView,
+        start: 0,
+        end: 4,
+        meter: input.meter,
+      }), input.meter),
+      styleLeafMeteredInternalV1(copyStyleEntriesMeteredInternalV1({
+        entries: entriesReadView,
+        start: 4,
+        end: entryCount,
+        meter: input.meter,
+      }), input.meter),
     ]
   }
-  let childIndex = payload.children.length - 1
-  for (let index = 0; index < payload.children.length; index += 1) {
+  let childIndex = payload.occupancy - 1
+  for (let index = 0; index < payload.occupancy; index += 1) {
+    const child = styleChildAtMeteredInternalV1(payload.children, index, input.meter)
     const lastKey = meteredStyleOperationInternalV1({
       meter: input.meter,
       unit: "source-style-entries",
-      operation: () => payload.children[index]!.lastKey,
+      operation: () => child.lastKey,
     })
     if (compareStyleKeysMeteredInternalV1(
       key,
@@ -685,35 +1498,87 @@ function adjustStyleNodeMeteredInternalV1(input: {
   }
   const [left, right] = adjustStyleNodeMeteredInternalV1({
     ...input,
-    node: payload.children[childIndex]!,
+    node: styleChildAtMeteredInternalV1(payload.children, childIndex, input.meter),
     isRoot: false,
   })
-  let children = [...payload.children]
-  children.splice(childIndex, 1, ...(left == null ? [] : [left]), ...(right == null ? [] : [right]))
+  let children = copyStyleChildrenMeteredInternalV1({
+    children: payload.children,
+    start: 0,
+    end: payload.occupancy,
+    meter: input.meter,
+  })
+  const replacements: VNextTextBlockUnifiedLayoutSourceStyleRefcountNodeInternalV1[] = []
+  if (left != null) pushStyleChildMeteredInternalV1(replacements, left, input.meter)
+  if (right != null) pushStyleChildMeteredInternalV1(replacements, right, input.meter)
+  replaceStyleChildrenMeteredInternalV1({
+    children,
+    start: childIndex,
+    deleteCount: 1,
+    replacements,
+    meter: input.meter,
+  })
   if (left != null && right == null) {
-    children = [...rebalanceStyleChildMeteredInternalV1({
+    children = rebalanceStyleChildMeteredInternalV1({
       children,
       childIndex,
       meter: input.meter,
-    })]
+    })
   }
-  if (children.length === 0) return [null, null]
-  if (input.isRoot && children.length === 1) return [children[0]!, null]
-  if (children.length <= 8) return [styleBranchMeteredInternalV1(children, input.meter), null]
+  const childCount = meteredStyleOperationInternalV1({
+    meter: input.meter,
+    unit: "source-style-nodes",
+    operation: () => children.length,
+  })
+  if (childCount === 0) return [null, null]
+  if (input.isRoot && childCount === 1) {
+    return [styleChildAtMeteredInternalV1(children, 0, input.meter), null]
+  }
+  if (childCount <= 8) return [styleBranchMeteredInternalV1(children, input.meter), null]
   return [
-    styleBranchMeteredInternalV1(children.slice(0, 4), input.meter),
-    styleBranchMeteredInternalV1(children.slice(4), input.meter),
+    styleBranchMeteredInternalV1(copyStyleChildrenMeteredInternalV1({
+      children,
+      start: 0,
+      end: 4,
+      meter: input.meter,
+    }), input.meter),
+    styleBranchMeteredInternalV1(copyStyleChildrenMeteredInternalV1({
+      children,
+      start: 4,
+      end: childCount,
+      meter: input.meter,
+    }), input.meter),
   ]
 }
 
-function itemStyleInternalV1(
-  item: VNextTextBlockUnifiedLayoutSourceItemV1,
+function styleInputItemCountMeteredInternalV1(
+  items: readonly VNextTextBlockUnifiedLayoutSourceItemV1[],
+  meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
+): number {
+  return meteredStyleOperationInternalV1({
+    meter,
+    unit: "source-style-entries",
+    operation: () => items.length,
+  })
+}
+
+function styleInputItemStyleAtMeteredInternalV1(
+  items: readonly VNextTextBlockUnifiedLayoutSourceItemV1[],
+  index: number,
+  meter: VNextTextBlockUnifiedLayout5B2CandidateWorkMeterInternalV1,
 ): VNextTextBlockUnifiedLayoutSourceStyleV1 | null {
-  return item.kind === "text"
-      || item.kind === "resolved-field"
-      || item.kind === "generated-page-number"
-    ? item.style
-    : null
+  return meteredStyleOperationInternalV1({
+    meter,
+    unit: "source-style-entries",
+    operation: () => {
+      const item = items[index]
+      if (item == null) throw new SourceStylePathCopyStopInternalV1("invalid")
+      return item.kind === "text"
+          || item.kind === "resolved-field"
+          || item.kind === "generated-page-number"
+        ? item.style
+        : null
+    },
+  })
 }
 
 interface PathCopyStyleInputInternalV1 {
@@ -736,17 +1601,22 @@ function pathCopyStyleInternalV1(
   try {
     let root = input.root
     const apply = (
-      item: VNextTextBlockUnifiedLayoutSourceItemV1,
+      items: readonly VNextTextBlockUnifiedLayoutSourceItemV1[],
+      index: number,
       delta: -1 | 1,
     ): void => {
-      const style = itemStyleInternalV1(item)
+      const style = styleInputItemStyleAtMeteredInternalV1(items, index, input.workMeter)
       if (style == null) return
       const facts = meteredStyleOperationInternalV1({
         meter: input.workMeter,
         unit: "source-style-entries",
         operation: () => canonicalVNextTextBlockUnifiedLayoutSourceStyleFactsInternalV1(style),
       })
-      const styleFingerprint = fingerprintFactory(facts)
+      const styleFingerprint = meteredStyleOperationInternalV1({
+        meter: input.workMeter,
+        unit: "source-style-entries",
+        operation: () => fingerprintFactory(facts),
+      })
       const [left, right] = adjustStyleNodeMeteredInternalV1({
         node: root,
         style,
@@ -758,10 +1628,28 @@ function pathCopyStyleInternalV1(
       })
       root = right == null
         ? left
-        : styleBranchMeteredInternalV1([left!, right], input.workMeter)
+        : (() => {
+            if (left == null) throw new SourceStylePathCopyStopInternalV1("invalid")
+            const children: VNextTextBlockUnifiedLayoutSourceStyleRefcountNodeInternalV1[] = []
+            pushStyleChildMeteredInternalV1(children, left, input.workMeter)
+            pushStyleChildMeteredInternalV1(children, right, input.workMeter)
+            return styleBranchMeteredInternalV1(children, input.workMeter)
+          })()
     }
-    for (const item of input.removedItems) apply(item, -1)
-    for (const item of input.nextPhysicalItems) apply(item, 1)
+    const removedCount = styleInputItemCountMeteredInternalV1(
+      input.removedItems,
+      input.workMeter,
+    )
+    for (let index = 0; index < removedCount; index += 1) {
+      apply(input.removedItems, index, -1)
+    }
+    const nextCount = styleInputItemCountMeteredInternalV1(
+      input.nextPhysicalItems,
+      input.workMeter,
+    )
+    for (let index = 0; index < nextCount; index += 1) {
+      apply(input.nextPhysicalItems, index, 1)
+    }
     return Object.freeze({ status: "prepared" as const, root })
   } catch (error) {
     if (

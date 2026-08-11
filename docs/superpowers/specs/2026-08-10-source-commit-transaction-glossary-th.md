@@ -126,6 +126,11 @@ object, private Source-stage result record และ exact commit result ที�
 ก่อน live หลัง commit TransitionSource ต้องคืน object เดิมโดยห้ามสร้างหรือ
 freeze ใหม่
 
+plan นี้ต้อง bind exact plan, seal และ planned output จาก SCT-T10, SCT-T11 และ
+SCT-T12 ด้วย SourceAuthority จับ exact SCT-T52 ไว้ก่อน live; Stage apply คืน
+SCT-T55 finish step และ SourceAuthority คืน SCT-T52 identity เดิมหลัง finish
+เท่านั้น
+
 ### SCT-T14 — Transaction Owner
 
 private leaf module ที่เป็นเจ้าของ ticket records, plan slots, active indexes,
@@ -140,9 +145,6 @@ fixed code path ใน SourceAuthority ที่เรียก prepare/apply �
 และไม่รับ callback หรือ participant list จาก caller เฉพาะ Plan A นั้น SCT-T13
 ของ SourceAuthority เป็นเจ้าของ accepted Source-stage object กับ private result
 record เพื่อให้ result publication อยู่ภายใน SCT-T35
-
-plan นี้ต้อง bind exact plan, seal และ planned output จาก SCT-T10, SCT-T11 และ
-SCT-T12 ด้วย และ apply ต้องคืน SCT-T52 โดยตรง
 
 ### SCT-T16 — Participant Owner
 
@@ -371,8 +373,9 @@ sealed โดย Stage plan ต้องปิดครอบ planned outputs �
 ### SCT-T52 — Exact Stage Result
 
 exact frozen Plan A accepted Source-stage object ที่สร้างใน Stage plan ก่อน
-sealed, Stage apply ติดตั้งและคืน object นี้โดยตรง และ TransitionSource คืน
-identity เดิม ห้ามมี ticket-to-result shadow registry
+sealed และ Stage apply ติดตั้ง SourceAuthority จับ exact identity ไว้ก่อน live
+และคืนหลัง Stage-produced finish step consume transaction แล้วเท่านั้น
+TransitionSource คืน identity เดิม ห้ามมี ticket-to-result shadow registry
 
 ### SCT-T53 — Plain Record Publication Loop
 
@@ -387,14 +390,30 @@ traversal
 
 owner-created frozen plain record ที่เก็บ exact keys, values, fixed counts และ
 precreated outputs ที่ participant apply หนึ่งตัวต้องใช้ SCT-T49 ผูก exact
-identity และ transaction leaf เก็บไว้ก่อน sealed Owner prepare ไม่เปิด record นี้
-ให้ coordinator; `begin` คืนให้หลังเขียน `committing` เท่านั้น Apply ใช้ record
-โดยตรงโดยไม่ทำ owner registry lookup, authority assertion, allocation, freeze
-หรือ nullable branch
+identity และ transaction leaf เก็บไว้ก่อน sealed Record นี้ไม่ถูกเปิดใน
+prepared owner bundle และ caller ไม่สามารถส่งมันเข้า mint หรือ apply โดยอิสระ
+SCT-T55 จะพา record ไปยัง participant ที่ตายตัวหลัง `begin` เขียน
+`committing` Apply ได้ record หลัง consume exact SCT-T55 identity ด้วย private
+consumer authority ของ participant เท่านั้น โดยไม่ทำ owner-plan lookup,
+allocation, freeze, external payload read หรือ nullable normal branch
+
+### SCT-T55 — Sequential Commit Capability
+
+empty identity แบบ frozen และ process-local จำนวนห้าตัวที่ transaction leaf
+สร้างไว้ล่วงหน้า โดย payload/link อยู่เฉพาะใน fixed private WeakMap registries
+และผูก SCT-T54 ทั้งสี่ตามลำดับ CandidateWork → SourceSidecars → SourceState →
+SourceAuthority Stage → finish `begin` คืนได้เฉพาะ CandidateWork identity;
+participant แต่ละตัว consume exact current identity ได้ครั้งเดียวด้วย
+module-private consumer authority แล้วจึงได้รับ SCT-T54 กับ next empty identity;
+มีเพียง Stage ที่ได้รับ finish identity และ `finish` consume เฉพาะ exact registry
+key นั้น Sealed ticket, step ก่อนหน้า, clone, replay, cross-ticket object, Proxy
+หรือ SCT-T54 ที่ส่งมาอิสระจึงข้าม/สลับ/ทำซ้ำ/inspect/finish ไม่ได้ การลบ registry
+entry ทุกครั้งที่ consume ทำให้ external step ที่ถูกเก็บไว้ไม่ retain later step,
+apply record หรือ live transaction graph
 
 ## 6. กฎ parity ระหว่างสองฉบับ
 
-1. ทั้งสองฉบับต้องมี `SCT-T01` ถึง `SCT-T54` ตรงกัน
+1. ทั้งสองฉบับต้องมี `SCT-T01` ถึง `SCT-T55` ตรงกัน
 2. Exact English term และ contract identifier ต้องคงเดิมในฉบับภาษาไทย
 3. เพิ่ม ลบ หรือเปลี่ยน Term ID ต้องแก้สองไฟล์ใน change set เดียวกัน
 4. Micro-spec, implementation plan, active task briefs และ final reports ต้อง

@@ -1474,6 +1474,9 @@ export function prepareVNextTextBlockUnifiedLayoutTransitionPreflightInternalV2(
     previousSourceState: input.previousRoot.sourceState,
     replacement: sourceReplacement,
     change: input.change,
+    previousRange: previousRanges.changedSourceRange,
+    nextItems: replacementItems,
+    nextItemCount: replacementItems.length,
   })) {
     return freeze({
       status: "blocked" as const,
