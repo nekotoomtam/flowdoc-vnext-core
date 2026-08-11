@@ -31,24 +31,26 @@
 
 ---
 
-## Planning Baseline And Stop Rule
+## D0 Selected Baseline And Stop Rule
 
-At plan-writing time the linked worktree is:
+User-approved D0 source selection:
 
 ```text
 repository: flowdoc-vnext-core
 worktree: C:\Users\nekot\Documents\GitHub\flowdoc-vnext-core\.worktrees\phase-5b-unified-incremental-root-transition
 branch: phase-5b-unified-incremental-root-transition
-HEAD: 890c96feefa1f69d9dcddd5b4bebf024d462ebc2
+HEAD: 5bcb497cefe742222a835637cc33eddd5f96b685
 working tree: clean
 stash top: c711c1135a3e3808d6b0da042c6d2eadec484431
 ```
 
-Observed related repository heads at design time, not yet accepted as a shared baseline:
+Inspected related repository references:
 
 ```text
 Editor:  43dcebb22735d7330fda0d57d4e7ce9a726e2454
 Backend: 280c4ffbe075cd5391cce5219e8f9c40fed16527
+D0 compatibility result: not-verified
+D0 release readiness: false
 ```
 
 Before every task, re-run branch, HEAD, status, staged-state, and stash checks. If any exact value or dirty path differs from the latest reviewed checkpoint, stop and report the difference before editing.
