@@ -101,8 +101,9 @@ function assertInsideRoot(root, path, label) {
 }
 
 function parseDocument(record) {
-  exactFields(record, ["documentId", "path", "kind", "scope", "audience", "authority", "lifecycle"], "manifest document")
+  exactFields(record, ["documentId", "title", "path", "kind", "scope", "audience", "authority", "lifecycle"], "manifest document")
   id(record.documentId, ID_PREFIXES.document, "documentId")
+  string(record.title, "document title")
   string(record.path, "document path")
   if (record.path.startsWith("/") || record.path.includes("\\") || record.path.split("/").includes("..")) fail(`document path must be a safe repository-relative path: ${record.path}`)
   closed(record.kind, DOCUMENT_KINDS, "document kind")

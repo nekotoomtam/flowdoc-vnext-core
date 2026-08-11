@@ -9,17 +9,9 @@ function byId(left, right, key) {
   return left[key] < right[key] ? -1 : 1
 }
 
-function titleFor(document) {
-  return document.documentId
-    .replace(/^DOC-/, "")
-    .split("-")
-    .map((word) => word.slice(0, 1) + word.slice(1).toLowerCase())
-    .join(" ")
-}
-
 function documentLink(document, from) {
   const path = relative(dirname(from), document.path).split("\\").join("/")
-  return `[${document.documentId} — ${titleFor(document)}](${path})`
+  return `[${document.documentId} — ${document.title}](${path})`
 }
 
 function section(title, documents, from) {

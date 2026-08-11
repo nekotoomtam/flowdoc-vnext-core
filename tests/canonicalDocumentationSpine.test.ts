@@ -29,17 +29,17 @@ function fixture(): string {
     schemaVersion: 1,
     canonicalRoots: ["docs/coordination", "docs/versions/0_1"],
     documents: [
-      { documentId: "DOC-CORE-NAVIGATION-MANIFEST", path: "docs/manifest.json", kind: "navigation", scope: "core", audience: "internal", authority: "normative", lifecycle: "active" },
-      { documentId: "DOC-CORE-GLOSSARY", path: "docs/glossary.json", kind: "glossary", scope: "core", audience: "both", authority: "normative", lifecycle: "active" },
-      { documentId: "DOC-CORE-REPOSITORY-INDEX", path: "docs/coordination/REPOSITORY_INDEX.json", kind: "repository-index", scope: "cross-repository", audience: "internal", authority: "normative", lifecycle: "active" },
-      { documentId: "DOC-CORE-DEVELOPMENT-BASELINE", path: "docs/coordination/DEVELOPMENT_BASELINE.json", kind: "development-baseline", scope: "cross-repository", audience: "internal", authority: "normative", lifecycle: "active" },
-      { documentId: "DOC-CORE-RELEASE-0-1", path: "docs/versions/0_1/release.json", kind: "release-composition", scope: "core", audience: "public", authority: "normative", lifecycle: "active" },
-      { documentId: "DOC-CORE-RISK-REGISTER", path: "docs/coordination/RISK_REGISTER.md", kind: "risk-register", scope: "core", audience: "internal", authority: "normative", lifecycle: "active" },
-      { documentId: "DOC-CORE-DOCUMENT-MAP", path: "docs/DOCUMENT_MAP.md", kind: "navigation", scope: "core", audience: "both", authority: "navigation", lifecycle: "active" },
-      { documentId: "DOC-CORE-GLOSSARY-TECHNICAL", path: "docs/GLOSSARY.md", kind: "glossary", scope: "core", audience: "both", authority: "navigation", lifecycle: "active" },
-      { documentId: "DOC-CORE-GLOSSARY-THAI", path: "docs/GLOSSARY_TH.md", kind: "glossary", scope: "core", audience: "both", authority: "navigation", lifecycle: "active" },
-      { documentId: "DOC-VERSION-OVERVIEW", path: "docs/versions/0_1/VERSION_OVERVIEW.md", kind: "current-state", scope: "core", audience: "public", authority: "explanatory", lifecycle: "active" },
-      { documentId: "DOC-VERSION-CAPABILITY-SET", path: "docs/versions/0_1/CAPABILITY_SET.md", kind: "current-state", scope: "core", audience: "public", authority: "explanatory", lifecycle: "active" },
+      { documentId: "DOC-CORE-NAVIGATION-MANIFEST", title: "Canonical documentation manifest", path: "docs/manifest.json", kind: "navigation", scope: "core", audience: "internal", authority: "normative", lifecycle: "active" },
+      { documentId: "DOC-CORE-GLOSSARY", title: "Canonical terms", path: "docs/glossary.json", kind: "glossary", scope: "core", audience: "both", authority: "normative", lifecycle: "active" },
+      { documentId: "DOC-CORE-REPOSITORY-INDEX", title: "Coordination registry", path: "docs/coordination/REPOSITORY_INDEX.json", kind: "repository-index", scope: "cross-repository", audience: "internal", authority: "normative", lifecycle: "active" },
+      { documentId: "DOC-CORE-DEVELOPMENT-BASELINE", title: "Development baseline", path: "docs/coordination/DEVELOPMENT_BASELINE.json", kind: "development-baseline", scope: "cross-repository", audience: "internal", authority: "normative", lifecycle: "active" },
+      { documentId: "DOC-CORE-RELEASE-0-1", title: "Release composition", path: "docs/versions/0_1/release.json", kind: "release-composition", scope: "core", audience: "public", authority: "normative", lifecycle: "active" },
+      { documentId: "DOC-CORE-RISK-REGISTER", title: "Risk register", path: "docs/coordination/RISK_REGISTER.md", kind: "risk-register", scope: "core", audience: "internal", authority: "normative", lifecycle: "active" },
+      { documentId: "DOC-CORE-DOCUMENT-MAP", title: "Document map", path: "docs/DOCUMENT_MAP.md", kind: "navigation", scope: "core", audience: "both", authority: "navigation", lifecycle: "active" },
+      { documentId: "DOC-CORE-GLOSSARY-TECHNICAL", title: "Technical glossary", path: "docs/GLOSSARY.md", kind: "glossary", scope: "core", audience: "both", authority: "navigation", lifecycle: "active" },
+      { documentId: "DOC-CORE-GLOSSARY-THAI", title: "Thai glossary", path: "docs/GLOSSARY_TH.md", kind: "glossary", scope: "core", audience: "both", authority: "navigation", lifecycle: "active" },
+      { documentId: "DOC-VERSION-OVERVIEW", title: "Release readiness overview", path: "docs/versions/0_1/VERSION_OVERVIEW.md", kind: "current-state", scope: "core", audience: "public", authority: "explanatory", lifecycle: "active" },
+      { documentId: "DOC-VERSION-CAPABILITY-SET", title: "Capability status", path: "docs/versions/0_1/CAPABILITY_SET.md", kind: "current-state", scope: "core", audience: "public", authority: "explanatory", lifecycle: "active" },
     ],
   })
   write(root, "docs/glossary.json", {
@@ -108,6 +108,12 @@ function generated(root: string): Record<string, string> {
   ].map((path) => [path, readFileSync(join(root, path), "utf8")]))
 }
 
+function seedGeneratedSentinels(root: string): Record<string, string> {
+  const sentinels = Object.fromEntries(Object.keys(generated(root)).map((path) => [path, `sentinel:${path}\n`]))
+  for (const [path, sentinel] of Object.entries(sentinels)) writeFileSync(join(root, path), sentinel, "utf8")
+  return sentinels
+}
+
 function rewriteJson(root: string, relativePath: string, mutate: (value: any) => void): void {
   const value = JSON.parse(readFileSync(join(root, relativePath), "utf8"))
   mutate(value)
@@ -126,6 +132,14 @@ describe("canonical documentation spine", () => {
     rewriteJson(root, "docs/manifest.json", (manifest) => manifest.documents.push({ ...manifest.documents[0], path: "docs/coordination/DUPLICATE.md" }))
     write(root, "docs/coordination/DUPLICATE.md", "# Duplicate\n")
     expect(() => loadCanonicalDocumentationModel(root)).toThrow(/duplicate.*DOC/i)
+  })
+
+  test("requires an authored non-empty document title", () => {
+    const root = fixture()
+    rewriteJson(root, "docs/manifest.json", (manifest) => { delete manifest.documents[0].title })
+    expect(() => loadCanonicalDocumentationModel(root)).toThrow(/title/i)
+    rewriteJson(root, "docs/manifest.json", (manifest) => { manifest.documents[0].title = "" })
+    expect(() => loadCanonicalDocumentationModel(root)).toThrow(/title.*non-empty/i)
   })
 
   test("rejects duplicate TERM identities", () => {
@@ -189,7 +203,7 @@ describe("canonical documentation spine", () => {
   test("rejects release composition outside its selected version folder", () => {
     const root = fixture()
     write(root, "docs/versions/0_2/OTHER.md", "# Other release\n")
-    rewriteJson(root, "docs/manifest.json", (manifest) => manifest.documents.push({ documentId: "DOC-VERSION-OTHER", path: "docs/versions/0_2/OTHER.md", kind: "current-state", scope: "core", audience: "public", authority: "explanatory", lifecycle: "active" }))
+    rewriteJson(root, "docs/manifest.json", (manifest) => manifest.documents.push({ documentId: "DOC-VERSION-OTHER", title: "Other release", path: "docs/versions/0_2/OTHER.md", kind: "current-state", scope: "core", audience: "public", authority: "explanatory", lifecycle: "active" }))
     rewriteJson(root, "docs/versions/0_1/release.json", (release) => { release.composition = ["DOC-VERSION-OTHER"] })
     expect(() => loadCanonicalDocumentationModel(root)).toThrow(/composition.*versions\/0_1/i)
   })
@@ -245,7 +259,7 @@ FlowDoc is deliberately ambiguous.\n`)
 {"recordId":"RISK-CORE-LATER-001","recordKind":"risk","lifecycle":"active","affects":[]}
 -->
 `)
-    rewriteJson(root, "docs/manifest.json", (manifest) => manifest.documents.push({ documentId: "DOC-CORE-LATER-RISK", path: "docs/coordination/LATER_RISK.md", kind: "risk-register", scope: "core", audience: "internal", authority: "normative", lifecycle: "active" }))
+    rewriteJson(root, "docs/manifest.json", (manifest) => manifest.documents.push({ documentId: "DOC-CORE-LATER-RISK", title: "Later risk", path: "docs/coordination/LATER_RISK.md", kind: "risk-register", scope: "core", audience: "internal", authority: "normative", lifecycle: "active" }))
     write(root, "docs/coordination/RISK_REGISTER.md", `## RISK-CORE-DOCUMENTATION-DUAL-TRUTH-001 — Dual canonical truth
 
 <!-- FLOWDOC-RECORD
@@ -318,11 +332,15 @@ FlowDoc is deliberately ambiguous.\n`)
 
   test("generation fails when structured canonical input is missing or invalid", () => {
     const missing = fixture()
+    const missingSentinels = seedGeneratedSentinels(missing)
     rmSync(join(missing, "docs/glossary.json"))
     expect(runCli(missing, "scripts/generate-canonical-docs.mjs").status).not.toBe(0)
+    expect(generated(missing)).toEqual(missingSentinels)
     const invalid = fixture()
+    const invalidSentinels = seedGeneratedSentinels(invalid)
     writeFileSync(join(invalid, "docs/glossary.json"), "{invalid", "utf8")
     expect(runCli(invalid, "scripts/generate-canonical-docs.mjs").status).not.toBe(0)
+    expect(generated(invalid)).toEqual(invalidSentinels)
   })
 
   test("renders bilingual glossaries with identical sorted Term IDs", () => {
@@ -343,6 +361,7 @@ FlowDoc is deliberately ambiguous.\n`)
     expect(map.indexOf("## Active current truth")).toBeLessThan(map.indexOf("## Coordination"))
     expect(map.indexOf("## Coordination")).toBeLessThan(map.indexOf("## Version line"))
     expect(map.indexOf("## Version line")).toBeLessThan(map.indexOf("## Glossary"))
+    expect(map).toContain("[DOC-CORE-NAVIGATION-MANIFEST — Canonical documentation manifest](manifest.json)")
   })
 
   test("allows only the release-referenced pending baseline identifier", () => {
@@ -356,9 +375,9 @@ FlowDoc is deliberately ambiguous.\n`)
 
   test("renders a pending baseline as an explicit non-release-ready view", () => {
     const root = fixture()
-    const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", "BASELINE-FLOWDOC-20260811-01")
-    expect(check.status).not.toBe(0)
     expect(runCli(root, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+    const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", "BASELINE-FLOWDOC-20260811-01")
+    expect(check.status, check.stderr).toBe(0)
     const overview = readFileSync(join(root, "docs/versions/0_1/VERSION_OVERVIEW.md"), "utf8")
     expect(overview).toContain("releaseVersion: unversioned")
     expect(overview).toContain("releaseReady: false")
