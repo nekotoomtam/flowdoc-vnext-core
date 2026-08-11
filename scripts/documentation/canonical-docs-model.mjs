@@ -49,6 +49,14 @@ const RECORD_DOCUMENTS = Object.freeze({
   "known-unknowns": { recordKind: "unknown", prefix: "UNKNOWN", fields: ["recordId", "recordKind", "lifecycle", "affects", "closedBy"], sections: ["Missing evidence", "Why it matters", "Blocked decision", "Affected IDs", "Closing gate or work item", "Lifecycle"], referenceField: "affects", referenceSection: "Affected IDs", closingField: "closedBy", closingSection: "Closing gate or work item" },
   roadmap: { recordKind: "work", prefix: "WORK", fields: ["recordId", "recordKind", "lifecycle", "motivatedBy"], sections: ["Motivating risks and unknowns", "Non-goals", "Lifecycle"], referenceField: "motivatedBy", referenceSection: "Motivating risks and unknowns" },
 })
+const TASK_4_REPOSITORY_IDS = Object.freeze(["REPO-FLOWDOC-CORE", "REPO-FLOWDOC-EDITOR", "REPO-FLOWDOC-BACKEND"])
+const TASK_4_DOCUMENT_ROWS = Object.freeze([
+  { documentId: "DOC-CORE-PROJECT-VERSION-POLICY", path: "docs/VERSION_POLICY.md", kind: "version-policy", scope: "cross-repository", subsystem: "versioning", audience: "internal", authority: "normative", lifecycle: "active", repositoryIds: TASK_4_REPOSITORY_IDS, releaseLines: [], contractIds: [], schemaIds: [] },
+  { documentId: "DOC-CORE-PROJECT-CURRENT-STATE", path: "docs/project/CURRENT_STATE.md", kind: "current-state", scope: "core", subsystem: "project", audience: "internal", authority: "evidence", lifecycle: "active", repositoryIds: ["REPO-FLOWDOC-CORE"], releaseLines: [], contractIds: [], schemaIds: [] },
+  { documentId: "DOC-CORE-PROJECT-RISK-REGISTER", path: "docs/project/RISK_REGISTER.md", kind: "risk-register", scope: "cross-repository", subsystem: "project", audience: "internal", authority: "normative", lifecycle: "active", repositoryIds: TASK_4_REPOSITORY_IDS, releaseLines: [], contractIds: [], schemaIds: [] },
+  { documentId: "DOC-CORE-PROJECT-KNOWN-UNKNOWNS", path: "docs/project/KNOWN_UNKNOWNS.md", kind: "known-unknowns", scope: "cross-repository", subsystem: "project", audience: "internal", authority: "normative", lifecycle: "active", repositoryIds: TASK_4_REPOSITORY_IDS, releaseLines: [], contractIds: [], schemaIds: [] },
+  { documentId: "DOC-CORE-PROJECT-ROADMAP", path: "docs/project/ROADMAP.md", kind: "roadmap", scope: "cross-repository", subsystem: "project", audience: "internal", authority: "normative", lifecycle: "active", repositoryIds: TASK_4_REPOSITORY_IDS, releaseLines: [], contractIds: [], schemaIds: [] },
+])
 
 function fail(message) {
   throw new Error(`Canonical documentation model: ${message}`)
@@ -157,6 +165,24 @@ function parseDocument(record) {
   return { ...record, appliesTo: parseAppliesTo(record.appliesTo, `document ${record.documentId} appliesTo`) }
 }
 
+function validateTask4ManifestRows(documents) {
+  const expectedIds = new Set(TASK_4_DOCUMENT_ROWS.map((row) => row.documentId))
+  const task4Rows = documents.filter((document) => expectedIds.has(document.documentId) || document.documentId.startsWith("DOC-CORE-PROJECT-"))
+  if (task4Rows.length === 0) return
+  for (const expected of TASK_4_DOCUMENT_ROWS) {
+    const actual = documents.find((document) => document.documentId === expected.documentId)
+    if (!actual) fail(`Task 4 manifest is missing row ${expected.documentId}`)
+    for (const field of ["path", "kind", "scope", "subsystem", "audience", "authority", "lifecycle"]) {
+      if (actual[field] !== expected[field]) fail(`Task 4 manifest row ${expected.documentId} ${field} must exactly equal ${expected[field]}`)
+    }
+    for (const field of ["repositoryIds", "releaseLines", "contractIds", "schemaIds"]) {
+      if (JSON.stringify(actual.appliesTo[field]) !== JSON.stringify(expected[field])) fail(`Task 4 manifest row ${expected.documentId} ${field} must exactly equal ${JSON.stringify(expected[field])}`)
+    }
+  }
+  const extra = task4Rows.find((document) => !expectedIds.has(document.documentId))
+  if (extra) fail(`Task 4 manifest has extra row ${extra.documentId}`)
+}
+
 function parseManifest(value) {
   exactFields(value, ["manifestSchemaVersion", "repositoryId", "canonicalRoots", "documents"], "manifest")
   if (value.manifestSchemaVersion !== 1) fail("manifestSchemaVersion must be 1")
@@ -164,6 +190,7 @@ function parseManifest(value) {
   const canonicalRoots = array(value.canonicalRoots, "canonicalRoots")
   if (JSON.stringify(canonicalRoots) !== JSON.stringify(CANONICAL_ROOTS)) fail(`canonicalRoots must exactly equal ${CANONICAL_ROOTS.join(", ")}`)
   const documents = array(value.documents, "manifest documents").map(parseDocument)
+  validateTask4ManifestRows(documents)
   return { ...value, canonicalRoots, documents }
 }
 
@@ -388,6 +415,7 @@ function hasProseParagraph(content) {
     const lines = paragraph.split(/\r?\n/)
     const nonblank = lines.filter((line) => line.trim().length > 0)
     if (nonblank.length === 2 && /^\s*(?:={3,}|-{3,})\s*$/.test(nonblank[1])) return false
+    if (/^<(?:(?:address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul)\b|(?:script|pre|style)\b)[\s\S]*>\s*$/i.test(paragraph.trim())) return false
     return nonblank.length > 0 && !nonblank.every((line) => /^\s*(?:[-*+] |\d+\. |>|#{1,6}\s|(?:\*\s*){3,}|(?:_\s*){3,}|(?:-\s*){3,}|={3,}|-{3,}$|\s{4}|\t)/.test(line))
   })
 }
@@ -642,6 +670,20 @@ export function loadCanonicalDocumentationModel(root, options = {}) {
   const compatibilityMarkdown = markdownByPath[STRUCTURED_PATHS.compatibility]
   if (compatibilityMarkdown === undefined) fail(`registered path is missing: ${STRUCTURED_PATHS.compatibility}`)
   const compatibility = parseCompatibility(compatibilityMarkdown)
+  const existingCanonicalIds = new Set([
+    ...manifest.documents.map((document) => document.documentId),
+    ...glossary.terms.map((term) => term.termId),
+    ...glossary.concepts.map((concept) => concept.conceptId),
+    ...repositoryIndex.repositories.map((repository) => repository.repositoryId),
+    release.baselineId,
+  ])
+  for (const document of manifest.documents.filter((candidate) => Object.hasOwn(RECORD_DOCUMENTS, candidate.kind))) {
+    const markdown = markdownByPath[document.path]
+    if (typeof markdown !== "string") continue
+    for (const heading of markdown.matchAll(/^## ([A-Z][A-Z0-9-]+) — [^\r\n]*\S[^\r\n]*$/gm)) {
+      if (existingCanonicalIds.has(heading[1])) fail(`embedded record identity collides with an existing canonical identity: ${heading[1]}`)
+    }
+  }
   const embeddedRecords = manifest.documents
     .filter((document) => Object.hasOwn(RECORD_DOCUMENTS, document.kind))
     .flatMap((document) => collectEmbeddedCanonicalRecords(markdownByPath[document.path], { documentKind: document.kind, path: document.path }))

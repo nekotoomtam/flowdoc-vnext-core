@@ -280,6 +280,471 @@ function documentMapping(documents: any[]) {
   ])
 }
 
+type TruthPlaneBranchLedgerRow = {
+  name: string
+  mutation: (root: string) => void
+  expected: RegExp
+}
+
+const RISK_PATH = "docs/project/RISK_REGISTER.md"
+const UNKNOWN_PATH = "docs/project/KNOWN_UNKNOWNS.md"
+const ROADMAP_PATH = "docs/project/ROADMAP.md"
+const RISK_ID = "RISK-CORE-DOCUMENTATION-DUAL-TRUTH-001"
+const UNKNOWN_ID = "UNKNOWN-CORE-DOCUMENTATION-CONTRACT-INVENTORY-001"
+const WORK_ID = "WORK-CORE-LAYOUT-CUTOVER-001"
+
+function rewriteText(root: string, relativePath: string, mutate: (source: string) => string): void {
+  const path = join(root, relativePath)
+  const source = readFileSync(path, "utf8")
+  const next = mutate(source)
+  if (next === source) throw new Error(`fixture mutation made no change: ${relativePath}`)
+  writeFileSync(path, next, "utf8")
+}
+
+function replaceText(root: string, relativePath: string, search: string, replacement: string): void {
+  rewriteText(root, relativePath, (source) => {
+    if (!source.includes(search)) throw new Error(`fixture mutation source is absent from ${relativePath}: ${search}`)
+    return source.replace(search, replacement)
+  })
+}
+
+function mutateTruthManifestRow(root: string, documentId: string, mutate: (document: any) => void): void {
+  rewriteJson(root, "docs/manifest.json", (manifest) => {
+    const document = manifest.documents.find((candidate: any) => candidate.documentId === documentId)
+    if (!document) throw new Error(`truth manifest row is absent: ${documentId}`)
+    mutate(document)
+  })
+}
+
+function addAuxiliaryRecordDocument(root: string, documentId: string, path: string, kind: string, markdown: string): void {
+  rewriteJson(root, "docs/manifest.json", (manifest) => {
+    manifest.documents.push({
+      documentId,
+      title: `${documentId} title`,
+      path,
+      kind,
+      scope: "core",
+      subsystem: "project",
+      audience: "internal",
+      authority: "normative",
+      lifecycle: "active",
+      appliesTo: appliesTo(["REPO-FLOWDOC-CORE"], []),
+    })
+  })
+  write(root, path, markdown)
+}
+
+function setRiskAffects(root: string, ids: string[], bullets: string[]): void {
+  const original = '"affects":["DOC-CORE-NAVIGATION-MANIFEST"]'
+  const replacement = `"affects":${JSON.stringify(ids)}`
+  if (replacement !== original) replaceText(root, RISK_PATH, original, replacement)
+  replaceText(root, RISK_PATH, "- [DOC-CORE-NAVIGATION-MANIFEST](../manifest.json)", bullets.join("\n"))
+}
+
+function setUnknownClosedBy(root: string, ids: string[], bullets: string[]): void {
+  replaceText(root, UNKNOWN_PATH, '"closedBy":["WORK-CORE-LAYOUT-CUTOVER-001"]', `"closedBy":${JSON.stringify(ids)}`)
+  replaceText(root, UNKNOWN_PATH, "- [WORK-CORE-LAYOUT-CUTOVER-001](ROADMAP.md#work-core-layout-cutover-001)", bullets.join("\n"))
+}
+
+function setRoadmapMotivatedBy(root: string, ids: string[], bullets: string[]): void {
+  replaceText(root, ROADMAP_PATH, '"motivatedBy":["RISK-CORE-DOCUMENTATION-DUAL-TRUTH-001","UNKNOWN-CORE-DOCUMENTATION-CONTRACT-INVENTORY-001"]', `"motivatedBy":${JSON.stringify(ids)}`)
+  replaceText(root, ROADMAP_PATH, `- [RISK-CORE-DOCUMENTATION-DUAL-TRUTH-001](RISK_REGISTER.md#risk-core-documentation-dual-truth-001)
+- [UNKNOWN-CORE-DOCUMENTATION-CONTRACT-INVENTORY-001](KNOWN_UNKNOWNS.md#unknown-core-documentation-contract-inventory-001)`, bullets.join("\n"))
+}
+
+const TRUTH_PLANE_BRANCH_LEDGER: TruthPlaneBranchLedgerRow[] = [
+  {
+    name: "manifest / missing Task 4 row",
+    mutation: (root) => rewriteJson(root, "docs/manifest.json", (manifest) => {
+      manifest.documents = manifest.documents.filter((document: any) => document.documentId !== "DOC-CORE-PROJECT-RISK-REGISTER")
+    }),
+    expected: /Task 4 manifest is missing row DOC-CORE-PROJECT-RISK-REGISTER/i,
+  },
+  {
+    name: "manifest / extra Task 4 row",
+    mutation: (root) => {
+      rewriteJson(root, "docs/manifest.json", (manifest) => manifest.documents.push({
+        documentId: "DOC-CORE-PROJECT-EXTRA",
+        title: "Extra Task 4 row",
+        path: "docs/project/EXTRA.md",
+        kind: "current-state",
+        scope: "core",
+        subsystem: "project",
+        audience: "internal",
+        authority: "evidence",
+        lifecycle: "active",
+        appliesTo: appliesTo(["REPO-FLOWDOC-CORE"], []),
+      }))
+      write(root, "docs/project/EXTRA.md", "# Extra\n")
+    },
+    expected: /Task 4 manifest has extra row DOC-CORE-PROJECT-EXTRA/i,
+  },
+  {
+    name: "manifest / path mismatch",
+    mutation: (root) => {
+      const alternatePath = "docs/project/RISK_REGISTER_ALTERNATE.md"
+      write(root, alternatePath, readFileSync(join(root, RISK_PATH), "utf8"))
+      rmSync(join(root, RISK_PATH))
+      mutateTruthManifestRow(root, "DOC-CORE-PROJECT-RISK-REGISTER", (document) => { document.path = alternatePath })
+    },
+    expected: /Task 4 manifest row DOC-CORE-PROJECT-RISK-REGISTER path must exactly equal docs\/project\/RISK_REGISTER\.md/i,
+  },
+  {
+    name: "manifest / kind mismatch",
+    mutation: (root) => mutateTruthManifestRow(root, "DOC-CORE-PROJECT-RISK-REGISTER", (document) => { document.kind = "known-unknowns" }),
+    expected: /Task 4 manifest row DOC-CORE-PROJECT-RISK-REGISTER kind must exactly equal risk-register/i,
+  },
+  {
+    name: "manifest / scope mismatch",
+    mutation: (root) => mutateTruthManifestRow(root, "DOC-CORE-PROJECT-RISK-REGISTER", (document) => { document.scope = "core" }),
+    expected: /Task 4 manifest row DOC-CORE-PROJECT-RISK-REGISTER scope must exactly equal cross-repository/i,
+  },
+  {
+    name: "manifest / subsystem mismatch",
+    mutation: (root) => mutateTruthManifestRow(root, "DOC-CORE-PROJECT-RISK-REGISTER", (document) => { document.subsystem = "documentation" }),
+    expected: /Task 4 manifest row DOC-CORE-PROJECT-RISK-REGISTER subsystem must exactly equal project/i,
+  },
+  {
+    name: "manifest / audience mismatch",
+    mutation: (root) => mutateTruthManifestRow(root, "DOC-CORE-PROJECT-RISK-REGISTER", (document) => { document.audience = "both" }),
+    expected: /Task 4 manifest row DOC-CORE-PROJECT-RISK-REGISTER audience must exactly equal internal/i,
+  },
+  {
+    name: "manifest / authority mismatch",
+    mutation: (root) => mutateTruthManifestRow(root, "DOC-CORE-PROJECT-RISK-REGISTER", (document) => { document.authority = "evidence" }),
+    expected: /Task 4 manifest row DOC-CORE-PROJECT-RISK-REGISTER authority must exactly equal normative/i,
+  },
+  {
+    name: "manifest / lifecycle mismatch",
+    mutation: (root) => mutateTruthManifestRow(root, "DOC-CORE-PROJECT-RISK-REGISTER", (document) => { document.lifecycle = "draft" }),
+    expected: /Task 4 manifest row DOC-CORE-PROJECT-RISK-REGISTER lifecycle must exactly equal active/i,
+  },
+  {
+    name: "manifest / repositoryIds mismatch",
+    mutation: (root) => mutateTruthManifestRow(root, "DOC-CORE-PROJECT-RISK-REGISTER", (document) => { document.appliesTo.repositoryIds = ["REPO-FLOWDOC-CORE"] }),
+    expected: /Task 4 manifest row DOC-CORE-PROJECT-RISK-REGISTER repositoryIds must exactly equal/i,
+  },
+  {
+    name: "manifest / releaseLines mismatch",
+    mutation: (root) => mutateTruthManifestRow(root, "DOC-CORE-PROJECT-RISK-REGISTER", (document) => { document.appliesTo.releaseLines = ["0.1"] }),
+    expected: /Task 4 manifest row DOC-CORE-PROJECT-RISK-REGISTER releaseLines must exactly equal \[\]/i,
+  },
+  {
+    name: "manifest / contractIds mismatch",
+    mutation: (root) => mutateTruthManifestRow(root, "DOC-CORE-PROJECT-RISK-REGISTER", (document) => { document.appliesTo.contractIds = ["CONTRACT-TEST-ONLY"] }),
+    expected: /contractIds must be empty because no Task 3 owner registry exists/i,
+  },
+  {
+    name: "manifest / schemaIds mismatch",
+    mutation: (root) => mutateTruthManifestRow(root, "DOC-CORE-PROJECT-RISK-REGISTER", (document) => { document.appliesTo.schemaIds = ["SCHEMA-TEST-ONLY"] }),
+    expected: /schemaIds must be empty because no Task 3 owner registry exists/i,
+  },
+  {
+    name: "record envelope / absent FLOWDOC-RECORD block",
+    mutation: (root) => rewriteText(root, RISK_PATH, (source) => source.replace(/<!-- FLOWDOC-RECORD\r?\n[^\r\n]+\r?\n-->\r?\n/, "")),
+    expected: /FLOWDOC-RECORD block must immediately follow its matching heading/i,
+  },
+  {
+    name: "record envelope / invalid JSON",
+    mutation: (root) => replaceText(root, RISK_PATH, '{"recordId"', '{invalid"recordId"'),
+    expected: /FLOWDOC-RECORD JSON must be valid/i,
+  },
+  {
+    name: "record identity / heading and metadata mismatch",
+    mutation: (root) => replaceText(root, RISK_PATH, `"recordId":"${RISK_ID}"`, '"recordId":"RISK-CORE-DOCUMENTATION-DUAL-TRUTH-002"'),
+    expected: /heading ID and metadata recordId must agree/i,
+  },
+  {
+    name: "record identity / wrong typed prefix",
+    mutation: (root) => replaceText(root, RISK_PATH, `## ${RISK_ID} —`, "## UNKNOWN-CORE-DOCUMENTATION-DUAL-TRUTH-001 —"),
+    expected: /heading recordId must use the RISK prefix/i,
+  },
+  {
+    name: "record identity / wrong recordKind",
+    mutation: (root) => replaceText(root, RISK_PATH, '"recordKind":"risk"', '"recordKind":"unknown"'),
+    expected: /recordKind must be risk/i,
+  },
+  {
+    name: "record identity / document-kind disagreement",
+    mutation: (root) => addAuxiliaryRecordDocument(root, "DOC-TEST-DOCUMENT-KIND-DISAGREEMENT", "docs/project/DOCUMENT_KIND_DISAGREEMENT.md", "known-unknowns", readFileSync(join(root, RISK_PATH), "utf8")),
+    expected: /heading recordId must use the UNKNOWN prefix/i,
+  },
+  {
+    name: "record identity / invalid lifecycle",
+    mutation: (root) => replaceText(root, RISK_PATH, '"lifecycle":"active"', '"lifecycle":"paused"'),
+    expected: /lifecycle must be one of the closed values/i,
+  },
+  {
+    name: "metadata / missing outbound field",
+    mutation: (root) => replaceText(root, RISK_PATH, ',"affects":["DOC-CORE-NAVIGATION-MANIFEST"]', ""),
+    expected: /metadata is missing field affects/i,
+  },
+  {
+    name: "metadata / empty outbound array",
+    mutation: (root) => setRiskAffects(root, [], []),
+    expected: /affects must be non-empty/i,
+  },
+  {
+    name: "metadata / duplicate outbound ID",
+    mutation: (root) => setRiskAffects(root, ["DOC-CORE-NAVIGATION-MANIFEST", "DOC-CORE-NAVIGATION-MANIFEST"], [
+      "- [DOC-CORE-NAVIGATION-MANIFEST](../manifest.json)",
+      "- [DOC-CORE-NAVIGATION-MANIFEST](../manifest.json)",
+    ]),
+    expected: /duplicate .*affects value: DOC-CORE-NAVIGATION-MANIFEST/i,
+  },
+  {
+    name: "metadata / genuine cross-document duplicate identity",
+    mutation: (root) => addAuxiliaryRecordDocument(root, "DOC-TEST-CROSS-DOCUMENT-RISK", "docs/project/CROSS_DOCUMENT_RISK.md", "risk-register", readFileSync(join(root, RISK_PATH), "utf8")),
+    expected: /duplicate embedded record identity: RISK-CORE-DOCUMENTATION-DUAL-TRUTH-001/i,
+  },
+  {
+    name: "metadata / collision with an existing canonical category",
+    mutation: (root) => rewriteText(root, RISK_PATH, (source) => source.replaceAll(RISK_ID, "DOC-CORE-NAVIGATION-MANIFEST")),
+    expected: /embedded record identity collides with an existing canonical identity: DOC-CORE-NAVIGATION-MANIFEST/i,
+  },
+  {
+    name: "sections / missing required section",
+    mutation: (root) => rewriteText(root, RISK_PATH, (source) => source.replace(/\n### Evidence\r?\n[\s\S]*?(?=\n### Lifecycle)/, "")),
+    expected: /sections must use the exact required order with no extras/i,
+  },
+  {
+    name: "sections / duplicate required section",
+    mutation: (root) => replaceText(root, RISK_PATH, "### Evidence\n\nThe manifest is the registered owner.", "### Evidence\n\nThe manifest is the registered owner.\n\n### Evidence\n\nA second evidence section."),
+    expected: /sections must use the exact required order with no extras/i,
+  },
+  {
+    name: "sections / extra section",
+    mutation: (root) => replaceText(root, RISK_PATH, "### Lifecycle", "### Review\n\nA review paragraph.\n\n### Lifecycle"),
+    expected: /sections must use the exact required order with no extras/i,
+  },
+  {
+    name: "sections / reordered sections",
+    mutation: (root) => rewriteText(root, RISK_PATH, (source) => source.replace(
+      "### Adverse event\n\nConflicting sources lead to inconsistent decisions.\n\n### Trigger\n\nAn unregistered source is treated as authoritative.",
+      "### Trigger\n\nAn unregistered source is treated as authoritative.\n\n### Adverse event\n\nConflicting sources lead to inconsistent decisions.",
+    )),
+    expected: /sections must use the exact required order with no extras/i,
+  },
+  {
+    name: "sections / empty non-ID section",
+    mutation: (root) => replaceText(root, RISK_PATH, "### Evidence\n\nThe manifest is the registered owner.", "### Evidence\n\n"),
+    expected: /Evidence must contain an actual prose paragraph/i,
+  },
+  {
+    name: "lifecycle / wrong unbackticked token",
+    mutation: (root) => replaceText(root, RISK_PATH, "`active`", "active"),
+    expected: /lifecycle serialization must be exactly one backticked metadata token/i,
+  },
+  {
+    name: "lifecycle / list serialization",
+    mutation: (root) => replaceText(root, RISK_PATH, "`active`", "- `active`"),
+    expected: /lifecycle serialization must be exactly one backticked metadata token/i,
+  },
+  {
+    name: "lifecycle / label serialization",
+    mutation: (root) => replaceText(root, RISK_PATH, "`active`", "Lifecycle: `active`"),
+    expected: /lifecycle serialization must be exactly one backticked metadata token/i,
+  },
+  {
+    name: "lifecycle / sentence serialization",
+    mutation: (root) => replaceText(root, RISK_PATH, "`active`", "The lifecycle is `active`."),
+    expected: /lifecycle serialization must be exactly one backticked metadata token/i,
+  },
+  {
+    name: "lifecycle / extra token",
+    mutation: (root) => replaceText(root, RISK_PATH, "`active`", "`active` `draft`"),
+    expected: /lifecycle serialization must be exactly one backticked metadata token/i,
+  },
+  {
+    name: "lifecycle / metadata mismatch",
+    mutation: (root) => replaceText(root, RISK_PATH, "`active`", "`draft`"),
+    expected: /lifecycle serialization must be exactly one backticked metadata token/i,
+  },
+  {
+    name: "metadata prose parity / mismatched IDs",
+    mutation: (root) => setRiskAffects(root, ["DOC-CORE-NAVIGATION-MANIFEST"], ["- [DOC-CORE-NAVIGATION-DOCUMENT-MAP](../DOCUMENT_MAP.md)"]),
+    expected: /Affected IDs must exactly match the sorted metadata IDs/i,
+  },
+  {
+    name: "metadata prose parity / reordered metadata IDs",
+    mutation: (root) => setRiskAffects(root, ["DOC-CORE-NAVIGATION-MANIFEST", "DOC-CORE-NAVIGATION-DOCUMENT-MAP"], [
+      "- [DOC-CORE-NAVIGATION-MANIFEST](../manifest.json)",
+      "- [DOC-CORE-NAVIGATION-DOCUMENT-MAP](../DOCUMENT_MAP.md)",
+    ]),
+    expected: /affects must be sorted by ascending stable ID/i,
+  },
+  {
+    name: "metadata prose parity / reordered prose bullets",
+    mutation: (root) => setRiskAffects(root, ["DOC-CORE-NAVIGATION-DOCUMENT-MAP", "DOC-CORE-NAVIGATION-MANIFEST"], [
+      "- [DOC-CORE-NAVIGATION-MANIFEST](../manifest.json)",
+      "- [DOC-CORE-NAVIGATION-DOCUMENT-MAP](../DOCUMENT_MAP.md)",
+    ]),
+    expected: /Affected IDs must exactly match the sorted metadata IDs/i,
+  },
+  {
+    name: "metadata prose parity / duplicate prose bullet",
+    mutation: (root) => setRiskAffects(root, ["DOC-CORE-NAVIGATION-MANIFEST"], [
+      "- [DOC-CORE-NAVIGATION-MANIFEST](../manifest.json)",
+      "- [DOC-CORE-NAVIGATION-MANIFEST](../manifest.json)",
+    ]),
+    expected: /Affected IDs must contain one Markdown bullet per ID and no prose/i,
+  },
+  {
+    name: "closure / unresolved affects",
+    mutation: (root) => setRiskAffects(root, ["DOC-MISSING"], ["- [DOC-MISSING](../missing.md)"]),
+    expected: /affects has unresolved canonical identity DOC-MISSING/i,
+  },
+  {
+    name: "closure / self affects",
+    mutation: (root) => setRiskAffects(root, [RISK_ID], [`- [${RISK_ID}](RISK_REGISTER.md#risk-core-documentation-dual-truth-001)`]),
+    expected: /affects cannot contain its own identity/i,
+  },
+  {
+    name: "closure / unresolved closedBy",
+    mutation: (root) => setUnknownClosedBy(root, ["WORK-MISSING"], ["- [WORK-MISSING](ROADMAP.md#work-missing)"]),
+    expected: /closedBy must contain resolvable GATE or WORK identities/i,
+  },
+  {
+    name: "closure / wrong-type closedBy",
+    mutation: (root) => setUnknownClosedBy(root, [RISK_ID], [`- [${RISK_ID}](RISK_REGISTER.md#risk-core-documentation-dual-truth-001)`]),
+    expected: /closedBy must contain resolvable GATE or WORK identities/i,
+  },
+  {
+    name: "closure / unresolved motivatedBy",
+    mutation: (root) => setRoadmapMotivatedBy(root, ["RISK-MISSING", UNKNOWN_ID], [
+      "- [RISK-MISSING](RISK_REGISTER.md#risk-missing)",
+      `- [${UNKNOWN_ID}](KNOWN_UNKNOWNS.md#unknown-core-documentation-contract-inventory-001)`,
+    ]),
+    expected: /motivatedBy must contain resolvable RISK or UNKNOWN identities/i,
+  },
+  {
+    name: "closure / wrong-type motivatedBy",
+    mutation: (root) => setRoadmapMotivatedBy(root, ["DOC-CORE-NAVIGATION-MANIFEST", UNKNOWN_ID], [
+      "- [DOC-CORE-NAVIGATION-MANIFEST](../manifest.json)",
+      `- [${UNKNOWN_ID}](KNOWN_UNKNOWNS.md#unknown-core-documentation-contract-inventory-001)`,
+    ]),
+    expected: /motivatedBy must contain resolvable RISK or UNKNOWN identities/i,
+  },
+  {
+    name: "closure / genuine negative cross-category target removal",
+    mutation: (root) => rewriteText(root, ROADMAP_PATH, (source) => source.replaceAll(WORK_ID, "WORK-CORE-LAYOUT-CUTOVER-002")),
+    expected: /closedBy must contain resolvable GATE or WORK identities/i,
+  },
+  {
+    name: "authored reference / unregistered ID and path",
+    mutation: (root) => rewriteText(root, "docs/project/CURRENT_STATE.md", (source) => `${source}\n[DOC-UNREGISTERED](../UNREGISTERED.md)\n`),
+    expected: /unresolved authored canonical reference DOC-UNREGISTERED/i,
+  },
+  {
+    name: "authored reference / decorated non-exact link label",
+    mutation: (root) => rewriteText(root, "docs/project/CURRENT_STATE.md", (source) => `${source}\n[DOC-CORE-NAVIGATION-MANIFEST — manifest](../manifest.json)\n`),
+    expected: /canonical link labels must be exactly one stable ID/i,
+  },
+  {
+    name: "link target / URI",
+    mutation: (root) => rewriteText(root, "docs/project/CURRENT_STATE.md", (source) => `${source}\n[DOC-CORE-NAVIGATION-MANIFEST](https://example.test/manifest.json)\n`),
+    expected: /must use a relative non-URI target/i,
+  },
+  {
+    name: "link target / absolute path",
+    mutation: (root) => rewriteText(root, "docs/project/CURRENT_STATE.md", (source) => `${source}\n[DOC-CORE-NAVIGATION-MANIFEST](/docs/manifest.json)\n`),
+    expected: /must use a relative non-URI target/i,
+  },
+  {
+    name: "link target / repository escaping",
+    mutation: (root) => rewriteText(root, "docs/project/CURRENT_STATE.md", (source) => `${source}\n[DOC-CORE-NAVIGATION-MANIFEST](../../../outside.md)\n`),
+    expected: /escapes the canonical root/i,
+  },
+  {
+    name: "link target / pathless fragment",
+    mutation: (root) => rewriteText(root, "docs/project/CURRENT_STATE.md", (source) => `${source}\n[DOC-CORE-NAVIGATION-MANIFEST](#manifest)\n`),
+    expected: /must include a relative repository path/i,
+  },
+  {
+    name: "link grammar / reference-style link",
+    mutation: (root) => rewriteText(root, "docs/project/CURRENT_STATE.md", (source) => `${source}\n[DOC-CORE-NAVIGATION-MANIFEST][manifest]\n\n[manifest]: ../manifest.json\n`),
+    expected: /contains a bare canonical ID outside a FLOWDOC-RECORD block/i,
+  },
+  {
+    name: "current state / migrated-capability claim with empty release composition",
+    mutation: (root) => write(root, "docs/project/CURRENT_STATE.md", "# Current state\n\nThe layout capability is migrated.\n"),
+    expected: /current state cannot claim a migrated capability while release composition is empty/i,
+  },
+  {
+    name: "risk / adverse-event omission",
+    mutation: (root) => replaceText(root, RISK_PATH, "Conflicting sources lead to inconsistent decisions.", ""),
+    expected: /Adverse event must contain an actual prose paragraph/i,
+  },
+  {
+    name: "risk / mitigation omission",
+    mutation: (root) => replaceText(root, RISK_PATH, "Use the canonical manifest and validation gate.", ""),
+    expected: /Mitigation must contain an actual prose paragraph/i,
+  },
+  {
+    name: "unknown / missing-evidence omission",
+    mutation: (root) => replaceText(root, UNKNOWN_PATH, "The complete contract inventory is not yet authored.", ""),
+    expected: /Missing evidence must contain an actual prose paragraph/i,
+  },
+  {
+    name: "unknown / closing field omission",
+    mutation: (root) => replaceText(root, UNKNOWN_PATH, ',"closedBy":["WORK-CORE-LAYOUT-CUTOVER-001"]', ""),
+    expected: /metadata is missing field closedBy/i,
+  },
+  {
+    name: "roadmap / missing motivating ID",
+    mutation: (root) => setRoadmapMotivatedBy(root, [], []),
+    expected: /motivatedBy must be non-empty/i,
+  },
+  {
+    name: "effective astral regression / shifted metadata span cannot erase prose ID",
+    mutation: (root) => {
+      replaceText(root, RISK_PATH, `## ${RISK_ID} — Divergent sources`, `## ${RISK_ID} — ${"😀".repeat(38)} Divergent sources`)
+      replaceText(root, RISK_PATH, "Conflicting sources lead to inconsistent decisions.", "REPO-FLOWDOC-CORE remains bare inside otherwise-valid prose.")
+    },
+    expected: /contains a bare canonical ID outside a FLOWDOC-RECORD block: REPO-FLOWDOC-CORE/i,
+  },
+  {
+    name: "prose paragraph / raw-HTML-block-only body",
+    mutation: (root) => replaceText(root, RISK_PATH, "Conflicting sources lead to inconsistent decisions.", "<div>not a prose paragraph</div>"),
+    expected: /Adverse event must contain an actual prose paragraph/i,
+  },
+]
+
+const RED_BRANCHES_AT_91A7973 = new Set([
+  "manifest / missing Task 4 row",
+  "manifest / extra Task 4 row",
+  "manifest / path mismatch",
+  "manifest / kind mismatch",
+  "manifest / scope mismatch",
+  "manifest / subsystem mismatch",
+  "manifest / audience mismatch",
+  "manifest / authority mismatch",
+  "manifest / lifecycle mismatch",
+  "manifest / repositoryIds mismatch",
+  "manifest / releaseLines mismatch",
+  "metadata / collision with an existing canonical category",
+  "prose paragraph / raw-HTML-block-only body",
+])
+const AUDITED_TRUTH_PLANE_BRANCH_LEDGER = TRUTH_PLANE_BRANCH_LEDGER.map((row) => ({
+  ...row,
+  baselineAt91a7973: RED_BRANCHES_AT_91A7973.has(row.name) ? "RED" : "covered",
+}))
+
+const TRUTH_PLANE_POSITIVE_LEDGER: { name: string, mutation: (root: string) => void }[] = [
+  {
+    name: "valid embedded records",
+    mutation: () => {},
+  },
+  {
+    name: "valid embedded record after astral title text",
+    mutation: (root) => replaceText(root, RISK_PATH, `## ${RISK_ID} — Divergent sources`, `## ${RISK_ID} — ${"😀".repeat(38)} Divergent sources`),
+  },
+  {
+    name: "correct owner path with fragment",
+    mutation: (root) => rewriteText(root, "docs/project/CURRENT_STATE.md", (source) => `${source}\n[DOC-CORE-NAVIGATION-MANIFEST](../manifest.json#document)\n`),
+  },
+]
+
 describe("canonical documentation spine", () => {
   test("loads the approved pending-baseline model without publishing a baseline record", () => {
     const root = fixture()
@@ -538,6 +1003,36 @@ A dual-status token is qualified.
     const root = fixture()
     write(root, "docs/coordination/BOUNDARY.md", "# Boundary\n\nSee DOC-MISSING.\n")
     expect(() => loadPending(root)).toThrow(/unresolved canonical reference DOC-MISSING/i)
+  })
+
+  test.each(AUDITED_TRUTH_PLANE_BRANCH_LEDGER)("truth-plane branch ledger / $baselineAt91a7973 at 91a7973 / $name", ({ mutation, expected }) => {
+    const root = fixture()
+    addTruthPlane(root)
+    mutation(root)
+    const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+    expect(check.status).not.toBe(0)
+    expect(check.stderr).toMatch(expected)
+  })
+
+  test.each(TRUTH_PLANE_POSITIVE_LEDGER)("truth-plane positive ledger / $name", ({ mutation }) => {
+    const root = fixture()
+    addTruthPlane(root)
+    mutation(root)
+    const generation = runCli(root, "scripts/generate-canonical-docs.mjs")
+    expect(generation.status, generation.stderr).toBe(0)
+    const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+    expect(check.status, check.stderr).toBe(0)
+  })
+
+  test("truth-plane positive ledger / real-root cross-category closure", () => {
+    const root = process.cwd()
+    const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+    expect(check.status, check.stderr).toBe(0)
+    const model = loadCanonicalDocumentationModel(root, { allowPendingBaselineId: BASELINE_ID })
+    const workIds = new Set(model.embeddedRecords.filter((record: any) => record.recordKind === "work").map((record: any) => record.recordId))
+    const motivatedIds = new Set(model.embeddedRecords.filter((record: any) => record.recordKind !== "work").map((record: any) => record.recordId))
+    expect(model.embeddedRecords.filter((record: any) => record.recordKind === "unknown").flatMap((record: any) => record.closedBy).every((recordId: string) => workIds.has(recordId))).toBe(true)
+    expect(model.embeddedRecords.filter((record: any) => record.recordKind === "work").flatMap((record: any) => record.motivatedBy).every((recordId: string) => motivatedIds.has(recordId))).toBe(true)
   })
 
   test("collects embedded truth records and validates them through the production checker entrypoint", () => {
