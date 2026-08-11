@@ -268,6 +268,14 @@ function normalizeReferenceLabel(label) {
   return label.trim().replace(/\s+/g, " ").toLocaleLowerCase("en-US")
 }
 
+function isEscapableAsciiPunctuation(character) {
+  const code = character?.charCodeAt(0)
+  return (code >= 0x21 && code <= 0x2f)
+    || (code >= 0x3a && code <= 0x40)
+    || (code >= 0x5b && code <= 0x60)
+    || (code >= 0x7b && code <= 0x7e)
+}
+
 function referenceDefinitionLabel(line) {
   const match = /^[ \t]{0,3}\[((?:\\.|[^\[\]\\\r\n])+)]:(.*)\r?$/.exec(line)
   if (!match) return null
@@ -287,7 +295,7 @@ function referenceDefinitionLabel(line) {
     for (; index < source.length && !/[ \t]/.test(source[index]); index += 1) {
       const character = source[index]
       if (character === "<" || character === ">") return null
-      if (character === "\\" && index + 1 < source.length) {
+      if (character === "\\" && isEscapableAsciiPunctuation(source[index + 1])) {
         index += 1
         continue
       }
@@ -305,6 +313,7 @@ function referenceDefinitionLabel(line) {
   if (remainder.length === 0) return label
   if (!/^[ \t]+/.test(remainder)) return null
   const title = remainder.trim()
+  if (title.length === 0) return label
   if (!/^(?:"[^"\r\n]*"|'[^'\r\n]*'|\([^()\r\n]*\))$/.test(title)) return null
   return label
 }

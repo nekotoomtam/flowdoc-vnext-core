@@ -392,6 +392,20 @@ A dual-status token is qualified.
     const unbalancedDestination = fixture()
     write(unbalancedDestination, "docs/coordination/BOUNDARY.md", "# Boundary\n\n[status]: broken)\n")
     expect(() => loadPending(unbalancedDestination)).toThrow(/ambiguous alias status/i)
+
+    const escapedWhitespace = fixture()
+    write(escapedWhitespace, "docs/coordination/BOUNDARY.md", "# Boundary\n\n[status]: broken\\ value\n")
+    expect(() => loadPending(escapedWhitespace)).toThrow(/ambiguous alias status/i)
+  })
+
+  test("treats trailing whitespace as no reference title and permits punctuation escapes in bare destinations", () => {
+    const trailingWhitespace = fixture()
+    write(trailingWhitespace, "docs/coordination/BOUNDARY.md", "# Boundary\n\n[status]: https://example.test/safe   \n")
+    expect(() => loadPending(trailingWhitespace)).not.toThrow()
+
+    const escapedPunctuation = fixture()
+    write(escapedPunctuation, "docs/coordination/BOUNDARY.md", "# Boundary\n\n[status]: https://example.test/safe\\)destination\n")
+    expect(() => loadPending(escapedPunctuation)).not.toThrow()
   })
 
   test("strips reference destination labels only when they resolve to valid normalized definitions", () => {
