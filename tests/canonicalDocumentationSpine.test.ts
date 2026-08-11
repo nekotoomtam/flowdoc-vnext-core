@@ -1,10 +1,13 @@
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { dirname, join } from "node:path"
+import { spawnSync } from "node:child_process"
 import { afterEach, describe, expect, test } from "vitest"
 
 // @ts-ignore Task-owned executable Node model intentionally has no TypeScript declaration file.
 import { collectCanonicalReferences, collectEmbeddedCanonicalRecords, loadCanonicalDocumentationModel, validateCanonicalDocumentationModel, validateDevelopmentBaselineEvolution } from "../scripts/documentation/canonical-docs-model.mjs"
+// @ts-ignore Task-owned executable Node renderer intentionally has no TypeScript declaration file.
+import { GENERATED_HEADER, renderGeneratedFiles } from "../scripts/documentation/canonical-docs-render.mjs"
 
 const fixtureRoots: string[] = []
 
@@ -32,7 +35,11 @@ function fixture(): string {
       { documentId: "DOC-CORE-DEVELOPMENT-BASELINE", path: "docs/coordination/DEVELOPMENT_BASELINE.json", kind: "development-baseline", scope: "cross-repository", audience: "internal", authority: "normative", lifecycle: "active" },
       { documentId: "DOC-CORE-RELEASE-0-1", path: "docs/versions/0_1/release.json", kind: "release-composition", scope: "core", audience: "public", authority: "normative", lifecycle: "active" },
       { documentId: "DOC-CORE-RISK-REGISTER", path: "docs/coordination/RISK_REGISTER.md", kind: "risk-register", scope: "core", audience: "internal", authority: "normative", lifecycle: "active" },
+      { documentId: "DOC-CORE-DOCUMENT-MAP", path: "docs/DOCUMENT_MAP.md", kind: "navigation", scope: "core", audience: "both", authority: "navigation", lifecycle: "active" },
+      { documentId: "DOC-CORE-GLOSSARY-TECHNICAL", path: "docs/GLOSSARY.md", kind: "glossary", scope: "core", audience: "both", authority: "navigation", lifecycle: "active" },
+      { documentId: "DOC-CORE-GLOSSARY-THAI", path: "docs/GLOSSARY_TH.md", kind: "glossary", scope: "core", audience: "both", authority: "navigation", lifecycle: "active" },
       { documentId: "DOC-VERSION-OVERVIEW", path: "docs/versions/0_1/VERSION_OVERVIEW.md", kind: "current-state", scope: "core", audience: "public", authority: "explanatory", lifecycle: "active" },
+      { documentId: "DOC-VERSION-CAPABILITY-SET", path: "docs/versions/0_1/CAPABILITY_SET.md", kind: "current-state", scope: "core", audience: "public", authority: "explanatory", lifecycle: "active" },
     ],
   })
   write(root, "docs/glossary.json", {
@@ -73,7 +80,32 @@ function fixture(): string {
 
 This risk remains actively owned.\n`)
   write(root, "docs/versions/0_1/VERSION_OVERVIEW.md", "# Version overview\n\nThe accepted capability is documented here.\n")
+  for (const generatedPath of ["docs/DOCUMENT_MAP.md", "docs/GLOSSARY.md", "docs/GLOSSARY_TH.md", "docs/versions/0_1/CAPABILITY_SET.md"]) write(root, generatedPath, "stale generated output\n")
   return root
+}
+
+function runCli(root: string, script: string, ...args: string[]) {
+  return spawnSync(process.execPath, [script, "--root", root, ...args], {
+    cwd: process.cwd(),
+    encoding: "utf8",
+  })
+}
+
+function runCliFromRoot(root: string, script: string, ...args: string[]) {
+  return spawnSync(process.execPath, [join(process.cwd(), script), ...args], {
+    cwd: root,
+    encoding: "utf8",
+  })
+}
+
+function generated(root: string): Record<string, string> {
+  return Object.fromEntries([
+    "docs/DOCUMENT_MAP.md",
+    "docs/GLOSSARY.md",
+    "docs/GLOSSARY_TH.md",
+    "docs/versions/0_1/VERSION_OVERVIEW.md",
+    "docs/versions/0_1/CAPABILITY_SET.md",
+  ].map((path) => [path, readFileSync(join(root, path), "utf8")]))
 }
 
 function rewriteJson(root: string, relativePath: string, mutate: (value: any) => void): void {
@@ -245,5 +277,92 @@ FlowDoc is deliberately ambiguous.\n`)
       "TERM-CORE-TWO",
       "DECISION-CORE-DOCS-20260811-01",
     ])
+  })
+
+  test("generates byte-identical approved views with the generated header", () => {
+    const root = fixture()
+    const first = runCli(root, "scripts/generate-canonical-docs.mjs")
+    expect(first.status, first.stderr).toBe(0)
+    const initial = generated(root)
+    const second = runCli(root, "scripts/generate-canonical-docs.mjs")
+    expect(second.status, second.stderr).toBe(0)
+    expect(generated(root)).toEqual(initial)
+    for (const output of Object.values(initial)) expect(output.startsWith(GENERATED_HEADER)).toBe(true)
+  })
+
+  test("uses the current directory when a root option is omitted", () => {
+    const root = fixture()
+    const generate = runCliFromRoot(root, "scripts/generate-canonical-docs.mjs")
+    expect(generate.status, generate.stderr).toBe(0)
+    const check = runCliFromRoot(root, "scripts/check-canonical-docs.mjs")
+    expect(check.status, check.stderr).toBe(0)
+  })
+
+  test("checks generated drift in memory without rewriting it", () => {
+    const root = fixture()
+    expect(runCli(root, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+    writeFileSync(join(root, "docs/GLOSSARY.md"), `${GENERATED_HEADER}edited byte\n`, "utf8")
+    const check = runCli(root, "scripts/check-canonical-docs.mjs")
+    expect(check.status).not.toBe(0)
+    expect(check.stderr).toMatch(/drift.*GLOSSARY/i)
+    expect(readFileSync(join(root, "docs/GLOSSARY.md"), "utf8")).toBe(`${GENERATED_HEADER}edited byte\n`)
+  })
+
+  test("generation changes no authored canonical path", () => {
+    const root = fixture()
+    const authored = join(root, "docs/coordination/RISK_REGISTER.md")
+    const before = readFileSync(authored, "utf8")
+    expect(runCli(root, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+    expect(readFileSync(authored, "utf8")).toBe(before)
+  })
+
+  test("generation fails when structured canonical input is missing or invalid", () => {
+    const missing = fixture()
+    rmSync(join(missing, "docs/glossary.json"))
+    expect(runCli(missing, "scripts/generate-canonical-docs.mjs").status).not.toBe(0)
+    const invalid = fixture()
+    writeFileSync(join(invalid, "docs/glossary.json"), "{invalid", "utf8")
+    expect(runCli(invalid, "scripts/generate-canonical-docs.mjs").status).not.toBe(0)
+  })
+
+  test("renders bilingual glossaries with identical sorted Term IDs", () => {
+    const outputs = renderGeneratedFiles(loadCanonicalDocumentationModel(fixture()))
+    const ids = (output: string) => [...output.matchAll(/^- `(TERM-[A-Z0-9-]+)`/gm)].map((match) => match[1])
+    expect(ids(outputs["docs/GLOSSARY.md"])).toEqual([
+      "TERM-CORE-CANONICAL-DOCUMENT",
+      "TERM-CORE-LEGACY-DOCUMENT",
+    ])
+    expect(ids(outputs["docs/GLOSSARY_TH.md"])).toEqual(ids(outputs["docs/GLOSSARY.md"]))
+  })
+
+  test("sorts document-map links by stable ID within the required groups", () => {
+    const root = fixture()
+    rewriteJson(root, "docs/manifest.json", (manifest) => { manifest.documents.reverse() })
+    const map = renderGeneratedFiles(loadCanonicalDocumentationModel(root))["docs/DOCUMENT_MAP.md"]
+    expect(map).toMatch(/## Coordination[\s\S]*DOC-CORE-DEVELOPMENT-BASELINE[\s\S]*DOC-CORE-REPOSITORY-INDEX[\s\S]*DOC-CORE-RISK-REGISTER/)
+    expect(map.indexOf("## Active current truth")).toBeLessThan(map.indexOf("## Coordination"))
+    expect(map.indexOf("## Coordination")).toBeLessThan(map.indexOf("## Version line"))
+    expect(map.indexOf("## Version line")).toBeLessThan(map.indexOf("## Glossary"))
+  })
+
+  test("allows only the release-referenced pending baseline identifier", () => {
+    const root = fixture()
+    expect(runCli(root, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+    expect(runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", "BASELINE-FLOWDOC-20260811-01").status).toBe(0)
+    const invalid = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", "BASELINE-FLOWDOC-20260811-99")
+    expect(invalid.status).not.toBe(0)
+    expect(invalid.stderr).toMatch(/exactly match release baseline/i)
+  })
+
+  test("renders a pending baseline as an explicit non-release-ready view", () => {
+    const root = fixture()
+    const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", "BASELINE-FLOWDOC-20260811-01")
+    expect(check.status).not.toBe(0)
+    expect(runCli(root, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+    const overview = readFileSync(join(root, "docs/versions/0_1/VERSION_OVERVIEW.md"), "utf8")
+    expect(overview).toContain("releaseVersion: unversioned")
+    expect(overview).toContain("releaseReady: false")
+    expect(overview).toContain("compatibility: not-verified")
+    expect(overview).toMatch(/not published.*not release-ready/i)
   })
 })
