@@ -571,6 +571,26 @@ export function beginVNextTextBlockUnifiedLayoutSourceCommitInternalV1(
     VNextTextBlockUnifiedLayoutSourceStagePublicationPlanAuthorityInternalV1
 }>
 
+export function assertVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanApplyInternalV1(
+  planAuthority:
+    VNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanAuthorityInternalV1,
+): void
+
+export function assertVNextTextBlockUnifiedLayoutSourceSidecarCommitPlanApplyInternalV1(
+  planAuthority:
+    VNextTextBlockUnifiedLayoutSourceSidecarCommitPlanAuthorityInternalV1,
+): void
+
+export function assertVNextTextBlockUnifiedLayoutSourceCandidateCommitPlanApplyInternalV1(
+  planAuthority:
+    VNextTextBlockUnifiedLayoutSourceCandidateCommitPlanAuthorityInternalV1,
+): void
+
+export function assertVNextTextBlockUnifiedLayoutSourceStagePublicationPlanApplyInternalV1(
+  planAuthority:
+    VNextTextBlockUnifiedLayoutSourceStagePublicationPlanAuthorityInternalV1,
+): void
+
 export function finishVNextTextBlockUnifiedLayoutSourceCommitInternalV1(
   ticket: VNextTextBlockUnifiedLayoutSourceStageCommitTicketInternalV1,
 ): void
@@ -635,6 +655,16 @@ Each participant exposes one task-specific `prepare...PlanInternalV1` and one
 `apply...PlanInternalV1`. No participant exposes a captured commit function,
 unprotect operation, generic plan registrar, or callback-based observer in the
 prepare/mint/commit path.
+
+Every participant apply operation calls its matching fixed `assert...PlanApply`
+operation before its first owner-local mutation. The assertion resolves the
+exact plan binding to its exact live ticket and fixed owner slot, requires the
+transaction phase to be `committing`, and returns `void`. Wrong phase, detached
+plan, consumed plan, clone, cross-ticket plan, or cross-owner plan throws an
+SCT-T44 invariant rejection before participant mutation. These four fixed
+assertions are plain transaction-owner WeakMap lookups; they allocate nothing,
+run no callback, expose no generic slot parameter, and introduce no participant
+phase or shadow transaction state.
 
 | Owner | Prepare operation | Apply operation |
 |---|---|---|
@@ -765,6 +795,10 @@ live write in Section 8.2. No test fault executes after live. Every row proves:
 
 - detached identity cannot authorize CandidateWork, protection, apply, or
   resolve;
+- each detached participant plan fails its matching `assert...PlanApply`
+  operation before mint and while the ticket is merely `live`;
+- each exact participant plan passes only after `begin` changes the exact
+  ticket to `committing` and fails again after the consumed tombstone;
 - plans attach exactly once to the exact ticket and fixed slot;
 - plan clone/cross-ticket/cross-owner application rejects before mutation;
 - commit accepts ticket only;

@@ -199,6 +199,26 @@ export function isVNextTextBlockUnifiedLayoutSourceCommitAccessReservationProtec
 ): boolean
 ```
 
+- Produces four fixed committing-phase assertions. Each resolves the exact plan binding to its exact ticket and owner slot, requires phase `committing`, returns `void`, and throws before participant mutation for detached/live-only/consumed/clone/cross-ticket/cross-owner input:
+
+```ts
+export function assertVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanApplyInternalV1(
+  planAuthority: VNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanAuthorityInternalV1,
+): void
+
+export function assertVNextTextBlockUnifiedLayoutSourceSidecarCommitPlanApplyInternalV1(
+  planAuthority: VNextTextBlockUnifiedLayoutSourceSidecarCommitPlanAuthorityInternalV1,
+): void
+
+export function assertVNextTextBlockUnifiedLayoutSourceCandidateCommitPlanApplyInternalV1(
+  planAuthority: VNextTextBlockUnifiedLayoutSourceCandidateCommitPlanAuthorityInternalV1,
+): void
+
+export function assertVNextTextBlockUnifiedLayoutSourceStagePublicationPlanApplyInternalV1(
+  planAuthority: VNextTextBlockUnifiedLayoutSourceStagePublicationPlanAuthorityInternalV1,
+): void
+```
+
 - Produces test-only deterministic fault selection, not a callback:
 
 ```ts
@@ -338,6 +358,8 @@ Install the exact fixed indexes in a deterministic sequence. Keep local boolean 
 
 `beginVNextTextBlockUnifiedLayoutSourceCommitInternalV1` must atomically change `live → committing` and return the exact four-plan bundle. Replay or wrong ticket throws an internal invariant error; it does not return `null`.
 
+Before `begin`, all four matching plan-apply assertions throw. After `begin`, each exact fixed-slot plan assertion returns `void`; clone, cross-ticket, and cross-owner plans still throw. After `finish`, all four assertions throw again without resolving the consumed graph.
+
 `finishVNextTextBlockUnifiedLayoutSourceCommitInternalV1` must remove the live graph and install only a consumed `WeakSet` tombstone. It must retain no plan, participant, Root, Source, meter, sidecar, or result reference.
 
 - [ ] **Step 6: Verify no participant runtime dependency**
@@ -437,6 +459,8 @@ Keep the existing foundation publication path unchanged for admitted zero-Source
 - [ ] **Step 4: Implement infallible CandidateWork apply**
 
 Apply accepts only the exact plan authority returned by transaction `begin`. It performs plain owner-local `WeakMap.set`, precreated authority publication, and meter state advancement. It returns the exact precreated CandidateWork authority and has no nullable/boolean branch.
+
+Its first operation is `assertVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanApplyInternalV1(planAuthority)`. A detached or merely-live plan therefore rejects before any CandidateWork registry or meter mutation.
 
 ```ts
 const prepared = prepareVNextTextBlockUnifiedLayoutCandidateWorkPublicationPlanInternalV1(
@@ -548,6 +572,8 @@ consumeExactSidecarCandidateHandles()
 
 Every helper in this tail returns `void`. A missing reservation or duplicate at this point is an internal invariant throw, not `false`/`null`.
 
+Its first operation is `assertVNextTextBlockUnifiedLayoutSourceSidecarCommitPlanApplyInternalV1(planAuthority)`.
+
 - [ ] **Step 6: Prove active protection and pre-live cleanup**
 
 Before live, exact release/discard succeeds. While live, Sidecar candidate discard, Source candidate alias discard, and access release all return `false`. After apply, the committed registration remains resolvable and all temporary candidate handles are gone.
@@ -641,6 +667,8 @@ Remove the SourceState runtime import of SourceAuthority. `discardVNextTextBlock
 - [ ] **Step 5: Implement infallible Source apply**
 
 Apply publishes the exact precreated access record, removes access reservation and all three candidate handles, records the candidate as consumed owner-locally, and preserves the prepared next Source/Plan A storage required by later checkpoints.
+
+Its first operation is `assertVNextTextBlockUnifiedLayoutSourceCandidateCommitPlanApplyInternalV1(planAuthority)`.
 
 Do not call the old post-stage `consumeVNextTextBlockUnifiedLayoutSourcePathCopyCandidateInternalV1` from the Plan A path. Retain compatibility behavior only where an audited non-Plan-A caller still requires it.
 
@@ -793,6 +821,8 @@ VNextTextBlockUnifiedLayoutSourceStagePlanAResultRecordInternalV1
 ```
 
 The Stage apply performs only owner-local map publication of these exact objects and returns `void`.
+
+Its first operation is `assertVNextTextBlockUnifiedLayoutSourceStagePublicationPlanApplyInternalV1(planAuthority)`.
 
 - [ ] **Step 5: Implement the SourceAuthority coordinator**
 
@@ -1133,7 +1163,7 @@ git log -2 --oneline
 git stash list --format='%H %gd' | Select-Object -First 1
 ```
 
-Expected: working tree clean, exactly two new commits after the approved plan commit (implementation and Thai review), stash top unchanged. Report the plan commit, implementation commit, documentation commit, exact tests, review verdicts, residual risks, and whether Task 7 may close. Do not push, merge, start Task 8, or expand into 5B-2B/5B-3 without fresh user approval.
+Expected: working tree clean, one approved interface-amendment docs commit plus the implementation and Thai-review commits after the approved plan commit, stash top unchanged. Report the plan commit, amendment commit, implementation commit, documentation commit, exact tests, review verdicts, residual risks, and whether Task 7 may close. Do not push, merge, start Task 8, or expand into 5B-2B/5B-3 without fresh user approval.
 
 ---
 
