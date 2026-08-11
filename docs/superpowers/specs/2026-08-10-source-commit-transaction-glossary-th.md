@@ -113,7 +113,10 @@ access reservation, next Source state และ candidate retirement mutations
 ### SCT-T13 — Stage Publication Plan
 
 SCT-T09 ของ SourceAuthority เก็บ Source-stage, structural-target และ optional
-layout-delta authorities/records รวมถึง exact commit result ที่สร้างไว้ก่อน live
+layout-delta authorities/records รวมถึง exact Plan A accepted Source-stage
+object, private Source-stage result record และ exact commit result ที่สร้างไว้
+ก่อน live หลัง commit TransitionSource ต้องคืน object เดิมโดยห้ามสร้างหรือ
+freeze ใหม่
 
 ### SCT-T14 — Transaction Owner
 
@@ -126,7 +129,9 @@ module นี้ไม่ถือ Source/Sidecar payload และไม่ร�
 
 fixed code path ใน SourceAuthority ที่เรียก prepare/apply ของ participant ตาม
 ลำดับตายตัว Coordinator เป็นเจ้าของลำดับ แต่ไม่เป็นเจ้าของ participant data
-และไม่รับ callback หรือ participant list จาก caller
+และไม่รับ callback หรือ participant list จาก caller เฉพาะ Plan A นั้น SCT-T13
+ของ SourceAuthority เป็นเจ้าของ accepted Source-stage object กับ private result
+record เพื่อให้ result publication อยู่ภายใน SCT-T35
 
 ### SCT-T16 — Participant Owner
 

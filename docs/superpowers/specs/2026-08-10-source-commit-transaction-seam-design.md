@@ -28,7 +28,9 @@ The design creates all exact records, authorities, access records, copies,
 freezes, and fallible decisions before SCT-T25. Successful mint installs a
 fixed set of transaction indexes without executing external code. After live,
 SourceAuthority invokes four exact plans through one synchronous SCT-T35 and
-returns an exact precreated result.
+returns the exact precreated Plan A accepted Source-stage result. TransitionSource
+returns that same identity without allocating, freezing, or publishing another
+Plan A result record after commit.
 
 The design does not add a generic transaction framework, a post-live undo
 framework, public API, canonical facts, fingerprints, serialization, Root
@@ -215,8 +217,9 @@ runtime back-edges before SourceAuthority gains fixed participant imports.
 | Source candidate, aliases, next Source, Source access | SourceState |
 | Physical/style pair reservation and permanent sidecars | SourceSidecars |
 | Source-stage, structural-target, layout-delta authorities | SourceAuthority |
+| Plan A accepted Source-stage object and private result record | SourceAuthority Stage Publication Plan |
 | Prepare/apply ordering | SourceAuthority coordinator |
-| Incremental Source result assembly | TransitionSource |
+| Compatibility Source result assembly and Plan A orchestration | TransitionSource |
 
 The following current control state moves semantically to the transaction
 owner:
@@ -410,14 +413,21 @@ Preparation:
 - binds the exact previous Root/Source, preflight/Evidence, composition,
   packing policy, previous/next sidecars, next Source, planned CandidateWork
   authority, and completed CandidateWork facts;
+- binds the exact validated change, producer Source material, bounded next
+  Source items/start, and lineage arrays already owned by TransitionSource;
 - preallocates Source-stage and structural-target authority identities;
 - preallocates layout-delta authority only when exact bounded layout facts are
   equal; and
-- precreates permanent records and the final frozen commit result.
+- precreates the exact frozen
+  `VNextTextBlockUnifiedLayoutSourceStageAcceptedPlanAV1`, its private
+  Source-stage result record, all permanent authority records, and the final
+  commit result.
 
 Apply installs those exact records and authorities, consumes the plan, and
-returns the exact precreated result. It cannot call a nullable authority
-factory after live.
+returns the exact precreated Plan A accepted Source-stage object. It cannot call
+a nullable authority factory after live. TransitionSource returns that same
+object and performs no Plan A `freeze`, spread, record construction, or
+`sourceStageRecords.set` after commit.
 
 ## 10. Required Interfaces
 
@@ -449,6 +459,39 @@ export interface VNextTextBlockUnifiedLayoutSourceCandidateCommitPlanAuthorityIn
 
 export interface VNextTextBlockUnifiedLayoutSourceStagePublicationPlanAuthorityInternalV1 {
   readonly __sourceStagePublicationPlanAuthorityOpaque: never
+}
+
+export interface VNextTextBlockUnifiedLayoutSourceStageAcceptedPlanAV1 {
+  readonly status: "accepted"
+  readonly authorityMode: "plan-a"
+  readonly preflight: VNextTextBlockUnifiedLayoutChangePreflightV2
+  readonly previousSourceRange: VNextTextBlockSourceRangeV1
+  readonly nextSourceRange: VNextTextBlockSourceRangeV1
+  readonly nextSourceState: VNextTextBlockUnifiedLayoutSourceStateV1
+  readonly existingLineageIds: readonly string[]
+  readonly insertedLineageIds: readonly string[]
+  readonly structuralTargetAuthority:
+    VNextTextBlockIncrementalStructuralTargetAuthorityInternalV1
+  readonly sourceLayoutDeltaAuthority:
+    VNextTextBlockSourceLayoutDeltaAuthorityInternalV1 | null
+  readonly sourceStageAuthority:
+    VNextTextBlockUnifiedLayoutSourceStageAuthorityInternalV1
+  readonly candidateWorkAuthority:
+    VNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1
+  readonly completedCandidateWork: VNextTextBlockIncrementalCandidateWorkV1
+  readonly issues: readonly []
+}
+
+export interface VNextTextBlockUnifiedLayoutSourceStagePlanAResultRecordInternalV1 {
+  readonly previousRoot: VNextTextBlockUnifiedLayoutRootV2
+  readonly sourceStage: VNextTextBlockUnifiedLayoutSourceStageAcceptedPlanAV1
+  readonly evidence: VNextTextBlockTransitionEvidenceV2 | null
+  readonly validatedChange: VNextTextBlockValidatedChangeV1
+  readonly sourceMaterial:
+    VNextTextBlockTransitionProducerSourceMaterialV2 | null
+  readonly boundedNextSourceItems:
+    readonly VNextTextBlockUnifiedLayoutSourceItemV1[]
+  readonly boundedNextSourceStartRenderedUtf16: number
 }
 
 export function createDetachedVNextTextBlockUnifiedLayoutSourceCommitInternalV1(
@@ -534,8 +577,9 @@ export function finishVNextTextBlockUnifiedLayoutSourceCommitInternalV1(
 ```
 
 ```ts
-// SourceAuthority facade. The current Task 6 exact tuple remains, but the
-// callback field is removed.
+// SourceAuthority facade. It retains the current Task 6 exact authority tuple,
+// removes the callback field, and adds the exact TransitionSource-owned facts
+// required to precreate the final Plan A accepted object and result record.
 export function prepareVNextTextBlockUnifiedLayoutSourceStageCommitInternalV1(
   input: Readonly<{
     previousRoot: VNextTextBlockUnifiedLayoutRootV2
@@ -563,21 +607,28 @@ export function prepareVNextTextBlockUnifiedLayoutSourceStageCommitInternalV1(
       VNextTextBlockUnifiedLayout5B2SourcePublicationPreconditionAuthorityInternalV1
     sidecarRegistrationPreconditionAuthority:
       VNextTextBlockUnifiedLayoutSourceStageSidecarPreconditionAuthorityInternalV1
+    validatedChange: VNextTextBlockValidatedChangeV1
+    sourceMaterial:
+      VNextTextBlockTransitionProducerSourceMaterialV2 | null
+    boundedNextSourceItems:
+      readonly VNextTextBlockUnifiedLayoutSourceItemV1[]
+    boundedNextSourceStartRenderedUtf16: number
+    existingLineageIds: readonly string[]
+    insertedLineageIds: readonly string[]
   }>,
 ): VNextTextBlockUnifiedLayoutSourceStageCommitTicketInternalV1 | null
 
 export function commitVNextTextBlockUnifiedLayoutSourceStageInternalV1(
   ticket: VNextTextBlockUnifiedLayoutSourceStageCommitTicketInternalV1,
-): Readonly<{
-  sourceStageAuthority:
-    VNextTextBlockUnifiedLayoutSourceStageAuthorityInternalV1
-  candidateWorkAuthority:
-    VNextTextBlockUnifiedLayout5B2CandidateWorkAuthorityInternalV1
-  structuralTargetAuthority:
-    VNextTextBlockIncrementalStructuralTargetAuthorityInternalV1
-  sourceLayoutDeltaAuthority:
-    VNextTextBlockSourceLayoutDeltaAuthorityInternalV1 | null
-}>
+): VNextTextBlockUnifiedLayoutSourceStageAcceptedPlanAV1
+
+export function resolveVNextTextBlockUnifiedLayoutSourceStagePlanAResultInternalV1(
+  input: Readonly<{
+    previousRoot: VNextTextBlockUnifiedLayoutRootV2
+    sourceStage: unknown
+    evidence: VNextTextBlockTransitionEvidenceV2 | null
+  }>,
+): VNextTextBlockUnifiedLayoutSourceStagePlanAResultRecordInternalV1 | null
 ```
 
 Each participant exposes one task-specific `prepare...PlanInternalV1` and one
@@ -602,6 +653,13 @@ The exact `sidecarRegistrationPreconditionAuthority` is also the Source access
 reservation authority, matching the current Task 6 tuple. Mint derives both
 fixed indexes from that one identity; it does not accept a second caller-chosen
 access key. `producingStageAuthority` must be exactly `evidence ?? preflight`.
+
+`VNextTextBlockUnifiedLayoutSourceStageAcceptedPlanAV1` and its Plan A private
+result-record type move to SourceAuthority. TransitionSource imports those types,
+returns the exact committed object, and delegates Plan A result resolution to
+SourceAuthority. The compatibility accepted type and compatibility
+`sourceStageRecords` registry remain in TransitionSource and do not participate
+in SCT-T01. SourceAuthority never runtime-imports TransitionSource.
 
 ## 11. Failure Semantics
 
@@ -712,6 +770,8 @@ live write in Section 8.2. No test fault executes after live. Every row proves:
 - commit accepts ticket only;
 - direct re-entry while committing and consumed replay reject;
 - each participant exact output is permanent after consumed;
+- the exact Plan A accepted Source-stage object returned by commit was created
+  before live and is the same identity returned by TransitionSource;
 - no output is registered twice; and
 - active indexes are clear while precondition one-shot behavior remains.
 
@@ -739,6 +799,8 @@ Static and behavioral guards prove:
 - participant modules do not runtime-import SourceAuthority;
 - the transaction module has no participant runtime imports;
 - TransitionSource does not import participant plan apply operations;
+- the Plan A branch contains no post-commit `freeze`, spread, authority
+  allocation, result-record construction, or `sourceStageRecords.set`;
 - no transaction symbol enters `src/index.ts`; and
 - no transaction value enters canonical JSON, fingerprint facts, public
   Transition V1, fallback, or serialization.
@@ -826,6 +888,7 @@ additional hot-path gate unnecessary.
 | Mint rollback misses an index | transaction module | every SCT-T46 row and retry proof |
 | Hidden callback/getter remains | architecture review | hostile re-entrancy matrix |
 | Participant and transaction state drift | participant task owner | exact plan/output resolver matrix |
+| Plan A result is assembled after consumed | SourceAuthority Stage plan | precreated-result identity and post-commit operation scan |
 | Runtime import cycle | architecture review | dependency scan |
 | Alias bypass | SourceState | opaque and both array-alias tests |
 | Terminal ghost index | transaction module | post-consumed inspector and next-checkpoint chain |
@@ -849,6 +912,8 @@ This micro-design is ready for implementation planning only when:
    pre-live detached plan;
 5. mint rollback and post-live plain-operation rules are explicit;
 6. ownership and runtime dependency direction are unique;
-7. public, fallback, Plan B-D, and generic-framework exclusions are explicit;
+7. the Plan A accepted Source-stage object and result record are precreated and
+   published by the Stage plan before TransitionSource returns them unchanged;
+8. public, fallback, Plan B-D, and generic-framework exclusions are explicit;
    and
-8. no implementation file is changed by the documentation task.
+9. no implementation file is changed by the documentation task.

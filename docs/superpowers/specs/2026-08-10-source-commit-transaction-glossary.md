@@ -133,7 +133,10 @@ candidate retirement mutations.
 
 The SCT-T09 owned by SourceAuthority. It contains preallocated Source-stage,
 structural-target, and optional layout-delta authority identities, their
-permanent records, and the exact precreated commit result.
+permanent records, the exact Plan A accepted Source-stage object, its private
+Source-stage result record, and the exact precreated commit result. The Plan A
+accepted object is returned directly after commit; TransitionSource does not
+rebuild or freeze it after live.
 
 ### SCT-T14 — Transaction Owner
 
@@ -150,7 +153,8 @@ the consumed tombstone.
 SourceAuthority's fixed code path that calls participant plan preparation and
 application in the specified order. It owns ordering, not participant data or
 transaction indexes. It accepts no caller-supplied callback or participant
-list.
+list. For Plan A only, its own SCT-T13 owns the accepted Source-stage object and
+private result record needed to keep result publication inside SCT-T35.
 
 ### SCT-T16 — Participant Owner
 
