@@ -194,6 +194,28 @@ describe("canonical documentation spine", () => {
     }
   })
 
+  test("rejects any pending baseline other than the Task 3 reserved literal before generation writes", () => {
+    const alternateBaselineId = "BASELINE-FLOWDOC-20260811-02"
+
+    const direct = fixture()
+    rewriteJson(direct, "docs/versions/0_1/release.json", (release) => { release.baselineId = alternateBaselineId })
+    expect(() => loadCanonicalDocumentationModel(direct, { allowPendingBaselineId: alternateBaselineId })).toThrow(/reserved pending baseline.*BASELINE-FLOWDOC-20260811-01/i)
+
+    const generatedRoot = fixture()
+    const sentinels = seedGeneratedSentinels(generatedRoot)
+    rewriteJson(generatedRoot, "docs/versions/0_1/release.json", (release) => { release.baselineId = alternateBaselineId })
+    const generation = runCli(generatedRoot, "scripts/generate-canonical-docs.mjs")
+    expect(generation.status).not.toBe(0)
+    expect(generation.stderr).toMatch(/reserved pending baseline.*BASELINE-FLOWDOC-20260811-01/i)
+    expect(generated(generatedRoot)).toEqual(sentinels)
+
+    const checkedRoot = fixture()
+    rewriteJson(checkedRoot, "docs/versions/0_1/release.json", (release) => { release.baselineId = alternateBaselineId })
+    const check = runCli(checkedRoot, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", alternateBaselineId)
+    expect(check.status).not.toBe(0)
+    expect(check.stderr).toMatch(/reserved pending baseline.*BASELINE-FLOWDOC-20260811-01/i)
+  })
+
   test("rejects malformed JSON before generating any view", () => {
     const root = fixture()
     const sentinels = seedGeneratedSentinels(root)
@@ -276,6 +298,16 @@ describe("canonical documentation spine", () => {
     expect(() => loadPending(root)).toThrow(/unknown field releaseReady/i)
   })
 
+  test("requires the exact provisional host and future coordination working name", () => {
+    const editorHost = fixture()
+    rewriteJson(editorHost, "docs/coordination/REPOSITORY_INDEX.json", (index) => { index.provisionalHostRepositoryId = "REPO-FLOWDOC-EDITOR" })
+    expect(() => loadPending(editorHost)).toThrow(/provisionalHostRepositoryId.*REPO-FLOWDOC-CORE/i)
+
+    const alternateName = fixture()
+    rewriteJson(alternateName, "docs/coordination/REPOSITORY_INDEX.json", (index) => { index.futureCoordinationRepository.workingName = "flowdoc-coordination-alternate" })
+    expect(() => loadPending(alternateName)).toThrow(/workingName.*flowdoc-vnext-coordination/i)
+  })
+
   test("requires the exact active compatibility document and authored metadata", () => {
     const root = fixture()
     rewriteJson(root, "docs/versions/0_1/release.json", (release) => { release.compatibilityDocumentId = "DOC-CORE-NAVIGATION-DOCUMENT-MAP" })
@@ -304,14 +336,41 @@ describe("canonical documentation spine", () => {
     expect(() => loadPending(ambiguous)).toThrow(/ambiguous-alias.*at least two/i)
   })
 
-  test("rejects bare ambiguous aliases but excludes code, link targets, direct IDs, and qualified hyphenated tokens", () => {
+  test("rejects visible ambiguous aliases but excludes code, every Markdown link target, direct IDs, and qualified hyphenated tokens", () => {
     const bare = fixture()
     write(bare, "docs/coordination/BOUNDARY.md", "# Boundary\n\nThe status is unspecified.\n")
     expect(() => loadPending(bare)).toThrow(/ambiguous alias status/i)
 
     const excluded = fixture()
-    write(excluded, "docs/coordination/BOUNDARY.md", "# Boundary\n\n`status` and [label](status) and TERM-FLOWDOC-FACT remain excluded.\n\n```text\nstatus\n```\n\nA dual-status token is qualified.\n")
+    write(excluded, "docs/coordination/BOUNDARY.md", `# Boundary
+
+\`status\`, [safe inline](https://example.test/status), and TERM-FLOWDOC-FACT remain excluded.
+
+[safe reference][status]
+[safe destination identifier][destination-id]
+
+[status]: https://example.test/status
+[destination-id]: https://example.test/status
+
+<https://example.test/status>
+<status@example.test>
+<mailto:status@example.test>
+
+\`\`\`text
+status
+\`\`\`
+
+A dual-status token is qualified.
+`)
     expect(() => loadPending(excluded)).not.toThrow()
+
+    const visibleInline = fixture()
+    write(visibleInline, "docs/coordination/BOUNDARY.md", "# Boundary\n\n[status](https://example.test/safe) remains visible.\n")
+    expect(() => loadPending(visibleInline)).toThrow(/ambiguous alias status/i)
+
+    const visibleReference = fixture()
+    write(visibleReference, "docs/coordination/BOUNDARY.md", "# Boundary\n\n[status][safe-label] remains visible.\n\n[safe-label]: https://example.test/safe\n")
+    expect(() => loadPending(visibleReference)).toThrow(/ambiguous alias status/i)
   })
 
   test("collects stable references and rejects unresolved active normative references", () => {

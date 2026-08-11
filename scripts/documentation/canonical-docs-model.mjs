@@ -42,6 +42,7 @@ const LANGUAGES = new Set(["technical", "thai", "language-neutral"])
 const REPOSITORY_ROLES = new Set(["core-engine", "editor-client", "backend-service"])
 const MANIFEST_ADOPTION = new Set(["active", "not-adopted"])
 const COMPATIBILITY_VALUES = new Set(["not-verified"])
+const TASK_3_PENDING_BASELINE_ID = "BASELINE-FLOWDOC-20260811-01"
 const REFERENCE_PATTERN = /\b(?:DOC|REPO|CONTRACT|SCHEMA|CAP|RISK|UNKNOWN|GATE|TERM|CONCEPT|WORK|BASELINE|DECISION)-[A-Z0-9][A-Z0-9-]*\b/g
 
 function fail(message) {
@@ -208,8 +209,10 @@ function parseRepositoryIndex(value) {
   exactFields(value, ["repositoryIndexSchemaVersion", "provisionalHostRepositoryId", "futureCoordinationRepository", "repositories"], "repository index")
   if (value.repositoryIndexSchemaVersion !== 1) fail("repositoryIndexSchemaVersion must be 1")
   id(value.provisionalHostRepositoryId, "REPO", "provisionalHostRepositoryId")
+  if (value.provisionalHostRepositoryId !== "REPO-FLOWDOC-CORE") fail("provisionalHostRepositoryId must be REPO-FLOWDOC-CORE")
   exactFields(value.futureCoordinationRepository, ["workingName", "lifecycle"], "future coordination repository")
   string(value.futureCoordinationRepository.workingName, "future coordination repository workingName")
+  if (value.futureCoordinationRepository.workingName !== "flowdoc-vnext-coordination") fail("future coordination repository workingName must be flowdoc-vnext-coordination")
   if (value.futureCoordinationRepository.lifecycle !== "not-created") fail("future coordination repository lifecycle must be not-created")
   const repositories = array(value.repositories, "repositories").map((repository) => {
     exactFields(repository, ["repositoryId", "name", "role", "manifestAdoption", "manifestDocumentId"], "repository")
@@ -265,7 +268,10 @@ function stripAliasScanExclusions(markdown) {
   return markdown
     .replace(/```[\s\S]*?```|~~~[\s\S]*?~~~/g, " ")
     .replace(/`[^`\r\n]*`/g, " ")
+    .replace(/^[ \t]{0,3}\[[^\]\r\n]+\]:[^\r\n]*(?:\r?\n[ \t]+[^\r\n]*)*/gm, " ")
+    .replace(/<(?:https?:\/\/|mailto:)[^>\r\n]+>|<[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9.-]+>/gi, " ")
     .replace(/\]\([^)]*\)/g, "]")
+    .replace(/(\[[^\]\r\n]*\])\s*\[[^\]\r\n]*\]/g, "$1")
     .replace(REFERENCE_PATTERN, " ")
 }
 
@@ -285,6 +291,7 @@ export function validateCanonicalDocumentationModel(model, options = {}) {
   parseRelease(release)
   exactFields(compatibility, ["compatibilitySchemaVersion", "coreEditor", "coreBackend", "endToEnd"], "compatibility")
   if (baseline !== null) fail("Task 3 development baseline must remain unpublished")
+  if (release.baselineId !== TASK_3_PENDING_BASELINE_ID) fail(`reserved pending baseline must be ${TASK_3_PENDING_BASELINE_ID}`)
   if (pendingBaselineId !== release.baselineId || options.allowPendingBaselineId !== release.baselineId) fail("pending baseline must exactly match the release baseline")
   if (release.lifecycle !== "planned" || release.releaseVersion !== "unversioned" || release.releaseReady !== false) fail("pending baseline requires lifecycle planned, releaseVersion unversioned, and releaseReady false")
 
@@ -376,6 +383,7 @@ export function loadCanonicalDocumentationModel(root, options = {}) {
   const allowPendingBaselineId = options.allowPendingBaselineId
   if (allowPendingBaselineId === undefined) fail(`development baseline is missing; pending baseline ${release.baselineId} requires explicit allowance`)
   id(allowPendingBaselineId, "BASELINE", "allowPendingBaselineId")
+  if (release.baselineId !== TASK_3_PENDING_BASELINE_ID) fail(`reserved pending baseline must be ${TASK_3_PENDING_BASELINE_ID}`)
   if (allowPendingBaselineId !== release.baselineId) fail(`pending baseline must exactly match release baseline ${release.baselineId}`)
   if (release.lifecycle !== "planned" || release.releaseVersion !== "unversioned" || release.releaseReady !== false) fail("pending baseline requires lifecycle planned, releaseVersion unversioned, and releaseReady false")
 
