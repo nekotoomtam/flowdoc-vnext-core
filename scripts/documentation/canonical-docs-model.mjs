@@ -382,6 +382,11 @@ function parseRecordReferenceSection(content, ids, label) {
   return values
 }
 
+function hasProseParagraph(content) {
+  const paragraphs = content.replace(/<!--[\s\S]*?-->/g, "").replace(/```[\s\S]*?```|~~~[\s\S]*?~~~/g, "").split(/\r?\n\s*\r?\n/)
+  return paragraphs.some((paragraph) => paragraph.trim().length > 0 && !paragraph.trim().split(/\r?\n/).every((line) => /^\s*(?:[-*+] |\d+\. )/.test(line)))
+}
+
 export function collectEmbeddedCanonicalRecords(markdown, { documentKind, path }) {
   if (typeof markdown !== "string") fail("FLOWDOC-RECORD Markdown must be a string")
   string(path, "FLOWDOC-RECORD path")
@@ -409,6 +414,7 @@ export function collectEmbeddedCanonicalRecords(markdown, { documentKind, path }
     const body = markdown.slice(bodyStart, bodyEnd)
     const sectionMatches = [...body.matchAll(/^### ([^\r\n]+)$/gm)]
     if (sectionMatches.length !== definition.sections.length || JSON.stringify(sectionMatches.map((match) => match[1])) !== JSON.stringify(definition.sections)) fail(`${path} ${recordId} sections must use the exact required order with no extras`)
+    if (body.slice(0, sectionMatches[0].index).trim().length > 0) fail(`${path} ${recordId} must not contain a prose preamble before its first required section`)
     const references = []
     for (let sectionIndex = 0; sectionIndex < sectionMatches.length; sectionIndex += 1) {
       const section = sectionMatches[sectionIndex]
@@ -422,11 +428,14 @@ export function collectEmbeddedCanonicalRecords(markdown, { documentKind, path }
         references.push(...parseRecordReferenceSection(content, metadata[definition.referenceField], `${path} ${recordId} ${sectionName}`))
       } else if (definition.closingSection && sectionName === definition.closingSection) {
         references.push(...parseRecordReferenceSection(content, metadata[definition.closingField], `${path} ${recordId} ${sectionName}`))
-      } else if (content.trim().length === 0) {
-        fail(`${path} ${recordId} ${sectionName} must contain non-empty prose`)
+      } else if (!hasProseParagraph(content)) {
+        fail(`${path} ${recordId} ${sectionName} must contain an actual prose paragraph`)
       }
     }
-    records.push({ ...metadata, documentKind, path, references })
+    records.push({ ...metadata, documentKind, path, references, exemptSpans: [
+      { start: heading.index + 3, end: heading.index + 3 + recordId.length },
+      { start: afterHeading, end: afterHeading + block[0].length },
+    ] })
   }
   return records
 }
@@ -440,10 +449,10 @@ function ownerPathForTarget(root, sourcePath, target, label) {
   return relative(root, absolute).split(sep).join("/")
 }
 
-function collectTruthProseReferences(markdown, path) {
-  const withoutRecordsOrDeclarations = markdown
-    .replace(/<!-- FLOWDOC-RECORD\r?\n[^\r\n]+\r?\n-->/g, "")
-    .replace(/^## (?!#)[^\r\n]*$/gm, "")
+function collectTruthProseReferences(markdown, path, records) {
+  const characters = [...markdown]
+  for (const span of records.flatMap((record) => record.exemptSpans)) for (let index = span.start; index < span.end; index += 1) characters[index] = " "
+  const withoutRecordsOrDeclarations = characters.join("")
   const references = []
   const withoutLinks = withoutRecordsOrDeclarations.replace(/\[([^\]\r\n]+)]\(([^\r\n)]+)\)/g, (whole, label, target) => {
     const labelIds = collectCanonicalReferences(label)
@@ -569,7 +578,7 @@ export function validateCanonicalDocumentationModel(model, options = {}) {
   for (const document of truthDocuments) {
     const markdown = markdownByPath[document.path]
     if (markdown === undefined) continue
-    for (const reference of collectTruthProseReferences(markdown, document.path)) {
+    for (const reference of collectTruthProseReferences(markdown, document.path, embeddedRecords.filter((record) => record.path === document.path))) {
       const ownerPath = identityOwners.get(reference.id)
       if (!ownerPath) fail(`${document.path} has unresolved authored canonical reference ${reference.id}`)
       if (ownerPathForTarget(root, document.path, reference.target, `${document.path} reference ${reference.id}`) !== ownerPath) fail(`${document.path} reference ${reference.id} must target its registered owner path`)
@@ -582,8 +591,10 @@ export function validateCanonicalDocumentationModel(model, options = {}) {
   }
   const versionPolicyMarkdown = markdownByPath["docs/VERSION_POLICY.md"]
   if (versionPolicyMarkdown !== undefined) {
-    if (!/0\.1\.0-a\.1/.test(versionPolicyMarkdown) || !/not authorized/i.test(versionPolicyMarkdown)) fail("version policy must state that 0.1.0-a.1 is not authorized")
-    if (/0\.1\.0-a\.1[^\r\n]{0,40}\b(?:released|authorized)\b/i.test(versionPolicyMarkdown.replace(/not authorized/ig, ""))) fail("version policy cannot claim 0.1.0-a.1 is released")
+    const requiredStatement = /first proposed Core release is `?0\.1\.0-a\.1`?; it is not authorized by this\s+plan\./i
+    if (!requiredStatement.test(versionPolicyMarkdown)) fail("version policy must state that 0.1.0-a.1 is not authorized")
+    const withoutRequiredStatement = versionPolicyMarkdown.replace(requiredStatement, "")
+    if (withoutRequiredStatement.split(/\r?\n\s*\r?\n/).some((paragraph) => /\b0\.1\.0-a\.1\b/i.test(paragraph) && /\b(?:released|authorized)\b/i.test(paragraph))) fail("version policy cannot claim 0.1.0-a.1 is released or authorized")
   }
   for (const document of documents) {
     const markdown = markdownByPath[document.path]

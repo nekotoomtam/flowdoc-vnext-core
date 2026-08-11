@@ -160,7 +160,7 @@ function addTruthPlane(root: string): void {
       appliesTo: appliesTo(repositoryIds, releaseLines),
     })))
   })
-  write(root, "docs/VERSION_POLICY.md", "# Version policy\n\nCore, Editor, and Backend version independently. The first proposed Core release is 0.1.0-a.1 and is not authorized.\n")
+  write(root, "docs/VERSION_POLICY.md", "# Version policy\n\nCore, Editor, and Backend version independently. The first proposed Core release is 0.1.0-a.1; it is not authorized by this plan.\n")
   write(root, "docs/project/CURRENT_STATE.md", "# Current state\n\nZero runtime subsystems are registered as migrated in release.json.\n")
   write(root, "docs/project/RISK_REGISTER.md", `# Risk register
 
@@ -577,6 +577,41 @@ A dual-status token is qualified.
         const source = readFileSync(path, "utf8")
         writeFileSync(path, `${source}${source.slice(source.indexOf("\n##"))}`, "utf8")
       }, /duplicate.*identity/i],
+    ]
+    for (const [, mutate, expected] of cases) {
+      const root = fixture()
+      addTruthPlane(root)
+      mutate(root)
+      const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+      expect(check.status).not.toBe(0)
+      expect(check.stderr).toMatch(expected)
+    }
+  })
+
+  test("closes Task 4 prose exemptions, prose bodies, and version non-claims through the production checker", () => {
+    const cases: [string, (root: string) => void, RegExp][] = [
+      ["a bare ID in an ordinary level-two heading", (root) => {
+        const path = join(root, "docs/VERSION_POLICY.md")
+        writeFileSync(path, `${readFileSync(path, "utf8")}\n## DOC-CORE-NAVIGATION-MANIFEST\n`, "utf8")
+      }, /bare canonical ID/i],
+      ["a bare ID in a fake record comment", (root) => writeFileSync(join(root, "docs/project/CURRENT_STATE.md"), "<!-- FLOWDOC-RECORD\nDOC-CORE-NAVIGATION-MANIFEST\n-->\n", "utf8"), /bare canonical ID/i],
+      ["nonblank preamble before the first section", (root) => {
+        const path = join(root, "docs/project/RISK_REGISTER.md")
+        writeFileSync(path, readFileSync(path, "utf8").replace("-->\n\n### Adverse", "-->\n\nStray prose.\n\n### Adverse"), "utf8")
+      }, /preamble/i],
+      ["list-only prose body", (root) => {
+        const path = join(root, "docs/project/RISK_REGISTER.md")
+        writeFileSync(path, readFileSync(path, "utf8").replace("Conflicting sources lead to inconsistent decisions.", "- A list is not prose."), "utf8")
+      }, /prose paragraph/i],
+      ["code-only prose body", (root) => {
+        const path = join(root, "docs/project/RISK_REGISTER.md")
+        writeFileSync(path, readFileSync(path, "utf8").replace("Conflicting sources lead to inconsistent decisions.", "```text\nonly code\n```"), "utf8")
+      }, /prose paragraph/i],
+      ["comment-only prose body", (root) => {
+        const path = join(root, "docs/project/RISK_REGISTER.md")
+        writeFileSync(path, readFileSync(path, "utf8").replace("Conflicting sources lead to inconsistent decisions.", "<!-- only a comment -->"), "utf8")
+      }, /prose paragraph/i],
+      ["a released claim before unrelated non-authorization prose", (root) => writeFileSync(join(root, "docs/VERSION_POLICY.md"), "The proposed 0.1.0-a.1 is released.\n\nAnother package is not authorized.\n", "utf8"), /version policy.*released|not authorized/i],
     ]
     for (const [, mutate, expected] of cases) {
       const root = fixture()
