@@ -361,21 +361,20 @@ const TRUTH_PLANE_BRANCH_LEDGER: TruthPlaneBranchLedgerRow[] = [
     expected: /Task 4 manifest is missing row DOC-CORE-PROJECT-RISK-REGISTER/i,
   },
   {
-    name: "manifest / extra Task 4 row",
+    name: "manifest / extra Task 4 row at an exact Task 4 path",
     mutation: (root) => {
       rewriteJson(root, "docs/manifest.json", (manifest) => manifest.documents.push({
         documentId: "DOC-CORE-PROJECT-EXTRA",
         title: "Extra Task 4 row",
-        path: "docs/project/EXTRA.md",
-        kind: "current-state",
-        scope: "core",
-        subsystem: "project",
+        path: "docs/VERSION_POLICY.md",
+        kind: "version-policy",
+        scope: "cross-repository",
+        subsystem: "versioning",
         audience: "internal",
-        authority: "evidence",
+        authority: "normative",
         lifecycle: "active",
-        appliesTo: appliesTo(["REPO-FLOWDOC-CORE"], []),
+        appliesTo: appliesTo(REPOSITORY_IDS, []),
       }))
-      write(root, "docs/project/EXTRA.md", "# Extra\n")
     },
     expected: /Task 4 manifest has extra row DOC-CORE-PROJECT-EXTRA/i,
   },
@@ -712,7 +711,7 @@ const TRUTH_PLANE_BRANCH_LEDGER: TruthPlaneBranchLedgerRow[] = [
 
 const RED_BRANCHES_AT_91A7973 = new Set([
   "manifest / missing Task 4 row",
-  "manifest / extra Task 4 row",
+  "manifest / extra Task 4 row at an exact Task 4 path",
   "manifest / path mismatch",
   "manifest / kind mismatch",
   "manifest / scope mismatch",
@@ -1003,6 +1002,58 @@ A dual-status token is qualified.
     const root = fixture()
     write(root, "docs/coordination/BOUNDARY.md", "# Boundary\n\nSee DOC-MISSING.\n")
     expect(() => loadPending(root)).toThrow(/unresolved canonical reference DOC-MISSING/i)
+  })
+
+  test("activates the exact Task 4 manifest guard when all five expected IDs are renamed but their paths remain", () => {
+    const root = fixture()
+    addTruthPlane(root)
+    const baseModel = loadPending(root)
+    const renamedIds = new Map([
+      ["DOC-CORE-PROJECT-VERSION-POLICY", "DOC-CORE-TRUTH-VERSION-POLICY"],
+      ["DOC-CORE-PROJECT-CURRENT-STATE", "DOC-CORE-TRUTH-CURRENT-STATE"],
+      ["DOC-CORE-PROJECT-RISK-REGISTER", "DOC-CORE-TRUTH-RISK-REGISTER"],
+      ["DOC-CORE-PROJECT-KNOWN-UNKNOWNS", "DOC-CORE-TRUTH-KNOWN-UNKNOWNS"],
+      ["DOC-CORE-PROJECT-ROADMAP", "DOC-CORE-TRUTH-ROADMAP"],
+    ])
+    rewriteJson(root, "docs/manifest.json", (manifest) => {
+      for (const document of manifest.documents) {
+        const renamedId = renamedIds.get(document.documentId)
+        if (!renamedId) continue
+        document.documentId = renamedId
+        document.title = `${renamedId} title`
+      }
+    })
+    const renamedDocuments = JSON.parse(readFileSync(join(root, "docs/manifest.json"), "utf8")).documents
+    for (const [path, markdown] of Object.entries(renderGeneratedFiles({ ...baseModel, documents: renamedDocuments }))) write(root, path, markdown)
+
+    const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+    expect(check.status).not.toBe(0)
+    expect(check.stderr).toMatch(/Task 4 manifest is missing row DOC-CORE-PROJECT-VERSION-POLICY/i)
+    expect(check.stderr).not.toMatch(/unresolved|drift/i)
+  })
+
+  test("accepts an unrelated DOC-CORE-PROJECT document outside the five exact Task 4 paths", () => {
+    const root = fixture()
+    addTruthPlane(root)
+    const baseModel = loadPending(root)
+    const unrelatedDocument = {
+      documentId: "DOC-CORE-PROJECT-FUTURE-NOTE",
+      title: "Future project note",
+      path: "docs/project/FUTURE_PROJECT_NOTE.md",
+      kind: "current-state",
+      scope: "core",
+      subsystem: "project",
+      audience: "internal",
+      authority: "evidence",
+      lifecycle: "active",
+      appliesTo: appliesTo(["REPO-FLOWDOC-CORE"], []),
+    }
+    rewriteJson(root, "docs/manifest.json", (manifest) => { manifest.documents.push(unrelatedDocument) })
+    write(root, unrelatedDocument.path, "# Future project note\n\nThis independently registered note is outside the Task 4 mapping.\n")
+    for (const [path, markdown] of Object.entries(renderGeneratedFiles({ ...baseModel, documents: [...baseModel.documents, unrelatedDocument] }))) write(root, path, markdown)
+
+    const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+    expect(check.status, check.stderr).toBe(0)
   })
 
   test.each(AUDITED_TRUTH_PLANE_BRANCH_LEDGER)("truth-plane branch ledger / $baselineAt91a7973 at 91a7973 / $name", ({ mutation, expected }) => {

@@ -167,7 +167,8 @@ function parseDocument(record) {
 
 function validateTask4ManifestRows(documents) {
   const expectedIds = new Set(TASK_4_DOCUMENT_ROWS.map((row) => row.documentId))
-  const task4Rows = documents.filter((document) => expectedIds.has(document.documentId) || document.documentId.startsWith("DOC-CORE-PROJECT-"))
+  const expectedPaths = new Set(TASK_4_DOCUMENT_ROWS.map((row) => row.path))
+  const task4Rows = documents.filter((document) => expectedIds.has(document.documentId) || expectedPaths.has(document.path))
   if (task4Rows.length === 0) return
   for (const expected of TASK_4_DOCUMENT_ROWS) {
     const actual = documents.find((document) => document.documentId === expected.documentId)
