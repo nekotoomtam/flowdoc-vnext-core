@@ -623,6 +623,36 @@ A dual-status token is qualified.
     }
   })
 
+  test("rejects astral-shifted bare IDs, Markdown block-only bodies, and distant proposed-version claims", () => {
+    const cases: [string, (root: string) => void, RegExp][] = [
+      ["astral Unicode before a record does not broaden its exemption", (root) => {
+        const path = join(root, "docs/project/RISK_REGISTER.md")
+        writeFileSync(path, `😀\n${readFileSync(path, "utf8").replace("# Risk register", "# Risk register\n\nDOC-CORE-NAVIGATION-MANIFEST")}`, "utf8")
+      }, /bare canonical ID/i],
+      ["indented code is not a prose paragraph", (root) => {
+        const path = join(root, "docs/project/RISK_REGISTER.md")
+        writeFileSync(path, readFileSync(path, "utf8").replace("Conflicting sources lead to inconsistent decisions.", "    code only"), "utf8")
+      }, /prose paragraph/i],
+      ["heading-only prose is rejected", (root) => {
+        const path = join(root, "docs/project/RISK_REGISTER.md")
+        writeFileSync(path, readFileSync(path, "utf8").replace("Conflicting sources lead to inconsistent decisions.", "#### Heading only"), "utf8")
+      }, /prose paragraph/i],
+      ["distant claims before and after the required statement are rejected", (root) => {
+        const path = join(root, "docs/VERSION_POLICY.md")
+        const source = readFileSync(path, "utf8")
+        writeFileSync(path, `0.1.0-a.1 was released.\n\n${source}\n\nAuthorization for 0.1.0-a.1 is granted.\n`, "utf8")
+      }, /cannot claim 0\.1\.0-a\.1 is released or authorized/i],
+    ]
+    for (const [, mutate, expected] of cases) {
+      const root = fixture()
+      addTruthPlane(root)
+      mutate(root)
+      const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+      expect(check.status).not.toBe(0)
+      expect(check.stderr).toMatch(expected)
+    }
+  })
+
   test("generates five byte-stable approved views and uses the generated header", () => {
     const root = fixture()
     const first = runCli(root, "scripts/generate-canonical-docs.mjs")

@@ -384,7 +384,10 @@ function parseRecordReferenceSection(content, ids, label) {
 
 function hasProseParagraph(content) {
   const paragraphs = content.replace(/<!--[\s\S]*?-->/g, "").replace(/```[\s\S]*?```|~~~[\s\S]*?~~~/g, "").split(/\r?\n\s*\r?\n/)
-  return paragraphs.some((paragraph) => paragraph.trim().length > 0 && !paragraph.trim().split(/\r?\n/).every((line) => /^\s*(?:[-*+] |\d+\. )/.test(line)))
+  return paragraphs.some((paragraph) => {
+    const lines = paragraph.split(/\r?\n/)
+    return lines.length > 0 && lines.some((line) => line.trim().length > 0) && !lines.every((line) => /^\s*(?:[-*+] |\d+\. |>|#{1,6}\s|={3,}|-{3,}$|\s{4}|\t)/.test(line))
+  })
 }
 
 export function collectEmbeddedCanonicalRecords(markdown, { documentKind, path }) {
@@ -450,7 +453,7 @@ function ownerPathForTarget(root, sourcePath, target, label) {
 }
 
 function collectTruthProseReferences(markdown, path, records) {
-  const characters = [...markdown]
+  const characters = markdown.split("")
   for (const span of records.flatMap((record) => record.exemptSpans)) for (let index = span.start; index < span.end; index += 1) characters[index] = " "
   const withoutRecordsOrDeclarations = characters.join("")
   const references = []
@@ -594,7 +597,9 @@ export function validateCanonicalDocumentationModel(model, options = {}) {
     const requiredStatement = /first proposed Core release is `?0\.1\.0-a\.1`?; it is not authorized by this\s+plan\./i
     if (!requiredStatement.test(versionPolicyMarkdown)) fail("version policy must state that 0.1.0-a.1 is not authorized")
     const withoutRequiredStatement = versionPolicyMarkdown.replace(requiredStatement, "")
-    if (withoutRequiredStatement.split(/\r?\n\s*\r?\n/).some((paragraph) => /\b0\.1\.0-a\.1\b/i.test(paragraph) && /\b(?:released|authorized)\b/i.test(paragraph))) fail("version policy cannot claim 0.1.0-a.1 is released or authorized")
+    const allowedSnapshotStatement = /When authorized, the exact prerelease snapshot uses `v0\.1\.0-a\.1` tag and\s+artifact identity\./i
+    const claims = withoutRequiredStatement.replace(allowedSnapshotStatement, "")
+    if (/(?:\b0\.1\.0-a\.1\b[\s\S]*\b(?:released|authorized)\b|\b(?:released|authorized)\b[\s\S]*\b0\.1\.0-a\.1\b)/i.test(claims)) fail("version policy cannot claim 0.1.0-a.1 is released or authorized")
   }
   for (const document of documents) {
     const markdown = markdownByPath[document.path]
