@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs"
-import { join, relative, resolve, sep } from "node:path"
+import { dirname, join, relative, resolve, sep } from "node:path"
 
 export const STRUCTURED_PATHS = Object.freeze({
   manifest: "docs/manifest.json",
@@ -29,7 +29,7 @@ const REQUIRED_DOCUMENT_PATHS = Object.freeze([
   STRUCTURED_PATHS.compatibility,
 ])
 const CANONICAL_ROOTS = Object.freeze(["docs/project", "docs/coordination", "docs/versions/0_1"])
-const DOCUMENT_KINDS = new Set(["navigation", "glossary", "repository-index", "coordination-boundary", "release-composition", "current-state", "compatibility"])
+const DOCUMENT_KINDS = new Set(["navigation", "glossary", "repository-index", "coordination-boundary", "release-composition", "current-state", "compatibility", "version-policy", "risk-register", "known-unknowns", "roadmap"])
 const SCOPES = new Set(["core", "editor", "backend", "cross-repository"])
 const SUBSYSTEMS = new Set(["documentation", "terminology", "coordination", "versioning", "project"])
 const AUDIENCES = new Set(["internal", "public", "both"])
@@ -44,6 +44,11 @@ const MANIFEST_ADOPTION = new Set(["active", "not-adopted"])
 const COMPATIBILITY_VALUES = new Set(["not-verified"])
 const TASK_3_PENDING_BASELINE_ID = "BASELINE-FLOWDOC-20260811-01"
 const REFERENCE_PATTERN = /\b(?:DOC|REPO|CONTRACT|SCHEMA|CAP|RISK|UNKNOWN|GATE|TERM|CONCEPT|WORK|BASELINE|DECISION)-[A-Z0-9][A-Z0-9-]*\b/g
+const RECORD_DOCUMENTS = Object.freeze({
+  "risk-register": { recordKind: "risk", prefix: "RISK", fields: ["recordId", "recordKind", "lifecycle", "affects"], sections: ["Adverse event", "Trigger", "Affected IDs", "Mitigation", "Evidence", "Lifecycle"], referenceField: "affects", referenceSection: "Affected IDs" },
+  "known-unknowns": { recordKind: "unknown", prefix: "UNKNOWN", fields: ["recordId", "recordKind", "lifecycle", "affects", "closedBy"], sections: ["Missing evidence", "Why it matters", "Blocked decision", "Affected IDs", "Closing gate or work item", "Lifecycle"], referenceField: "affects", referenceSection: "Affected IDs", closingField: "closedBy", closingSection: "Closing gate or work item" },
+  roadmap: { recordKind: "work", prefix: "WORK", fields: ["recordId", "recordKind", "lifecycle", "motivatedBy"], sections: ["Motivating risks and unknowns", "Non-goals", "Lifecycle"], referenceField: "motivatedBy", referenceSection: "Motivating risks and unknowns" },
+})
 
 function fail(message) {
   throw new Error(`Canonical documentation model: ${message}`)
@@ -346,6 +351,113 @@ export function collectCanonicalReferences(markdown) {
   return [...markdown.matchAll(REFERENCE_PATTERN)].map((match) => match[0])
 }
 
+function sortedDistinctIds(value, label) {
+  const values = distinct(value, label, (entry) => string(entry, `${label} entry`))
+  if (values.length === 0) fail(`${label} must be non-empty`)
+  if (JSON.stringify(values) !== JSON.stringify([...values].sort())) fail(`${label} must be sorted by ascending stable ID`)
+  return values
+}
+
+function parseRecordMetadata(source, definition, label) {
+  let metadata
+  try { metadata = JSON.parse(source) } catch { fail(`${label} FLOWDOC-RECORD JSON must be valid`) }
+  exactFields(metadata, definition.fields, `${label} metadata`)
+  id(metadata.recordId, definition.prefix, `${label} recordId`)
+  if (metadata.recordKind !== definition.recordKind) fail(`${label} recordKind must be ${definition.recordKind}`)
+  closed(metadata.lifecycle, LIFECYCLES, `${label} lifecycle`)
+  metadata[definition.referenceField] = sortedDistinctIds(metadata[definition.referenceField], `${label} ${definition.referenceField}`)
+  if (definition.closingField) metadata[definition.closingField] = sortedDistinctIds(metadata[definition.closingField], `${label} ${definition.closingField}`)
+  return metadata
+}
+
+function parseRecordReferenceSection(content, ids, label) {
+  const entries = content.replace(/\r/g, "").split("\n").filter((line) => line.length > 0)
+  if (entries.length !== ids.length) fail(`${label} must contain one Markdown bullet per ID and no prose`)
+  const values = entries.map((line) => {
+    const match = /^- \[([A-Z][A-Z0-9-]+)]\(([^\r\n)]+)\)$/.exec(line)
+    if (!match) fail(`${label} must contain one Markdown bullet per ID and no prose`)
+    return { id: match[1], target: match[2] }
+  })
+  if (JSON.stringify(values.map((value) => value.id)) !== JSON.stringify(ids)) fail(`${label} must exactly match the sorted metadata IDs`)
+  return values
+}
+
+export function collectEmbeddedCanonicalRecords(markdown, { documentKind, path }) {
+  if (typeof markdown !== "string") fail("FLOWDOC-RECORD Markdown must be a string")
+  string(path, "FLOWDOC-RECORD path")
+  const definition = RECORD_DOCUMENTS[documentKind]
+  if (!definition) fail("FLOWDOC-RECORD documentKind must be risk-register, known-unknowns, or roadmap")
+
+  const headingLines = [...markdown.matchAll(/^## (?!#)[^\r\n]*$/gm)]
+  const headings = [...markdown.matchAll(/^## ([A-Z][A-Z0-9-]+) — ([^\r\n]*\S[^\r\n]*)$/gm)]
+  if (headings.length !== headingLines.length) fail(`${path} level-two record headings must exactly use ## <recordId> — <non-empty title>`)
+  const records = []
+  const seen = new Set()
+  for (let index = 0; index < headings.length; index += 1) {
+    const heading = headings[index]
+    const recordId = heading[1]
+    id(recordId, definition.prefix, `${path} heading recordId`)
+    if (seen.has(recordId)) fail(`duplicate embedded record identity: ${recordId}`)
+    seen.add(recordId)
+    const afterHeading = heading.index + heading[0].length
+    const block = /^\r?\n<!-- FLOWDOC-RECORD\r?\n([^\r\n]+)\r?\n-->(?:\r?\n|$)/.exec(markdown.slice(afterHeading))
+    if (!block) fail(`${path} FLOWDOC-RECORD block must immediately follow its matching heading`)
+    const metadata = parseRecordMetadata(block[1], definition, `${path} ${recordId}`)
+    if (metadata.recordId !== recordId) fail(`${path} heading ID and metadata recordId must agree`)
+    const bodyStart = afterHeading + block[0].length
+    const bodyEnd = index + 1 < headings.length ? headings[index + 1].index : markdown.length
+    const body = markdown.slice(bodyStart, bodyEnd)
+    const sectionMatches = [...body.matchAll(/^### ([^\r\n]+)$/gm)]
+    if (sectionMatches.length !== definition.sections.length || JSON.stringify(sectionMatches.map((match) => match[1])) !== JSON.stringify(definition.sections)) fail(`${path} ${recordId} sections must use the exact required order with no extras`)
+    const references = []
+    for (let sectionIndex = 0; sectionIndex < sectionMatches.length; sectionIndex += 1) {
+      const section = sectionMatches[sectionIndex]
+      const sectionName = section[1]
+      const contentStart = section.index + section[0].length
+      const contentEnd = sectionIndex + 1 < sectionMatches.length ? sectionMatches[sectionIndex + 1].index : body.length
+      const content = body.slice(contentStart, contentEnd)
+      if (sectionName === "Lifecycle") {
+        if (content.replace(/\r/g, "").trimEnd() !== `\n\n\`${metadata.lifecycle}\``) fail(`${path} ${recordId} lifecycle serialization must be exactly one backticked metadata token`)
+      } else if (sectionName === definition.referenceSection) {
+        references.push(...parseRecordReferenceSection(content, metadata[definition.referenceField], `${path} ${recordId} ${sectionName}`))
+      } else if (definition.closingSection && sectionName === definition.closingSection) {
+        references.push(...parseRecordReferenceSection(content, metadata[definition.closingField], `${path} ${recordId} ${sectionName}`))
+      } else if (content.trim().length === 0) {
+        fail(`${path} ${recordId} ${sectionName} must contain non-empty prose`)
+      }
+    }
+    records.push({ ...metadata, documentKind, path, references })
+  }
+  return records
+}
+
+function ownerPathForTarget(root, sourcePath, target, label) {
+  if (typeof target !== "string" || target.length === 0 || target.startsWith("/") || target.startsWith("\\") || /^[A-Za-z][A-Za-z0-9+.-]*:/.test(target)) fail(`${label} must use a relative non-URI target`)
+  const [pathPart] = target.split("#", 1)
+  if (pathPart.length === 0 || pathPart.includes("\\")) fail(`${label} must include a relative repository path`)
+  const absolute = resolve(root, dirname(sourcePath), pathPart)
+  assertInsideRoot(root, relative(root, absolute), label)
+  return relative(root, absolute).split(sep).join("/")
+}
+
+function collectTruthProseReferences(markdown, path) {
+  const withoutRecordsOrDeclarations = markdown
+    .replace(/<!-- FLOWDOC-RECORD\r?\n[^\r\n]+\r?\n-->/g, "")
+    .replace(/^## (?!#)[^\r\n]*$/gm, "")
+  const references = []
+  const withoutLinks = withoutRecordsOrDeclarations.replace(/\[([^\]\r\n]+)]\(([^\r\n)]+)\)/g, (whole, label, target) => {
+    const labelIds = collectCanonicalReferences(label)
+    if (labelIds.length > 0) {
+      if (labelIds.length !== 1 || label !== labelIds[0]) fail(`${path} canonical link labels must be exactly one stable ID`)
+      references.push({ id: label, target })
+    }
+    return " ".repeat(whole.length)
+  })
+  const bare = collectCanonicalReferences(withoutLinks)
+  if (bare.length > 0) fail(`${path} contains a bare canonical ID outside a FLOWDOC-RECORD block: ${bare[0]}`)
+  return references
+}
+
 export function validateCanonicalDocumentationModel(model, options = {}) {
   object(model, "model")
   allowedFields(options, ["allowPendingBaselineId"], "validation options")
@@ -422,13 +534,63 @@ export function validateCanonicalDocumentationModel(model, options = {}) {
     for (const path of filesBelow(root, canonicalRoot)) if (!registeredPaths.has(path)) fail(`canonical file ${path} under a declared canonical root is absent from the manifest`)
   }
 
-  const knownIds = new Set([...documentIds, ...termIds, ...conceptIds, ...repositories, release.baselineId])
+  const embeddedRecords = []
+  for (const document of documents) {
+    if (!Object.hasOwn(RECORD_DOCUMENTS, document.kind)) continue
+    const markdown = markdownByPath[document.path]
+    if (markdown === undefined) fail(`registered path is missing: ${document.path}`)
+    embeddedRecords.push(...collectEmbeddedCanonicalRecords(markdown, { documentKind: document.kind, path: document.path }))
+  }
+  const recordIds = duplicate(embeddedRecords.map((record) => record.recordId), "embedded record")
+  for (const recordId of recordIds) if (documentIds.has(recordId) || termIds.has(recordId) || conceptIds.has(recordId) || repositories.has(recordId) || recordId === release.baselineId) fail(`embedded record identity collides with an existing canonical identity: ${recordId}`)
+
+  const knownIds = new Set([...documentIds, ...termIds, ...conceptIds, ...repositories, release.baselineId, ...recordIds])
+  const identityOwners = new Map()
+  for (const document of documents) identityOwners.set(document.documentId, document.path)
+  for (const term of glossary.terms) identityOwners.set(term.termId, STRUCTURED_PATHS.glossary)
+  for (const concept of glossary.concepts) identityOwners.set(concept.conceptId, STRUCTURED_PATHS.glossary)
+  for (const repository of repositoryIndex.repositories) identityOwners.set(repository.repositoryId, STRUCTURED_PATHS.repositoryIndex)
+  identityOwners.set(release.baselineId, STRUCTURED_PATHS.release)
+  for (const record of embeddedRecords) identityOwners.set(record.recordId, record.path)
+  for (const record of embeddedRecords) {
+    for (const affectedId of record.affects ?? []) {
+      if (!knownIds.has(affectedId)) fail(`${record.recordId} affects has unresolved canonical identity ${affectedId}`)
+      if (affectedId === record.recordId) fail(`${record.recordId} affects cannot contain its own identity`)
+    }
+    for (const closedById of record.closedBy ?? []) {
+      if (!/^(GATE|WORK)-/.test(closedById) || !knownIds.has(closedById)) fail(`${record.recordId} closedBy must contain resolvable GATE or WORK identities`)
+    }
+    for (const motivatedById of record.motivatedBy ?? []) {
+      if (!/^(RISK|UNKNOWN)-/.test(motivatedById) || !knownIds.has(motivatedById)) fail(`${record.recordId} motivatedBy must contain resolvable RISK or UNKNOWN identities`)
+    }
+  }
+
+  const truthDocuments = documents.filter((document) => document.path === "docs/VERSION_POLICY.md" || document.path.startsWith("docs/project/"))
+  for (const document of truthDocuments) {
+    const markdown = markdownByPath[document.path]
+    if (markdown === undefined) continue
+    for (const reference of collectTruthProseReferences(markdown, document.path)) {
+      const ownerPath = identityOwners.get(reference.id)
+      if (!ownerPath) fail(`${document.path} has unresolved authored canonical reference ${reference.id}`)
+      if (ownerPathForTarget(root, document.path, reference.target, `${document.path} reference ${reference.id}`) !== ownerPath) fail(`${document.path} reference ${reference.id} must target its registered owner path`)
+    }
+  }
+  const currentStateMarkdown = markdownByPath["docs/project/CURRENT_STATE.md"]
+  if (currentStateMarkdown !== undefined && release.capabilityIds.length === 0 && release.contractIds.length === 0 && release.verificationGateIds.length === 0) {
+    const normalizedCurrentState = currentStateMarkdown.toLocaleLowerCase("en-US")
+    if (normalizedCurrentState.replace(/zero runtime\s+subsystems are registered as migrated in release\.json|legacy-unmigrated/g, "").includes("migrated")) fail("current state cannot claim a migrated capability while release composition is empty")
+  }
+  const versionPolicyMarkdown = markdownByPath["docs/VERSION_POLICY.md"]
+  if (versionPolicyMarkdown !== undefined) {
+    if (!/0\.1\.0-a\.1/.test(versionPolicyMarkdown) || !/not authorized/i.test(versionPolicyMarkdown)) fail("version policy must state that 0.1.0-a.1 is not authorized")
+    if (/0\.1\.0-a\.1[^\r\n]{0,40}\b(?:released|authorized)\b/i.test(versionPolicyMarkdown.replace(/not authorized/ig, ""))) fail("version policy cannot claim 0.1.0-a.1 is released")
+  }
   for (const document of documents) {
     const markdown = markdownByPath[document.path]
     if (markdown === undefined) continue
     for (const reference of collectCanonicalReferences(markdown)) if (!knownIds.has(reference)) fail(`unresolved canonical reference ${reference}`)
     if (document.authority === "normative" && document.lifecycle === "active") {
-      const tokens = stripAliasScanExclusions(markdown).match(/[\p{L}\p{N}-]+/gu) ?? []
+      const tokens = stripAliasScanExclusions(markdown.replace(/<!-- FLOWDOC-RECORD\r?\n[^\r\n]+\r?\n-->/g, "")).match(/[\p{L}\p{N}-]+/gu) ?? []
       const normalizedTokens = new Set(tokens.map((token) => token.toLocaleLowerCase("en-US")))
       for (const form of glossary.lexicalForms) {
         if (form.kind === "ambiguous-alias" && normalizedTokens.has(form.value.toLocaleLowerCase("en-US"))) fail(`ambiguous alias ${form.value} is forbidden in active normative Markdown`)
@@ -462,6 +624,9 @@ export function loadCanonicalDocumentationModel(root, options = {}) {
   const compatibilityMarkdown = markdownByPath[STRUCTURED_PATHS.compatibility]
   if (compatibilityMarkdown === undefined) fail(`registered path is missing: ${STRUCTURED_PATHS.compatibility}`)
   const compatibility = parseCompatibility(compatibilityMarkdown)
-  const model = Object.freeze({ root: normalizedRoot, manifest, glossary, repositoryIndex, release, baseline: null, pendingBaselineId: allowPendingBaselineId, documents: manifest.documents, markdownByPath, compatibility })
+  const embeddedRecords = manifest.documents
+    .filter((document) => Object.hasOwn(RECORD_DOCUMENTS, document.kind))
+    .flatMap((document) => collectEmbeddedCanonicalRecords(markdownByPath[document.path], { documentKind: document.kind, path: document.path }))
+  const model = Object.freeze({ root: normalizedRoot, manifest, glossary, repositoryIndex, release, baseline: null, pendingBaselineId: allowPendingBaselineId, documents: manifest.documents, markdownByPath, compatibility, embeddedRecords })
   return validateCanonicalDocumentationModel(model, { allowPendingBaselineId })
 }

@@ -5,7 +5,7 @@ import { spawnSync } from "node:child_process"
 import { afterEach, describe, expect, test } from "vitest"
 
 // @ts-ignore Task-owned executable Node model intentionally has no TypeScript declaration file.
-import { collectCanonicalReferences, loadCanonicalDocumentationModel, validateCanonicalDocumentationModel } from "../scripts/documentation/canonical-docs-model.mjs"
+import { collectCanonicalReferences, collectEmbeddedCanonicalRecords, loadCanonicalDocumentationModel, validateCanonicalDocumentationModel } from "../scripts/documentation/canonical-docs-model.mjs"
 // @ts-ignore Task-owned executable Node renderer intentionally has no TypeScript declaration file.
 import { GENERATED_HEADER, renderGeneratedFiles } from "../scripts/documentation/canonical-docs-render.mjs"
 
@@ -31,6 +31,14 @@ const DOCUMENT_ROWS = [
   ["DOC-CORE-VERSION-0-1-VERSION-OVERVIEW", "docs/versions/0_1/VERSION_OVERVIEW.md", "current-state", "core", "versioning", "both", "navigation", "active", ["REPO-FLOWDOC-CORE"], ["0.1"]],
   ["DOC-CORE-VERSION-0-1-CAPABILITY-SET", "docs/versions/0_1/CAPABILITY_SET.md", "current-state", "core", "versioning", "both", "navigation", "active", ["REPO-FLOWDOC-CORE"], ["0.1"]],
   ["DOC-CORE-VERSION-0-1-COMPATIBILITY", "docs/versions/0_1/COMPATIBILITY.md", "compatibility", "cross-repository", "versioning", "internal", "normative", "active", REPOSITORY_IDS, ["0.1"]],
+] as const
+
+const TRUTH_DOCUMENT_ROWS = [
+  ["DOC-CORE-PROJECT-VERSION-POLICY", "docs/VERSION_POLICY.md", "version-policy", "cross-repository", "versioning", "internal", "normative", "active", REPOSITORY_IDS, []],
+  ["DOC-CORE-PROJECT-CURRENT-STATE", "docs/project/CURRENT_STATE.md", "current-state", "core", "project", "internal", "evidence", "active", ["REPO-FLOWDOC-CORE"], []],
+  ["DOC-CORE-PROJECT-RISK-REGISTER", "docs/project/RISK_REGISTER.md", "risk-register", "cross-repository", "project", "internal", "normative", "active", REPOSITORY_IDS, []],
+  ["DOC-CORE-PROJECT-KNOWN-UNKNOWNS", "docs/project/KNOWN_UNKNOWNS.md", "known-unknowns", "cross-repository", "project", "internal", "normative", "active", REPOSITORY_IDS, []],
+  ["DOC-CORE-PROJECT-ROADMAP", "docs/project/ROADMAP.md", "roadmap", "cross-repository", "project", "internal", "normative", "active", REPOSITORY_IDS, []],
 ] as const
 
 const fixtureRoots: string[] = []
@@ -135,6 +143,107 @@ Core–Editor, Core–Backend, and end-to-end compatibility are not inferred.
 `)
   for (const path of GENERATED_PATHS) write(root, path, "stale generated output\n")
   return root
+}
+
+function addTruthPlane(root: string): void {
+  rewriteJson(root, "docs/manifest.json", (manifest) => {
+    manifest.documents.push(...TRUTH_DOCUMENT_ROWS.map(([documentId, path, kind, scope, subsystem, audience, authority, lifecycle, repositoryIds, releaseLines]) => ({
+      documentId,
+      title: `${documentId} title`,
+      path,
+      kind,
+      scope,
+      subsystem,
+      audience,
+      authority,
+      lifecycle,
+      appliesTo: appliesTo(repositoryIds, releaseLines),
+    })))
+  })
+  write(root, "docs/VERSION_POLICY.md", "# Version policy\n\nCore, Editor, and Backend version independently. The first proposed Core release is 0.1.0-a.1 and is not authorized.\n")
+  write(root, "docs/project/CURRENT_STATE.md", "# Current state\n\nZero runtime subsystems are registered as migrated in release.json.\n")
+  write(root, "docs/project/RISK_REGISTER.md", `# Risk register
+
+## RISK-CORE-DOCUMENTATION-DUAL-TRUTH-001 — Divergent sources
+<!-- FLOWDOC-RECORD
+{"recordId":"RISK-CORE-DOCUMENTATION-DUAL-TRUTH-001","recordKind":"risk","lifecycle":"active","affects":["DOC-CORE-NAVIGATION-MANIFEST"]}
+-->
+
+### Adverse event
+
+Conflicting sources lead to inconsistent decisions.
+
+### Trigger
+
+An unregistered source is treated as authoritative.
+
+### Affected IDs
+
+- [DOC-CORE-NAVIGATION-MANIFEST](../manifest.json)
+
+### Mitigation
+
+Use the canonical manifest and validation gate.
+
+### Evidence
+
+The manifest is the registered owner.
+
+### Lifecycle
+
+\`active\`
+`)
+  write(root, "docs/project/KNOWN_UNKNOWNS.md", `# Known unknowns
+
+## UNKNOWN-CORE-DOCUMENTATION-CONTRACT-INVENTORY-001 — Contract inventory
+<!-- FLOWDOC-RECORD
+{"recordId":"UNKNOWN-CORE-DOCUMENTATION-CONTRACT-INVENTORY-001","recordKind":"unknown","lifecycle":"active","affects":["DOC-CORE-VERSION-0-1-RELEASE-COMPOSITION"],"closedBy":["WORK-CORE-LAYOUT-CUTOVER-001"]}
+-->
+
+### Missing evidence
+
+The complete contract inventory is not yet authored.
+
+### Why it matters
+
+Release composition cannot select unowned contracts.
+
+### Blocked decision
+
+The package release boundary remains open.
+
+### Affected IDs
+
+- [DOC-CORE-VERSION-0-1-RELEASE-COMPOSITION](../versions/0_1/release.json)
+
+### Closing gate or work item
+
+- [WORK-CORE-LAYOUT-CUTOVER-001](ROADMAP.md#work-core-layout-cutover-001)
+
+### Lifecycle
+
+\`active\`
+`)
+  write(root, "docs/project/ROADMAP.md", `# Roadmap
+
+## WORK-CORE-LAYOUT-CUTOVER-001 — Layout cutover
+<!-- FLOWDOC-RECORD
+{"recordId":"WORK-CORE-LAYOUT-CUTOVER-001","recordKind":"work","lifecycle":"active","motivatedBy":["RISK-CORE-DOCUMENTATION-DUAL-TRUTH-001","UNKNOWN-CORE-DOCUMENTATION-CONTRACT-INVENTORY-001"]}
+-->
+
+### Motivating risks and unknowns
+
+- [RISK-CORE-DOCUMENTATION-DUAL-TRUTH-001](RISK_REGISTER.md#risk-core-documentation-dual-truth-001)
+- [UNKNOWN-CORE-DOCUMENTATION-CONTRACT-INVENTORY-001](KNOWN_UNKNOWNS.md#unknown-core-documentation-contract-inventory-001)
+
+### Non-goals
+
+This does not authorize release publication.
+
+### Lifecycle
+
+\`active\`
+`)
 }
 
 function loadPending(root: string) {
@@ -431,6 +540,54 @@ A dual-status token is qualified.
     expect(() => loadPending(root)).toThrow(/unresolved canonical reference DOC-MISSING/i)
   })
 
+  test("collects embedded truth records and validates them through the production checker entrypoint", () => {
+    const root = fixture()
+    addTruthPlane(root)
+    const records = collectEmbeddedCanonicalRecords(readFileSync(join(root, "docs/project/RISK_REGISTER.md"), "utf8"), {
+      documentKind: "risk-register",
+      path: "docs/project/RISK_REGISTER.md",
+    })
+    expect(records).toHaveLength(1)
+    expect(records[0]).toMatchObject({ recordId: "RISK-CORE-DOCUMENTATION-DUAL-TRUTH-001", recordKind: "risk", lifecycle: "active", affects: ["DOC-CORE-NAVIGATION-MANIFEST"] })
+    expect(runCli(root, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+    const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+    expect(check.status, check.stderr).toBe(0)
+  })
+
+  test("rejects malformed, duplicate, unresolved, and non-clickable truth-plane records through the production checker entrypoint", () => {
+    const cases: [string, (root: string) => void, RegExp][] = [
+      ["record block must immediately follow its heading", (root) => {
+        const path = join(root, "docs/project/RISK_REGISTER.md")
+        writeFileSync(path, readFileSync(path, "utf8").replace("\n<!-- FLOWDOC-RECORD", "\nA separating paragraph.\n\n<!-- FLOWDOC-RECORD"), "utf8")
+      }, /immediately follow/i],
+      ["record metadata has no extra fields", (root) => {
+        const path = join(root, "docs/project/RISK_REGISTER.md")
+        writeFileSync(path, readFileSync(path, "utf8").replace("\"affects\":[\"DOC-CORE-NAVIGATION-MANIFEST\"]", "\"affects\":[\"DOC-CORE-NAVIGATION-MANIFEST\"],\"extra\":true"), "utf8")
+      }, /unknown field extra/i],
+      ["record prose references use their registered owner paths", (root) => {
+        const path = join(root, "docs/project/RISK_REGISTER.md")
+        writeFileSync(path, readFileSync(path, "utf8").replace("../manifest.json", "../glossary.json"), "utf8")
+      }, /registered owner path|owns another/i],
+      ["canonical prose references cannot be bare IDs", (root) => {
+        const path = join(root, "docs/project/RISK_REGISTER.md")
+        writeFileSync(path, readFileSync(path, "utf8").replace("Conflicting sources lead", "DOC-CORE-NAVIGATION-MANIFEST conflicts lead"), "utf8")
+      }, /bare canonical ID/i],
+      ["record identities are unique across truth-plane categories", (root) => {
+        const path = join(root, "docs/project/RISK_REGISTER.md")
+        const source = readFileSync(path, "utf8")
+        writeFileSync(path, `${source}${source.slice(source.indexOf("\n##"))}`, "utf8")
+      }, /duplicate.*identity/i],
+    ]
+    for (const [, mutate, expected] of cases) {
+      const root = fixture()
+      addTruthPlane(root)
+      mutate(root)
+      const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+      expect(check.status).not.toBe(0)
+      expect(check.stderr).toMatch(expected)
+    }
+  })
+
   test("generates five byte-stable approved views and uses the generated header", () => {
     const root = fixture()
     const first = runCli(root, "scripts/generate-canonical-docs.mjs")
@@ -512,13 +669,13 @@ A dual-status token is qualified.
     expect(check.status, check.stderr).toBe(0)
   })
 
-  test("the repository root has the literal D1 inventory and no Task 6 baseline publication", () => {
+  test("the repository root has the literal D2 truth-plane inventory and no Task 6 baseline publication", () => {
     const root = process.cwd()
     const model = loadCanonicalDocumentationModel(root, { allowPendingBaselineId: BASELINE_ID })
-    expect(documentMapping(model.documents)).toEqual(DOCUMENT_ROWS)
+    expect(documentMapping(model.documents)).toEqual([...DOCUMENT_ROWS, ...TRUTH_DOCUMENT_ROWS])
     expect(model.manifest.canonicalRoots).toEqual(["docs/project", "docs/coordination", "docs/versions/0_1"])
     expect(model.documents.filter((document: any) => !model.manifest.canonicalRoots.some((canonicalRoot: string) => document.path.startsWith(`${canonicalRoot}/`))).map((document: any) => document.path)).toEqual([
-      "docs/manifest.json", "docs/DOCUMENT_MAP.md", "docs/glossary.json", "docs/GLOSSARY.md", "docs/GLOSSARY_TH.md",
+      "docs/manifest.json", "docs/DOCUMENT_MAP.md", "docs/glossary.json", "docs/GLOSSARY.md", "docs/GLOSSARY_TH.md", "docs/VERSION_POLICY.md",
     ])
     expect(model.documents.every((document: any) => document.appliesTo.contractIds.length === 0 && document.appliesTo.schemaIds.length === 0)).toBe(true)
     expect(model.glossary.terms.every((term: any) => term.appliesTo.contractIds.length === 0 && term.appliesTo.schemaIds.length === 0)).toBe(true)
@@ -527,6 +684,28 @@ A dual-status token is qualified.
     expect(existsSync(join(root, "docs/coordination/DEVELOPMENT_BASELINE.json"))).toBe(false)
     expect(model.documents.some((document: any) => document.path === "docs/coordination/DEVELOPMENT_BASELINE.json")).toBe(false)
     expect(model.compatibility).toEqual({ compatibilitySchemaVersion: 1, coreEditor: "not-verified", coreBackend: "not-verified", endToEnd: "not-verified" })
+    expect(readFileSync(join(root, "docs/VERSION_POLICY.md"), "utf8")).toMatch(/0\.1\.0-a\.1.*not authorized|not authorized.*0\.1\.0-a\.1/i)
+    expect(readFileSync(join(root, "docs/project/CURRENT_STATE.md"), "utf8")).toMatch(/zero runtime\s+subsystems.*migrated|no runtime subsystem.*migrated/i)
+    expect(model.embeddedRecords.map((record: any) => record.recordId)).toEqual([
+      "RISK-CORE-DOCUMENTATION-STALE-SOURCE-001",
+      "RISK-CORE-DOCUMENTATION-DUAL-TRUTH-001",
+      "RISK-CORE-DOCUMENTATION-TEST-COUPLING-001",
+      "RISK-CORE-DOCUMENTATION-PACKAGE-SURFACE-001",
+      "RISK-FLOWDOC-COORDINATION-DUAL-OWNER-001",
+      "RISK-FLOWDOC-COORDINATION-BASELINE-GHOST-001",
+      "UNKNOWN-CORE-DOCUMENTATION-CONTRACT-INVENTORY-001",
+      "UNKNOWN-CORE-DOCUMENTATION-TEST-MIGRATION-001",
+      "UNKNOWN-CORE-PACKAGE-PUBLIC-DOCS-001",
+      "UNKNOWN-FLOWDOC-COMPATIBILITY-EDITOR-001",
+      "UNKNOWN-FLOWDOC-COMPATIBILITY-BACKEND-001",
+      "UNKNOWN-FLOWDOC-COORDINATION-REPOSITORY-001",
+      "WORK-CORE-LAYOUT-CUTOVER-001",
+      "WORK-CORE-REMAINING-SUBSYSTEM-CUTOVER-001",
+      "WORK-CORE-PACKAGE-RELEASE-BOUNDARY-001",
+      "WORK-FLOWDOC-EDITOR-BACKEND-ADOPTION-001",
+      "WORK-FLOWDOC-COORDINATION-TRANSFER-001",
+      "WORK-FLOWDOC-AGENT-SYSTEM-REDESIGN-001",
+    ])
     expect(generated(root)).toEqual(renderGeneratedFiles(model))
   })
 })

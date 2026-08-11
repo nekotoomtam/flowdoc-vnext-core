@@ -6,6 +6,11 @@
 
 - [DOC-CORE-NAVIGATION-DOCUMENT-MAP — Canonical document map](DOCUMENT_MAP.md)
 - [DOC-CORE-NAVIGATION-MANIFEST — Canonical documentation manifest](manifest.json)
+- [DOC-CORE-PROJECT-CURRENT-STATE — Core project current state](project/CURRENT_STATE.md)
+- [DOC-CORE-PROJECT-KNOWN-UNKNOWNS — Core project known unknowns](project/KNOWN_UNKNOWNS.md)
+- [DOC-CORE-PROJECT-RISK-REGISTER — Core project risk register](project/RISK_REGISTER.md)
+- [DOC-CORE-PROJECT-ROADMAP — Core project roadmap](project/ROADMAP.md)
+- [DOC-CORE-PROJECT-VERSION-POLICY — Core project version policy](VERSION_POLICY.md)
 
 ## Coordination
 
