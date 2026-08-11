@@ -349,10 +349,14 @@ describe("canonical documentation spine", () => {
 [safe reference][status]
 [safe destination identifier][destination-id]
 [safe scheme autolink reference][status-ref]
+[safe compact reference][compact-ref]
+[safe balanced reference][balanced-ref]
 
 [status]: https://example.test/status
 [destination-id]: https://example.test/status
 [status-ref]: <https://example.test/status> "qualified destination"
+[compact-ref]:https://example.test/status
+[balanced-ref]:https://example.test/a(b)/status
 
 <https://example.test/status>
 <foo:status>
@@ -384,6 +388,24 @@ A dual-status token is qualified.
     const invalidTitle = fixture()
     write(invalidTitle, "docs/coordination/BOUNDARY.md", "# Boundary\n\n[safe]: https://example.test/safe \"status\n")
     expect(() => loadPending(invalidTitle)).toThrow(/ambiguous alias status/i)
+
+    const unbalancedDestination = fixture()
+    write(unbalancedDestination, "docs/coordination/BOUNDARY.md", "# Boundary\n\n[status]: broken)\n")
+    expect(() => loadPending(unbalancedDestination)).toThrow(/ambiguous alias status/i)
+  })
+
+  test("strips reference destination labels only when they resolve to valid normalized definitions", () => {
+    const unresolved = fixture()
+    write(unresolved, "docs/coordination/BOUNDARY.md", "# Boundary\n\n[safe][status]\n")
+    expect(() => loadPending(unresolved)).toThrow(/ambiguous alias status/i)
+
+    const resolved = fixture()
+    write(resolved, "docs/coordination/BOUNDARY.md", "# Boundary\n\n[safe][STATUS   REF]\n\n[ status ref ]:https://example.test/status\n")
+    expect(() => loadPending(resolved)).not.toThrow()
+
+    const shortcut = fixture()
+    write(shortcut, "docs/coordination/BOUNDARY.md", "# Boundary\n\n[status]\n\n[status]: https://example.test/safe\n")
+    expect(() => loadPending(shortcut)).toThrow(/ambiguous alias status/i)
   })
 
   test("collects stable references and rejects unresolved active normative references", () => {

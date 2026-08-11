@@ -264,14 +264,71 @@ function duplicate(values, label) {
   return seen
 }
 
+function normalizeReferenceLabel(label) {
+  return label.trim().replace(/\s+/g, " ").toLocaleLowerCase("en-US")
+}
+
+function referenceDefinitionLabel(line) {
+  const match = /^[ \t]{0,3}\[((?:\\.|[^\[\]\\\r\n])+)]:(.*)\r?$/.exec(line)
+  if (!match) return null
+  const label = normalizeReferenceLabel(match[1])
+  if (label.length === 0) return null
+  const source = match[2].replace(/^[ \t]*/, "")
+  if (source.length === 0) return null
+
+  let destinationEnd
+  if (source.startsWith("<")) {
+    const close = source.indexOf(">", 1)
+    if (close < 2 || source.slice(1, close).includes("<")) return null
+    destinationEnd = close + 1
+  } else {
+    let parentheses = 0
+    let index = 0
+    for (; index < source.length && !/[ \t]/.test(source[index]); index += 1) {
+      const character = source[index]
+      if (character === "<" || character === ">") return null
+      if (character === "\\" && index + 1 < source.length) {
+        index += 1
+        continue
+      }
+      if (character === "(") parentheses += 1
+      if (character === ")") {
+        parentheses -= 1
+        if (parentheses < 0) return null
+      }
+    }
+    if (index === 0 || parentheses !== 0) return null
+    destinationEnd = index
+  }
+
+  const remainder = source.slice(destinationEnd)
+  if (remainder.length === 0) return label
+  if (!/^[ \t]+/.test(remainder)) return null
+  const title = remainder.trim()
+  if (!/^(?:"[^"\r\n]*"|'[^'\r\n]*'|\([^()\r\n]*\))$/.test(title)) return null
+  return label
+}
+
 function stripAliasScanExclusions(markdown) {
-  return markdown
+  const withoutCode = markdown
     .replace(/```[\s\S]*?```|~~~[\s\S]*?~~~/g, " ")
     .replace(/`[^`\r\n]*`/g, " ")
-    .replace(/^[ \t]{0,3}\[(?:\\.|[^\[\]\\\r\n])+\]:[ \t]+(?:<[^<>\r\n]+>|[^\s<>\r\n]+)(?:[ \t]+(?:"[^"\r\n]*"|'[^'\r\n]*'|\([^()\r\n]*\)))?[ \t]*\r?$/gm, " ")
+
+  const referenceLabels = new Set()
+  const visibleLines = withoutCode.split("\n").map((line) => {
+    const label = referenceDefinitionLabel(line)
+    if (label === null) return line
+    referenceLabels.add(label)
+    return ""
+  })
+
+  return visibleLines.join("\n")
     .replace(/<[A-Za-z][A-Za-z0-9+.-]{1,31}:[^<>\s]+>|<[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9.-]+>/g, " ")
     .replace(/\]\([^)]*\)/g, "]")
-    .replace(/(\[[^\]\r\n]*\])\s*\[[^\]\r\n]*\]/g, "$1")
+    .replace(/(\[([^\]\r\n]*)\])\s*\[([^\]\r\n]*)\]/g, (whole, visible, visibleLabel, destinationLabel) => {
+      const resolvedLabel = normalizeReferenceLabel(destinationLabel.length === 0 ? visibleLabel : destinationLabel)
+      return referenceLabels.has(resolvedLabel) ? visible : whole
+    })
     .replace(REFERENCE_PATTERN, " ")
 }
 
