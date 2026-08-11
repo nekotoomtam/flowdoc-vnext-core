@@ -471,13 +471,25 @@ document entry has exactly these fields:
 ```
 
 `appliesTo` has exactly `repositoryIds`, `releaseLines`, `contractIds`, and
-`schemaIds`, each an array. The closed D1-D2 subsystem values are exactly
-`documentation`, `terminology`, `coordination`, `versioning`, and `project`.
-Manifest/glossary/repository records define only the identities they own;
-selectors and references never define identities. Validate every `appliesTo`
-reference whose owner is available in D1. A non-empty capability, contract, or
-gate selector fails in Task 3 because its later repository-owned registry does
-not exist yet; full contract applicability semantics remain deferred to D3.
+`schemaIds`. Every array contains distinct strings. `repositoryIds` contains
+only distinct registered `REPO-*` identities; `releaseLines` contains only
+distinct numeric `major.minor` lines; `contractIds` contains only distinct
+`CONTRACT-*` identities; and `schemaIds` contains only distinct `SCHEMA-*`
+identities. In Task 3 every document and Term `contractIds` and `schemaIds`
+array is exactly empty because no owner registry exists. Selector occurrence
+never creates an identity. Any later non-empty selector requires a separately
+registered owner before it can resolve.
+
+The closed D1 document-kind values are exactly `navigation`, `glossary`,
+`repository-index`, `coordination-boundary`, `release-composition`,
+`current-state`, and `compatibility`. The closed D1-D2 subsystem values are
+exactly `documentation`, `terminology`, `coordination`, `versioning`, and
+`project`. Manifest/glossary/repository records define only the identities they
+own; selectors and references never define identities. Validate every
+`appliesTo` reference whose owner is available in D1. A non-empty release
+capability, contract, or gate selector fails in Task 3 because its later
+repository-owned registry does not exist yet; full contract applicability
+semantics remain deferred to D3.
 
 Populate `documents` with exact records for every D1-D2 authored/generated path
 except the not-yet-published Development Baseline. Task 6 adds that one record
@@ -502,6 +514,23 @@ DOC-CORE-VERSION-0-1-VERSION-OVERVIEW
 DOC-CORE-VERSION-0-1-CAPABILITY-SET
 DOC-CORE-VERSION-0-1-COMPATIBILITY
 ```
+
+Use exactly this 11-row D1 document mapping. For every row, `contractIds` and
+`schemaIds` are exactly `[]`.
+
+| documentId | path | kind | scope | subsystem | audience | authority | lifecycle | repositoryIds | releaseLines |
+|---|---|---|---|---|---|---|---|---|---|
+| `DOC-CORE-NAVIGATION-MANIFEST` | `docs/manifest.json` | `navigation` | `core` | `documentation` | `internal` | `normative` | `active` | `[REPO-FLOWDOC-CORE]` | `[]` |
+| `DOC-CORE-NAVIGATION-DOCUMENT-MAP` | `docs/DOCUMENT_MAP.md` | `navigation` | `core` | `documentation` | `both` | `navigation` | `active` | `[REPO-FLOWDOC-CORE]` | `[]` |
+| `DOC-FLOWDOC-TERMINOLOGY-GLOSSARY-SOURCE` | `docs/glossary.json` | `glossary` | `cross-repository` | `terminology` | `internal` | `normative` | `active` | `[REPO-FLOWDOC-CORE,REPO-FLOWDOC-EDITOR,REPO-FLOWDOC-BACKEND]` | `[]` |
+| `DOC-FLOWDOC-TERMINOLOGY-GLOSSARY-TECHNICAL` | `docs/GLOSSARY.md` | `glossary` | `cross-repository` | `terminology` | `both` | `navigation` | `active` | `[REPO-FLOWDOC-CORE,REPO-FLOWDOC-EDITOR,REPO-FLOWDOC-BACKEND]` | `[]` |
+| `DOC-FLOWDOC-TERMINOLOGY-GLOSSARY-THAI` | `docs/GLOSSARY_TH.md` | `glossary` | `cross-repository` | `terminology` | `both` | `navigation` | `active` | `[REPO-FLOWDOC-CORE,REPO-FLOWDOC-EDITOR,REPO-FLOWDOC-BACKEND]` | `[]` |
+| `DOC-FLOWDOC-COORDINATION-REPOSITORY-INDEX` | `docs/coordination/REPOSITORY_INDEX.json` | `repository-index` | `cross-repository` | `coordination` | `internal` | `normative` | `active` | `[REPO-FLOWDOC-CORE,REPO-FLOWDOC-EDITOR,REPO-FLOWDOC-BACKEND]` | `[]` |
+| `DOC-FLOWDOC-COORDINATION-BOUNDARY` | `docs/coordination/BOUNDARY.md` | `coordination-boundary` | `cross-repository` | `coordination` | `internal` | `normative` | `active` | `[REPO-FLOWDOC-CORE,REPO-FLOWDOC-EDITOR,REPO-FLOWDOC-BACKEND]` | `[]` |
+| `DOC-CORE-VERSION-0-1-RELEASE-COMPOSITION` | `docs/versions/0_1/release.json` | `release-composition` | `core` | `versioning` | `internal` | `normative` | `active` | `[REPO-FLOWDOC-CORE]` | `[0.1]` |
+| `DOC-CORE-VERSION-0-1-VERSION-OVERVIEW` | `docs/versions/0_1/VERSION_OVERVIEW.md` | `current-state` | `core` | `versioning` | `both` | `navigation` | `active` | `[REPO-FLOWDOC-CORE]` | `[0.1]` |
+| `DOC-CORE-VERSION-0-1-CAPABILITY-SET` | `docs/versions/0_1/CAPABILITY_SET.md` | `current-state` | `core` | `versioning` | `both` | `navigation` | `active` | `[REPO-FLOWDOC-CORE]` | `[0.1]` |
+| `DOC-CORE-VERSION-0-1-COMPATIBILITY` | `docs/versions/0_1/COMPATIBILITY.md` | `compatibility` | `cross-repository` | `versioning` | `internal` | `normative` | `active` | `[REPO-FLOWDOC-CORE,REPO-FLOWDOC-EDITOR,REPO-FLOWDOC-BACKEND]` | `[0.1]` |
 
 **Glossary exact shape:**
 
@@ -660,7 +689,18 @@ never hard-codes or invents those facts. `CAPABILITY_SET.md` uses only release
 selectors, and the three empty arrays render an explicit
 no-subsystem-cutover, no-readiness-claim result.
 
-The baseline ID is reserved for this D0-D2 publication sequence. If D0 execution occurs after 2026-08-11 or that ID already exists in history, allocate the next valid event ID before any source is written and use that exact ID consistently.
+`BASELINE-FLOWDOC-20260811-01` is reserved by this approved plan on
+2026-08-11. The date embedded in the event ID is its allocation/reservation
+date. A later Task 6 publication may have a different `recordedAt` date without
+changing this ID. Every Task 3 source, fixture, expectation, generated view,
+and command uses the literal `BASELINE-FLOWDOC-20260811-01`.
+
+Before authoring any Task 3 source, perform a read-only current-tree preflight:
+`docs/coordination/DEVELOPMENT_BASELINE.json` must not exist, and an existing
+`docs/manifest.json` must contain neither a Development Baseline document
+record nor the reserved event ID. Any collision is a blocker requiring a new
+user decision and a plan amendment; never allocate or substitute another ID
+automatically.
 
 `docs/coordination/DEVELOPMENT_BASELINE.json` and its manifest record remain
 absent throughout Task 3. Remove or stop exercising the obsolete live
@@ -703,7 +743,10 @@ not-adopted, and all three authored compatibility values equal to
 `not-verified`. Assert that non-empty release capability/contract/gate arrays
 reject because no Task 3 owner registries exist. Assert language-specific
 labels/definitions with identical sorted Term-ID order and the exact alias
-scanner exclusions/tokenization.
+scanner exclusions/tokenization. Assert the literal 11-row document mapping,
+distinct-string/prefix/format closure for every `appliesTo` array, exact empty
+Task 3 `contractIds`/`schemaIds`, and rejection of duplicate or selector-only
+identities.
 
 Run:
 
@@ -736,6 +779,25 @@ tests remain RED only because the six authored sources and five generated
 views do not exist yet.
 
 - [ ] **Step 3: Author exact neutral sources, boundary, and compatibility**
+
+Run this read-only collision preflight before creating or changing any Task 3
+source:
+
+```powershell
+$baselinePath = "docs/coordination/DEVELOPMENT_BASELINE.json"
+$manifestPath = "docs/manifest.json"
+if (Test-Path -LiteralPath $baselinePath) { throw "baseline collision: $baselinePath already exists" }
+if (Test-Path -LiteralPath $manifestPath) {
+  $manifestText = Get-Content -Raw -LiteralPath $manifestPath
+  if ($manifestText -match '"kind"\s*:\s*"development-baseline"' -or $manifestText -match 'BASELINE-FLOWDOC-20260811-01') {
+    throw "baseline collision: current manifest already contains a baseline record or reserved event ID"
+  }
+}
+```
+
+Expected: no output and exit 0. Any thrown collision stops Task 3 for a new
+user decision and plan amendment; do not author sources and do not substitute
+another baseline ID.
 
 `BOUNDARY.md` must say:
 
