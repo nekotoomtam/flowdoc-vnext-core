@@ -705,9 +705,10 @@ automatically.
 `docs/coordination/DEVELOPMENT_BASELINE.json` and its manifest record remain
 absent throughout Task 3. Remove or stop exercising the obsolete live
 single-`pinned` baseline parser/evolution semantics; do not publish them as the
-Task 3 contract. Task 6 owns the full multi-repository baseline parser,
-immutable evolution comparison, file, and atomic manifest record. D3 owns the
-repository-local contract/capability/gate registries.
+Task 3 contract. Task 5/content commit X owns the full multi-repository
+baseline parser and immutable evolution comparison. Task 6/commit Y owns only
+the file, atomic manifest record, and deterministic navigation changes. D3
+owns the repository-local contract/capability/gate registries.
 
 **Compatibility exact metadata:**
 
@@ -868,6 +869,18 @@ DOC-CORE-PROJECT-KNOWN-UNKNOWNS
 DOC-CORE-PROJECT-ROADMAP
 ```
 
+Register exactly this five-row Task 4 manifest mapping. Every row has the
+existing exact `appliesTo` object shape; array values shown below are literal,
+and `contractIds` and `schemaIds` remain exactly empty:
+
+| documentId | path | kind | scope | subsystem | audience | authority | lifecycle | repositoryIds | releaseLines | contractIds | schemaIds |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| `DOC-CORE-PROJECT-VERSION-POLICY` | `docs/VERSION_POLICY.md` | `version-policy` | `cross-repository` | `versioning` | `internal` | `normative` | `active` | `[REPO-FLOWDOC-CORE,REPO-FLOWDOC-EDITOR,REPO-FLOWDOC-BACKEND]` | `[]` | `[]` | `[]` |
+| `DOC-CORE-PROJECT-CURRENT-STATE` | `docs/project/CURRENT_STATE.md` | `current-state` | `core` | `project` | `internal` | `evidence` | `active` | `[REPO-FLOWDOC-CORE]` | `[]` | `[]` | `[]` |
+| `DOC-CORE-PROJECT-RISK-REGISTER` | `docs/project/RISK_REGISTER.md` | `risk-register` | `cross-repository` | `project` | `internal` | `normative` | `active` | `[REPO-FLOWDOC-CORE,REPO-FLOWDOC-EDITOR,REPO-FLOWDOC-BACKEND]` | `[]` | `[]` | `[]` |
+| `DOC-CORE-PROJECT-KNOWN-UNKNOWNS` | `docs/project/KNOWN_UNKNOWNS.md` | `known-unknowns` | `cross-repository` | `project` | `internal` | `normative` | `active` | `[REPO-FLOWDOC-CORE,REPO-FLOWDOC-EDITOR,REPO-FLOWDOC-BACKEND]` | `[]` | `[]` | `[]` |
+| `DOC-CORE-PROJECT-ROADMAP` | `docs/project/ROADMAP.md` | `roadmap` | `cross-repository` | `project` | `internal` | `normative` | `active` | `[REPO-FLOWDOC-CORE,REPO-FLOWDOC-EDITOR,REPO-FLOWDOC-BACKEND]` | `[]` | `[]` | `[]` |
+
 `CURRENT_STATE.md` owns only inspected facts:
 
 - Core package is private `0.0.0` and no alpha release has been authorized;
@@ -969,23 +982,53 @@ cross-category roadmap motivation and affected/closing references resolvable
 without treating a reference as an identity definition.
 
 Required prose is also closed and checked against metadata. A risk record has
-non-empty `### Adverse event`, `### Trigger`, `### Affected IDs`,
-`### Mitigation`, `### Evidence`, and `### Lifecycle` sections. A known
-unknown has non-empty `### Missing evidence`, `### Why it matters`,
-`### Blocked decision`, `### Affected IDs`,
-`### Closing gate or work item`, and `### Lifecycle` sections. A roadmap work
-record has non-empty `### Motivating risks and unknowns`, `### Non-goals`, and
-`### Lifecycle` sections. The stable IDs in the affected, closing, and
-motivating prose sections must equal their metadata arrays exactly, and the
-prose lifecycle value must equal metadata `lifecycle`.
+exactly one each of these non-empty level-three sections, in this exact order,
+with no other `###` section inside that record:
+
+```text
+risk:    Adverse event -> Trigger -> Affected IDs -> Mitigation -> Evidence -> Lifecycle
+unknown: Missing evidence -> Why it matters -> Blocked decision -> Affected IDs -> Closing gate or work item -> Lifecycle
+work:    Motivating risks and unknowns -> Non-goals -> Lifecycle
+```
+
+Every non-ID section contains at least one non-empty prose paragraph. Every ID
+section contains only one Markdown bullet per ID and no prose. Reference-array
+identity is set-like, but canonical serialization is deterministic: metadata
+arrays and their prose bullet lists are both sorted by ascending stable ID,
+duplicates are rejected, and the two sorted sequences must be element-for-
+element equal. Therefore a reordered metadata array or prose list is invalid,
+not silently normalized. The lifecycle section is serialized exactly as the
+heading `### Lifecycle`, one blank line, then one backticked lifecycle token
+such as `` `active` ``; no list marker, label, sentence, or second token is
+accepted, and the token must equal metadata `lifecycle`.
+
+Outside a `FLOWDOC-RECORD` JSON block, every canonical stable ID in Task 4
+authored prose uses the narrow inline form `[<exact stable ID>](<relative
+target>)`; the visible label is exactly the ID with no added title or prose.
+Reference-style links are not part of this Task 4 grammar. The destination's
+path component, resolved relative to the referring document, normalized for
+`.` and `..`, and converted to repository-relative `/` separators, must equal
+the registered owner path of that exact identity. Document IDs resolve through
+the manifest; RISK/UNKNOWN/WORK IDs resolve to their containing registered
+document; repository, term, and concept IDs resolve to their registered
+structured-source document. URI, absolute, repository-escaping, and pathless
+targets are rejected. A fragment may follow the correct owner path but does
+not replace it. A link whose label names one ID while its path owns another ID
+is invalid even when that destination exists.
+The exact ID in the record's defining `##` heading is an identity declaration,
+not a prose reference. Bare IDs inside the machine-readable
+`FLOWDOC-RECORD` block are exempt from the clickable-prose rule but still
+undergo typed identity and outbound closure validation. No other bare-ID
+exemption exists in Task 4 authored prose.
 
 This is a task-specific FLOWDOC-RECORD parser and validator, not a generic
 Markdown parser, schema engine, plugin system, or reusable documentation
 framework. Task 4 must not add or restore
 `validateDevelopmentBaselineEvolution`, parse or publish
 `DEVELOPMENT_BASELINE.json`, change pending-baseline semantics, or implement
-the Task 6 multi-repository baseline contract. Development Baseline
-publication and evolution validation remain Task 6 work.
+the multi-repository baseline contract. Task 5/content commit X owns the
+executable baseline parser and evolution validation; Task 6/commit Y owns only
+publication of the already-supported record and its deterministic navigation.
 
 - [ ] **Step 1: Write truth-plane validation REDs**
 
@@ -994,16 +1037,21 @@ Add fixture and repository-root tests that use the production
 
 - `collectEmbeddedCanonicalRecords` is missing or embedded records do not
   participate in real `docs:check`;
+- any Task 4 manifest row is missing/extra or differs in path, kind, scope,
+  subsystem, audience, authority, lifecycle, or an exact `appliesTo` array;
 - a record block is absent, is not immediately after its matching heading, or
   contains invalid JSON;
 - heading ID, typed ID prefix, `recordKind`, document kind, or closed
   `lifecycle` disagrees;
 - metadata has a missing/extra field, an empty/duplicate outbound array, or a
   duplicate identity within/across risk, unknown, and work categories;
-- a required prose section is missing/empty or its lifecycle/outbound IDs do
-  not exactly match the metadata;
+- a required prose section is missing, duplicated, empty, extra, or reordered,
+  its lifecycle serialization is not exact, or its sorted outbound IDs do not
+  exactly match the sorted metadata array;
 - an affected, closing, motivating, or authored canonical reference is
   unresolved, including cross-category RISK/UNKNOWN/WORK references;
+- prose contains a bare canonical ID, a non-relative/escaping target, or a
+  link whose ID points to the existing registered path of a different identity;
 - current state claims a migrated capability while release composition is empty;
 - a risk lacks an adverse event or mitigation;
 - an unknown lacks missing-evidence and closing-gate fields;
@@ -1032,7 +1080,11 @@ documents and regenerated document map do not exist yet.
 
 - [ ] **Step 3: Author the five documents and register them**
 
-Every canonical reference uses stable ID plus clickable relative path. Do not copy long Phase 5B designs or test counts into current state; link legacy evidence only as explicitly non-canonical migration input when necessary.
+Author the five exact manifest rows above. Every prose canonical reference
+uses the clickable relative-path contract above, and every embedded record
+uses the exact section order and serialization. Do not copy long Phase 5B
+designs or test counts into current state; link legacy evidence only as
+explicitly non-canonical migration input when necessary.
 
 - [ ] **Step 4: Generate, prove GREEN, and commit the exact nine paths**
 
@@ -1057,14 +1109,95 @@ other documentation path is staged.
 
 **Files:**
 - Create: `scripts/publish-development-baseline.mjs`
-- Modify only if a behavior RED requires it: D1-D2 scripts, sources, generated views, and `tests/canonicalDocumentationSpine.test.ts`.
+- Modify: `scripts/documentation/canonical-docs-model.mjs`
+- Modify: `scripts/generate-canonical-docs.mjs`
+- Modify: `scripts/check-canonical-docs.mjs`
+- Modify: `tests/canonicalDocumentationSpine.test.ts`
+- Modify only if a named Task 5 behavior RED or accepted review finding
+  requires it: `package.json`, `scripts/documentation/canonical-docs-render.mjs`,
+  D1-D2 authored sources, or the five generated views.
 - Do not create a new report/ledger/handoff document.
 
-- [ ] **Step 1: Run the complete validation matrix**
+**Task 5 executable Development Baseline contract:**
 
-Before the broad matrix, add the narrow baseline publisher and its REDs. The
-publisher writes data only; it never commits, tags, pushes, or accepts a short
-hash. Its CLI is:
+Task 5, before content commit X, implements the parser and evolution guard
+that Task 6 will execute without changing code. The exact
+`DEVELOPMENT_BASELINE.json` shape is:
+
+```json
+{
+  "baselineSchemaVersion": 1,
+  "baselineId": "BASELINE-FLOWDOC-20260811-01",
+  "recordedAt": "2026-08-11",
+  "repositories": {
+    "REPO-FLOWDOC-CORE": {"releaseLine":"0.1","releaseVersion":"unversioned","verifiedCommit":"5bcb497cefe742222a835637cc33eddd5f96b685"},
+    "REPO-FLOWDOC-EDITOR": {"releaseLine":null,"releaseVersion":"unversioned","verifiedCommit":"43dcebb22735d7330fda0d57d4e7ce9a726e2454"},
+    "REPO-FLOWDOC-BACKEND": {"releaseLine":null,"releaseVersion":"unversioned","verifiedCommit":"280c4ffbe075cd5391cce5219e8f9c40fed16527"}
+  },
+  "verificationSets": [],
+  "compatibility": {"coreEditor":"not-verified","coreBackend":"not-verified","endToEnd":"not-verified"},
+  "releaseReady": false
+}
+```
+
+The top level, `repositories`, each repository entry, and `compatibility`
+reject missing or unknown fields. Repository keys are exactly the three stable
+repository IDs above. `baselineSchemaVersion` is exactly `1`; `baselineId`
+matches `^BASELINE-FLOWDOC-[0-9]{8}-[0-9]{2}$` and equals the release's exact
+reserved ID. `recordedAt` is one real calendar date serialized as
+`YYYY-MM-DD`; every `verifiedCommit` matches `/^[0-9a-f]{40}$/` and is not the
+all-zero hash; Core has
+`releaseLine: "0.1"`; Editor and Backend have `releaseLine: null`; all three
+have `releaseVersion: "unversioned"`; `verificationSets` is exactly `[]`; all
+compatibility fields are exactly `"not-verified"`; and `releaseReady` is
+exactly `false`. The literal hashes above are the inspected design inputs used
+to demonstrate the shape, not the publication tuple: Task 6 replaces the Core
+value with content commit X and rechecks the exact D0 Editor/Backend values.
+
+`loadCanonicalDocumentationModel` has exactly two normal states:
+
+1. When the baseline file is absent, it accepts only the existing explicit
+   pending option whose ID equals the planned, unversioned, not-ready release
+   baseline ID; it returns `baseline: null` and that `pendingBaselineId`.
+   Without the exact option it fails.
+2. When the baseline file exists, it parses the exact shape above, requires
+   its ID to equal `release.baselineId`, returns the parsed record as
+   `baseline` and `pendingBaselineId: null`, and requires no pending option.
+   Supplying `allowPendingBaselineId` when the file exists fails as a
+   contradictory loader state.
+
+Update generation in X so it auto-selects pending mode only when the baseline
+file is absent. With a present baseline it performs a normal load. Normal
+`docs:check` without `--allow-pending-baseline` fails while the baseline is
+absent and participates in the parsed present-baseline model after Task 6.
+
+Restore and implement:
+
+```js
+export function validateDevelopmentBaselineEvolution(previous, next)
+```
+
+Both non-null arguments are parsed against the exact schema. A missing
+previous record permits the first publication. When `baselineId` is the same,
+the ordered tuple of the three `(repositoryId, verifiedCommit)` pairs must be
+identical and the full parsed record must be semantically equal; any changed
+commit, repository key, release line/version, verification set,
+compatibility, readiness, or recorded date requires a new baseline ID. A new
+ID is validated normally and is not treated as same-event mutation.
+
+`scripts/check-canonical-docs.mjs` must call this evolution guard whenever a
+present worktree baseline is loaded. It reads the prior committed baseline at
+the same path from `HEAD` through Git when available; only Git's exact
+path-not-present result means `previous: null`. Malformed prior JSON, another
+Git failure, or same-ID mutation fails real `docs:check`. This is the sole
+Task 5 baseline parser/evolution path; do not create a generic JSON schema
+framework or a second baseline authority.
+
+- [ ] **Step 1: Write and preserve the baseline parser/publisher REDs**
+
+Add fixture tests through the real loader, generator, publisher, and
+`scripts/check-canonical-docs.mjs`. The publisher writes data only; it never
+commits, tags, pushes, or accepts a short hash. Its CLI is:
 
 ```text
 node scripts/publish-development-baseline.mjs --root . --baseline-id BASELINE-FLOWDOC-20260811-01 --recorded-at 2026-08-11 --core-commit $contentCommit --editor-commit $d0Editor --backend-commit $d0Backend
@@ -1075,6 +1208,39 @@ release's reserved ID, non-empty verification at D2, compatibility other than
 `not-verified`, `releaseReady: true`, and reuse of one baseline ID with a
 changed repository tuple. The script copies the three exact 40-character CLI
 arguments into the record and emits no placeholder value.
+
+Also prove RED for every missing/unknown nested field, wrong repository key,
+invalid date, all-zero publisher hash, wrong release line/version, absent
+baseline without pending allowance, present baseline incorrectly treated as
+pending, normal `docs:check` rejecting a valid present baseline, and a
+same-ID mutation of each repository commit and each other semantic field.
+
+Run and preserve RED:
+
+```powershell
+npx vitest run tests/canonicalDocumentationSpine.test.ts --maxWorkers=1
+```
+
+Expected: assertion failures show the absent exact baseline parser/evolution
+and present-load behavior. A syntax/import failure is not an accepted RED.
+
+- [ ] **Step 2: GREEN the baseline model, generator, checker, and publisher**
+
+Implement the exact Task 5 contract above in the four required scripts. Keep
+the Task 4 embedded-record parser unchanged except for integration needed to
+share the final model known-ID closure. Run:
+
+```powershell
+npx vitest run tests/canonicalDocumentationSpine.test.ts --maxWorkers=1
+npm run docs:generate
+npm run docs:check -- --allow-pending-baseline BASELINE-FLOWDOC-20260811-01
+```
+
+Expected: focused tests pass; generation uses pending mode only because the
+baseline is still absent in X; explicit pending `docs:check` passes; normal
+`docs:check` remains a tested failure until Task 6 publishes the file.
+
+- [ ] **Step 3: Complete the D1-D2 validation matrix**
 
 Add or confirm real-repository tests for every Section 12.3 rule expressible in D1-D2:
 
@@ -1093,7 +1259,7 @@ Add or confirm real-repository tests for every Section 12.3 rule expressible in 
 
 For contract applicability rules with no D3 contract records yet, test temporary fixtures only; do not invent live contracts.
 
-- [ ] **Step 2: Run focused and full gates**
+- [ ] **Step 4: Run focused and full gates**
 
 ```powershell
 npm run docs:generate
@@ -1107,7 +1273,7 @@ git status --short
 
 The broad test run may be long; use a sufficient outer timeout. A runner timeout without assertion output is not PASS and must be rerun with a larger window.
 
-- [ ] **Step 3: Audit scope and claims**
+- [ ] **Step 5: Audit scope and claims**
 
 Search and classify every match:
 
@@ -1119,22 +1285,29 @@ git diff -- src/index.ts package-lock.json
 
 Expected: no unqualified readiness/migration claim, no canonical dependency on superseded phase prose, and no runtime/public/lockfile diff.
 
-- [ ] **Step 4: Request two fresh read-only reviews**
+- [ ] **Step 6: Request two fresh read-only reviews**
 
 One reviewer checks task/spec compliance and factual honesty. A second reviewer checks information architecture, reference direction, baseline protocol, and future relocation. Address Critical/Important findings with new REDs, then rerun all gates. Do not broaden to D3-D7.
 
-- [ ] **Step 5: Create or identify content commit X**
+- [ ] **Step 7: Create content commit X**
 
-If review fixes changed tracked content, make one coherent final content commit:
+Task 5 always changes the publisher, model, generator, checker, and tests, so
+make one coherent content commit X after the gates and reviews are READY:
 
 ```powershell
-git add -- package.json scripts/documentation scripts/generate-canonical-docs.mjs scripts/check-canonical-docs.mjs scripts/publish-development-baseline.mjs tests/canonicalDocumentationSpine.test.ts docs/manifest.json docs/glossary.json docs/VERSION_POLICY.md docs/coordination/REPOSITORY_INDEX.json docs/coordination/BOUNDARY.md docs/project docs/versions/0_1 docs/DOCUMENT_MAP.md docs/GLOSSARY.md docs/GLOSSARY_TH.md
+git add -- scripts/documentation/canonical-docs-model.mjs scripts/generate-canonical-docs.mjs scripts/check-canonical-docs.mjs scripts/publish-development-baseline.mjs tests/canonicalDocumentationSpine.test.ts
+# Add any extra Task 5 path only when a named RED or accepted review finding changed it:
+git add -- package.json scripts/documentation/canonical-docs-render.mjs docs/manifest.json docs/glossary.json docs/VERSION_POLICY.md docs/coordination/REPOSITORY_INDEX.json docs/coordination/BOUNDARY.md docs/project docs/versions/0_1 docs/DOCUMENT_MAP.md docs/GLOSSARY.md docs/GLOSSARY_TH.md
 git diff --cached --check
 git diff --cached --name-only
 git commit -m "docs: complete canonical project truth foundation"
 ```
 
-If the tree is already clean because Tasks 1-4 commits collectively form the verified content tree, `HEAD` itself is content commit X; do not create an empty commit. Record:
+The first `git add` line is the exact five-path minimum required Task 5 scope.
+Before the optional second line, inspect the working tree and omit every path
+not changed for a named RED/review fix; the command is an allowlist, not
+permission to stage unchanged or unrelated files. The baseline JSON and its
+manifest record are forbidden in X. Record:
 
 ```powershell
 $contentCommit = git rev-parse HEAD
@@ -1160,6 +1333,11 @@ commit/tag/push and cannot accept short hashes.
 Task 6 registers the baseline file as
 `DOC-FLOWDOC-COORDINATION-DEVELOPMENT-BASELINE`; the event record inside it is
 the separately typed `BASELINE-FLOWDOC-20260811-01`.
+
+Task 6 is a five-path publication/execution task, not an implementation task.
+The publisher, exact schema parser, pending/present loader behavior, evolution
+guard, checker integration, and all tests are already committed in X. No
+script or test change is allowed in Y.
 
 - [ ] **Step 1: Re-run the baseline-publication tests from content commit X**
 
