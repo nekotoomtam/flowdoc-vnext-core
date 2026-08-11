@@ -653,6 +653,24 @@ A dual-status token is qualified.
     }
   })
 
+  test("branch ledger: rejects every remaining block-only body and proposed-version claim form through the checker", () => {
+    const bodyCases = ["```text\ncode\n```", "    indented", "<!-- comment -->", "- list", "> quote", "#### heading", "Heading\n---", "***", "_ _ _", "- - -"]
+    for (const body of bodyCases) {
+      const root = fixture(); addTruthPlane(root)
+      const path = join(root, "docs/project/RISK_REGISTER.md")
+      writeFileSync(path, readFileSync(path, "utf8").replace("Conflicting sources lead to inconsistent decisions.", body), "utf8")
+      const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+      expect(check.status).not.toBe(0); expect(check.stderr).toMatch(/prose paragraph/i)
+    }
+    for (const claim of ["0.1.0-a.1 is a release.", "Authorization is granted for 0.1.0-a.1.", "0.1.0-a.1 is authorized."]) {
+      const root = fixture(); addTruthPlane(root)
+      const path = join(root, "docs/VERSION_POLICY.md")
+      writeFileSync(path, `${readFileSync(path, "utf8")}\n\n${claim}\n`, "utf8")
+      const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+      expect(check.status).not.toBe(0); expect(check.stderr).toMatch(/cannot claim 0\.1\.0-a\.1 is released or authorized/i)
+    }
+  })
+
   test("generates five byte-stable approved views and uses the generated header", () => {
     const root = fixture()
     const first = runCli(root, "scripts/generate-canonical-docs.mjs")

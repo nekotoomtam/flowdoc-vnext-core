@@ -386,7 +386,9 @@ function hasProseParagraph(content) {
   const paragraphs = content.replace(/<!--[\s\S]*?-->/g, "").replace(/```[\s\S]*?```|~~~[\s\S]*?~~~/g, "").split(/\r?\n\s*\r?\n/)
   return paragraphs.some((paragraph) => {
     const lines = paragraph.split(/\r?\n/)
-    return lines.length > 0 && lines.some((line) => line.trim().length > 0) && !lines.every((line) => /^\s*(?:[-*+] |\d+\. |>|#{1,6}\s|={3,}|-{3,}$|\s{4}|\t)/.test(line))
+    const nonblank = lines.filter((line) => line.trim().length > 0)
+    if (nonblank.length === 2 && /^\s*(?:={3,}|-{3,})\s*$/.test(nonblank[1])) return false
+    return nonblank.length > 0 && !nonblank.every((line) => /^\s*(?:[-*+] |\d+\. |>|#{1,6}\s|(?:\*\s*){3,}|(?:_\s*){3,}|(?:-\s*){3,}|={3,}|-{3,}$|\s{4}|\t)/.test(line))
   })
 }
 
@@ -599,7 +601,7 @@ export function validateCanonicalDocumentationModel(model, options = {}) {
     const withoutRequiredStatement = versionPolicyMarkdown.replace(requiredStatement, "")
     const allowedSnapshotStatement = /When authorized, the exact prerelease snapshot uses `v0\.1\.0-a\.1` tag and\s+artifact identity\./i
     const claims = withoutRequiredStatement.replace(allowedSnapshotStatement, "")
-    if (/(?:\b0\.1\.0-a\.1\b[\s\S]*\b(?:released|authorized)\b|\b(?:released|authorized)\b[\s\S]*\b0\.1\.0-a\.1\b)/i.test(claims)) fail("version policy cannot claim 0.1.0-a.1 is released or authorized")
+    if (/(?:\b0\.1\.0-a\.1\b[\s\S]*\b(?:release(?:d)?|authorization|authorized)\b|\b(?:release(?:d)?|authorization|authorized)\b[\s\S]*\b0\.1\.0-a\.1\b)/i.test(claims)) fail("version policy cannot claim 0.1.0-a.1 is released or authorized")
   }
   for (const document of documents) {
     const markdown = markdownByPath[document.path]
