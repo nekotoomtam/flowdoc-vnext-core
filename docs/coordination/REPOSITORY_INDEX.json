@@ -1,0 +1,13 @@
+{
+  "repositoryIndexSchemaVersion": 1,
+  "provisionalHostRepositoryId": "REPO-FLOWDOC-CORE",
+  "futureCoordinationRepository": {
+    "workingName": "flowdoc-vnext-coordination",
+    "lifecycle": "not-created"
+  },
+  "repositories": [
+    {"repositoryId":"REPO-FLOWDOC-CORE","name":"flowdoc-vnext-core","role":"core-engine","manifestAdoption":"active","manifestDocumentId":"DOC-CORE-NAVIGATION-MANIFEST"},
+    {"repositoryId":"REPO-FLOWDOC-EDITOR","name":"flowdoc-vnext-editor","role":"editor-client","manifestAdoption":"not-adopted","manifestDocumentId":null},
+    {"repositoryId":"REPO-FLOWDOC-BACKEND","name":"flowdoc-vnext-backend","role":"backend-service","manifestAdoption":"not-adopted","manifestDocumentId":null}
+  ]
+}

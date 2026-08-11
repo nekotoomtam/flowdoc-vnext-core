@@ -1,0 +1,22 @@
+{
+  "manifestSchemaVersion": 1,
+  "repositoryId": "REPO-FLOWDOC-CORE",
+  "canonicalRoots": [
+    "docs/project",
+    "docs/coordination",
+    "docs/versions/0_1"
+  ],
+  "documents": [
+    {"documentId":"DOC-CORE-NAVIGATION-MANIFEST","title":"Canonical documentation manifest","path":"docs/manifest.json","kind":"navigation","scope":"core","subsystem":"documentation","audience":"internal","authority":"normative","lifecycle":"active","appliesTo":{"repositoryIds":["REPO-FLOWDOC-CORE"],"releaseLines":[],"contractIds":[],"schemaIds":[]}},
+    {"documentId":"DOC-CORE-NAVIGATION-DOCUMENT-MAP","title":"Canonical document map","path":"docs/DOCUMENT_MAP.md","kind":"navigation","scope":"core","subsystem":"documentation","audience":"both","authority":"navigation","lifecycle":"active","appliesTo":{"repositoryIds":["REPO-FLOWDOC-CORE"],"releaseLines":[],"contractIds":[],"schemaIds":[]}},
+    {"documentId":"DOC-FLOWDOC-TERMINOLOGY-GLOSSARY-SOURCE","title":"Canonical terminology source","path":"docs/glossary.json","kind":"glossary","scope":"cross-repository","subsystem":"terminology","audience":"internal","authority":"normative","lifecycle":"active","appliesTo":{"repositoryIds":["REPO-FLOWDOC-CORE","REPO-FLOWDOC-EDITOR","REPO-FLOWDOC-BACKEND"],"releaseLines":[],"contractIds":[],"schemaIds":[]}},
+    {"documentId":"DOC-FLOWDOC-TERMINOLOGY-GLOSSARY-TECHNICAL","title":"Technical glossary","path":"docs/GLOSSARY.md","kind":"glossary","scope":"cross-repository","subsystem":"terminology","audience":"both","authority":"navigation","lifecycle":"active","appliesTo":{"repositoryIds":["REPO-FLOWDOC-CORE","REPO-FLOWDOC-EDITOR","REPO-FLOWDOC-BACKEND"],"releaseLines":[],"contractIds":[],"schemaIds":[]}},
+    {"documentId":"DOC-FLOWDOC-TERMINOLOGY-GLOSSARY-THAI","title":"Thai glossary","path":"docs/GLOSSARY_TH.md","kind":"glossary","scope":"cross-repository","subsystem":"terminology","audience":"both","authority":"navigation","lifecycle":"active","appliesTo":{"repositoryIds":["REPO-FLOWDOC-CORE","REPO-FLOWDOC-EDITOR","REPO-FLOWDOC-BACKEND"],"releaseLines":[],"contractIds":[],"schemaIds":[]}},
+    {"documentId":"DOC-FLOWDOC-COORDINATION-REPOSITORY-INDEX","title":"Repository coordination index","path":"docs/coordination/REPOSITORY_INDEX.json","kind":"repository-index","scope":"cross-repository","subsystem":"coordination","audience":"internal","authority":"normative","lifecycle":"active","appliesTo":{"repositoryIds":["REPO-FLOWDOC-CORE","REPO-FLOWDOC-EDITOR","REPO-FLOWDOC-BACKEND"],"releaseLines":[],"contractIds":[],"schemaIds":[]}},
+    {"documentId":"DOC-FLOWDOC-COORDINATION-BOUNDARY","title":"Coordination ownership boundary","path":"docs/coordination/BOUNDARY.md","kind":"coordination-boundary","scope":"cross-repository","subsystem":"coordination","audience":"internal","authority":"normative","lifecycle":"active","appliesTo":{"repositoryIds":["REPO-FLOWDOC-CORE","REPO-FLOWDOC-EDITOR","REPO-FLOWDOC-BACKEND"],"releaseLines":[],"contractIds":[],"schemaIds":[]}},
+    {"documentId":"DOC-CORE-VERSION-0-1-RELEASE-COMPOSITION","title":"Core 0.1 release composition","path":"docs/versions/0_1/release.json","kind":"release-composition","scope":"core","subsystem":"versioning","audience":"internal","authority":"normative","lifecycle":"active","appliesTo":{"repositoryIds":["REPO-FLOWDOC-CORE"],"releaseLines":["0.1"],"contractIds":[],"schemaIds":[]}},
+    {"documentId":"DOC-CORE-VERSION-0-1-VERSION-OVERVIEW","title":"Core 0.1 version overview","path":"docs/versions/0_1/VERSION_OVERVIEW.md","kind":"current-state","scope":"core","subsystem":"versioning","audience":"both","authority":"navigation","lifecycle":"active","appliesTo":{"repositoryIds":["REPO-FLOWDOC-CORE"],"releaseLines":["0.1"],"contractIds":[],"schemaIds":[]}},
+    {"documentId":"DOC-CORE-VERSION-0-1-CAPABILITY-SET","title":"Core 0.1 capability set","path":"docs/versions/0_1/CAPABILITY_SET.md","kind":"current-state","scope":"core","subsystem":"versioning","audience":"both","authority":"navigation","lifecycle":"active","appliesTo":{"repositoryIds":["REPO-FLOWDOC-CORE"],"releaseLines":["0.1"],"contractIds":[],"schemaIds":[]}},
+    {"documentId":"DOC-CORE-VERSION-0-1-COMPATIBILITY","title":"Core 0.1 compatibility record","path":"docs/versions/0_1/COMPATIBILITY.md","kind":"compatibility","scope":"cross-repository","subsystem":"versioning","audience":"internal","authority":"normative","lifecycle":"active","appliesTo":{"repositoryIds":["REPO-FLOWDOC-CORE","REPO-FLOWDOC-EDITOR","REPO-FLOWDOC-BACKEND"],"releaseLines":["0.1"],"contractIds":[],"schemaIds":[]}}
+  ]
+}

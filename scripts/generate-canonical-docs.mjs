@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs"
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 
@@ -12,7 +12,11 @@ function rootFrom(argv) {
 }
 
 export function generateCanonicalDocs(root) {
-  const model = loadCanonicalDocumentationModel(root)
+  const normalizedRoot = resolve(root)
+  let release
+  try { release = JSON.parse(readFileSync(join(normalizedRoot, "docs/versions/0_1/release.json"), "utf8")) } catch { release = undefined }
+  const pending = release?.lifecycle === "planned" && release?.releaseVersion === "unversioned" && release?.releaseReady === false ? release.baselineId : undefined
+  const model = loadCanonicalDocumentationModel(normalizedRoot, pending === undefined ? {} : { allowPendingBaselineId: pending })
   const rendered = renderGeneratedFiles(model)
   for (const path of GENERATED_PATHS) {
     const output = rendered[path]

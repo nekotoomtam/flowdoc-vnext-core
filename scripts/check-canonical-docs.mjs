@@ -20,8 +20,8 @@ function optionsFrom(argv) {
 }
 
 export function checkCanonicalDocs(root, options = {}) {
-  const model = loadCanonicalDocumentationModel(root)
-  if (options.pendingBaseline !== undefined && options.pendingBaseline !== model.release.baselineId) throw new Error(`pending baseline must exactly match release baseline ${model.release.baselineId}`)
+  const loadOptions = options.pendingBaseline === undefined ? {} : { allowPendingBaselineId: options.pendingBaseline }
+  const model = loadCanonicalDocumentationModel(root, loadOptions)
   const rendered = renderGeneratedFiles(model)
   const drift = GENERATED_PATHS.filter((path) => !existsSync(join(model.root, path)) || readFileSync(join(model.root, path), "utf8") !== rendered[path])
   if (drift.length > 0) throw new Error(`generated documentation drift: ${drift.join(", ")}`)

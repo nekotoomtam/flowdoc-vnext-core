@@ -1,0 +1,14 @@
+{
+  "releaseSchemaVersion": 1,
+  "repositoryId": "REPO-FLOWDOC-CORE",
+  "releaseLine": "0.1",
+  "folderSlug": "0_1",
+  "lifecycle": "planned",
+  "releaseVersion": "unversioned",
+  "baselineId": "BASELINE-FLOWDOC-20260811-01",
+  "capabilityIds": [],
+  "contractIds": [],
+  "verificationGateIds": [],
+  "compatibilityDocumentId": "DOC-CORE-VERSION-0-1-COMPATIBILITY",
+  "releaseReady": false
+}

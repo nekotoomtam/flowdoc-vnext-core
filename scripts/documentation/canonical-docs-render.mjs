@@ -5,8 +5,7 @@ import { GENERATED_PATHS } from "./canonical-docs-model.mjs"
 export const GENERATED_HEADER = "<!-- GENERATED FILE — DO NOT EDIT -->\n"
 
 function byId(left, right, key) {
-  if (left[key] === right[key]) return 0
-  return left[key] < right[key] ? -1 : 1
+  return left[key] === right[key] ? 0 : left[key] < right[key] ? -1 : 1
 }
 
 function documentLink(document, from) {
@@ -16,7 +15,7 @@ function documentLink(document, from) {
 
 function section(title, documents, from) {
   if (documents.length === 0) return ""
-  return `## ${title}\n\n${documents.sort((left, right) => byId(left, right, "documentId")).map((document) => `- ${documentLink(document, from)}`).join("\n")}\n\n`
+  return `## ${title}\n\n${[...documents].sort((left, right) => byId(left, right, "documentId")).map((document) => `- ${documentLink(document, from)}`).join("\n")}\n\n`
 }
 
 function header(title) {
@@ -31,17 +30,19 @@ export function renderDocumentMap(model) {
   const assigned = new Set([...glossary, ...coordination, ...versionLine])
   const currentTruth = active.filter((document) => !assigned.has(document))
   const inactive = model.documents.filter((document) => document.lifecycle !== "active")
-  return `${header("Canonical document map")}${section("Active current truth", currentTruth, "docs/DOCUMENT_MAP.md")}${section("Coordination", coordination, "docs/DOCUMENT_MAP.md")}${section("Version line", versionLine, "docs/DOCUMENT_MAP.md")}${section("Glossary", glossary, "docs/DOCUMENT_MAP.md")}${section("Non-active records", inactive, "docs/DOCUMENT_MAP.md")}`
+  return `${header("Canonical document map")}${section("Active current truth", currentTruth, GENERATED_PATHS[0])}${section("Coordination", coordination, GENERATED_PATHS[0])}${section("Version line", versionLine, GENERATED_PATHS[0])}${section("Glossary", glossary, GENERATED_PATHS[0])}${section("Non-active records", inactive, GENERATED_PATHS[0])}`.trimEnd() + "\n"
 }
 
 function renderGlossary(model, language) {
-  const terms = [...model.glossary.terms].sort((left, right) => byId(left, right, "termId"))
-  const title = language === "th" ? "อภิธานศัพท์หลัก" : "Technical glossary"
-  const entries = terms.map((term) => {
-    const label = term.forms.find((form) => form.kind === "localized-label")?.value ?? "No localized label registered"
-    return `- \`${term.termId}\` — ${label} (${term.lifecycle})`
+  const thai = language === "thai"
+  const concepts = new Map(model.glossary.concepts.map((concept) => [concept.conceptId, concept]))
+  const entries = [...model.glossary.terms].sort((left, right) => byId(left, right, "termId")).map((term) => {
+    const concept = concepts.get(term.conceptId)
+    const label = thai ? concept.labels.thai : concept.labels.technical
+    const definition = thai ? term.definitions.thai : term.definitions.technical
+    return `## \`${term.termId}\` — ${label}\n\n${definition}\n\n- Canonical name: ${term.canonicalName}\n- Lifecycle: ${term.lifecycle}\n`
   }).join("\n")
-  return `${header(title)}${entries || "No terms registered."}\n`
+  return `${header(thai ? "อภิธานศัพท์หลัก" : "Technical glossary")}${entries || (thai ? "ไม่มีคำศัพท์ที่ลงทะเบียน\n" : "No terms registered.\n")}`
 }
 
 export function renderTechnicalGlossary(model) {
@@ -49,41 +50,42 @@ export function renderTechnicalGlossary(model) {
 }
 
 export function renderThaiGlossary(model) {
-  return renderGlossary(model, "th")
+  return renderGlossary(model, "thai")
 }
 
-function releaseFacts(release) {
+function releaseFacts(model, release) {
   return [
+    `repositoryId: ${release.repositoryId}`,
     `releaseLine: ${release.releaseLine}`,
-    "releaseVersion: unversioned",
-    "releaseReady: false",
-    "compatibility: not-verified",
+    `lifecycle: ${release.lifecycle}`,
+    `releaseVersion: ${release.releaseVersion}`,
+    `releaseReady: ${release.releaseReady}`,
     `baselineId: ${release.baselineId}`,
+    `coreEditor: ${model.compatibility.coreEditor}`,
+    `coreBackend: ${model.compatibility.coreBackend}`,
+    `endToEnd: ${model.compatibility.endToEnd}`,
   ].map((fact) => `- ${fact}`).join("\n")
 }
 
 export function renderVersionOverview(model, release = model.release) {
-  return `${header("Version overview")}## Release status\n\n${releaseFacts(release)}\n\nThis view is not published and not release-ready. It makes no accepted release claim.\n`
+  return `${header("Version overview")}## Authored release facts\n\n${releaseFacts(model, release)}\n\nThe Development Baseline is pending publication. This planned, unversioned, non-ready view makes no release or compatibility claim.\n`
 }
 
 export function renderCapabilitySet(model, release = model.release) {
-  const capabilities = model.repositoryIndex.capabilities
-    .filter((capability) => release.capabilityIds.includes(capability.capabilityId))
-    .sort((left, right) => byId(left, right, "capabilityId"))
-  const contracts = [...model.repositoryIndex.contracts].sort((left, right) => byId(left, right, "contractId"))
-  const listedCapabilities = capabilities.map((capability) => `- \`${capability.capabilityId}\` — maturity: ${capability.maturity}`).join("\n")
-  const listedContracts = contracts.map((contract) => `- \`${contract.contractId}\``).join("\n")
-  const cutover = capabilities.length === 0 && contracts.length === 0 ? "No subsystem cutover registered." : "No subsystem cutover is claimed by this generated view."
-  return `${header("Capability set")}## Release status\n\n${releaseFacts(release)}\n\n## Capabilities\n\n${listedCapabilities || "No subsystem cutover registered."}\n\n## Contracts\n\n${listedContracts || "No subsystem cutover registered."}\n\n${cutover}\n`
+  const selectors = [
+    ["Capabilities", release.capabilityIds],
+    ["Contracts", release.contractIds],
+    ["Verification gates", release.verificationGateIds],
+  ].map(([title, ids]) => `## ${title}\n\n${ids.length === 0 ? "No identities selected." : ids.map((id) => `- \`${id}\``).join("\n")}`).join("\n\n")
+  return `${header("Capability set")}## Authored release facts\n\n${releaseFacts(model, release)}\n\n${selectors}\n\nNo subsystem cutover is selected; no release-readiness claim is made.\n`
 }
 
 export function renderGeneratedFiles(model) {
-  const release = model.release
   return Object.freeze({
     [GENERATED_PATHS[0]]: renderDocumentMap(model),
     [GENERATED_PATHS[1]]: renderTechnicalGlossary(model),
     [GENERATED_PATHS[2]]: renderThaiGlossary(model),
-    [GENERATED_PATHS[3]]: renderVersionOverview(model, release),
-    [GENERATED_PATHS[4]]: renderCapabilitySet(model, release),
+    [GENERATED_PATHS[3]]: renderVersionOverview(model),
+    [GENERATED_PATHS[4]]: renderCapabilitySet(model),
   })
 }
