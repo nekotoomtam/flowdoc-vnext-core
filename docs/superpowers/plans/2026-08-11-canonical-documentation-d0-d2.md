@@ -28,6 +28,7 @@
 - Tests use real temporary repositories/directories and the production Node entrypoints. Do not validate only private helper return values.
 - Use strict TDD for every behavior: preserve expected RED, implement minimum GREEN, run focused gate, type-check, `git diff --check`, and inspect exact changed paths.
 - Commit by coherent responsibility. Do not combine the D0 authorization record, content commit X, and baseline publication commit Y.
+- Registered canonical Markdown is a deliberately validated subset, not arbitrary CommonMark or HTML. Task 5 owns the exact pre-validation boundary below; do not add a CommonMark/HTML parser, parser framework, package dependency, or package/lockfile change.
 
 ---
 
@@ -1110,13 +1111,75 @@ other documentation path is staged.
 **Files:**
 - Create: `scripts/publish-development-baseline.mjs`
 - Modify: `scripts/documentation/canonical-docs-model.mjs`
+- Modify only for the named present-baseline factual-honesty RED/review finding: `scripts/documentation/canonical-docs-render.mjs`
 - Modify: `scripts/generate-canonical-docs.mjs`
 - Modify: `scripts/check-canonical-docs.mjs`
 - Modify: `tests/canonicalDocumentationSpine.test.ts`
-- Modify only if a named Task 5 behavior RED or accepted review finding
-  requires it: `package.json`, `scripts/documentation/canonical-docs-render.mjs`,
-  D1-D2 authored sources, or the five generated views.
+- These six implementation/test paths are the complete Task 5 allowlist. Every
+  changed path must be required by a named RED or accepted review finding; no
+  authored/generated documentation, manifest, package, dependency, lockfile,
+  runtime, or other path may change in X.
+- `docs/coordination/DEVELOPMENT_BASELINE.json` and its manifest record remain
+  absent in X. Task 6 Y remains the exact five data/navigation paths already
+  listed in Task 6.
 - Do not create a new report/ledger/handoff document.
+
+**Approved supported canonical-Markdown subset:**
+
+This is the approved resolution of the Task 5 parser-edge blocker. Every
+manifest-registered canonical `.md` file, authored or generated, undergoes one
+deterministic raw-source pre-validation pass before any fence, inline-code,
+alias, reference, maturity/compatibility claim, or legacy-link scan. JSON files
+are unaffected. The capability claim is intentionally narrow: canonical
+Markdown is this validated subset, not arbitrary CommonMark and not HTML.
+
+The pre-validator recognizes only these three owned comment spans:
+
+1. The exact line `<!-- GENERATED FILE — DO NOT EDIT -->` is allowed exactly
+   once as the first line of one of the five approved generated files. It is
+   invalid on an authored path, after the first line, or when duplicated or
+   altered.
+2. The exact three-line `FLOWDOC-COMPATIBILITY` block already specified in
+   Task 3 is allowed only at the start of the registered compatibility
+   document: exact opener line, one metadata JSON line with the existing exact
+   schema, then exact `-->` closer. A leading blank line, relocation, wrong
+   owner document, malformed JSON, missing/extra field, or altered delimiter
+   is invalid.
+3. An exact three-line `FLOWDOC-RECORD` block is allowed only in the registered
+   risk-register, known-unknowns, or roadmap document, at the already-specified
+   position immediately associated with its exact level-two record heading.
+   The span is recognized only after the Task 4 record parser successfully
+   validates the heading/record/document-kind agreement, exact JSON shape,
+   typed identity, closed fields, and placement. A malformed, relocated,
+   unmatched, or wrong-owner candidate is invalid rather than ordinary prose.
+
+Validation order is exact:
+
+1. On the unmasked raw source, recognize and fully validate candidate spans
+   for the three owned forms using their path, document kind, and positional
+   contracts. Any generated-header or `FLOWDOC-*` candidate that is not a
+   valid owned span fails immediately.
+2. Reject every remaining literal `<!--` or `-->` occurrence anywhere in the
+   raw file. This prohibition includes prose, inline code, fenced code,
+   Markdown link labels/destinations, and examples; those contexts do not
+   escape or mask a delimiter.
+3. Outside a validated owned metadata span, a literal `<` is supported only
+   when the existing Task-5-specific autolink parser consumes the complete
+   angle-bracket construct as a valid URI or email autolink. Any other raw
+   `<...>` or HTML-like construct is rejected, including inside inline or
+   fenced code. Do not implement an HTML parser, and do not claim full
+   CommonMark rendering equivalence.
+4. Only after steps 1-3 pass may the recognized owned spans (the header and
+   metadata blocks) be removed or replaced with stable whitespace for
+   downstream scans. Downstream
+   alias/reference/claim/fence logic must never mask arbitrary comments,
+   maintain general comment state, or infer whether comment syntax outranks
+   inline/fenced code. It operates only on pre-validated subset input.
+
+Valid URI/email autolinks already accepted by the task-specific parser remain
+supported. Existing inline-code and fenced-code syntax also remains supported
+when its contents contain no forbidden HTML-comment delimiter or raw
+HTML/HTML-like construct. No other comment or HTML form is supported.
 
 **Task 5 executable Development Baseline contract:**
 
@@ -1193,7 +1256,7 @@ Git failure, or same-ID mutation fails real `docs:check`. This is the sole
 Task 5 baseline parser/evolution path; do not create a generic JSON schema
 framework or a second baseline authority.
 
-- [ ] **Step 1: Write and preserve the baseline parser/publisher REDs**
+- [ ] **Step 1: Write and preserve the baseline parser/publisher and subset-boundary REDs**
 
 Add fixture tests through the real loader, generator, publisher, and
 `scripts/check-canonical-docs.mjs`. The publisher writes data only; it never
@@ -1215,6 +1278,36 @@ baseline without pending allowance, present baseline incorrectly treated as
 pending, normal `docs:check` rejecting a valid present baseline, and a
 same-ID mutation of each repository commit and each other semantic field.
 
+Add real-checker fixture REDs through `scripts/check-canonical-docs.mjs` for
+the raw-source subset boundary. Preserve the literal blocker shape with an
+inline-code comment opener, a real tilde fence containing a comment closer,
+and each visible tail in separate cases:
+
+```markdown
+`<!--`
+~~~md
+-->
+~~~
+Renderer is production.
+```
+
+The other two visible tails are `Core and Editor are compatible.` and
+`[legacy](../PHASE_LEDGER.md)`. Each must fail for unsupported comment syntax
+before a fence or visible-tail scan can hide or reinterpret it. Also add
+negative fixtures for a comment opener and a comment closer inside fenced
+code, an ordinary arbitrary comment, raw HTML, a generated header on the wrong
+path or line, a malformed/relocated compatibility block, and a malformed,
+relocated, or wrong-owner record block.
+
+Add positive real-checker fixtures for each exact owned form: the generated
+header on an approved generated file, the exact compatibility block at its
+document start, and successfully parsed exact record blocks at their specified
+headings. Preserve positives for existing valid URI/email autolinks, inline
+code, and backtick/tilde fences whose contents contain no forbidden
+HTML-comment delimiter or raw HTML/HTML-like construct. These positives prove
+that the boundary is a supported subset rather than a blanket rejection of
+autolinks or code.
+
 Run and preserve RED:
 
 ```powershell
@@ -1224,11 +1317,16 @@ npx vitest run tests/canonicalDocumentationSpine.test.ts --maxWorkers=1
 Expected: assertion failures show the absent exact baseline parser/evolution
 and present-load behavior. A syntax/import failure is not an accepted RED.
 
-- [ ] **Step 2: GREEN the baseline model, generator, checker, and publisher**
+- [ ] **Step 2: GREEN the baseline model, subset pre-validator, generator, checker, and publisher**
 
-Implement the exact Task 5 contract above in the four required scripts. Keep
-the Task 4 embedded-record parser unchanged except for integration needed to
-share the final model known-ID closure. Run:
+Implement the exact Task 5 baseline and supported-subset contracts above in
+the publisher, model, generator, and checker. The checker/model must complete
+raw-source pre-validation before invoking existing structural scans. Keep the
+Task 4 embedded-record parser unchanged except for the exact owned-span
+recognition and integration needed to share the final model known-ID closure.
+Retain the renderer change only for its named present-baseline factual-honesty
+RED/review finding. Do not add a general comment masker, HTML/CommonMark
+parser, parser framework, package dependency, or lockfile change. Run:
 
 ```powershell
 npx vitest run tests/canonicalDocumentationSpine.test.ts --maxWorkers=1
@@ -1256,6 +1354,9 @@ Add or confirm real-repository tests for every Section 12.3 rule expressible in 
 - baseline ID tuple immutability;
 - canonical references to legacy phase documents;
 - no subsystem migration or compatibility claim in the empty release composition.
+- raw-source supported-subset pre-validation for every registered canonical
+  Markdown file, including exact owned comment spans, forbidden delimiter/raw
+  HTML rejection in prose and code, and valid URI/email autolink retention.
 
 For contract applicability rules with no D3 contract records yet, test temporary fixtures only; do not invent live contracts.
 
@@ -1280,33 +1381,39 @@ Search and classify every match:
 ```powershell
 rg -n "accepted|active|production|releaseReady|compatible|migrated" docs/manifest.json docs/glossary.json docs/VERSION_POLICY.md docs/coordination docs/project docs/versions/0_1 docs/DOCUMENT_MAP.md docs/GLOSSARY.md docs/GLOSSARY_TH.md
 rg -n "docs/superpowers|PHASE_LEDGER|LIVE_DRAFT|phase-[0-9]|Phase 5" docs/manifest.json docs/coordination docs/project docs/versions/0_1
-git diff -- src/index.ts package-lock.json
+git diff -- src/index.ts package.json package-lock.json
 ```
 
 Expected: no unqualified readiness/migration claim, no canonical dependency on superseded phase prose, and no runtime/public/lockfile diff.
 
 - [ ] **Step 6: Request two fresh read-only reviews**
 
-One reviewer checks task/spec compliance and factual honesty. A second reviewer checks information architecture, reference direction, baseline protocol, and future relocation. Address Critical/Important findings with new REDs, then rerun all gates. Do not broaden to D3-D7.
+One reviewer checks task/spec compliance and factual honesty. A second reviewer
+checks information architecture, reference direction, baseline protocol, and
+future relocation. Both independently verify the exact supported-subset
+ownership, raw pre-validation ordering, allowed positives, forbidden
+delimiter/raw-HTML REDs, and six-path Task 5 scope. They review against the
+approved validated subset and must not demand arbitrary CommonMark comment or
+HTML semantics; this does not waive any failure inside the specified subset.
+Address Critical/Important findings with new real-checker REDs, then rerun all
+gates. Do not broaden to D3-D7.
 
 - [ ] **Step 7: Create content commit X**
 
-Task 5 always changes the publisher, model, generator, checker, and tests, so
-make one coherent content commit X after the gates and reviews are READY:
+Task 5 changes the publisher, model, renderer for the named factual-honesty
+finding, generator, checker, and tests, so make one coherent six-path content
+commit X after the gates and reviews are READY:
 
 ```powershell
-git add -- scripts/documentation/canonical-docs-model.mjs scripts/generate-canonical-docs.mjs scripts/check-canonical-docs.mjs scripts/publish-development-baseline.mjs tests/canonicalDocumentationSpine.test.ts
-# Add any extra Task 5 path only when a named RED or accepted review finding changed it:
-git add -- package.json scripts/documentation/canonical-docs-render.mjs docs/manifest.json docs/glossary.json docs/VERSION_POLICY.md docs/coordination/REPOSITORY_INDEX.json docs/coordination/BOUNDARY.md docs/project docs/versions/0_1 docs/DOCUMENT_MAP.md docs/GLOSSARY.md docs/GLOSSARY_TH.md
+git add -- scripts/check-canonical-docs.mjs scripts/documentation/canonical-docs-model.mjs scripts/documentation/canonical-docs-render.mjs scripts/generate-canonical-docs.mjs scripts/publish-development-baseline.mjs tests/canonicalDocumentationSpine.test.ts
 git diff --cached --check
 git diff --cached --name-only
 git commit -m "docs: complete canonical project truth foundation"
 ```
 
-The first `git add` line is the exact five-path minimum required Task 5 scope.
-Before the optional second line, inspect the working tree and omit every path
-not changed for a named RED/review fix; the command is an allowlist, not
-permission to stage unchanged or unrelated files. The baseline JSON and its
+The `git add` line is the exact six-path Task 5 scope. Each diff must trace to
+a named RED or accepted review finding, and no seventh path is permitted. No
+package/dependency/lockfile change is authorized. The baseline JSON and its
 manifest record are forbidden in X. Record:
 
 ```powershell
@@ -1336,8 +1443,9 @@ the separately typed `BASELINE-FLOWDOC-20260811-01`.
 
 Task 6 is a five-path publication/execution task, not an implementation task.
 The publisher, exact schema parser, pending/present loader behavior, evolution
-guard, checker integration, and all tests are already committed in X. No
-script or test change is allowed in Y.
+guard, supported canonical-Markdown subset pre-validation, checker
+integration, and all tests are already committed in X. No script or test
+change and no syntax-boundary relaxation is allowed in Y.
 
 - [ ] **Step 1: Re-run the baseline-publication tests from content commit X**
 
@@ -1456,6 +1564,9 @@ Request one final read-only review of exact X..Y and current tree. It must answe
 
 - Is there exactly one active owner for every D1-D2 fact?
 - Can generated output make any claim not present in authored sources?
+- Does every registered canonical Markdown file pass the exact validated
+  subset boundary, with only the three owned comment forms and supported
+  URI/email autolinks?
 - Does the baseline pin X rather than Y, with no recursive self-hash?
 - Are Editor/Backend facts references only, not readiness ownership?
 - Is every runtime subsystem still explicitly unmigrated?
@@ -1483,6 +1594,10 @@ D0-D2 is complete only when all are true:
 - Focused canonical-documentation tests pass.
 - Full Core `npm run check` passes with sufficient runner time.
 - Generated files are byte-stable and checked in.
+- Every registered canonical Markdown file passes raw-source subset
+  pre-validation before structural scans; only the three exact owned comment
+  forms and valid task-specific URI/email autolinks are accepted, with no
+  arbitrary CommonMark/HTML capability claim.
 - Exactly one baseline record exists and pins content commit X.
 - Y changes only the baseline record, manifest registration, and deterministic navigation derived from the selected baseline ID.
 - Release `0.1` remains planned, unversioned, not ready, with empty migrated capability/contract/gate sets.
