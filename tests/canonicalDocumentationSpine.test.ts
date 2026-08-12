@@ -18,6 +18,24 @@ const CORE_COMMIT = "5bcb497cefe742222a835637cc33eddd5f96b685"
 const EDITOR_COMMIT = "43dcebb22735d7330fda0d57d4e7ce9a726e2454"
 const BACKEND_COMMIT = "280c4ffbe075cd5391cce5219e8f9c40fed16527"
 const REPOSITORY_IDS = ["REPO-FLOWDOC-CORE", "REPO-FLOWDOC-EDITOR", "REPO-FLOWDOC-BACKEND"]
+const DEVELOPMENT_BASELINE_PATH = "docs/coordination/DEVELOPMENT_BASELINE.json"
+const DEVELOPMENT_BASELINE_ROW = {
+  documentId: "DOC-FLOWDOC-COORDINATION-DEVELOPMENT-BASELINE",
+  title: "Development baseline",
+  path: DEVELOPMENT_BASELINE_PATH,
+  kind: "development-baseline",
+  scope: "cross-repository",
+  subsystem: "coordination",
+  audience: "internal",
+  authority: "normative",
+  lifecycle: "active",
+  appliesTo: {
+    repositoryIds: REPOSITORY_IDS,
+    releaseLines: ["0.1"],
+    contractIds: [],
+    schemaIds: [],
+  },
+} as const
 const GENERATED_PATHS = [
   "docs/DOCUMENT_MAP.md",
   "docs/GLOSSARY.md",
@@ -332,6 +350,46 @@ This does not authorize release publication.
 
 function loadPending(root: string) {
   return loadCanonicalDocumentationModel(root, { allowPendingBaselineId: BASELINE_ID })
+}
+
+function task5ContentCommit(): string {
+  const repositoryRoot = process.cwd()
+  const baselineAtHead = runGit(repositoryRoot, "cat-file", "-e", `HEAD:${DEVELOPMENT_BASELINE_PATH}`)
+  const revision = baselineAtHead.status === 0 ? "HEAD^" : "HEAD"
+  const resolved = runGit(repositoryRoot, "rev-parse", revision)
+  if (resolved.status !== 0) throw new Error(resolved.stderr)
+  return resolved.stdout.trim()
+}
+
+function assertCanonicalBaselineState(root: string, contentCommit: string): any {
+  const hasBaseline = existsSync(join(root, DEVELOPMENT_BASELINE_PATH))
+  const checker = hasBaseline
+    ? runCli(root, "scripts/check-canonical-docs.mjs")
+    : runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+  expect(checker.status, checker.stderr).toBe(0)
+  const model = hasBaseline
+    ? loadCanonicalDocumentationModel(root)
+    : loadCanonicalDocumentationModel(root, { allowPendingBaselineId: BASELINE_ID })
+
+  if (!hasBaseline) {
+    expect(model.baseline).toBeNull()
+    expect(model.pendingBaselineId).toBe(BASELINE_ID)
+    expect(existsSync(join(root, DEVELOPMENT_BASELINE_PATH))).toBe(false)
+    expect(model.documents.some((document: any) => document.path === DEVELOPMENT_BASELINE_PATH)).toBe(false)
+    return model
+  }
+
+  expect(model.pendingBaselineId).toBeNull()
+  expect(model.documents.find((document: any) => document.path === DEVELOPMENT_BASELINE_PATH)).toEqual(DEVELOPMENT_BASELINE_ROW)
+  expect([
+    model.baseline.baselineId,
+    model.baseline.repositories["REPO-FLOWDOC-CORE"].verifiedCommit,
+    model.baseline.repositories["REPO-FLOWDOC-EDITOR"].verifiedCommit,
+    model.baseline.repositories["REPO-FLOWDOC-BACKEND"].verifiedCommit,
+  ]).toEqual([BASELINE_ID, contentCommit, EDITOR_COMMIT, BACKEND_COMMIT])
+  expect(() => loadCanonicalDocumentationModel(root, { allowPendingBaselineId: BASELINE_ID })).toThrow(/contradictory|present.*pending|pending.*present/i)
+  expect(contentCommit).toMatch(/^[0-9a-f]{40}$/)
+  return model
 }
 
 function runCli(root: string, script: string, ...args: string[]) {
@@ -1591,16 +1649,50 @@ ${claim}
     const root = fixture()
     addTruthPlane(root)
     const commentModel = loadPending(root)
-    commentModel.markdownByPath["docs/coordination/BOUNDARY.md"] += "\n<!-- stale ownership must not survive -->\n"
-    expect(() => validateCanonicalDocumentationModel(commentModel, { allowPendingBaselineId: BASELINE_ID })).toThrow(/retained Markdown prevalidation.*raw source|stale.*prevalidation/i)
+    expect(() => { commentModel.markdownByPath["docs/coordination/BOUNDARY.md"] += "\n<!-- stale ownership must not survive -->\n" }).toThrow(TypeError)
+    expect(validateCanonicalDocumentationModel(commentModel, { allowPendingBaselineId: BASELINE_ID })).toBe(commentModel)
 
     const pathModel = loadPending(root)
-    pathModel.manifest.documents.find((document: any) => document.path === "docs/coordination/BOUNDARY.md").path = "docs/coordination/RENAMED_BOUNDARY.md"
-    expect(() => validateCanonicalDocumentationModel(pathModel, { allowPendingBaselineId: BASELINE_ID })).toThrow(/retained Markdown prevalidation.*manifest|stale.*prevalidation/i)
+    expect(() => { pathModel.manifest.documents.find((document: any) => document.path === "docs/coordination/BOUNDARY.md").path = "docs/coordination/RENAMED_BOUNDARY.md" }).toThrow(TypeError)
+    expect(validateCanonicalDocumentationModel(pathModel, { allowPendingBaselineId: BASELINE_ID })).toBe(pathModel)
 
     const kindModel = loadPending(root)
-    kindModel.manifest.documents.find((document: any) => document.path === "docs/coordination/BOUNDARY.md").kind = "current-state"
-    expect(() => validateCanonicalDocumentationModel(kindModel, { allowPendingBaselineId: BASELINE_ID })).toThrow(/retained Markdown prevalidation.*manifest|stale.*prevalidation/i)
+    expect(() => { kindModel.manifest.documents.find((document: any) => document.path === "docs/coordination/BOUNDARY.md").kind = "current-state" }).toThrow(TypeError)
+    expect(validateCanonicalDocumentationModel(kindModel, { allowPendingBaselineId: BASELINE_ID })).toBe(kindModel)
+  })
+
+  test("recursively seals retained ownership and exported full-record state without a replacement parse", () => {
+    const root = fixture()
+    addTruthPlane(root)
+    const model = loadPending(root)
+    const recordPrevalidation = model.markdownPrevalidationByPath[RISK_PATH]
+    const ownedSpan = recordPrevalidation.ownedSpans[0]
+    const candidate = recordPrevalidation.recordCandidates[0]
+    const record = model.embeddedRecords[0]
+    const boundaryDocument = model.manifest.documents.find((document: any) => document.path === "docs/coordination/BOUNDARY.md")
+
+    const mutations: [string, () => void][] = [
+      ["embedded recordKind", () => { record.recordKind = "unknown" }],
+      ["owned span start", () => { ownedSpan.start += 1 }],
+      ["owned span end", () => { ownedSpan.end -= 1 }],
+      ["owned span kind", () => { ownedSpan.kind = "generated-header" }],
+      ["retained raw Markdown", () => { recordPrevalidation.markdown += "\nchanged\n" }],
+      ["retained structural Markdown", () => { recordPrevalidation.structuralText += "\nchanged\n" }],
+      ["manifest document path", () => { boundaryDocument.path = "docs/coordination/RENAMED_BOUNDARY.md" }],
+      ["manifest document kind", () => { boundaryDocument.kind = "current-state" }],
+      ["record candidate position", () => { candidate.headingIndex += 1 }],
+      ["record candidate metadata array", () => { candidate.metadata.affects.push("DOC-CORE-VERSION-0-1-RELEASE-COMPOSITION") }],
+      ["full record metadata array", () => { record.affects.push("DOC-CORE-VERSION-0-1-RELEASE-COMPOSITION") }],
+      ["full record references array", () => { record.references.push({ id: "DOC-CORE-VERSION-0-1-RELEASE-COMPOSITION", target: "../versions/0_1/release.json" }) }],
+      ["full record reference object", () => { record.references[0].target = "../glossary.json" }],
+      ["full record exempt-span array", () => { record.exemptSpans.push({ start: 0, end: 1 }) }],
+      ["full record nested offset", () => { record.exemptSpans[0].start += 1 }],
+    ]
+
+    for (const [name, mutate] of mutations) {
+      expect(mutate, name).toThrow(TypeError)
+      expect(validateCanonicalDocumentationModel(model, { allowPendingBaselineId: BASELINE_ID }), name).toBe(model)
+    }
   })
 
   test("accepts owned spans, URI and email autolinks, and comment-free inline and fenced code", () => {
@@ -2136,20 +2228,31 @@ A dual-status token is qualified.
     expect(check.status, check.stderr).toBe(0)
   })
 
-  test("the repository root has the literal D2 truth-plane inventory and no Task 6 baseline publication", () => {
+  test.each(["absent", "present"] as const)("uses one committed baseline-state assertion for a complete $state fixture", (state) => {
+    const contentCommit = task5ContentCommit()
+    const root = state === "absent"
+      ? fixture()
+      : presentBaselineFixture((baseline) => { baseline.repositories["REPO-FLOWDOC-CORE"].verifiedCommit = contentCommit })
+    expect(runCli(root, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+    if (state === "present") {
+      initializeFixtureRepository(root)
+      commitFixture(root, "fixture complete present baseline state")
+    }
+    const model = assertCanonicalBaselineState(root, contentCommit)
+    expect(documentMapping(model.documents.filter((document: any) => document.path !== DEVELOPMENT_BASELINE_PATH))).toEqual(DOCUMENT_ROWS)
+  }, 15_000)
+
+  test("the repository root has the literal D2 truth-plane inventory in its baseline-file-selected state", () => {
     const root = process.cwd()
-    const model = loadCanonicalDocumentationModel(root, { allowPendingBaselineId: BASELINE_ID })
-    expect(documentMapping(model.documents)).toEqual([...DOCUMENT_ROWS, ...TRUTH_DOCUMENT_ROWS])
+    const contentCommit = task5ContentCommit()
+    const model = assertCanonicalBaselineState(root, contentCommit)
+    expect(documentMapping(model.documents.filter((document: any) => document.path !== DEVELOPMENT_BASELINE_PATH))).toEqual([...DOCUMENT_ROWS, ...TRUTH_DOCUMENT_ROWS])
     expect(model.manifest.canonicalRoots).toEqual(["docs/project", "docs/coordination", "docs/versions/0_1"])
     expect(model.documents.filter((document: any) => !model.manifest.canonicalRoots.some((canonicalRoot: string) => document.path.startsWith(`${canonicalRoot}/`))).map((document: any) => document.path)).toEqual([
       "docs/manifest.json", "docs/DOCUMENT_MAP.md", "docs/glossary.json", "docs/GLOSSARY.md", "docs/GLOSSARY_TH.md", "docs/VERSION_POLICY.md",
     ])
     expect(model.documents.every((document: any) => document.appliesTo.contractIds.length === 0 && document.appliesTo.schemaIds.length === 0)).toBe(true)
     expect(model.glossary.terms.every((term: any) => term.appliesTo.contractIds.length === 0 && term.appliesTo.schemaIds.length === 0)).toBe(true)
-    expect(model.baseline).toBeNull()
-    expect(model.pendingBaselineId).toBe(BASELINE_ID)
-    expect(existsSync(join(root, "docs/coordination/DEVELOPMENT_BASELINE.json"))).toBe(false)
-    expect(model.documents.some((document: any) => document.path === "docs/coordination/DEVELOPMENT_BASELINE.json")).toBe(false)
     expect(model.compatibility).toEqual({ compatibilitySchemaVersion: 1, coreEditor: "not-verified", coreBackend: "not-verified", endToEnd: "not-verified" })
     expect(readFileSync(join(root, "docs/VERSION_POLICY.md"), "utf8")).toMatch(/0\.1\.0-a\.1.*not authorized|not authorized.*0\.1\.0-a\.1/i)
     expect(readFileSync(join(root, "docs/project/CURRENT_STATE.md"), "utf8")).toMatch(/zero runtime\s+subsystems.*migrated|no runtime subsystem.*migrated/i)

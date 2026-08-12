@@ -46,6 +46,7 @@ const TASK_3_PENDING_BASELINE_ID = "BASELINE-FLOWDOC-20260811-01"
 const DEVELOPMENT_BASELINE_REPOSITORY_IDS = Object.freeze(["REPO-FLOWDOC-CORE", "REPO-FLOWDOC-EDITOR", "REPO-FLOWDOC-BACKEND"])
 const GENERATED_HEADER_LINE = "<!-- GENERATED FILE — DO NOT EDIT -->"
 const RETAINED_MARKDOWN_PREVALIDATIONS = new WeakMap()
+const VALIDATED_CANONICAL_MODELS = new WeakSet()
 const REFERENCE_PATTERN = /\b(?:DOC|REPO|CONTRACT|SCHEMA|CAP|RISK|UNKNOWN|GATE|TERM|CONCEPT|WORK|BASELINE|DECISION)-[A-Z0-9][A-Z0-9-]*\b/g
 const RECORD_DOCUMENTS = Object.freeze({
   "risk-register": { recordKind: "risk", prefix: "RISK", fields: ["recordId", "recordKind", "lifecycle", "affects"], sections: ["Adverse event", "Trigger", "Affected IDs", "Mitigation", "Evidence", "Lifecycle"], referenceField: "affects", referenceSection: "Affected IDs" },
@@ -63,6 +64,14 @@ const TASK_4_DOCUMENT_ROWS = Object.freeze([
 
 function fail(message) {
   throw new Error(`Canonical documentation model: ${message}`)
+}
+
+function recursivelyFreeze(value, seen = new WeakSet()) {
+  if (value === null || (typeof value !== "object" && typeof value !== "function")) return value
+  if (seen.has(value)) return value
+  seen.add(value)
+  for (const key of Reflect.ownKeys(value)) recursivelyFreeze(value[key], seen)
+  return Object.freeze(value)
 }
 
 function object(value, label) {
@@ -330,15 +339,15 @@ function parseDevelopmentBaseline(value, label = "development baseline") {
 
 export function validateDevelopmentBaselineEvolution(previous, next) {
   const parsedNext = parseDevelopmentBaseline(next, "next development baseline")
-  if (previous === null || previous === undefined) return parsedNext
+  if (previous === null || previous === undefined) return recursivelyFreeze(parsedNext)
   const parsedPrevious = parseDevelopmentBaseline(previous, "previous development baseline")
-  if (parsedPrevious.baselineId !== parsedNext.baselineId) return parsedNext
+  if (parsedPrevious.baselineId !== parsedNext.baselineId) return recursivelyFreeze(parsedNext)
 
   const previousTuple = DEVELOPMENT_BASELINE_REPOSITORY_IDS.map((repositoryId) => [repositoryId, parsedPrevious.repositories[repositoryId].verifiedCommit])
   const nextTuple = DEVELOPMENT_BASELINE_REPOSITORY_IDS.map((repositoryId) => [repositoryId, parsedNext.repositories[repositoryId].verifiedCommit])
   if (JSON.stringify(previousTuple) !== JSON.stringify(nextTuple)) fail(`same baseline ${parsedNext.baselineId} repository tuple is immutable`)
   if (JSON.stringify(parsedPrevious) !== JSON.stringify(parsedNext)) fail(`same baseline ${parsedNext.baselineId} full semantic record is immutable`)
-  return parsedNext
+  return recursivelyFreeze(parsedNext)
 }
 
 function duplicate(values, label) {
@@ -521,7 +530,7 @@ function prevalidateCanonicalMarkdown(markdown, { documentKind, path }) {
     index = markdown.indexOf("<", index + autolink.length)
   }
 
-  return Object.freeze({ markdown, structuralText: maskOwnedSpans(markdown, ownedSpans), ownedSpans: Object.freeze(ownedSpans), recordCandidates: Object.freeze(recordCandidates) })
+  return recursivelyFreeze({ markdown, structuralText: maskOwnedSpans(markdown, ownedSpans), ownedSpans, recordCandidates })
 }
 
 function maskMarkdownFencedCode(markdown) {
@@ -704,7 +713,7 @@ function collectEmbeddedCanonicalRecordsFromPrevalidation(prevalidation, { docum
     ] })
   }
   if (recordCandidates.length !== headings.length) fail(`${path} contains a FLOWDOC-RECORD block without one matching exact record heading`)
-  return records
+  return recursivelyFreeze(records)
 }
 
 export function collectEmbeddedCanonicalRecords(markdown, { documentKind, path }) {
@@ -911,7 +920,7 @@ function prevalidateRegisteredMarkdown(manifest, markdownByPath) {
     if (markdown === undefined) continue
     prevalidations[document.path] = prevalidateCanonicalMarkdown(markdown, { documentKind: document.kind, path: document.path })
   }
-  const retained = Object.freeze(prevalidations)
+  const retained = recursivelyFreeze(prevalidations)
   RETAINED_MARKDOWN_PREVALIDATIONS.set(retained, markdownPrevalidationProvenance(manifest, markdownByPath))
   return retained
 }
@@ -919,6 +928,14 @@ function prevalidateRegisteredMarkdown(manifest, markdownByPath) {
 export function validateCanonicalDocumentationModel(model, options = {}) {
   object(model, "model")
   allowedFields(options, ["allowPendingBaselineId"], "validation options")
+  if (VALIDATED_CANONICAL_MODELS.has(model)) {
+    if (model.baseline === null) {
+      if (options.allowPendingBaselineId !== model.pendingBaselineId) fail("pending baseline must exactly match the release baseline")
+    } else if (Object.hasOwn(options, "allowPendingBaselineId")) {
+      fail("a present development baseline and pending baseline allowance are contradictory loader states")
+    }
+    return model
+  }
   const { root, manifest, glossary, repositoryIndex, release, baseline, pendingBaselineId, markdownByPath, compatibility } = model
   string(root, "model root")
   parseManifest(manifest)
@@ -1103,9 +1120,15 @@ export function validateCanonicalDocumentationModel(model, options = {}) {
       }
     }
   }
-  if (model.embeddedRecords === undefined) return Object.freeze({ ...model, markdownPrevalidationByPath, embeddedRecords: Object.freeze(embeddedRecords) })
+  if (model.embeddedRecords === undefined) {
+    const validatedModel = recursivelyFreeze({ ...model, markdownPrevalidationByPath, embeddedRecords })
+    VALIDATED_CANONICAL_MODELS.add(validatedModel)
+    return validatedModel
+  }
   if (JSON.stringify(model.embeddedRecords) !== JSON.stringify(embeddedRecords)) fail("model embeddedRecords must equal the records derived from its retained Markdown prevalidation")
-  return model
+  const validatedModel = recursivelyFreeze(model)
+  VALIDATED_CANONICAL_MODELS.add(validatedModel)
+  return validatedModel
 }
 
 export function loadCanonicalDocumentationModel(root, options = {}) {
