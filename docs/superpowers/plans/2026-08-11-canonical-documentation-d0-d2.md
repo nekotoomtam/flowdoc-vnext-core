@@ -1537,6 +1537,21 @@ commit.
 
 - [ ] **Step 8: RED and GREEN the two post-content SDD findings**
 
+Immediately before the first correction RED or implementation edit, capture
+the actual clean base in the same PowerShell session that will create and
+review the correction commit:
+
+```powershell
+if (git status --porcelain) { throw "Task 5 correction requires a clean tree and index" }
+$task5CorrectionBase = git rev-parse HEAD
+if (-not $task5CorrectionBase) { throw "Task 5 correction base could not be resolved" }
+```
+
+Keep this exact `$task5CorrectionBase` value through Steps 8-10; do not
+recompute or replace it after edits begin. Record it in the Task 5 correction
+report so a resumed shell can restore the same literal value before running
+the later diff/review commands.
+
 Implement only the real-root pending/present behavior and recursive
 immutability/integrity RED groups specified in Step 1. The production change
 is limited to `scripts/documentation/canonical-docs-model.mjs`; the behavior
@@ -1573,7 +1588,9 @@ $expectedTask5FixPaths = @(
 if ($task5FixPaths.Count -ne 2 -or (Compare-Object $expectedTask5FixPaths $task5FixPaths)) { throw "Task 5 correction scope differs from the exact two-path allowlist" }
 git commit -m "fix(docs): seal canonical validation handoff"
 $contentCommit = git rev-parse HEAD
-git status --short
+$task5CorrectionPaths = @(git diff --name-only $task5CorrectionBase $contentCommit)
+if ($task5CorrectionPaths.Count -ne 2 -or (Compare-Object $expectedTask5FixPaths $task5CorrectionPaths)) { throw "committed Task 5 correction differs from the exact captured-base two-path boundary" }
+if (git status --porcelain) { throw "Task 5 correction commit did not leave a clean tree and index" }
 ```
 
 The correction commit, not its parent `e8bd0f3`, is final content commit X and
@@ -1582,15 +1599,16 @@ is the exact Core hash Task 6 publishes. The tree and index must be clean.
 - [ ] **Step 10: Complete the scoped SDD re-review before Task 5 completion**
 
 Request one fresh read-only SDD review of
-`6e9aae9cef576dddd1e5b62926470ba8a45767b1..$contentCommit`. The first commit
-is the exact governing-plan amendment/fix base immediately before the scoped
-implementation correction, so the review diff excludes the plan-only amendment
-and contains only the future correction. Use the amendment as governing review
-context, not as a third changed implementation path. Before dispatching review,
-require this exact changed set:
+`$task5CorrectionBase..$contentCommit`. `$task5CorrectionBase` is the exact
+clean HEAD captured immediately before the scoped RED/edit wave, so the review
+diff contains only that future correction regardless of how many plan-only fix
+commits precede it. Before dispatching review, restore the recorded variable if
+the shell changed, verify it still resolves to a commit, and require this exact
+changed set:
 
 ```powershell
-$task5ReviewPaths = @(git diff --name-only 6e9aae9cef576dddd1e5b62926470ba8a45767b1 $contentCommit)
+git rev-parse --verify ($task5CorrectionBase + "^{commit}") | Out-Null
+$task5ReviewPaths = @(git diff --name-only $task5CorrectionBase $contentCommit)
 $expectedTask5ReviewPaths = @(
   "scripts/documentation/canonical-docs-model.mjs",
   "tests/canonicalDocumentationSpine.test.ts"
