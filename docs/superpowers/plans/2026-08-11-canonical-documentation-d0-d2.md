@@ -213,13 +213,12 @@ lexical form kind: localized-label | exact-alias | historical-alias |
 ```
 
 Authored Markdown remains prose authority, but stable records inside a
-multi-record file use this exact line sequence: the record heading, exactly
-one empty intervening line containing zero characters, then one
-machine-readable three-line JSON metadata block:
+multi-record file use this exact line sequence with no intervening line: the
+record heading, on the immediately next line the `<!-- FLOWDOC-RECORD` opener,
+exactly one metadata JSON line, then on the next line the `-->` closer:
 
 ```markdown
 ## RISK-CORE-DOCUMENTATION-DUAL-TRUTH-001 — Dual canonical truth
-
 <!-- FLOWDOC-RECORD
 {"recordId":"RISK-CORE-DOCUMENTATION-DUAL-TRUTH-001","recordKind":"risk","lifecycle":"active","affects":["DOC-CORE-NAVIGATION-MANIFEST"]}
 -->
@@ -956,12 +955,13 @@ export function collectEmbeddedCanonicalRecords(markdown, { documentKind, path }
 
 It accepts `documentKind` only as `risk-register`, `known-unknowns`, or
 `roadmap`. Each level-two record heading is exactly
-`## <recordId> — <non-empty title>`, followed by exactly one empty line
-containing zero characters and then one exact three-line `FLOWDOC-RECORD` JSON
-block: opener line, one metadata JSON line, and closer line. Zero intervening
-blank lines, more than one intervening blank line, or an intervening line that
-contains spaces or tabs is invalid. The metadata has one of these exact
-shapes; no missing or extra field is accepted:
+`## <recordId> — <non-empty title>`, followed on the immediately next line by
+the exact opener `<!-- FLOWDOC-RECORD`, exactly one metadata JSON line, then on
+the next line the exact closer `-->`. Those three lines are the complete
+metadata block. Zero intervening lines is required. Any intervening empty,
+whitespace-only, or nonempty line is invalid, as is any additional line inside
+the three-line block. The metadata has one of these exact shapes; no missing
+or extra field is accepted:
 
 ```json
 {"recordId":"RISK-CORE-DOCUMENTATION-DUAL-TRUTH-001","recordKind":"risk","lifecycle":"active","affects":["DOC-CORE-NAVIGATION-MANIFEST"]}
@@ -1044,9 +1044,10 @@ Add fixture and repository-root tests that use the production
   participate in real `docs:check`;
 - any Task 4 manifest row is missing/extra or differs in path, kind, scope,
   subsystem, audience, authority, lifecycle, or an exact `appliesTo` array;
-- a record block is absent, has zero or more than one intervening blank line
-  after its matching heading, has whitespace on the required empty line, is
-  relocated, is not an exact three-line block, or contains invalid JSON;
+- a record block is absent, has one blank line, multiple blank lines, a
+  whitespace-only line, or any nonempty inserted line between it and its
+  matching heading, is relocated, contains an additional line inside the
+  exact three-line block, or contains invalid JSON;
 - heading ID, typed ID prefix, `recordKind`, document kind, or closed
   `lifecycle` disagrees;
 - metadata has a missing/extra field, an empty/duplicate outbound array, or a
@@ -1088,9 +1089,9 @@ documents and regenerated document map do not exist yet.
 
 Author the five exact manifest rows above. Every prose canonical reference
 uses the clickable relative-path contract above, and every embedded record
-uses the exact heading, one zero-character empty line, three-line metadata
-block, section order, and serialization. Do not copy long Phase 5B designs or
-test counts into current state; link legacy evidence only as explicitly
+uses the exact heading, immediately-next-line three-line metadata block,
+section order, and serialization. Do not copy long Phase 5B designs or test
+counts into current state; link legacy evidence only as explicitly
 non-canonical migration input when necessary.
 
 - [ ] **Step 4: Generate, prove GREEN, and commit the exact nine paths**
@@ -1153,16 +1154,17 @@ The pre-validator recognizes only these three owned comment spans:
    is invalid.
 3. An exact three-line `FLOWDOC-RECORD` block is allowed only in the registered
    risk-register, known-unknowns, or roadmap document, in this exact sequence:
-   its exact level-two record heading, exactly one empty intervening line
-   containing zero characters, opener line, one metadata JSON line, and closer
-   line. For this raw subset phase, validate only delimiter ownership, exact
-   three-line comment shape, JSON parsing and exact metadata schema,
-   document-kind ownership, exact heading-ID/metadata-ID agreement, and this
-   placement. Return the validated block as an owned span. Do not run the full
-   Task 4 prose, section, reference, direction, or closure validator during
-   this phase. A zero-blank-line, multiple-blank-line, whitespace-only-blank,
-   malformed, relocated, unmatched, or wrong-owner candidate is invalid rather
-   than ordinary prose.
+   its exact level-two record heading, on the immediately next line the exact
+   opener `<!-- FLOWDOC-RECORD`, exactly one metadata JSON line, and on the
+   next line the exact closer `-->`. There is no intervening line. For this raw
+   subset phase, validate only delimiter ownership, exact three-line comment
+   shape, JSON parsing and exact metadata schema, document-kind ownership,
+   exact heading-ID/metadata-ID agreement, and this placement. Return the
+   validated block as an owned span. Do not run the full Task 4 prose, section,
+   reference, direction, or closure validator during this phase. Any
+   intervening empty, whitespace-only, or nonempty line, any additional line
+   inside the block, or any malformed, relocated, unmatched, or wrong-owner
+   candidate is invalid rather than ordinary prose.
 
 Validation order is exact:
 
@@ -1330,20 +1332,24 @@ negative fixtures for a comment opener and a comment closer inside fenced
 code, an ordinary arbitrary comment, raw HTML, a generated header on the wrong
 path or line, a malformed/relocated compatibility block, and a malformed,
 relocated, or wrong-owner record block. For record placement, separately
-reject zero intervening blank lines, more than one intervening blank line, and
-an intervening line containing spaces or tabs.
+reject one intervening blank line, multiple intervening blank lines, a
+whitespace-only intervening line, and an arbitrary nonempty intervening line.
+Also reject any additional line between the opener and closer of the exact
+three-line metadata block.
 
 Add positive real-checker fixtures for each exact owned form: the generated
 header on an approved generated file, the exact compatibility block at its
 document start, and successfully parsed exact record blocks after their
-specified headings with exactly one zero-character empty intervening line.
-Prove that the angle-bracket scan excludes each of those three owned span
-kinds, including the non-metadata generated header, only after its ownership
-validates. Preserve positives for existing valid URI/email autolinks, inline
-code, and backtick/tilde fences whose contents contain no forbidden
-HTML-comment delimiter or raw HTML/HTML-like construct. These positives prove
-that the boundary is a supported subset rather than a blanket rejection of
-autolinks or code.
+specified headings with exact opener `<!-- FLOWDOC-RECORD` on the immediately
+next line, exactly one JSON line, and exact closer `-->` on the next line.
+Prove this zero-intervening-line form against the actual 18-record authored
+shape. Prove that the angle-bracket scan excludes each of those three owned
+span kinds, including the non-metadata generated header, only after its
+ownership validates. Preserve positives for existing valid URI/email
+autolinks, inline code, and backtick/tilde fences whose contents contain no
+forbidden HTML-comment delimiter or raw HTML/HTML-like construct. These
+positives prove that the boundary is a supported subset rather than a blanket
+rejection of autolinks or code.
 
 Run and preserve RED:
 
@@ -1396,10 +1402,11 @@ Add or confirm real-repository tests for every Section 12.3 rule expressible in 
 - canonical references to legacy phase documents;
 - no subsystem migration or compatibility claim in the empty release composition.
 - raw-source supported-subset pre-validation for every registered canonical
-  Markdown file, including exact owned comment spans, exact one-empty-line
-  record placement, forbidden delimiter/raw HTML rejection in prose and code,
-  valid URI/email autolink retention, and the required handoff from limited
-  ownership recognition to later full record validation.
+  Markdown file, including exact owned comment spans, exact
+  immediately-next-line record placement, forbidden delimiter/raw HTML
+  rejection in prose and code, valid URI/email autolink retention, and the
+  required handoff from limited ownership recognition to later full record
+  validation.
 
 For contract applicability rules with no D3 contract records yet, test temporary fixtures only; do not invent live contracts.
 
@@ -1435,13 +1442,13 @@ One reviewer checks task/spec compliance and factual honesty. A second reviewer
 checks information architecture, reference direction, baseline protocol, and
 future relocation. Both independently verify the exact supported-subset
 ownership, raw pre-validation ordering, all-owned-span angle-bracket exclusion,
-exact heading/one-empty-line/three-line record placement, the non-circular
-handoff to later full record validation, allowed positives, forbidden
-delimiter/raw-HTML REDs, and six-path Task 5 scope. They review against the
-approved validated subset and must not demand arbitrary CommonMark comment or
-HTML semantics; this does not waive any failure inside the specified subset.
-Address Critical/Important findings with new real-checker REDs, then rerun all
-gates. Do not broaden to D3-D7.
+exact heading/immediately-next-line/three-line record placement, the
+non-circular handoff to later full record validation, allowed positives,
+forbidden delimiter/raw-HTML REDs, and six-path Task 5 scope. They review
+against the approved validated subset and must not demand arbitrary CommonMark
+comment or HTML semantics; this does not waive any failure inside the
+specified subset. Address Critical/Important findings with new real-checker
+REDs, then rerun all gates. Do not broaden to D3-D7.
 
 - [ ] **Step 7: Create content commit X**
 
