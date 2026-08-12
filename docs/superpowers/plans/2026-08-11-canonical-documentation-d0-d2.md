@@ -213,8 +213,9 @@ lexical form kind: localized-label | exact-alias | historical-alias |
 ```
 
 Authored Markdown remains prose authority, but stable records inside a
-multi-record file use one machine-readable JSON metadata block immediately
-after their heading:
+multi-record file use this exact line sequence: the record heading, exactly
+one empty intervening line containing zero characters, then one
+machine-readable three-line JSON metadata block:
 
 ```markdown
 ## RISK-CORE-DOCUMENTATION-DUAL-TRUTH-001 — Dual canonical truth
@@ -955,9 +956,12 @@ export function collectEmbeddedCanonicalRecords(markdown, { documentKind, path }
 
 It accepts `documentKind` only as `risk-register`, `known-unknowns`, or
 `roadmap`. Each level-two record heading is exactly
-`## <recordId> — <non-empty title>`, followed immediately by one
-`FLOWDOC-RECORD` JSON block. The metadata has one of these exact shapes; no
-missing or extra field is accepted:
+`## <recordId> — <non-empty title>`, followed by exactly one empty line
+containing zero characters and then one exact three-line `FLOWDOC-RECORD` JSON
+block: opener line, one metadata JSON line, and closer line. Zero intervening
+blank lines, more than one intervening blank line, or an intervening line that
+contains spaces or tabs is invalid. The metadata has one of these exact
+shapes; no missing or extra field is accepted:
 
 ```json
 {"recordId":"RISK-CORE-DOCUMENTATION-DUAL-TRUTH-001","recordKind":"risk","lifecycle":"active","affects":["DOC-CORE-NAVIGATION-MANIFEST"]}
@@ -1040,8 +1044,9 @@ Add fixture and repository-root tests that use the production
   participate in real `docs:check`;
 - any Task 4 manifest row is missing/extra or differs in path, kind, scope,
   subsystem, audience, authority, lifecycle, or an exact `appliesTo` array;
-- a record block is absent, is not immediately after its matching heading, or
-  contains invalid JSON;
+- a record block is absent, has zero or more than one intervening blank line
+  after its matching heading, has whitespace on the required empty line, is
+  relocated, is not an exact three-line block, or contains invalid JSON;
 - heading ID, typed ID prefix, `recordKind`, document kind, or closed
   `lifecycle` disagrees;
 - metadata has a missing/extra field, an empty/duplicate outbound array, or a
@@ -1083,9 +1088,10 @@ documents and regenerated document map do not exist yet.
 
 Author the five exact manifest rows above. Every prose canonical reference
 uses the clickable relative-path contract above, and every embedded record
-uses the exact section order and serialization. Do not copy long Phase 5B
-designs or test counts into current state; link legacy evidence only as
-explicitly non-canonical migration input when necessary.
+uses the exact heading, one zero-character empty line, three-line metadata
+block, section order, and serialization. Do not copy long Phase 5B designs or
+test counts into current state; link legacy evidence only as explicitly
+non-canonical migration input when necessary.
 
 - [ ] **Step 4: Generate, prove GREEN, and commit the exact nine paths**
 
@@ -1146,35 +1152,61 @@ The pre-validator recognizes only these three owned comment spans:
    owner document, malformed JSON, missing/extra field, or altered delimiter
    is invalid.
 3. An exact three-line `FLOWDOC-RECORD` block is allowed only in the registered
-   risk-register, known-unknowns, or roadmap document, at the already-specified
-   position immediately associated with its exact level-two record heading.
-   The span is recognized only after the Task 4 record parser successfully
-   validates the heading/record/document-kind agreement, exact JSON shape,
-   typed identity, closed fields, and placement. A malformed, relocated,
-   unmatched, or wrong-owner candidate is invalid rather than ordinary prose.
+   risk-register, known-unknowns, or roadmap document, in this exact sequence:
+   its exact level-two record heading, exactly one empty intervening line
+   containing zero characters, opener line, one metadata JSON line, and closer
+   line. For this raw subset phase, validate only delimiter ownership, exact
+   three-line comment shape, JSON parsing and exact metadata schema,
+   document-kind ownership, exact heading-ID/metadata-ID agreement, and this
+   placement. Return the validated block as an owned span. Do not run the full
+   Task 4 prose, section, reference, direction, or closure validator during
+   this phase. A zero-blank-line, multiple-blank-line, whitespace-only-blank,
+   malformed, relocated, unmatched, or wrong-owner candidate is invalid rather
+   than ordinary prose.
 
 Validation order is exact:
 
-1. On the unmasked raw source, recognize and fully validate candidate spans
-   for the three owned forms using their path, document kind, and positional
-   contracts. Any generated-header or `FLOWDOC-*` candidate that is not a
-   valid owned span fails immediately.
+1. On the unmasked raw source, recognize and validate candidate spans for the
+   exact generated header, exact `FLOWDOC-COMPATIBILITY` block, and exact
+   `FLOWDOC-RECORD` blocks using their path, document kind, schema, heading,
+   and positional contracts above. `FLOWDOC-RECORD` recognition is limited to
+   the raw-subset checks listed in item 3; it does not call the full Task 4
+   record validator. Any generated-header or `FLOWDOC-*` candidate that is not
+   a valid owned span fails immediately. This phase returns all validated
+   owned spans with their kind, source range, and parsed metadata where one
+   exists.
 2. Reject every remaining literal `<!--` or `-->` occurrence anywhere in the
-   raw file. This prohibition includes prose, inline code, fenced code,
-   Markdown link labels/destinations, and examples; those contexts do not
-   escape or mask a delimiter.
-3. Outside a validated owned metadata span, a literal `<` is supported only
-   when the existing Task-5-specific autolink parser consumes the complete
-   angle-bracket construct as a valid URI or email autolink. Any other raw
-   `<...>` or HTML-like construct is rejected, including inside inline or
-   fenced code. Do not implement an HTML parser, and do not claim full
-   CommonMark rendering equivalence.
-4. Only after steps 1-3 pass may the recognized owned spans (the header and
-   metadata blocks) be removed or replaced with stable whitespace for
-   downstream scans. Downstream
-   alias/reference/claim/fence logic must never mask arbitrary comments,
-   maintain general comment state, or infer whether comment syntax outranks
-   inline/fenced code. It operates only on pre-validated subset input.
+   raw file outside those validated owned spans. This prohibition includes
+   prose, inline code, fenced code, Markdown link labels/destinations, and
+   examples; those contexts do not escape or mask a delimiter.
+3. Scan for angle-bracket constructs outside **all** validated owned spans:
+   the exact generated-header span, exact `FLOWDOC-COMPATIBILITY` block spans,
+   and exact `FLOWDOC-RECORD` block spans. Outside those spans, a literal `<`
+   is supported only when the existing Task-5-specific autolink parser
+   consumes the complete angle-bracket construct as a valid URI or email
+   autolink. Any other raw `<...>` or HTML-like construct is rejected,
+   including inside inline or fenced code. Do not implement an HTML parser,
+   and do not claim full CommonMark rendering equivalence.
+4. Only after steps 1-3 pass may all validated owned spans—the exact generated
+   header plus exact compatibility and record metadata blocks—be removed or
+   replaced with stable whitespace for downstream scans. Exact ownership
+   validation must precede any removal or masking.
+5. Run downstream alias/reference/claim/fence scanning only on the resulting
+   pre-validated structural text. Then run the full existing Task 4 record
+   prose/section/reference/direction/closure validation using that structural
+   text plus the parsed metadata and positions returned for validated
+   `FLOWDOC-RECORD` spans. Downstream logic must never mask arbitrary comments,
+   maintain general comment state, infer whether comment syntax outranks
+   inline/fenced code, or rerun ownership recognition.
+
+The real model load first completes this subset pre-validation for every
+registered canonical Markdown file and retains each file's structural text and
+owned spans; no alias/reference/claim/fence or full record scan begins until
+all registered Markdown passes. A direct call to
+`collectEmbeddedCanonicalRecords` must apply the same subset pre-validation to
+its input before its full Task 4 validation, while retaining the existing
+exported signature. This is one task-specific two-phase path, not a second
+record authority or a generic parser framework.
 
 Valid URI/email autolinks already accepted by the task-specific parser remain
 supported. Existing inline-code and fenced-code syntax also remains supported
@@ -1297,12 +1329,17 @@ before a fence or visible-tail scan can hide or reinterpret it. Also add
 negative fixtures for a comment opener and a comment closer inside fenced
 code, an ordinary arbitrary comment, raw HTML, a generated header on the wrong
 path or line, a malformed/relocated compatibility block, and a malformed,
-relocated, or wrong-owner record block.
+relocated, or wrong-owner record block. For record placement, separately
+reject zero intervening blank lines, more than one intervening blank line, and
+an intervening line containing spaces or tabs.
 
 Add positive real-checker fixtures for each exact owned form: the generated
 header on an approved generated file, the exact compatibility block at its
-document start, and successfully parsed exact record blocks at their specified
-headings. Preserve positives for existing valid URI/email autolinks, inline
+document start, and successfully parsed exact record blocks after their
+specified headings with exactly one zero-character empty intervening line.
+Prove that the angle-bracket scan excludes each of those three owned span
+kinds, including the non-metadata generated header, only after its ownership
+validates. Preserve positives for existing valid URI/email autolinks, inline
 code, and backtick/tilde fences whose contents contain no forbidden
 HTML-comment delimiter or raw HTML/HTML-like construct. These positives prove
 that the boundary is a supported subset rather than a blanket rejection of
@@ -1320,13 +1357,17 @@ and present-load behavior. A syntax/import failure is not an accepted RED.
 - [ ] **Step 2: GREEN the baseline model, subset pre-validator, generator, checker, and publisher**
 
 Implement the exact Task 5 baseline and supported-subset contracts above in
-the publisher, model, generator, and checker. The checker/model must complete
-raw-source pre-validation before invoking existing structural scans. Keep the
-Task 4 embedded-record parser unchanged except for the exact owned-span
-recognition and integration needed to share the final model known-ID closure.
-Retain the renderer change only for its named present-baseline factual-honesty
-RED/review finding. Do not add a general comment masker, HTML/CommonMark
-parser, parser framework, package dependency, or lockfile change. Run:
+the publisher, model, generator, and checker. The checker/model must first run
+the limited raw-source subset pre-validator across every registered Markdown
+file and retain its owned spans and structural text. Only after that entire
+guard passes may it invoke the existing full Task 4 record and other
+structural validators. Preserve Task 4's full record semantics while consuming
+the validated record metadata/positions from the first phase and sharing the
+final model known-ID closure; never call that full parser to decide raw comment
+ownership. Retain the renderer change only for its named present-baseline
+factual-honesty RED/review finding. Do not add a general comment masker,
+HTML/CommonMark parser, parser framework, package dependency, or lockfile
+change. Run:
 
 ```powershell
 npx vitest run tests/canonicalDocumentationSpine.test.ts --maxWorkers=1
@@ -1355,8 +1396,10 @@ Add or confirm real-repository tests for every Section 12.3 rule expressible in 
 - canonical references to legacy phase documents;
 - no subsystem migration or compatibility claim in the empty release composition.
 - raw-source supported-subset pre-validation for every registered canonical
-  Markdown file, including exact owned comment spans, forbidden delimiter/raw
-  HTML rejection in prose and code, and valid URI/email autolink retention.
+  Markdown file, including exact owned comment spans, exact one-empty-line
+  record placement, forbidden delimiter/raw HTML rejection in prose and code,
+  valid URI/email autolink retention, and the required handoff from limited
+  ownership recognition to later full record validation.
 
 For contract applicability rules with no D3 contract records yet, test temporary fixtures only; do not invent live contracts.
 
@@ -1391,7 +1434,9 @@ Expected: no unqualified readiness/migration claim, no canonical dependency on s
 One reviewer checks task/spec compliance and factual honesty. A second reviewer
 checks information architecture, reference direction, baseline protocol, and
 future relocation. Both independently verify the exact supported-subset
-ownership, raw pre-validation ordering, allowed positives, forbidden
+ownership, raw pre-validation ordering, all-owned-span angle-bracket exclusion,
+exact heading/one-empty-line/three-line record placement, the non-circular
+handoff to later full record validation, allowed positives, forbidden
 delimiter/raw-HTML REDs, and six-path Task 5 scope. They review against the
 approved validated subset and must not demand arbitrary CommonMark comment or
 HTML semantics; this does not waive any failure inside the specified subset.
