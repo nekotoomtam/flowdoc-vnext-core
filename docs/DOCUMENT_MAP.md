@@ -15,6 +15,7 @@
 ## Coordination
 
 - [DOC-FLOWDOC-COORDINATION-BOUNDARY — Coordination ownership boundary](coordination/BOUNDARY.md)
+- [DOC-FLOWDOC-COORDINATION-DEVELOPMENT-BASELINE — Development baseline](coordination/DEVELOPMENT_BASELINE.json)
 - [DOC-FLOWDOC-COORDINATION-REPOSITORY-INDEX — Repository coordination index](coordination/REPOSITORY_INDEX.json)
 
 ## Version line

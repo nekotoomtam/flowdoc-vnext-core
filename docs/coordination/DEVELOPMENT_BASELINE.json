@@ -1,0 +1,29 @@
+{
+  "baselineSchemaVersion": 1,
+  "baselineId": "BASELINE-FLOWDOC-20260811-01",
+  "recordedAt": "2026-08-12",
+  "repositories": {
+    "REPO-FLOWDOC-CORE": {
+      "releaseLine": "0.1",
+      "releaseVersion": "unversioned",
+      "verifiedCommit": "732793d9bfc11a374121181a2efaaa78a110d7bc"
+    },
+    "REPO-FLOWDOC-EDITOR": {
+      "releaseLine": null,
+      "releaseVersion": "unversioned",
+      "verifiedCommit": "43dcebb22735d7330fda0d57d4e7ce9a726e2454"
+    },
+    "REPO-FLOWDOC-BACKEND": {
+      "releaseLine": null,
+      "releaseVersion": "unversioned",
+      "verifiedCommit": "280c4ffbe075cd5391cce5219e8f9c40fed16527"
+    }
+  },
+  "verificationSets": [],
+  "compatibility": {
+    "coreEditor": "not-verified",
+    "coreBackend": "not-verified",
+    "endToEnd": "not-verified"
+  },
+  "releaseReady": false
+}

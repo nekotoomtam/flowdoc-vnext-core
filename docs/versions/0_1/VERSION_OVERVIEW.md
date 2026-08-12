@@ -14,4 +14,4 @@
 - coreBackend: not-verified
 - endToEnd: not-verified
 
-The Development Baseline is pending publication. This planned, unversioned, non-ready view makes no release or compatibility claim.
+Development Baseline BASELINE-FLOWDOC-20260811-01 was recorded on 2026-08-12. This unversioned, non-ready record makes no release or compatibility claim.
