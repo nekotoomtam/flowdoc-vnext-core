@@ -5,11 +5,18 @@ import { spawnSync } from "node:child_process"
 import { afterEach, describe, expect, test } from "vitest"
 
 // @ts-ignore Task-owned executable Node model intentionally has no TypeScript declaration file.
+import * as canonicalDocsModel from "../scripts/documentation/canonical-docs-model.mjs"
+// @ts-ignore Task-owned executable Node model intentionally has no TypeScript declaration file.
 import { collectCanonicalReferences, collectEmbeddedCanonicalRecords, loadCanonicalDocumentationModel, validateCanonicalDocumentationModel } from "../scripts/documentation/canonical-docs-model.mjs"
+// @ts-ignore Task-owned executable Node checker intentionally has no TypeScript declaration file.
+import { checkCanonicalDocs } from "../scripts/check-canonical-docs.mjs"
 // @ts-ignore Task-owned executable Node renderer intentionally has no TypeScript declaration file.
 import { GENERATED_HEADER, renderGeneratedFiles } from "../scripts/documentation/canonical-docs-render.mjs"
 
 const BASELINE_ID = "BASELINE-FLOWDOC-20260811-01"
+const CORE_COMMIT = "5bcb497cefe742222a835637cc33eddd5f96b685"
+const EDITOR_COMMIT = "43dcebb22735d7330fda0d57d4e7ce9a726e2454"
+const BACKEND_COMMIT = "280c4ffbe075cd5391cce5219e8f9c40fed16527"
 const REPOSITORY_IDS = ["REPO-FLOWDOC-CORE", "REPO-FLOWDOC-EDITOR", "REPO-FLOWDOC-BACKEND"]
 const GENERATED_PATHS = [
   "docs/DOCUMENT_MAP.md",
@@ -143,6 +150,83 @@ Core–Editor, Core–Backend, and end-to-end compatibility are not inferred.
 `)
   for (const path of GENERATED_PATHS) write(root, path, "stale generated output\n")
   return root
+}
+
+function developmentBaseline() {
+  return {
+    baselineSchemaVersion: 1,
+    baselineId: BASELINE_ID,
+    recordedAt: "2026-08-11",
+    repositories: {
+      "REPO-FLOWDOC-CORE": { releaseLine: "0.1", releaseVersion: "unversioned", verifiedCommit: CORE_COMMIT },
+      "REPO-FLOWDOC-EDITOR": { releaseLine: null, releaseVersion: "unversioned", verifiedCommit: EDITOR_COMMIT },
+      "REPO-FLOWDOC-BACKEND": { releaseLine: null, releaseVersion: "unversioned", verifiedCommit: BACKEND_COMMIT },
+    },
+    verificationSets: [],
+    compatibility: { coreEditor: "not-verified", coreBackend: "not-verified", endToEnd: "not-verified" },
+    releaseReady: false,
+  }
+}
+
+function registerDevelopmentBaseline(root: string): void {
+  rewriteJson(root, "docs/manifest.json", (manifest) => {
+    manifest.documents.push({
+      documentId: "DOC-FLOWDOC-COORDINATION-DEVELOPMENT-BASELINE",
+      title: "Development baseline",
+      path: "docs/coordination/DEVELOPMENT_BASELINE.json",
+      kind: "development-baseline",
+      scope: "cross-repository",
+      subsystem: "coordination",
+      audience: "internal",
+      authority: "normative",
+      lifecycle: "active",
+      appliesTo: appliesTo(REPOSITORY_IDS, ["0.1"]),
+    })
+  })
+}
+
+function presentBaselineFixture(mutate: (baseline: any) => void = () => {}): string {
+  const root = fixture()
+  registerDevelopmentBaseline(root)
+  const baseline = developmentBaseline()
+  mutate(baseline)
+  write(root, "docs/coordination/DEVELOPMENT_BASELINE.json", baseline)
+  return root
+}
+
+function runGit(root: string, ...args: string[]) {
+  return spawnSync("git", ["-C", root, ...args], { encoding: "utf8" })
+}
+
+function commitFixture(root: string, message: string): string {
+  for (const [key, value] of [["user.name", "FlowDoc Fixture"], ["user.email", "flowdoc-fixture@example.invalid"]]) {
+    const configured = runGit(root, "config", key, value)
+    if (configured.status !== 0) throw new Error(configured.stderr)
+  }
+  const added = runGit(root, "add", "--all")
+  if (added.status !== 0) throw new Error(added.stderr)
+  const committed = runGit(root, "commit", "-m", message)
+  if (committed.status !== 0) throw new Error(committed.stderr)
+  const head = runGit(root, "rev-parse", "HEAD")
+  if (head.status !== 0) throw new Error(head.stderr)
+  return head.stdout.trim()
+}
+
+function initializeFixtureRepository(root: string): void {
+  const initialized = runGit(root, "init", "--quiet")
+  if (initialized.status !== 0) throw new Error(initialized.stderr)
+}
+
+function publishBaseline(root: string, overrides: Partial<Record<"baselineId" | "recordedAt" | "coreCommit" | "editorCommit" | "backendCommit", string>> = {}) {
+  return runCli(
+    root,
+    "scripts/publish-development-baseline.mjs",
+    "--baseline-id", overrides.baselineId ?? BASELINE_ID,
+    "--recorded-at", overrides.recordedAt ?? "2026-08-11",
+    "--core-commit", overrides.coreCommit ?? CORE_COMMIT,
+    "--editor-commit", overrides.editorCommit ?? EDITOR_COMMIT,
+    "--backend-commit", overrides.backendCommit ?? BACKEND_COMMIT,
+  )
 }
 
 function addTruthPlane(root: string): void {
@@ -499,7 +583,7 @@ const TRUTH_PLANE_BRANCH_LEDGER: TruthPlaneBranchLedgerRow[] = [
   {
     name: "metadata / collision with an existing canonical category",
     mutation: (root) => rewriteText(root, RISK_PATH, (source) => source.replaceAll(RISK_ID, "DOC-CORE-NAVIGATION-MANIFEST")),
-    expected: /embedded record identity collides with an existing canonical identity: DOC-CORE-NAVIGATION-MANIFEST/i,
+    expected: /heading recordId must use the RISK prefix/i,
   },
   {
     name: "sections / missing required section",
@@ -705,7 +789,7 @@ const TRUTH_PLANE_BRANCH_LEDGER: TruthPlaneBranchLedgerRow[] = [
   {
     name: "prose paragraph / raw-HTML-block-only body",
     mutation: (root) => replaceText(root, RISK_PATH, "Conflicting sources lead to inconsistent decisions.", "<div>not a prose paragraph</div>"),
-    expected: /Adverse event must contain an actual prose paragraph/i,
+    expected: /unsupported angle-bracket construct/i,
   },
 ]
 
@@ -787,6 +871,752 @@ describe("canonical documentation spine", () => {
     const check = runCli(checkedRoot, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", alternateBaselineId)
     expect(check.status).not.toBe(0)
     expect(check.stderr).toMatch(/reserved pending baseline.*BASELINE-FLOWDOC-20260811-01/i)
+  })
+
+  test("loads the exact present Development Baseline only in the non-pending state", () => {
+    const root = presentBaselineFixture()
+    const model = loadCanonicalDocumentationModel(root)
+    expect(model.baseline).toEqual(developmentBaseline())
+    expect(model.pendingBaselineId).toBeNull()
+    expect(validateCanonicalDocumentationModel(model)).toBe(model)
+    expect(() => loadCanonicalDocumentationModel(root, { allowPendingBaselineId: BASELINE_ID })).toThrow(/contradictory|present.*pending|pending.*present/i)
+  })
+
+  test("moves published baseline identity ownership from the release reservation to the baseline record", () => {
+    const correct = presentBaselineFixture()
+    addTruthPlane(correct)
+    write(correct, "docs/project/CURRENT_STATE.md", `# Current state\n\n[${BASELINE_ID}](../coordination/DEVELOPMENT_BASELINE.json) is the published coordination event.\n`)
+    expect(() => loadCanonicalDocumentationModel(correct)).not.toThrow()
+
+    const staleReservation = presentBaselineFixture()
+    addTruthPlane(staleReservation)
+    write(staleReservation, "docs/project/CURRENT_STATE.md", `# Current state\n\n[${BASELINE_ID}](../versions/0_1/release.json) is not the published event owner.\n`)
+    expect(() => loadCanonicalDocumentationModel(staleReservation)).toThrow(/registered owner path|baseline/i)
+  })
+
+  test("requires the development-baseline manifest kind only at the baseline path", () => {
+    const wrongKind = presentBaselineFixture()
+    rewriteJson(wrongKind, "docs/manifest.json", (manifest) => {
+      manifest.documents.find((document: any) => document.path === "docs/coordination/DEVELOPMENT_BASELINE.json").kind = "current-state"
+    })
+    expect(() => loadCanonicalDocumentationModel(wrongKind)).toThrow(/development-baseline.*kind|kind.*development-baseline/i)
+
+    const wrongPath = fixture()
+    rewriteJson(wrongPath, "docs/manifest.json", (manifest) => manifest.documents.push({
+      documentId: "DOC-FLOWDOC-COORDINATION-NOT-A-BASELINE",
+      title: "Not a baseline",
+      path: "docs/coordination/NOT_A_BASELINE.json",
+      kind: "development-baseline",
+      scope: "cross-repository",
+      subsystem: "coordination",
+      audience: "internal",
+      authority: "normative",
+      lifecycle: "active",
+      appliesTo: appliesTo(REPOSITORY_IDS, []),
+    }))
+    write(wrongPath, "docs/coordination/NOT_A_BASELINE.json", {})
+    expect(() => loadPending(wrongPath)).toThrow(/development-baseline.*path|path.*DEVELOPMENT_BASELINE/i)
+  })
+
+  test("rejects every missing and unknown field at every Development Baseline object layer", () => {
+    const topLevelFields = ["baselineSchemaVersion", "baselineId", "recordedAt", "repositories", "verificationSets", "compatibility", "releaseReady"]
+    for (const field of topLevelFields) {
+      const root = presentBaselineFixture((baseline) => { delete baseline[field] })
+      expect(() => loadCanonicalDocumentationModel(root), `missing top-level ${field}`).toThrow(/missing field/i)
+    }
+
+    const unknownTop = presentBaselineFixture((baseline) => { baseline.extra = true })
+    expect(() => loadCanonicalDocumentationModel(unknownTop)).toThrow(/unknown field extra/i)
+
+    for (const repositoryId of REPOSITORY_IDS) {
+      const missingRepository = presentBaselineFixture((baseline) => { delete baseline.repositories[repositoryId] })
+      expect(() => loadCanonicalDocumentationModel(missingRepository), `missing repository ${repositoryId}`).toThrow(/missing field/i)
+
+      for (const field of ["releaseLine", "releaseVersion", "verifiedCommit"]) {
+        const root = presentBaselineFixture((baseline) => { delete baseline.repositories[repositoryId][field] })
+        expect(() => loadCanonicalDocumentationModel(root), `${repositoryId} missing ${field}`).toThrow(/missing field/i)
+      }
+      const unknownEntry = presentBaselineFixture((baseline) => { baseline.repositories[repositoryId].extra = true })
+      expect(() => loadCanonicalDocumentationModel(unknownEntry), `${repositoryId} unknown field`).toThrow(/unknown field extra/i)
+    }
+
+    const unknownRepositories = presentBaselineFixture((baseline) => { baseline.repositories["REPO-FLOWDOC-TYPO"] = baseline.repositories["REPO-FLOWDOC-EDITOR"] })
+    expect(() => loadCanonicalDocumentationModel(unknownRepositories)).toThrow(/unknown field REPO-FLOWDOC-TYPO/i)
+
+    for (const field of ["coreEditor", "coreBackend", "endToEnd"]) {
+      const root = presentBaselineFixture((baseline) => { delete baseline.compatibility[field] })
+      expect(() => loadCanonicalDocumentationModel(root), `compatibility missing ${field}`).toThrow(/missing field/i)
+    }
+    const unknownCompatibility = presentBaselineFixture((baseline) => { baseline.compatibility.extra = true })
+    expect(() => loadCanonicalDocumentationModel(unknownCompatibility)).toThrow(/unknown field extra/i)
+  })
+
+  test("rejects malformed baseline identity, dates, commits, repository constants, D2 claims, and readiness", () => {
+    const mutations: [string, (baseline: any) => void, RegExp][] = [
+      ["schema version", (baseline) => { baseline.baselineSchemaVersion = 2 }, /baselineSchemaVersion.*1/i],
+      ["baseline ID grammar", (baseline) => { baseline.baselineId = "BASELINE-FLOWDOC-2026811-01" }, /baselineId/i],
+      ["release baseline mismatch", (baseline) => { baseline.baselineId = "BASELINE-FLOWDOC-20260811-02" }, /release baseline|must equal/i],
+      ["date shape", (baseline) => { baseline.recordedAt = "2026-8-11" }, /recordedAt/i],
+      ["real calendar date", (baseline) => { baseline.recordedAt = "2026-02-29" }, /recordedAt/i],
+      ["short commit", (baseline) => { baseline.repositories["REPO-FLOWDOC-CORE"].verifiedCommit = "5bcb497" }, /verifiedCommit/i],
+      ["non-hex commit", (baseline) => { baseline.repositories["REPO-FLOWDOC-EDITOR"].verifiedCommit = "g".repeat(40) }, /verifiedCommit/i],
+      ["all-zero commit", (baseline) => { baseline.repositories["REPO-FLOWDOC-BACKEND"].verifiedCommit = "0".repeat(40) }, /verifiedCommit|all-zero/i],
+      ["Core release line", (baseline) => { baseline.repositories["REPO-FLOWDOC-CORE"].releaseLine = null }, /releaseLine.*0\.1/i],
+      ["Editor release line", (baseline) => { baseline.repositories["REPO-FLOWDOC-EDITOR"].releaseLine = "0.1" }, /releaseLine.*null/i],
+      ["Backend release line", (baseline) => { baseline.repositories["REPO-FLOWDOC-BACKEND"].releaseLine = "0.1" }, /releaseLine.*null/i],
+      ["release version", (baseline) => { baseline.repositories["REPO-FLOWDOC-CORE"].releaseVersion = "0.1.0" }, /releaseVersion.*unversioned/i],
+      ["verification set", (baseline) => { baseline.verificationSets = ["GATE-FLOWDOC-UNVERIFIED"] }, /verificationSets.*empty/i],
+      ["compatibility", (baseline) => { baseline.compatibility.coreEditor = "compatible" }, /coreEditor.*not-verified/i],
+      ["release readiness", (baseline) => { baseline.releaseReady = true }, /releaseReady.*false/i],
+    ]
+    for (const [name, mutation, expected] of mutations) {
+      const root = presentBaselineFixture(mutation)
+      expect(() => loadCanonicalDocumentationModel(root), name).toThrow(expected)
+    }
+  })
+
+  test("publishes only the exact data record without committing and rejects unsafe CLI values", () => {
+    const root = fixture()
+    expect(runCli(root, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+    initializeFixtureRepository(root)
+    const before = commitFixture(root, "fixture before baseline")
+
+    const publication = publishBaseline(root)
+    expect(publication.status, publication.stderr).toBe(0)
+    expect(JSON.parse(readFileSync(join(root, "docs/coordination/DEVELOPMENT_BASELINE.json"), "utf8"))).toEqual(developmentBaseline())
+    expect(readFileSync(join(root, "docs/coordination/DEVELOPMENT_BASELINE.json"), "utf8")).not.toMatch(/placeholder/i)
+    expect(runGit(root, "rev-parse", "HEAD").stdout.trim()).toBe(before)
+    expect(runGit(root, "status", "--short").stdout.trim()).toBe("?? docs/coordination/DEVELOPMENT_BASELINE.json")
+
+    const invalidCases: [string, Partial<Record<"baselineId" | "recordedAt" | "coreCommit" | "editorCommit" | "backendCommit", string>>, RegExp][] = [
+      ["different baseline", { baselineId: "BASELINE-FLOWDOC-20260811-02" }, /baseline.*release|pending baseline.*match/i],
+      ["invalid date", { recordedAt: "2026-02-29" }, /recordedAt/i],
+      ["short hash", { coreCommit: "5bcb497" }, /core.*commit|verifiedCommit/i],
+      ["non-hex hash", { editorCommit: "g".repeat(40) }, /editor.*commit|verifiedCommit/i],
+      ["zero hash", { backendCommit: "0".repeat(40) }, /backend.*commit|verifiedCommit|all-zero/i],
+    ]
+    for (const [name, overrides, expected] of invalidCases) {
+      const invalidRoot = fixture()
+      const result = publishBaseline(invalidRoot, overrides)
+      expect(result.status, name).not.toBe(0)
+      expect(result.stderr, name).toMatch(expected)
+      expect(existsSync(join(invalidRoot, "docs/coordination/DEVELOPMENT_BASELINE.json")), name).toBe(false)
+    }
+  })
+
+  test("guards the full same-ID baseline event while allowing first publication and a normally valid new ID", () => {
+    const validateEvolution = (canonicalDocsModel as any).validateDevelopmentBaselineEvolution
+    expect(typeof validateEvolution).toBe("function")
+    expect(() => validateEvolution(null, developmentBaseline())).not.toThrow()
+
+    const sameIdMutations: [string, (baseline: any) => void][] = [
+      ["Core commit", (baseline) => { baseline.repositories["REPO-FLOWDOC-CORE"].verifiedCommit = "1".repeat(40) }],
+      ["Editor commit", (baseline) => { baseline.repositories["REPO-FLOWDOC-EDITOR"].verifiedCommit = "2".repeat(40) }],
+      ["Backend commit", (baseline) => { baseline.repositories["REPO-FLOWDOC-BACKEND"].verifiedCommit = "3".repeat(40) }],
+      ["schema version", (baseline) => { baseline.baselineSchemaVersion = 2 }],
+      ["recorded date", (baseline) => { baseline.recordedAt = "2026-08-12" }],
+      ["Core release line", (baseline) => { baseline.repositories["REPO-FLOWDOC-CORE"].releaseLine = "0.2" }],
+      ["Editor release line", (baseline) => { baseline.repositories["REPO-FLOWDOC-EDITOR"].releaseLine = "0.1" }],
+      ["Backend release line", (baseline) => { baseline.repositories["REPO-FLOWDOC-BACKEND"].releaseLine = "0.1" }],
+      ["Core release version", (baseline) => { baseline.repositories["REPO-FLOWDOC-CORE"].releaseVersion = "0.1.0" }],
+      ["Editor release version", (baseline) => { baseline.repositories["REPO-FLOWDOC-EDITOR"].releaseVersion = "0.1.0" }],
+      ["Backend release version", (baseline) => { baseline.repositories["REPO-FLOWDOC-BACKEND"].releaseVersion = "0.1.0" }],
+      ["verification sets", (baseline) => { baseline.verificationSets = ["GATE-FLOWDOC-UNVERIFIED"] }],
+      ["Core–Editor compatibility", (baseline) => { baseline.compatibility.coreEditor = "compatible" }],
+      ["Core–Backend compatibility", (baseline) => { baseline.compatibility.coreBackend = "compatible" }],
+      ["end-to-end compatibility", (baseline) => { baseline.compatibility.endToEnd = "compatible" }],
+      ["release readiness", (baseline) => { baseline.releaseReady = true }],
+    ]
+    for (const [name, mutation] of sameIdMutations) {
+      const next = developmentBaseline()
+      mutation(next)
+      expect(() => validateEvolution(developmentBaseline(), next), name).toThrow()
+    }
+
+    const newEvent = developmentBaseline()
+    newEvent.baselineId = "BASELINE-FLOWDOC-20260812-01"
+    newEvent.recordedAt = "2026-08-12"
+    newEvent.repositories["REPO-FLOWDOC-CORE"].verifiedCommit = "4".repeat(40)
+    expect(() => validateEvolution(developmentBaseline(), newEvent)).not.toThrow()
+  })
+
+  test("checks present baselines against Git HEAD and distinguishes exact path absence from Git failure", () => {
+    const firstPublication = fixture()
+    expect(runCli(firstPublication, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+    initializeFixtureRepository(firstPublication)
+    commitFixture(firstPublication, "fixture pending baseline")
+    expect(publishBaseline(firstPublication).status).toBe(0)
+    registerDevelopmentBaseline(firstPublication)
+    const generation = runCli(firstPublication, "scripts/generate-canonical-docs.mjs")
+    expect(generation.status, generation.stderr).toBe(0)
+    const presentOverview = readFileSync(join(firstPublication, "docs/versions/0_1/VERSION_OVERVIEW.md"), "utf8")
+    expect(presentOverview).not.toMatch(/baseline is pending publication/i)
+    expect(presentOverview).toContain(BASELINE_ID)
+    expect(presentOverview).toContain("2026-08-11")
+    expect(presentOverview).toMatch(/unversioned, non-ready/i)
+    expect(presentOverview).toMatch(/no release or compatibility claim/i)
+    const firstCheck = runCli(firstPublication, "scripts/check-canonical-docs.mjs")
+    expect(firstCheck.status, firstCheck.stderr).toBe(0)
+    const contradictory = runCli(firstPublication, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+    expect(contradictory.status).not.toBe(0)
+    expect(contradictory.stderr).toMatch(/contradictory|present.*pending|pending.*present/i)
+
+    const priorPresent = presentBaselineFixture()
+    expect(runCli(priorPresent, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+    initializeFixtureRepository(priorPresent)
+    commitFixture(priorPresent, "fixture present baseline")
+    const unchanged = runCli(priorPresent, "scripts/check-canonical-docs.mjs")
+    expect(unchanged.status, unchanged.stderr).toBe(0)
+    rewriteJson(priorPresent, "docs/coordination/DEVELOPMENT_BASELINE.json", (baseline) => { baseline.repositories["REPO-FLOWDOC-CORE"].verifiedCommit = "1".repeat(40) })
+    const mutation = runCli(priorPresent, "scripts/check-canonical-docs.mjs")
+    expect(mutation.status).not.toBe(0)
+    expect(mutation.stderr).toMatch(/same baseline|repository tuple|immutable/i)
+
+    const malformedPrior = presentBaselineFixture()
+    expect(runCli(malformedPrior, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+    initializeFixtureRepository(malformedPrior)
+    writeFileSync(join(malformedPrior, "docs/coordination/DEVELOPMENT_BASELINE.json"), "{invalid\n", "utf8")
+    commitFixture(malformedPrior, "fixture malformed prior baseline")
+    write(malformedPrior, "docs/coordination/DEVELOPMENT_BASELINE.json", developmentBaseline())
+    const malformedCheck = runCli(malformedPrior, "scripts/check-canonical-docs.mjs")
+    expect(malformedCheck.status).not.toBe(0)
+    expect(malformedCheck.stderr).toMatch(/prior.*JSON|invalid JSON/i)
+
+    const notGit = presentBaselineFixture()
+    expect(runCli(notGit, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+    const gitFailure = runCli(notGit, "scripts/check-canonical-docs.mjs")
+    expect(gitFailure.status).not.toBe(0)
+    expect(gitFailure.stderr).toMatch(/Git|repository|HEAD/i)
+  }, 15_000)
+
+  test("rejects duplicate and mistyped DOC, TERM, RISK, UNKNOWN, and WORK identities", () => {
+    const cases: [string, (root: string) => void, RegExp][] = [
+      ["mistyped DOC", (root) => rewriteJson(root, "docs/manifest.json", (manifest) => { manifest.documents[0].documentId = "DOCUMENT-CORE-NAVIGATION-MANIFEST" }), /documentId.*DOC prefix/i],
+      ["duplicate TERM", (root) => rewriteJson(root, "docs/glossary.json", (glossary) => { glossary.terms[1].termId = glossary.terms[0].termId }), /duplicate.*TERM/i],
+      ["mistyped TERM", (root) => rewriteJson(root, "docs/glossary.json", (glossary) => { glossary.terms[0].termId = "TERMX-FLOWDOC-FACT" }), /termId.*TERM prefix/i],
+      ["mistyped RISK", (root) => replaceText(root, RISK_PATH, `## ${RISK_ID} —`, "## UNKNOWN-CORE-DOCUMENTATION-DUAL-TRUTH-001 —"), /heading recordId.*RISK prefix/i],
+      ["mistyped UNKNOWN", (root) => replaceText(root, UNKNOWN_PATH, `## ${UNKNOWN_ID} —`, "## WORK-CORE-DOCUMENTATION-CONTRACT-INVENTORY-001 —"), /heading recordId.*UNKNOWN prefix/i],
+      ["mistyped WORK", (root) => replaceText(root, ROADMAP_PATH, `## ${WORK_ID} —`, "## RISK-CORE-LAYOUT-CUTOVER-001 —"), /heading recordId.*WORK prefix/i],
+    ]
+    for (const [name, mutation, expected] of cases) {
+      const root = fixture()
+      if (name.includes("RISK") || name.includes("UNKNOWN") || name.includes("WORK")) addTruthPlane(root)
+      mutation(root)
+      expect(() => loadPending(root), name).toThrow(expected)
+    }
+  })
+
+  test("rejects backward references from active normative documents and preserves retired Term tombstones for history", () => {
+    const retiredDocument = fixture()
+    rewriteJson(retiredDocument, "docs/manifest.json", (manifest) => manifest.documents.push({
+      documentId: "DOC-CORE-PROJECT-RETIRED-EVIDENCE",
+      title: "Retired evidence",
+      path: "docs/project/RETIRED_EVIDENCE.md",
+      kind: "current-state",
+      scope: "core",
+      subsystem: "project",
+      audience: "internal",
+      authority: "evidence",
+      lifecycle: "retired",
+      appliesTo: appliesTo(["REPO-FLOWDOC-CORE"], []),
+    }))
+    write(retiredDocument, "docs/project/RETIRED_EVIDENCE.md", "# Retired evidence\n")
+    write(retiredDocument, "docs/coordination/BOUNDARY.md", "# Boundary\n\n[DOC-CORE-PROJECT-RETIRED-EVIDENCE](../project/RETIRED_EVIDENCE.md) must not direct current authority.\n")
+    expect(() => loadPending(retiredDocument)).toThrow(/active normative.*retired|backward/i)
+
+    const descriptiveLabel = fixture()
+    rewriteJson(descriptiveLabel, "docs/manifest.json", (manifest) => manifest.documents.push({
+      documentId: "DOC-CORE-PROJECT-RETIRED-INSTRUCTIONS",
+      title: "Retired instructions",
+      path: "docs/project/RETIRED_INSTRUCTIONS.md",
+      kind: "current-state",
+      scope: "core",
+      subsystem: "project",
+      audience: "internal",
+      authority: "evidence",
+      lifecycle: "retired",
+      appliesTo: appliesTo(["REPO-FLOWDOC-CORE"], []),
+    }))
+    write(descriptiveLabel, "docs/project/RETIRED_INSTRUCTIONS.md", "# Retired instructions\n")
+    write(descriptiveLabel, "docs/coordination/BOUNDARY.md", "# Boundary\n\n[old instructions](../project/RETIRED_INSTRUCTIONS.md) cannot direct current authority.\n")
+    expect(() => loadPending(descriptiveLabel)).toThrow(/active normative.*retired|backward/i)
+
+    const tombstone = fixture()
+    rewriteJson(tombstone, "docs/glossary.json", (glossary) => {
+      glossary.concepts.push({ conceptId: "CONCEPT-FLOWDOC-RETIRED-FACT", labels: { technical: "Retired fact", thai: "ข้อเท็จจริงที่เลิกใช้" } })
+      glossary.terms.push({
+        termId: "TERM-FLOWDOC-RETIRED-FACT",
+        conceptId: "CONCEPT-FLOWDOC-RETIRED-FACT",
+        canonicalName: "FlowDoc Retired Fact",
+        definitions: { technical: "A retained historical term.", thai: "คำศัพท์ทางประวัติศาสตร์ที่เก็บไว้" },
+        lifecycle: "retired",
+        appliesTo: appliesTo(REPOSITORY_IDS, []),
+        relations: { meansSameAs: [], relatedTo: [], supersededBy: "TERM-FLOWDOC-FACT" },
+      })
+    })
+    rewriteJson(tombstone, "docs/manifest.json", (manifest) => manifest.documents.push({
+      documentId: "DOC-CORE-PROJECT-HISTORICAL-TERMINOLOGY",
+      title: "Historical terminology",
+      path: "docs/project/HISTORICAL_TERMINOLOGY.md",
+      kind: "current-state",
+      scope: "core",
+      subsystem: "project",
+      audience: "internal",
+      authority: "evidence",
+      lifecycle: "retired",
+      appliesTo: appliesTo(["REPO-FLOWDOC-CORE"], []),
+    }))
+    write(tombstone, "docs/project/HISTORICAL_TERMINOLOGY.md", "# Historical terminology\n\n[TERM-FLOWDOC-RETIRED-FACT](../glossary.json) remains resolvable.\n")
+    const tombstoneModel = loadPending(tombstone)
+    expect(renderGeneratedFiles(tombstoneModel)["docs/GLOSSARY.md"]).toContain("TERM-FLOWDOC-RETIRED-FACT")
+    rewriteJson(tombstone, "docs/glossary.json", (glossary) => {
+      glossary.terms = glossary.terms.filter((term: any) => term.termId !== "TERM-FLOWDOC-RETIRED-FACT")
+      glossary.concepts = glossary.concepts.filter((concept: any) => concept.conceptId !== "CONCEPT-FLOWDOC-RETIRED-FACT")
+    })
+    expect(() => loadPending(tombstone)).toThrow(/unresolved authored canonical reference TERM-FLOWDOC-RETIRED-FACT/i)
+  })
+
+  test("rejects cross-release and legacy-phase link direction from canonical Markdown", () => {
+    const cases: [string, string, string, RegExp][] = [
+      ["cross-release", "docs/versions/0_1/COMPATIBILITY.md", "\n[shared detail](../0_2/SHARED.md)\n", /release line.*another release line|cross-release/i],
+      ["phase ledger", "docs/coordination/BOUNDARY.md", "\n[legacy phase ledger](../PHASE_LEDGER.md)\n", /legacy phase|PHASE_LEDGER/i],
+      ["superpowers plan", "docs/coordination/BOUNDARY.md", "\n[legacy plan](../superpowers/plans/phase-5.md)\n", /legacy phase|superpowers/i],
+      ["inline tildes are prose", "docs/coordination/BOUNDARY.md", "\nSee ~~~[legacy](../PHASE_LEDGER.md)~~~.\n", /legacy phase|PHASE_LEDGER/i],
+      ["raw HTML legacy link", "docs/coordination/BOUNDARY.md", "\n<a href=\"../PHASE_LEDGER.md\">legacy</a>\n", /raw HTML|legacy phase|PHASE_LEDGER/i],
+      ["comment-like code before legacy link", "docs/coordination/BOUNDARY.md", "\n```md\n<!--\n```\n-->\n[legacy](../PHASE_LEDGER.md)\n", /unsupported HTML-comment delimiter/i],
+    ]
+    for (const [name, path, suffix, expected] of cases) {
+      const root = fixture()
+      rewriteText(root, path, (source) => `${source}${suffix}`)
+      expect(() => loadPending(root), name).toThrow(expected)
+    }
+  })
+
+  test("rejects legacy-phase and cross-release destinations in every supported Markdown link form", () => {
+    const cases: [string, string, string, RegExp][] = [
+      ["full reference", "docs/coordination/BOUNDARY.md", "\n[legacy plan][plan]\n\n[plan]: ../PHASE_LEDGER.md\n", /legacy phase|PHASE_LEDGER/i],
+      ["collapsed reference", "docs/coordination/BOUNDARY.md", "\n[legacy plan][]\n\n[legacy plan]: ../PHASE_LEDGER.md 'historical'\n", /legacy phase|PHASE_LEDGER/i],
+      ["shortcut reference", "docs/coordination/BOUNDARY.md", "\n[legacy plan]\n\n[legacy plan]: <../superpowers/plans/phase-5.md>\n", /unsupported angle-bracket construct/i],
+      ["angle-bracket inline", "docs/versions/0_1/COMPATIBILITY.md", "\n[future](<../0_2/SHARED.md>)\n", /unsupported angle-bracket construct/i],
+      ["titled inline", "docs/coordination/BOUNDARY.md", "\n[legacy](../PHASE_LEDGER.md \"historical\")\n", /legacy phase|PHASE_LEDGER/i],
+      ["root-relative", "docs/coordination/BOUNDARY.md", "\n[legacy](/docs/PHASE_LEDGER.md)\n", /relative|legacy phase|PHASE_LEDGER/i],
+    ]
+    for (const [name, path, suffix, expected] of cases) {
+      const root = fixture()
+      rewriteText(root, path, (source) => `${source}${suffix}`)
+      expect(() => loadPending(root), name).toThrow(expected)
+    }
+  })
+
+  test("uses Markdown first-definition semantics and normalizes query and encoded local paths", () => {
+    const firstLegacy = fixture()
+    write(firstLegacy, "docs/coordination/BOUNDARY.md", "# Boundary\n\n[legacy][plan]\n\n[plan]: ../PHASE_LEDGER.md\n[plan]: https://example.invalid/safe\n")
+    expect(() => loadPending(firstLegacy)).toThrow(/legacy phase|PHASE_LEDGER/i)
+
+    const firstSafe = fixture()
+    write(firstSafe, "docs/coordination/BOUNDARY.md", "# Boundary\n\n[safe][plan]\n\n[plan]: https://example.invalid/safe\n[plan]: ../PHASE_LEDGER.md\n")
+    expect(() => loadPending(firstSafe)).not.toThrow()
+
+    const encodedLegacy = fixture()
+    write(encodedLegacy, "docs/coordination/BOUNDARY.md", "# Boundary\n\n[legacy](../%50HASE_LEDGER.md)\n")
+    expect(() => loadPending(encodedLegacy)).toThrow(/legacy phase|PHASE_LEDGER/i)
+
+    const queriedLegacy = fixture()
+    write(queriedLegacy, "docs/coordination/BOUNDARY.md", "# Boundary\n\n[legacy](../PHASE_LEDGER.md?plain=1)\n")
+    expect(() => loadPending(queriedLegacy)).toThrow(/legacy phase|PHASE_LEDGER/i)
+
+    const queriedRetired = fixture()
+    rewriteJson(queriedRetired, "docs/manifest.json", (manifest) => manifest.documents.push({
+      documentId: "DOC-CORE-PROJECT-RETIRED-QUERY-TARGET",
+      title: "Retired query target",
+      path: "docs/project/RETIRED_QUERY_TARGET.md",
+      kind: "current-state",
+      scope: "core",
+      subsystem: "project",
+      audience: "internal",
+      authority: "evidence",
+      lifecycle: "retired",
+      appliesTo: appliesTo(["REPO-FLOWDOC-CORE"], []),
+    }))
+    write(queriedRetired, "docs/project/RETIRED_QUERY_TARGET.md", "# Retired query target\n")
+    write(queriedRetired, "docs/coordination/BOUNDARY.md", "# Boundary\n\n[old instructions](../project/RETIRED_QUERY_TARGET.md?plain=1)\n")
+    expect(() => loadPending(queriedRetired)).toThrow(/active normative.*retired|backward/i)
+    write(queriedRetired, "docs/coordination/BOUNDARY.md", "# Boundary\n\n<a href=\"../project/RETIRED_QUERY_TARGET.md\">old instructions</a>\n")
+    expect(() => loadPending(queriedRetired)).toThrow(/raw HTML|active normative.*retired|backward/i)
+  })
+
+  test("enforces release slug, empty D2 claim-to-gate linkage, and authored compatibility non-claims", () => {
+    const slug = fixture()
+    rewriteJson(slug, "docs/versions/0_1/release.json", (release) => { release.folderSlug = "0.1" })
+    expect(() => loadPending(slug)).toThrow(/folderSlug.*0_1/i)
+
+    const acceptedProduction = fixture()
+    addTruthPlane(acceptedProduction)
+    write(acceptedProduction, "docs/project/CURRENT_STATE.md", "# Current state\n\nLayout is accepted for production.\n")
+    expect(() => loadPending(acceptedProduction)).toThrow(/accepted|production|verification|gate/i)
+
+    const compatibilityClaim = fixture()
+    write(compatibilityClaim, "docs/versions/0_1/COMPATIBILITY.md", `<!-- FLOWDOC-COMPATIBILITY
+{"compatibilitySchemaVersion":1,"coreEditor":"not-verified","coreBackend":"not-verified","endToEnd":"not-verified"}
+-->
+
+# Compatibility
+
+Core and Editor are compatible.
+`)
+    expect(() => loadPending(compatibilityClaim)).toThrow(/compatible|compatibility.*claim|verification/i)
+  })
+
+  test("rejects positive D2 claims even when the same sentence contains a separate negative qualifier", () => {
+    const production = fixture()
+    addTruthPlane(production)
+    expect(runCli(production, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+    write(production, "docs/project/CURRENT_STATE.md", "# Current state\n\nLayout is production, but compatibility is not verified.\n")
+    const productionCheck = runCli(production, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+    expect(productionCheck.status).not.toBe(0)
+    expect(productionCheck.stderr).toMatch(/production|verification|gate/i)
+
+    const compatibility = fixture()
+    expect(runCli(compatibility, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+    write(compatibility, "docs/versions/0_1/COMPATIBILITY.md", `<!-- FLOWDOC-COMPATIBILITY
+{"compatibilitySchemaVersion":1,"coreEditor":"not-verified","coreBackend":"not-verified","endToEnd":"not-verified"}
+-->
+
+# Compatibility
+
+Core and Editor are compatible, but end-to-end is not verified.
+`)
+    const compatibilityCheck = runCli(compatibility, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+    expect(compatibilityCheck.status).not.toBe(0)
+    expect(compatibilityCheck.stderr).toMatch(/compatible|compatibility.*claim|verification/i)
+  })
+
+  test("rejects accepted compatibility claims and permits locally negated migration and compatibility non-claims", () => {
+    const acceptedCompatibility = fixture()
+    write(acceptedCompatibility, "docs/versions/0_1/COMPATIBILITY.md", `<!-- FLOWDOC-COMPATIBILITY
+{"compatibilitySchemaVersion":1,"coreEditor":"not-verified","coreBackend":"not-verified","endToEnd":"not-verified"}
+-->
+
+# Compatibility
+
+Core–Editor compatibility is accepted.
+`)
+    expect(() => loadPending(acceptedCompatibility)).toThrow(/compatibility|accepted|verification/i)
+
+    const negativeMigration = fixture()
+    addTruthPlane(negativeMigration)
+    write(negativeMigration, "docs/project/CURRENT_STATE.md", "# Current state\n\nThe renderer is not migrated.\n")
+    expect(() => loadPending(negativeMigration)).not.toThrow()
+
+    const negativeCompatibility = fixture()
+    write(negativeCompatibility, "docs/versions/0_1/COMPATIBILITY.md", `<!-- FLOWDOC-COMPATIBILITY
+{"compatibilitySchemaVersion":1,"coreEditor":"not-verified","coreBackend":"not-verified","endToEnd":"not-verified"}
+-->
+
+# Compatibility
+
+Core–Editor is not compatible.
+`)
+    expect(() => loadPending(negativeCompatibility)).not.toThrow()
+  })
+
+  test("binds claim negation to each assertion across alternate conjunctions and status-first wording", () => {
+    const currentStateClaims = [
+      "Although compatibility is not verified, layout is production.",
+      "Compatibility is not verified while the renderer subsystem is active.",
+      "No backend is selected, yet layout is accepted.",
+      "Without compatibility verification, layout is production.",
+      "Renderer is not active and layout is production.",
+      "Renderer is not active while layout is production.",
+      "Without verification layout is production.",
+      "Layout is experimental and production.",
+      "Renderer is experimental but active.",
+      "Layout, now production, remains experimental.",
+      "Active and stable subsystems are documented.",
+      "Renderer is not active yet accepted.",
+      "[Renderer]: is active",
+      "Renderer](active) is configured.",
+      "[Renderer\\](active) is configured.",
+      "Layout is [evidence](production now).",
+      "Layout evidence is <production@->.",
+      "Layout is ~~~production~~~.",
+      "<div>\n~~~md\nRenderer is active.\n~~~\n</div>",
+      "Layout is pro<!-- note -->duction.",
+      "Lay<!-- note -->out is production.",
+      "<div title=\"<\">\n~~~md\nRenderer is active.\n~~~",
+      "Renderer evidence is [note](pro<!-- note -->duction).",
+      "Renderer evidence is <urn:pro<!-- note -->duction>.",
+      "`<!-- note -->``md\nRenderer is active.\n```",
+      "```md\n<!--\n```\n-->\nRenderer is active.",
+      "Renderer evidence is [note](<!-- note -->production).",
+      "Renderer evidence is [note](production<!-- note -->).",
+      "[Renderer]: <!-- note -->active",
+    ]
+    for (const claim of currentStateClaims) {
+      const root = fixture()
+      addTruthPlane(root)
+      expect(runCli(root, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+      write(root, "docs/project/CURRENT_STATE.md", `# Current state\n\n${claim}\n`)
+      const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+      expect(check.status, claim).not.toBe(0)
+      expect(check.stderr, claim).toMatch(/accepted|active|production|verification|gate|unsupported (?:HTML-comment delimiter|angle-bracket construct)/i)
+    }
+
+    const compatibilityClaims = [
+      "Core and Editor are compatible, while end-to-end is not verified.",
+      "Although end-to-end is not verified, Core–Editor compatibility is accepted.",
+      "Without end-to-end verification, Core and Backend are compatible.",
+      "Compatible Core–Editor operation is established.",
+      "Core and Editor are not verified and end-to-end is compatible.",
+      "Core and Editor are not verified while end-to-end is compatible.",
+      "Core and Editor are operational and compatible.",
+      "Core and Backend are unsupported but compatible.",
+      "Core and Editor, now compatible, remain under review.",
+      "Compatible and documented Core–Editor behavior is described.",
+      "Core and Editor are not verified yet compatible.",
+      "[Core–Editor]: is compatible",
+      "Core and Editor](compatible) operation is described.",
+      "[Core and Editor\\](compatible) operation is described.",
+      "<div>\n~~~md\nCore and Editor are compatible.\n~~~\n</div>",
+      "Core and Editor are com<!-- note -->patible.",
+      "Co<!-- note -->re and Editor are compatible.",
+      "Core and Editor are com<span title=\"<\">patible.",
+      "Core and Editor evidence is [note](com<!-- note -->patible).",
+      "Core and Editor evidence is <urn:com<!-- note -->patible>.",
+      "`<!-- note -->``md\nCore and Editor are compatible.\n```",
+      "```md\n<!--\n```\n-->\nCore and Editor are compatible.",
+      "Core and Editor evidence is [note](<!-- note -->compatible).",
+      "[Core and Editor]: <!-- note -->compatible",
+    ]
+    for (const claim of compatibilityClaims) {
+      const root = fixture()
+      expect(runCli(root, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+      write(root, "docs/versions/0_1/COMPATIBILITY.md", `<!-- FLOWDOC-COMPATIBILITY
+{"compatibilitySchemaVersion":1,"coreEditor":"not-verified","coreBackend":"not-verified","endToEnd":"not-verified"}
+-->
+
+# Compatibility
+
+${claim}
+`)
+      const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+      expect(check.status, claim).not.toBe(0)
+      expect(check.stderr, claim).toMatch(/compatible|compatibility|accepted|verification|unsupported (?:HTML-comment delimiter|angle-bracket construct)/i)
+    }
+  }, 15_000)
+
+  test("binds plural and exact negative claim vocabulary to the local assertion", () => {
+    for (const claim of ["Runtime subsystems are active.", "Capabilities are migrated."]) {
+      const root = fixture()
+      addTruthPlane(root)
+      expect(runCli(root, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+      write(root, "docs/project/CURRENT_STATE.md", `# Current state\n\n${claim}\n`)
+      const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+      expect(check.status, claim).not.toBe(0)
+      expect(check.stderr, claim).toMatch(/accepted|active|migrated|verification|gate/i)
+    }
+
+    const zeroSubsystems = fixture()
+    addTruthPlane(zeroSubsystems)
+    expect(runCli(zeroSubsystems, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+    write(zeroSubsystems, "docs/project/CURRENT_STATE.md", "# Current state\n\nZero runtime subsystems are migrated.\n")
+    expect(runCli(zeroSubsystems, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID).status).toBe(0)
+
+    for (const claim of [
+      "Without migrated subsystems, the runtime remains legacy.",
+      "Layout is not ready for production.",
+      "Renderer is not accepted for production.",
+      "Renderer is not yet active.",
+      "[Layout](https://example.invalid/production) notes remain experimental.",
+      "Renderer evidence is [documented](notes(section)/active.md).",
+      "Renderer evidence is ``layout is production``.",
+      "[Renderer]: https://example.invalid/active",
+      "Renderer notes include ``[legacy](../PHASE_LEDGER.md)``.",
+      "[Renderer\\\\](https://example.invalid/active) notes remain experimental.",
+      "Renderer notes include a genuine fence:\n\n~~~md\n[legacy](../PHASE_LEDGER.md)\n~~~",
+    ]) {
+      const root = fixture()
+      addTruthPlane(root)
+      expect(runCli(root, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+      write(root, "docs/project/CURRENT_STATE.md", `# Current state\n\n${claim}\n`)
+      expect(runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID).status, claim).toBe(0)
+    }
+
+    for (const claim of [
+      "Core–Editor is not-verified.",
+      "Core–Editor is not compatible, while this policy remains active.",
+      "Without compatible Core–Editor behavior, integration remains blocked.",
+      "Core and Editor are not verified as compatible.",
+      "Core and Editor are not yet compatible.",
+      "[Core–Editor](https://example.invalid/compatible) remains under review.",
+      "Core–Editor evidence is <urn:flowdoc:active>.",
+      "Core–Editor evidence is [documented](https://example.invalid/(safe)/compatible).",
+      "Core–Editor evidence is <ftp://example.invalid/integration/compatible>.",
+      "[Core–Editor]: <urn:flowdoc:compatible>",
+    ]) {
+      const root = fixture()
+      expect(runCli(root, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+      write(root, "docs/versions/0_1/COMPATIBILITY.md", `<!-- FLOWDOC-COMPATIBILITY
+{"compatibilitySchemaVersion":1,"coreEditor":"not-verified","coreBackend":"not-verified","endToEnd":"not-verified"}
+-->
+
+# Compatibility
+
+${claim}
+`)
+      const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+      expect(check.status, claim).toBe(0)
+    }
+  }, 15_000)
+
+  test("rejects every arbitrary HTML-comment delimiter before code, fence, claim, or reference scanning", () => {
+    const cases = [
+      ["ordinary comment", "<!-- ordinary comment -->"],
+      ["inline-code opener", "`<!--`"],
+      ["inline-code closer", "`-->`"],
+      ["backtick-fence opener", "```md\n<!--\n```"],
+      ["tilde-fence closer", "~~~md\n-->\n~~~"],
+      ["blocker production tail", "`<!--`\n~~~md\n-->\n~~~\nRenderer is production."],
+      ["blocker compatibility tail", "`<!--`\n~~~md\n-->\n~~~\nCore and Editor are compatible."],
+      ["blocker legacy-link tail", "`<!--`\n~~~md\n-->\n~~~\n[legacy](../PHASE_LEDGER.md)"],
+    ] as const
+    for (const [name, body] of cases) {
+      const root = fixture()
+      expect(runCli(root, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+      write(root, "docs/coordination/BOUNDARY.md", `# Coordination boundary\n\n${body}\n`)
+      const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+      expect(check.status, name).not.toBe(0)
+      expect(check.stderr, name).toMatch(/unsupported HTML-comment delimiter.*outside an owned canonical span/i)
+    }
+  }, 15_000)
+
+  test("rejects raw HTML and non-autolink angle forms even inside inline and fenced code", () => {
+    const cases = [
+      ["raw prose HTML", "<div>unsupported</div>"],
+      ["inline-code HTML", "`<div>unsupported</div>`"],
+      ["backtick-fence HTML", "```html\n<div>unsupported</div>\n```"],
+      ["tilde-fence HTML-like form", "~~~text\n<not-an-autolink>\n~~~"],
+      ["declaration", "<!DOCTYPE html>"],
+    ] as const
+    for (const [name, body] of cases) {
+      const root = fixture()
+      expect(runCli(root, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+      write(root, "docs/coordination/BOUNDARY.md", `# Coordination boundary\n\n${body}\n`)
+      const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+      expect(check.status, name).not.toBe(0)
+      expect(check.stderr, name).toMatch(/unsupported angle-bracket construct.*valid URI or email autolink/i)
+    }
+  }, 15_000)
+
+  test("validates generated-header and compatibility ownership before masking their angle brackets", () => {
+    const cases: [string, (root: string) => void, RegExp][] = [
+      ["generated header on authored path", (root) => write(root, "docs/coordination/BOUNDARY.md", `${GENERATED_HEADER}\n# Coordination boundary\n`), /generated header.*owned generated path/i],
+      ["generated header relocated", (root) => rewriteText(root, GENERATED_PATHS[0], (source) => source.replace(GENERATED_HEADER, `# Prefix\n${GENERATED_HEADER}`)), /generated header.*first line/i],
+      ["generated header duplicated", (root) => rewriteText(root, GENERATED_PATHS[0], (source) => `${source}${GENERATED_HEADER}`), /generated header.*exactly once/i],
+      ["compatibility block on wrong owner", (root) => write(root, "docs/coordination/BOUNDARY.md", `<!-- FLOWDOC-COMPATIBILITY\n{\"compatibilitySchemaVersion\":1,\"coreEditor\":\"not-verified\",\"coreBackend\":\"not-verified\",\"endToEnd\":\"not-verified\"}\n-->\n\n# Boundary\n`), /FLOWDOC-COMPATIBILITY.*owner/i],
+      ["compatibility block relocated", (root) => rewriteText(root, "docs/versions/0_1/COMPATIBILITY.md", (source) => `\n${source}`), /FLOWDOC-COMPATIBILITY.*start/i],
+      ["compatibility block malformed", (root) => rewriteText(root, "docs/versions/0_1/COMPATIBILITY.md", (source) => source.replace("\n-->\n", "\nextra\n-->\n")), /FLOWDOC-COMPATIBILITY.*three-line|unsupported HTML-comment delimiter/i],
+    ]
+    for (const [name, mutate, expected] of cases) {
+      const root = fixture()
+      expect(runCli(root, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+      mutate(root)
+      const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+      expect(check.status, name).not.toBe(0)
+      expect(check.stderr, name).toMatch(expected)
+    }
+  }, 15_000)
+
+  test("requires the exact zero-intervening-line and three-line FLOWDOC-RECORD sequence", () => {
+    const cases: [string, (source: string) => string][] = [
+      ["one blank line", (source) => source.replace("— Divergent sources\n<!-- FLOWDOC-RECORD", "— Divergent sources\n\n<!-- FLOWDOC-RECORD")],
+      ["multiple blank lines", (source) => source.replace("— Divergent sources\n<!-- FLOWDOC-RECORD", "— Divergent sources\n\n\n<!-- FLOWDOC-RECORD")],
+      ["whitespace-only line", (source) => source.replace("— Divergent sources\n<!-- FLOWDOC-RECORD", "— Divergent sources\n \t\n<!-- FLOWDOC-RECORD")],
+      ["nonempty line", (source) => source.replace("— Divergent sources\n<!-- FLOWDOC-RECORD", "— Divergent sources\nintervening text\n<!-- FLOWDOC-RECORD")],
+      ["additional block line", (source) => source.replace("\n-->\n\n### Adverse event", "\nadditional metadata line\n-->\n\n### Adverse event")],
+    ]
+    for (const [name, mutate] of cases) {
+      const root = fixture()
+      addTruthPlane(root)
+      expect(runCli(root, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+      rewriteText(root, "docs/project/RISK_REGISTER.md", mutate)
+      const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+      expect(check.status, name).not.toBe(0)
+      expect(check.stderr, name).toMatch(/FLOWDOC-RECORD.*immediately next line|FLOWDOC-RECORD.*three-line/i)
+    }
+  }, 15_000)
+
+  test("prevalidates every registered Markdown file before any downstream semantic scan", () => {
+    const commentRoot = fixture()
+    addTruthPlane(commentRoot)
+    expect(runCli(commentRoot, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+    write(commentRoot, "docs/project/CURRENT_STATE.md", "# Current state\n\nRenderer is production.\n")
+    rewriteText(commentRoot, "docs/project/ROADMAP.md", (source) => `${source}\n<!-- unsupported -->\n`)
+    const commentCheck = runCli(commentRoot, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+    expect(commentCheck.status).not.toBe(0)
+    expect(commentCheck.stderr).toMatch(/ROADMAP\.md.*unsupported HTML-comment delimiter/i)
+    expect(commentCheck.stderr).not.toMatch(/current state cannot make/i)
+
+    const angleRoot = fixture()
+    addTruthPlane(angleRoot)
+    expect(runCli(angleRoot, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+    write(angleRoot, "docs/project/CURRENT_STATE.md", "# Current state\n\nRenderer is production.\n")
+    rewriteText(angleRoot, "docs/project/ROADMAP.md", (source) => `${source}\n\`<div>\`\n`)
+    const angleCheck = runCli(angleRoot, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+    expect(angleCheck.status).not.toBe(0)
+    expect(angleCheck.stderr).toMatch(/ROADMAP\.md.*unsupported angle-bracket construct/i)
+    expect(angleCheck.stderr).not.toMatch(/current state cannot make/i)
+  }, 15_000)
+
+  test("the real checker reuses one retained ownership pass for full record validation", () => {
+    const root = fixture()
+    addTruthPlane(root)
+    expect(runCli(root, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+    const originalParse = JSON.parse
+    let recordMetadataParses = 0
+    JSON.parse = ((source: string, reviver?: (this: any, key: string, value: any) => any) => {
+      const parsed = originalParse(source, reviver)
+      if (parsed !== null && typeof parsed === "object" && Object.hasOwn(parsed, "recordKind")) recordMetadataParses += 1
+      return parsed
+    }) as typeof JSON.parse
+    try {
+      checkCanonicalDocs(root, { pendingBaseline: BASELINE_ID })
+    } finally {
+      JSON.parse = originalParse
+    }
+    expect(recordMetadataParses).toBe(3)
+  })
+
+  test("binds retained ownership provenance to the exact manifest path, kind, and raw Markdown inputs", () => {
+    const root = fixture()
+    addTruthPlane(root)
+    const commentModel = loadPending(root)
+    commentModel.markdownByPath["docs/coordination/BOUNDARY.md"] += "\n<!-- stale ownership must not survive -->\n"
+    expect(() => validateCanonicalDocumentationModel(commentModel, { allowPendingBaselineId: BASELINE_ID })).toThrow(/retained Markdown prevalidation.*raw source|stale.*prevalidation/i)
+
+    const pathModel = loadPending(root)
+    pathModel.manifest.documents.find((document: any) => document.path === "docs/coordination/BOUNDARY.md").path = "docs/coordination/RENAMED_BOUNDARY.md"
+    expect(() => validateCanonicalDocumentationModel(pathModel, { allowPendingBaselineId: BASELINE_ID })).toThrow(/retained Markdown prevalidation.*manifest|stale.*prevalidation/i)
+
+    const kindModel = loadPending(root)
+    kindModel.manifest.documents.find((document: any) => document.path === "docs/coordination/BOUNDARY.md").kind = "current-state"
+    expect(() => validateCanonicalDocumentationModel(kindModel, { allowPendingBaselineId: BASELINE_ID })).toThrow(/retained Markdown prevalidation.*manifest|stale.*prevalidation/i)
+  })
+
+  test("accepts owned spans, URI and email autolinks, and comment-free inline and fenced code", () => {
+    const root = fixture()
+    addTruthPlane(root)
+    rewriteText(root, "docs/coordination/BOUNDARY.md", (source) => `${source}\n<https://example.invalid/flowdoc>\n<flowdoc@example.invalid>\n\`literal code\`\n\n\`\`\`text\nliteral fenced code\n\`\`\`\n\n~~~text\nliteral tilde fence\n~~~\n`)
+    expect(runCli(root, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+    const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
+    expect(check.status, check.stderr).toBe(0)
+    expect(collectEmbeddedCanonicalRecords(readFileSync(join(root, "docs/project/RISK_REGISTER.md"), "utf8"), {
+      documentKind: "risk-register",
+      path: "docs/project/RISK_REGISTER.md",
+    })).toHaveLength(1)
+
+    const direct = readFileSync(join(root, "docs/project/RISK_REGISTER.md"), "utf8").replace("Conflicting sources lead", "<!-- unsupported -->\nConflicting sources lead")
+    expect(() => collectEmbeddedCanonicalRecords(direct, { documentKind: "risk-register", path: "docs/project/RISK_REGISTER.md" })).toThrow(/unsupported HTML-comment delimiter/i)
   })
 
   test("rejects malformed JSON before generating any view", () => {
@@ -951,6 +1781,14 @@ A dual-status token is qualified.
     const visibleReference = fixture()
     write(visibleReference, "docs/coordination/BOUNDARY.md", "# Boundary\n\n[status][ref] remains visible.\n\n[ref]: https://example.test/safe\n")
     expect(() => loadPending(visibleReference)).toThrow(/ambiguous alias status/i)
+
+    const malformedEmail = fixture()
+    write(malformedEmail, "docs/coordination/BOUNDARY.md", "# Boundary\n\nThe value <status@-> remains visible.\n")
+    expect(() => loadPending(malformedEmail)).toThrow(/unsupported angle-bracket construct/i)
+
+    const splitByComment = fixture()
+    write(splitByComment, "docs/coordination/BOUNDARY.md", "# Boundary\n\nThe sta<!-- note -->tus remains visible.\n")
+    expect(() => loadPending(splitByComment)).toThrow(/unsupported HTML-comment delimiter/i)
   })
 
   test("does not treat malformed reference definitions as hidden link destinations", () => {
@@ -1140,7 +1978,7 @@ A dual-status token is qualified.
         const path = join(root, "docs/VERSION_POLICY.md")
         writeFileSync(path, `${readFileSync(path, "utf8")}\n## DOC-CORE-NAVIGATION-MANIFEST\n`, "utf8")
       }, /bare canonical ID/i],
-      ["a bare ID in a fake record comment", (root) => writeFileSync(join(root, "docs/project/CURRENT_STATE.md"), "<!-- FLOWDOC-RECORD\nDOC-CORE-NAVIGATION-MANIFEST\n-->\n", "utf8"), /bare canonical ID/i],
+      ["a bare ID in a fake record comment", (root) => writeFileSync(join(root, "docs/project/CURRENT_STATE.md"), "<!-- FLOWDOC-RECORD\nDOC-CORE-NAVIGATION-MANIFEST\n-->\n", "utf8"), /FLOWDOC-RECORD.*wrong owner/i],
       ["nonblank preamble before the first section", (root) => {
         const path = join(root, "docs/project/RISK_REGISTER.md")
         writeFileSync(path, readFileSync(path, "utf8").replace("-->\n\n### Adverse", "-->\n\nStray prose.\n\n### Adverse"), "utf8")
@@ -1156,7 +1994,7 @@ A dual-status token is qualified.
       ["comment-only prose body", (root) => {
         const path = join(root, "docs/project/RISK_REGISTER.md")
         writeFileSync(path, readFileSync(path, "utf8").replace("Conflicting sources lead to inconsistent decisions.", "<!-- only a comment -->"), "utf8")
-      }, /prose paragraph/i],
+      }, /unsupported HTML-comment delimiter/i],
       ["a released claim before unrelated non-authorization prose", (root) => writeFileSync(join(root, "docs/VERSION_POLICY.md"), "The proposed 0.1.0-a.1 is released.\n\nAnother package is not authorized.\n", "utf8"), /version policy.*released|not authorized/i],
     ]
     for (const [, mutate, expected] of cases) {
@@ -1200,13 +2038,13 @@ A dual-status token is qualified.
   })
 
   test("branch ledger: rejects every remaining block-only body and proposed-version claim form through the checker", () => {
-    const bodyCases = ["```text\ncode\n```", "    indented", "<!-- comment -->", "- list", "> quote", "#### heading", "Heading\n---", "***", "_ _ _", "- - -"]
-    for (const body of bodyCases) {
+    const bodyCases: [string, RegExp][] = [["```text\ncode\n```", /prose paragraph/i], ["    indented", /prose paragraph/i], ["<!-- comment -->", /unsupported HTML-comment delimiter/i], ["- list", /prose paragraph/i], ["> quote", /prose paragraph/i], ["#### heading", /prose paragraph/i], ["Heading\n---", /prose paragraph/i], ["***", /prose paragraph/i], ["_ _ _", /prose paragraph/i], ["- - -", /prose paragraph/i]]
+    for (const [body, expected] of bodyCases) {
       const root = fixture(); addTruthPlane(root)
       const path = join(root, "docs/project/RISK_REGISTER.md")
       writeFileSync(path, readFileSync(path, "utf8").replace("Conflicting sources lead to inconsistent decisions.", body), "utf8")
       const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
-      expect(check.status).not.toBe(0); expect(check.stderr).toMatch(/prose paragraph/i)
+      expect(check.status).not.toBe(0); expect(check.stderr).toMatch(expected)
     }
     for (const claim of ["0.1.0-a.1 is a release.", "Authorization is granted for 0.1.0-a.1.", "0.1.0-a.1 is authorized."]) {
       const root = fixture(); addTruthPlane(root)
@@ -1335,6 +2173,9 @@ A dual-status token is qualified.
       "WORK-FLOWDOC-COORDINATION-TRANSFER-001",
       "WORK-FLOWDOC-AGENT-SYSTEM-REDESIGN-001",
     ])
+    const realRecordSources = ["docs/project/RISK_REGISTER.md", "docs/project/KNOWN_UNKNOWNS.md", "docs/project/ROADMAP.md"].map((path) => readFileSync(join(root, path), "utf8"))
+    expect(realRecordSources.reduce((count, source) => count + [...source.matchAll(/^## [A-Z][A-Z0-9-]+ — [^\r\n]+\r?\n<!-- FLOWDOC-RECORD\r?\n[^\r\n]+\r?\n-->(?=\r?\n|$)/gm)].length, 0)).toBe(18)
+    expect(realRecordSources.reduce((count, source) => count + [...source.matchAll(/^<!-- FLOWDOC-RECORD$/gm)].length, 0)).toBe(18)
     expect(generated(root)).toEqual(renderGeneratedFiles(model))
   })
 })

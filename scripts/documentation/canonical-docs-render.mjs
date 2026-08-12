@@ -68,7 +68,10 @@ function releaseFacts(model, release) {
 }
 
 export function renderVersionOverview(model, release = model.release) {
-  return `${header("Version overview")}## Authored release facts\n\n${releaseFacts(model, release)}\n\nThe Development Baseline is pending publication. This planned, unversioned, non-ready view makes no release or compatibility claim.\n`
+  const baselineStatement = model.baseline === null
+    ? "The Development Baseline is pending publication. This planned, unversioned, non-ready view makes no release or compatibility claim."
+    : `Development Baseline ${model.baseline.baselineId} was recorded on ${model.baseline.recordedAt}. This unversioned, non-ready record makes no release or compatibility claim.`
+  return `${header("Version overview")}## Authored release facts\n\n${releaseFacts(model, release)}\n\n${baselineStatement}\n`
 }
 
 export function renderCapabilitySet(model, release = model.release) {

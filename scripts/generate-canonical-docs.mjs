@@ -1,8 +1,8 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 
-import { GENERATED_PATHS, loadCanonicalDocumentationModel } from "./documentation/canonical-docs-model.mjs"
+import { GENERATED_PATHS, STRUCTURED_PATHS, loadCanonicalDocumentationModel } from "./documentation/canonical-docs-model.mjs"
 import { renderGeneratedFiles } from "./documentation/canonical-docs-render.mjs"
 
 function rootFrom(argv) {
@@ -14,7 +14,8 @@ function rootFrom(argv) {
 export function generateCanonicalDocs(root) {
   const normalizedRoot = resolve(root)
   let release
-  try { release = JSON.parse(readFileSync(join(normalizedRoot, "docs/versions/0_1/release.json"), "utf8")) } catch { release = undefined }
+  const baselineExists = existsSync(join(normalizedRoot, STRUCTURED_PATHS.baseline))
+  try { release = baselineExists ? undefined : JSON.parse(readFileSync(join(normalizedRoot, "docs/versions/0_1/release.json"), "utf8")) } catch { release = undefined }
   const pending = release?.lifecycle === "planned" && release?.releaseVersion === "unversioned" && release?.releaseReady === false ? release.baselineId : undefined
   const model = loadCanonicalDocumentationModel(normalizedRoot, pending === undefined ? {} : { allowPendingBaselineId: pending })
   const rendered = renderGeneratedFiles(model)
