@@ -1127,8 +1127,11 @@ other documentation path is staged.
   authored/generated documentation, manifest, package, dependency, lockfile,
   runtime, or other path may change in X.
 - `docs/coordination/DEVELOPMENT_BASELINE.json` and its manifest record remain
-  absent in X. Task 6 Y remains the exact five data/navigation paths already
-  listed in Task 6.
+  absent in X. Task 6 Y has exactly four changed/staged data/navigation paths
+  listed in Task 6. The generator still renders and the checker still verifies
+  all five approved generated outputs, but `CAPABILITY_SET.md` remains
+  byte-identical because baseline publication does not change release
+  selectors.
 - Do not create a new report/ledger/handoff document.
 
 **Approved supported canonical-Markdown subset:**
@@ -1209,6 +1212,21 @@ all registered Markdown passes. A direct call to
 its input before its full Task 4 validation, while retaining the existing
 exported signature. This is one task-specific two-phase path, not a second
 record authority or a generic parser framework.
+
+Every retained or exported object that can affect that handoff must also be
+recursively immutable or covered by an integrity binding checked before reuse.
+This includes the retained prevalidation object, every owned-span and
+record-candidate object, span offsets and kind, retained raw and structural
+source, parsed metadata objects and their arrays, exported embedded records,
+their reference/exempt-span arrays and objects, and any nested manifest
+path/kind value used to select the retained result. A direct consumer must not
+be able to mutate `recordKind`, any span offset/path/kind/raw source, any
+metadata array, or any full-record nested field and then receive a successful
+validation of stale state. Mutation may throw or have no effect; otherwise the
+next validation must reject the exact stale integrity. This hardening must
+preserve the one raw pre-validation pass and its retained handoff: neither raw
+ownership recognition nor full-record parsing may be rerun to compensate for
+mutable retained state.
 
 Valid URI/email autolinks already accepted by the task-specific parser remain
 supported. Existing inline-code and fenced-code syntax also remains supported
@@ -1351,6 +1369,45 @@ forbidden HTML-comment delimiter or raw HTML/HTML-like construct. These
 positives prove that the boundary is a supported subset rather than a blanket
 rejection of autolinks or code.
 
+Cover the two post-content-review findings with these RED cases before Task 6
+changes any data:
+
+1. Replace the real-repository test's unconditional pending load with one
+   baseline-file-presence branch. In X/absent state, use the exact explicit
+   pending loader/checker options and retain exact assertions that
+   `model.baseline === null`, `model.pendingBaselineId ===
+   BASELINE-FLOWDOC-20260811-01`, the baseline path is absent, and the manifest
+   has no baseline row. In Y/present state, call the normal loader and normal
+   checker with no pending option; assert `pendingBaselineId === null`, reject
+   a contradictory pending allowance, and assert this exact manifest row:
+
+   ```json
+   {"documentId":"DOC-FLOWDOC-COORDINATION-DEVELOPMENT-BASELINE","title":"Development baseline","path":"docs/coordination/DEVELOPMENT_BASELINE.json","kind":"development-baseline","scope":"cross-repository","subsystem":"coordination","audience":"internal","authority":"normative","lifecycle":"active","appliesTo":{"repositoryIds":["REPO-FLOWDOC-CORE","REPO-FLOWDOC-EDITOR","REPO-FLOWDOC-BACKEND"],"releaseLines":["0.1"],"contractIds":[],"schemaIds":[]}}
+   ```
+
+   The present branch also asserts the literal tuple
+   `(BASELINE-FLOWDOC-20260811-01, contentCommit,
+   43dcebb22735d7330fda0d57d4e7ce9a726e2454,
+   280c4ffbe075cd5391cce5219e8f9c40fed16527)` from the parsed baseline. Derive
+   `contentCommit` from Git, not from the baseline under test: before Y is
+   committed it is `HEAD`; after Y is committed it is `HEAD^`, selected by
+   whether `HEAD:docs/coordination/DEVELOPMENT_BASELINE.json` exists.
+2. Exercise the same committed assertion helper against complete absent and
+   present fixture states in one parameterized test before Task 6. The absent
+   fixture must use explicit pending check/load; the present fixture must use
+   normal check/load and the exact row/tuple above. This test must fail before
+   the root-state branching correction and then pass in both fixture states,
+   proving Task 6 does not edit tests.
+3. Load one direct exported model and attempt mutation of: an embedded
+   record's `recordKind`; owned-span `start`, `end`, and `kind`; retained raw
+   Markdown; a manifest document `path` and `kind`; record-candidate metadata
+   arrays; and full-record `references`, `exemptSpans`, and nested offsets.
+   For every attempt, assert either a thrown/no-effect mutation followed by
+   exact successful validation of the original state, or a stale-integrity
+   rejection. Keep the existing parse-count assertion exact: three fixture
+   records cause exactly three record-metadata parses and validation does not
+   invoke a second ownership or full-record pass.
+
 Run and preserve RED:
 
 ```powershell
@@ -1358,7 +1415,9 @@ npx vitest run tests/canonicalDocumentationSpine.test.ts --maxWorkers=1
 ```
 
 Expected: assertion failures show the absent exact baseline parser/evolution
-and present-load behavior. A syntax/import failure is not an accepted RED.
+and present-load behavior. In the post-content correction wave, the new REDs
+must instead expose the hard-coded real-root pending assumption and mutable
+retained/exported nested state. A syntax/import failure is not an accepted RED.
 
 - [ ] **Step 2: GREEN the baseline model, subset pre-validator, generator, checker, and publisher**
 
@@ -1373,7 +1432,10 @@ final model known-ID closure; never call that full parser to decide raw comment
 ownership. Retain the renderer change only for its named present-baseline
 factual-honesty RED/review finding. Do not add a general comment masker,
 HTML/CommonMark parser, parser framework, package dependency, or lockfile
-change. Run:
+change. Seal or integrity-bind every nested retained/exported value named in
+the REDs without introducing a second raw or full-record parse. Make the
+real-root assertions select pending/present behavior only from baseline-file
+presence, with no pending allowance in the present branch. Run:
 
 ```powershell
 npx vitest run tests/canonicalDocumentationSpine.test.ts --maxWorkers=1
@@ -1450,11 +1512,11 @@ comment or HTML semantics; this does not waive any failure inside the
 specified subset. Address Critical/Important findings with new real-checker
 REDs, then rerun all gates. Do not broaden to D3-D7.
 
-- [ ] **Step 7: Create content commit X**
+- [ ] **Step 7: Create the initial six-path Task 5 implementation commit**
 
 Task 5 changes the publisher, model, renderer for the named factual-honesty
-finding, generator, checker, and tests, so make one coherent six-path content
-commit X after the gates and reviews are READY:
+finding, generator, checker, and tests, so make one coherent six-path
+implementation commit after the initial gates and reviews are READY:
 
 ```powershell
 git add -- scripts/check-canonical-docs.mjs scripts/documentation/canonical-docs-model.mjs scripts/documentation/canonical-docs-render.mjs scripts/generate-canonical-docs.mjs scripts/publish-development-baseline.mjs tests/canonicalDocumentationSpine.test.ts
@@ -1463,17 +1525,81 @@ git diff --cached --name-only
 git commit -m "docs: complete canonical project truth foundation"
 ```
 
-The `git add` line is the exact six-path Task 5 scope. Each diff must trace to
+The `git add` line is the exact six-path initial Task 5 scope. Each diff must trace to
 a named RED or accepted review finding, and no seventh path is permitted. No
 package/dependency/lockfile change is authorized. The baseline JSON and its
-manifest record are forbidden in X. Record:
+manifest record are forbidden. The existing result of this step is
+`e8bd0f369861e63a60d13a09b21bbdf5ff9ff9b2`; the later SDD review findings
+below mean that commit is not yet the final content boundary for Task 6.
+Commit this governing-plan amendment by itself before editing either correction
+path. No implementation or baseline publication belongs in the plan-amendment
+commit.
+
+- [ ] **Step 8: RED and GREEN the two post-content SDD findings**
+
+Implement only the real-root pending/present behavior and recursive
+immutability/integrity RED groups specified in Step 1. The production change
+is limited to `scripts/documentation/canonical-docs-model.mjs`; the behavior
+and direct exported-model coverage is limited to
+`tests/canonicalDocumentationSpine.test.ts`. Do not change the checker,
+generator, renderer, publisher, source data, generated documentation, manifest,
+package, lockfile, or runtime. Run the RED before the production change, then
+run:
+
+```powershell
+npx vitest run tests/canonicalDocumentationSpine.test.ts --maxWorkers=1
+npm run docs:generate
+npm run docs:check -- --allow-pending-baseline BASELINE-FLOWDOC-20260811-01
+npm run type-check
+npm run test -- --maxWorkers=1
+git diff --check
+```
+
+Expected: both fixture states pass the same committed test logic; the real X
+root uses the exact absent/pending branch; every retained/exported nested
+mutation is inert or rejected as stale; the exact one-pass parse count remains
+unchanged; all gates pass; and the baseline file/manifest row remain absent.
+
+- [ ] **Step 9: Create one scoped Task 5 correction commit and define final content commit X**
+
+```powershell
+git add -- scripts/documentation/canonical-docs-model.mjs tests/canonicalDocumentationSpine.test.ts
+git diff --cached --check
+$task5FixPaths = @(git diff --cached --name-only)
+$expectedTask5FixPaths = @(
+  "scripts/documentation/canonical-docs-model.mjs",
+  "tests/canonicalDocumentationSpine.test.ts"
+)
+if ($task5FixPaths.Count -ne 2 -or (Compare-Object $expectedTask5FixPaths $task5FixPaths)) { throw "Task 5 correction scope differs from the exact two-path allowlist" }
+git commit -m "fix(docs): seal canonical validation handoff"
+$contentCommit = git rev-parse HEAD
+git status --short
+```
+
+The correction commit, not its parent `e8bd0f3`, is final content commit X and
+is the exact Core hash Task 6 publishes. The tree and index must be clean.
+
+- [ ] **Step 10: Complete the scoped SDD re-review before Task 5 completion**
+
+Request one fresh read-only SDD review of
+`e8bd0f369861e63a60d13a09b21bbdf5ff9ff9b2..$contentCommit`. It must verify
+both findings against the governing plan: exact pending/present behavior in
+the same committed tests, exact present manifest row and baseline tuple,
+recursive retained/exported-state immutability or integrity rejection, and
+preservation of the one raw pass/retained handoff with no ownership/full-record
+rerun. It must also verify the exact two-path correction scope. Task 5 is not
+complete and Task 6 must not begin unless this scoped re-review is READY with
+no Critical or Important finding.
+
+After the READY verdict, record the final content boundary again:
 
 ```powershell
 $contentCommit = git rev-parse HEAD
 git status --short
 ```
 
-The tree must be clean and both reviews must be READY before baseline publication.
+The tree must be clean and the initial reviews plus the scoped SDD re-review
+must all be READY before baseline publication.
 
 ---
 
@@ -1484,7 +1610,13 @@ The tree must be clean and both reviews must be READY before baseline publicatio
 - Modify: `docs/manifest.json`
 - Regenerate: `docs/DOCUMENT_MAP.md`
 - Regenerate: `docs/versions/0_1/VERSION_OVERVIEW.md`
-- Regenerate: `docs/versions/0_1/CAPABILITY_SET.md`
+
+Those are the exact four changed/staged Y paths. `npm run docs:generate` still
+renders and `npm run docs:check` still checks all five approved generated
+outputs. `docs/GLOSSARY.md`, `docs/GLOSSARY_TH.md`, and especially
+`docs/versions/0_1/CAPABILITY_SET.md` must remain byte-identical to content
+commit X and must not be staged. `CAPABILITY_SET.md` continues to derive only
+the three release selector arrays; baseline presence is not a capability fact.
 
 The already-content-committed publisher writes data only. It does not run Git
 commit/tag/push and cannot accept short hashes.
@@ -1493,11 +1625,15 @@ Task 6 registers the baseline file as
 `DOC-FLOWDOC-COORDINATION-DEVELOPMENT-BASELINE`; the event record inside it is
 the separately typed `BASELINE-FLOWDOC-20260811-01`.
 
-Task 6 is a five-path publication/execution task, not an implementation task.
+Task 6 is a four-changed-path publication/execution task, not an implementation task.
 The publisher, exact schema parser, pending/present loader behavior, evolution
 guard, supported canonical-Markdown subset pre-validation, checker
 integration, and all tests are already committed in X. No script or test
-change and no syntax-boundary relaxation is allowed in Y.
+change and no syntax-boundary relaxation is allowed in Y. No
+`CAPABILITY_SET.md`, authored project truth, version policy, glossary,
+compatibility prose, coordination boundary/index, release composition,
+package, runtime, or AGENTS change is allowed. The only authored additions are
+the exact baseline data record and its exact manifest registration.
 
 - [ ] **Step 1: Re-run the baseline-publication tests from content commit X**
 
@@ -1509,20 +1645,28 @@ Tests must reject:
 - any non-empty verification set at D2;
 - `releaseReady: true`;
 - reuse of a baseline ID with changed repository tuple;
-- normal `docs:check` while the referenced baseline is still absent.
+- normal `docs:check` while the referenced baseline is still absent;
+- the same committed real-root/fixture tests selecting explicit pending mode
+  only when the file is absent and normal present mode when it exists;
+- mutation of retained span/metadata/full-record nested state without either
+  inert mutation or exact stale-integrity rejection.
 
-- [ ] **Step 2: Invoke the narrow publisher with the exact inspected tuple**
+- [ ] **Step 2: Invoke the narrow publisher and add the exact manifest row**
 
 CLI:
 
-```text
-node scripts/publish-development-baseline.mjs \
-  --root . \
-  --baseline-id BASELINE-FLOWDOC-20260811-01 \
-  --recorded-at 2026-08-11 \
-  --core-commit $contentCommit \
-  --editor-commit $d0Editor \
-  --backend-commit $d0Backend
+```powershell
+$contentCommit = git rev-parse HEAD
+$d0Editor = "43dcebb22735d7330fda0d57d4e7ce9a726e2454"
+$d0Backend = "280c4ffbe075cd5391cce5219e8f9c40fed16527"
+$actualEditor = git -C C:\Users\nekot\Documents\GitHub\flowdoc-vnext-editor rev-parse HEAD
+$actualBackend = git -C C:\Users\nekot\Documents\GitHub\flowdoc-vnext-backend rev-parse HEAD
+if ($actualEditor -ne $d0Editor -or $actualBackend -ne $d0Backend) { throw "D0 inspected reference changed" }
+if (git status --porcelain) { throw "Core content worktree is dirty before baseline publication" }
+if (git -C C:\Users\nekot\Documents\GitHub\flowdoc-vnext-editor status --porcelain) { throw "Editor is dirty before baseline publication" }
+if (git -C C:\Users\nekot\Documents\GitHub\flowdoc-vnext-backend status --porcelain) { throw "Backend is dirty before baseline publication" }
+$recordedAt = (Get-Date).ToString("yyyy-MM-dd")
+node scripts/publish-development-baseline.mjs --root . --baseline-id BASELINE-FLOWDOC-20260811-01 --recorded-at $recordedAt --core-commit $contentCommit --editor-commit $d0Editor --backend-commit $d0Backend
 ```
 
 Use the exact D0-approved Editor/Backend hashes if they differ from the planning
@@ -1542,21 +1686,29 @@ all compatibility values = not-verified
 releaseReady = false
 ```
 
+Add exactly this manifest entry, with no other manifest edit:
+
+```json
+{"documentId":"DOC-FLOWDOC-COORDINATION-DEVELOPMENT-BASELINE","title":"Development baseline","path":"docs/coordination/DEVELOPMENT_BASELINE.json","kind":"development-baseline","scope":"cross-repository","subsystem":"coordination","audience":"internal","authority":"normative","lifecycle":"active","appliesTo":{"repositoryIds":["REPO-FLOWDOC-CORE","REPO-FLOWDOC-EDITOR","REPO-FLOWDOC-BACKEND"],"releaseLines":["0.1"],"contractIds":[],"schemaIds":[]}}
+```
+
 - [ ] **Step 3: Generate Y navigation and run normal validation**
 
 ```powershell
-$contentCommit = git rev-parse HEAD
-$d0Editor = "43dcebb22735d7330fda0d57d4e7ce9a726e2454"
-$d0Backend = "280c4ffbe075cd5391cce5219e8f9c40fed16527"
-$actualEditor = git -C C:\Users\nekot\Documents\GitHub\flowdoc-vnext-editor rev-parse HEAD
-$actualBackend = git -C C:\Users\nekot\Documents\GitHub\flowdoc-vnext-backend rev-parse HEAD
-if ($actualEditor -ne $d0Editor -or $actualBackend -ne $d0Backend) { throw "D0 inspected reference changed" }
-if (git status --porcelain) { throw "Core content worktree is dirty before baseline publication" }
-if (git -C C:\Users\nekot\Documents\GitHub\flowdoc-vnext-editor status --porcelain) { throw "Editor is dirty before baseline publication" }
-if (git -C C:\Users\nekot\Documents\GitHub\flowdoc-vnext-backend status --porcelain) { throw "Backend is dirty before baseline publication" }
-$recordedAt = (Get-Date).ToString("yyyy-MM-dd")
-node scripts/publish-development-baseline.mjs --root . --baseline-id BASELINE-FLOWDOC-20260811-01 --recorded-at $recordedAt --core-commit $contentCommit --editor-commit $d0Editor --backend-commit $d0Backend
+$unchangedGeneratedPaths = @(
+  "docs/GLOSSARY.md",
+  "docs/GLOSSARY_TH.md",
+  "docs/versions/0_1/CAPABILITY_SET.md"
+)
+$unchangedGeneratedAtX = @{}
+foreach ($path in $unchangedGeneratedPaths) {
+  $unchangedGeneratedAtX[$path] = git rev-parse ($contentCommit + ":" + $path)
+}
 npm run docs:generate
+foreach ($path in $unchangedGeneratedPaths) {
+  $worktreeBlob = git hash-object -- $path
+  if ($worktreeBlob -ne $unchangedGeneratedAtX[$path]) { throw "$path changed even though its authored inputs did not change" }
+}
 npm run docs:check
 npx vitest run tests/canonicalDocumentationSpine.test.ts --maxWorkers=1
 npm run type-check
@@ -1564,45 +1716,77 @@ npm run test -- --maxWorkers=1
 git diff --check
 ```
 
+Expected: generation and checking cover all five approved generated outputs;
+only `DOCUMENT_MAP.md` and `VERSION_OVERVIEW.md` change. The two glossary
+outputs and `CAPABILITY_SET.md` retain their exact X blob IDs. The normal
+checker and the same committed focused tests now take the present-baseline
+path without a pending allowance.
+
 - [ ] **Step 4: Prove the baseline-only semantic boundary**
 
 Allowed Y changes:
 
 - `DEVELOPMENT_BASELINE.json`;
 - manifest registration of that exact baseline record;
-- deterministic navigation fields in the three generated views.
+- deterministic baseline navigation fields in `DOCUMENT_MAP.md` and
+  `VERSION_OVERVIEW.md`.
 
 No source, script, test, contract, risk, unknown, roadmap, version policy,
 compatibility prose, glossary meaning, release composition, package boundary,
-or AGENTS change is allowed. The publisher and all tests are already in X;
-only its output and deterministic baseline navigation enter Y.
+`CAPABILITY_SET.md`, or AGENTS change is allowed. The publisher and all tests
+are already in X; only its output, the exact manifest row, and the two named
+baseline-navigation projections enter Y. Capability content remains derived
+only from unchanged `release.json` selectors, so fabricating baseline-dependent
+capability prose is forbidden.
 
 Inspect:
 
 ```powershell
-git diff --name-only $contentCommit
-git diff -- docs/project docs/VERSION_POLICY.md docs/glossary.json docs/coordination/BOUNDARY.md docs/coordination/REPOSITORY_INDEX.json docs/versions/0_1/release.json src tests
+$expectedYPaths = @(
+  "docs/DOCUMENT_MAP.md",
+  "docs/coordination/DEVELOPMENT_BASELINE.json",
+  "docs/manifest.json",
+  "docs/versions/0_1/VERSION_OVERVIEW.md"
+)
+$actualYPaths = @(
+  git diff --name-only $contentCommit
+  git ls-files --others --exclude-standard
+) | Sort-Object -Unique
+if ($actualYPaths.Count -ne 4 -or (Compare-Object $expectedYPaths $actualYPaths)) { throw "Y differs from the exact four-path semantic boundary" }
+git diff --exit-code $contentCommit -- docs/GLOSSARY.md docs/GLOSSARY_TH.md docs/versions/0_1/CAPABILITY_SET.md docs/project docs/VERSION_POLICY.md docs/glossary.json docs/coordination/BOUNDARY.md docs/coordination/REPOSITORY_INDEX.json docs/versions/0_1/release.json scripts src tests package.json package-lock.json AGENTS.md
 ```
 
-The second command must be empty except the already-content-committed baseline-publication test/tool are outside the Y diff.
+The second command must be empty. Any fifth changed path is a blocker; do not
+stage around it.
 
 - [ ] **Step 5: Commit Y and verify the final tree**
 
 ```powershell
-git add -- docs/coordination/DEVELOPMENT_BASELINE.json docs/manifest.json docs/DOCUMENT_MAP.md docs/versions/0_1/VERSION_OVERVIEW.md docs/versions/0_1/CAPABILITY_SET.md
+git add -- docs/coordination/DEVELOPMENT_BASELINE.json docs/manifest.json docs/DOCUMENT_MAP.md docs/versions/0_1/VERSION_OVERVIEW.md
 git diff --cached --check
-git diff --cached --name-only
+$stagedYPaths = @(git diff --cached --name-only)
+if ($stagedYPaths.Count -ne 4 -or (Compare-Object $expectedYPaths $stagedYPaths)) { throw "staged Y scope differs from the exact four-path allowlist" }
+$unstagedYPaths = @(git diff --name-only)
+if ($unstagedYPaths.Count -ne 0) { throw "Y has an unstaged tracked change" }
 git commit -m "docs: publish development baseline"
+$yCommit = git rev-parse HEAD
+$committedYPaths = @(git diff --name-only $contentCommit $yCommit)
+if ($committedYPaths.Count -ne 4 -or (Compare-Object $expectedYPaths $committedYPaths)) { throw "committed X..Y scope differs from the exact four-path boundary" }
+$capabilitySetAtX = git rev-parse ($contentCommit + ":docs/versions/0_1/CAPABILITY_SET.md")
+$capabilitySetAtY = git rev-parse ($yCommit + ":docs/versions/0_1/CAPABILITY_SET.md")
+if ($capabilitySetAtX -ne $capabilitySetAtY) { throw "CAPABILITY_SET.md changed across X..Y" }
 npm run docs:check
 npx vitest run tests/canonicalDocumentationSpine.test.ts --maxWorkers=1
 npm run type-check
-npm run docs:check
 npm run test -- --maxWorkers=1
 git status --short
 git stash list --format='%H %gd %s' | Select-Object -First 1
 ```
 
-Expected Y staged paths: exactly five. Do not tag `v0.1.0-a.1`; release entry is outside this plan.
+Expected Y staged and committed paths: exactly four. The generator/checker
+still covers five generated outputs, and the capability-set blob is exactly
+unchanged across X..Y. Do not tag `v0.1.0-a.1`; release entry is outside this
+plan.
 
 ---
 
@@ -1620,6 +1804,13 @@ Request one final read-only review of exact X..Y and current tree. It must answe
   subset boundary, with only the three owned comment forms and supported
   URI/email autolinks?
 - Does the baseline pin X rather than Y, with no recursive self-hash?
+- Does exact X..Y contain only the four approved paths, while all five
+  generated outputs check clean and `CAPABILITY_SET.md` has the same blob in X
+  and Y?
+- Do the committed focused tests select absent/pending versus present/normal
+  behavior from baseline-file presence without any Task 6 test edit?
+- Is retained prevalidation/full-record state recursively immutable or
+  integrity-bound without rerunning raw ownership or full-record parsing?
 - Are Editor/Backend facts references only, not readiness ownership?
 - Is every runtime subsystem still explicitly unmigrated?
 - Are package/AGENTS/D3-D7 boundaries untouched?
@@ -1650,11 +1841,21 @@ D0-D2 is complete only when all are true:
   pre-validation before structural scans; only the three exact owned comment
   forms and valid task-specific URI/email autolinks are accepted, with no
   arbitrary CommonMark/HTML capability claim.
+- The same committed focused tests pass in absent/pending and present/normal
+  baseline states without a Task 6 test edit, and the present state proves the
+  exact baseline manifest row and parsed baseline/content-commit tuple.
+- Retained prevalidation, record candidates, metadata arrays, owned spans, and
+  exported full records are recursively immutable or integrity-bound, with no
+  second raw ownership or full-record parse.
 - Exactly one baseline record exists and pins content commit X.
-- Y changes only the baseline record, manifest registration, and deterministic navigation derived from the selected baseline ID.
+- Y changes exactly four paths: the baseline record, manifest registration,
+  `DOCUMENT_MAP.md`, and `VERSION_OVERVIEW.md`; all five generated outputs are
+  checked, while `CAPABILITY_SET.md` is byte-identical across X..Y because it
+  continues to derive only unchanged release selectors.
 - Release `0.1` remains planned, unversioned, not ready, with empty migrated capability/contract/gate sets.
 - Compatibility remains `not-verified` for all three relationships.
 - No runtime subsystem is claimed migrated.
 - No internal project memory/package boundary or AGENTS redesign is smuggled into D1-D2.
-- Both fresh reviews report no Critical or Important finding.
+- The initial Task 5 reviews, the post-fix scoped SDD re-review, and the final
+  closure review report no unresolved Critical or Important finding.
 - Working tree is clean, stash hash is unchanged, and no push/merge/tag occurred.
