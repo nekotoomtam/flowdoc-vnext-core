@@ -1582,14 +1582,31 @@ is the exact Core hash Task 6 publishes. The tree and index must be clean.
 - [ ] **Step 10: Complete the scoped SDD re-review before Task 5 completion**
 
 Request one fresh read-only SDD review of
-`e8bd0f369861e63a60d13a09b21bbdf5ff9ff9b2..$contentCommit`. It must verify
-both findings against the governing plan: exact pending/present behavior in
-the same committed tests, exact present manifest row and baseline tuple,
-recursive retained/exported-state immutability or integrity rejection, and
-preservation of the one raw pass/retained handoff with no ownership/full-record
-rerun. It must also verify the exact two-path correction scope. Task 5 is not
-complete and Task 6 must not begin unless this scoped re-review is READY with
-no Critical or Important finding.
+`6e9aae9cef576dddd1e5b62926470ba8a45767b1..$contentCommit`. The first commit
+is the exact governing-plan amendment/fix base immediately before the scoped
+implementation correction, so the review diff excludes the plan-only amendment
+and contains only the future correction. Use the amendment as governing review
+context, not as a third changed implementation path. Before dispatching review,
+require this exact changed set:
+
+```powershell
+$task5ReviewPaths = @(git diff --name-only 6e9aae9cef576dddd1e5b62926470ba8a45767b1 $contentCommit)
+$expectedTask5ReviewPaths = @(
+  "scripts/documentation/canonical-docs-model.mjs",
+  "tests/canonicalDocumentationSpine.test.ts"
+)
+if ($task5ReviewPaths.Count -ne 2 -or (Compare-Object $expectedTask5ReviewPaths $task5ReviewPaths)) { throw "Task 5 scoped review package differs from the exact two-path changed set" }
+```
+
+The review must verify both findings against the governing plan: exact
+pending/present behavior in the same committed tests, exact present manifest
+row and baseline tuple, recursive retained/exported-state immutability or
+integrity rejection, and preservation of the one raw pass/retained handoff
+with no ownership/full-record rerun. The only changed paths under review must
+be `scripts/documentation/canonical-docs-model.mjs` and
+`tests/canonicalDocumentationSpine.test.ts`. Task 5 is not complete and Task 6
+must not begin unless this scoped re-review is READY with no Critical or
+Important finding.
 
 After the READY verdict, record the final content boundary again:
 
