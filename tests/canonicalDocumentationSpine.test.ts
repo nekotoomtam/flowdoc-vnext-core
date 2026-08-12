@@ -2007,9 +2007,7 @@ A dual-status token is qualified.
 
   test("truth-plane positive ledger / real-root cross-category closure", () => {
     const root = process.cwd()
-    const check = runCli(root, "scripts/check-canonical-docs.mjs", "--allow-pending-baseline", BASELINE_ID)
-    expect(check.status, check.stderr).toBe(0)
-    const model = loadCanonicalDocumentationModel(root, { allowPendingBaselineId: BASELINE_ID })
+    const model = assertCanonicalBaselineState(root, task5ContentCommit())
     const workIds = new Set(model.embeddedRecords.filter((record: any) => record.recordKind === "work").map((record: any) => record.recordId))
     const motivatedIds = new Set(model.embeddedRecords.filter((record: any) => record.recordKind !== "work").map((record: any) => record.recordId))
     expect(model.embeddedRecords.filter((record: any) => record.recordKind === "unknown").flatMap((record: any) => record.closedBy).every((recordId: string) => workIds.has(recordId))).toBe(true)
