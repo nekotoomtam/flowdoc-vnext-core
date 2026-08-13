@@ -1722,22 +1722,9 @@ The package must remain runnable without any parent editor checkout.
   parity evidence for generation and artifact route contracts while keeping
   core de-export work gated by a compatibility window. See
   `docs/CORE_SERVICE_CONSUMER_MAP.md`.
-- Core Route De-export Plan selects one compatibility window for
-  `src/generation/apiRoute.ts` and `src/generation/artifactApiRoute.ts` before
-  removing route-shaped public exports, and requires retained-contract tests to
-  replace HTTP-shaped route helper assertions. See
-  `docs/CORE_ROUTE_DEEXPORT_PLAN.md`.
-- Core Route Deprecation Window applies Window B source-level `@deprecated`
-  markers to the route-shaped generation/artifact helpers while keeping public
-  exports stable. See `docs/CORE_ROUTE_DEPRECATION_WINDOW.md`.
-- Core Route Retained-Contract Test Rewrite replaces generation/artifact
-  route-helper test ownership with direct readiness, manifest, and artifact job
-  contract tests before Window C public export removal. See
-  `docs/CORE_ROUTE_RETAINED_CONTRACT_TEST_REWRITE.md`.
-- Core Route Window C Public Export Removal removes route-shaped
-  generation/artifact modules from `src/index.ts` while keeping retained
-  readiness, artifact manifest, and artifact job contracts public. See
-  `docs/CORE_ROUTE_WINDOW_C_PUBLIC_EXPORT_REMOVAL.md`.
+- Core route ownership, compatibility-window history, retained contracts, and
+  migration status are consolidated in the canonical Project Control
+  [Core route overview](https://github.com/nekotoomtam/flowdoc-project-control/blob/main/docs/versions/V0_1_0a_1/core/core-route/OVERVIEW.md).
 - Core Session Rich Workflow Split Map separates the next three
   split-before-move areas into session package snapshot facts, rich-inline
   replay validation facts, and submission workflow identity/status facts before
@@ -1866,14 +1853,8 @@ The package must remain runnable without any parent editor checkout.
   exports are de-exported from core
 - `docs/CORE_SERVICE_CONSUMER_MAP.md`: cross-repo consumer map with backend
   route parity evidence before controlled service-shaped export cleanup
-- `docs/CORE_ROUTE_DEEXPORT_PLAN.md`: controlled compatibility-window plan
-  before route-shaped generation/artifact API exports leave public core
-- `docs/CORE_ROUTE_DEPRECATION_WINDOW.md`: Window B deprecation marker record
-  for route-shaped generation/artifact API helpers
-- `docs/CORE_ROUTE_RETAINED_CONTRACT_TEST_REWRITE.md`: Phase 230 rewrite that
-  removes route-helper test ownership before Window C export removal
-- `docs/CORE_ROUTE_WINDOW_C_PUBLIC_EXPORT_REMOVAL.md`: Phase 231 removal of
-  route-shaped generation/artifact modules from the public core entrypoint
+- [Core route overview](https://github.com/nekotoomtam/flowdoc-project-control/blob/main/docs/versions/V0_1_0a_1/core/core-route/OVERVIEW.md): canonical Project Control navigation for route ownership,
+  compatibility-window history, retained contracts, and migration status
 - `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`: Phase 232 split map for
   session package snapshots, rich-inline replay validation, and submission
   workflow identity/status facts
