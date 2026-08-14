@@ -1724,7 +1724,7 @@ The package must remain runnable without any parent editor checkout.
   `docs/CORE_SERVICE_CONSUMER_MAP.md`.
 - Core route ownership, compatibility-window history, retained contracts, and
   migration status are consolidated in the canonical Project Control
-  [Core route overview](https://github.com/nekotoomtam/flowdoc-project-control/blob/main/docs/versions/V0_1_0a_1/core/core-route/OVERVIEW.md).
+  [Core route overview](https://github.com/nekotoomtam/flowdoc-project-control/blob/c9aa003237a5fff8f274b5e7b279ab3125f6bc8c/docs/versions/V0_1_0a_1/core/core-route/OVERVIEW.md).
 - Core Session Rich Workflow Split Map separates the next three
   split-before-move areas into session package snapshot facts, rich-inline
   replay validation facts, and submission workflow identity/status facts before
@@ -1853,7 +1853,7 @@ The package must remain runnable without any parent editor checkout.
   exports are de-exported from core
 - `docs/CORE_SERVICE_CONSUMER_MAP.md`: cross-repo consumer map with backend
   route parity evidence before controlled service-shaped export cleanup
-- [Core route overview](https://github.com/nekotoomtam/flowdoc-project-control/blob/main/docs/versions/V0_1_0a_1/core/core-route/OVERVIEW.md): canonical Project Control navigation for route ownership,
+- [Core route overview](https://github.com/nekotoomtam/flowdoc-project-control/blob/c9aa003237a5fff8f274b5e7b279ab3125f6bc8c/docs/versions/V0_1_0a_1/core/core-route/OVERVIEW.md): canonical Project Control navigation for route ownership,
   compatibility-window history, retained contracts, and migration status
 - `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`: Phase 232 split map for
   session package snapshots, rich-inline replay validation, and submission

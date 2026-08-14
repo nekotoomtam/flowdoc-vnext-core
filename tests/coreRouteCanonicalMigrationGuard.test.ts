@@ -68,6 +68,110 @@ const EXPECTED_RETAINED_IMPORTS = {
 
 const MULTI_BLOCK_SENTINEL = "VNextGenerationReadinessResult"
 
+const projectControlClosedTruthCommit = "c9aa003237a5fff8f274b5e7b279ab3125f6bc8c"
+const immutableOverviewUrl =
+  `https://github.com/nekotoomtam/flowdoc-project-control/blob/${projectControlClosedTruthCommit}/docs/versions/V0_1_0a_1/core/core-route/OVERVIEW.md`
+const coreRouteSources = [
+  ["docs/", "CORE_ROUTE_DEEXPORT_PLAN.md"].join(""),
+  ["docs/", "CORE_ROUTE_DEPRECATION_WINDOW.md"].join(""),
+  ["docs/", "CORE_ROUTE_RETAINED_CONTRACT_TEST_REWRITE.md"].join(""),
+  ["docs/", "CORE_ROUTE_WINDOW_C_PUBLIC_EXPORT_REMOVAL.md"].join(""),
+] as const
+
+function canonicalOverviewLinks(source: string): RegExpMatchArray[] {
+  return Array.from(source.matchAll(
+    /https:\/\/github\.com\/nekotoomtam\/flowdoc-project-control\/blob\/(?<commit>[^/\s)]+)\/docs\/versions\/V0_1_0a_1\/core\/core-route\/OVERVIEW\.md[^\s)]*/g,
+  ))
+}
+
+function expectCanonicalOverviewNavigation(source: string): void {
+  const links = canonicalOverviewLinks(source)
+
+  expect(links).toHaveLength(2)
+  expect(links.map((match) => match[0])).toEqual([
+    immutableOverviewUrl,
+    immutableOverviewUrl,
+  ])
+  expect(links.map((match) => match.groups?.commit)).toEqual([
+    projectControlClosedTruthCommit,
+    projectControlClosedTruthCommit,
+  ])
+  expect(source).not.toContain("flowdoc-project-control/blob/main/")
+  for (const commit of links.map((match) => match.groups?.commit)) {
+    expect(commit).toMatch(/^[0-9a-f]{40}$/)
+  }
+  for (const oldPath of coreRouteSources) {
+    expect(source).not.toContain(oldPath)
+  }
+}
+
+describe("immutable canonical Core route navigation mutations", () => {
+  const validNavigation = [
+    `[first](${immutableOverviewUrl})`,
+    `[second](${immutableOverviewUrl})`,
+  ].join("\n")
+  const differentCommit = "0".repeat(40)
+  const expectedCoreRouteSources = [
+    ["docs/CORE_ROUTE_", "DEEXPORT_PLAN.md"].join(""),
+    ["docs/CORE_ROUTE_", "DEPRECATION_WINDOW.md"].join(""),
+    ["docs/CORE_ROUTE_RETAINED_", "CONTRACT_TEST_REWRITE.md"].join(""),
+    ["docs/CORE_ROUTE_WINDOW_", "C_PUBLIC_EXPORT_REMOVAL.md"].join(""),
+  ]
+
+  it("retains the exact four old source paths as runtime values", () => {
+    expect(coreRouteSources).toEqual(expectedCoreRouteSources)
+  })
+
+  it("stores no complete old source path contiguously in the tracked guard", () => {
+    const guardSource = readText("tests/coreRouteCanonicalMigrationGuard.test.ts")
+
+    for (const oldPath of coreRouteSources) {
+      expect(guardSource).not.toContain(oldPath)
+    }
+  })
+
+  it("accepts exactly two canonical links at the frozen Project Control truth", () => {
+    expectCanonicalOverviewNavigation(validNavigation)
+  })
+
+  it.each([
+    {
+      name: "a third canonical URL",
+      mutate: (source: string) => `${source}\n[third](${immutableOverviewUrl})`,
+    },
+    {
+      name: "a different immutable commit",
+      mutate: (source: string) => source.replace(
+        immutableOverviewUrl,
+        immutableOverviewUrl.replace(projectControlClosedTruthCommit, differentCommit),
+      ),
+    },
+    {
+      name: "blob/main",
+      mutate: (source: string) => source.replace(
+        immutableOverviewUrl,
+        immutableOverviewUrl.replace(projectControlClosedTruthCommit, "main"),
+      ),
+    },
+    {
+      name: "a canonical URL suffix or query",
+      mutate: (source: string) => source.replace(
+        immutableOverviewUrl,
+        `${immutableOverviewUrl}?view=1`,
+      ),
+    },
+    {
+      name: "an old removed source path",
+      mutate: (source: string) => `${source}\n${coreRouteSources[0]}`,
+    },
+  ])("rejects $name", ({ mutate }) => {
+    const mutatedNavigation = mutate(validNavigation)
+
+    expect(mutatedNavigation).not.toBe(validNavigation)
+    expect(() => expectCanonicalOverviewNavigation(mutatedNavigation)).toThrow()
+  })
+})
+
 describe("named Core import collection mutations", () => {
   for (const retainedTest of Object.keys(RETAINED_IMPORT_BLOCKS) as Array<keyof typeof RETAINED_IMPORT_BLOCKS>) {
     for (const forbiddenHelper of FORBIDDEN_ROUTE_RESPONSE_HELPERS) {
@@ -95,6 +199,10 @@ describe("named Core import collection mutations", () => {
 })
 
 describe("canonical Core route migration guard", () => {
+  it("pins every canonical overview link to immutable Project Control truth", () => {
+    expectCanonicalOverviewNavigation(readText("README.md"))
+  })
+
   it("keeps route-shaped modules internal while retained contracts stay public", () => {
     const index = readText("src/index.ts")
     const generationRoute = readText("src/generation/apiRoute.ts")
