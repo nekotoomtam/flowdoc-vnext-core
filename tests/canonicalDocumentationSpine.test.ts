@@ -352,13 +352,71 @@ function loadPending(root: string) {
   return loadCanonicalDocumentationModel(root, { allowPendingBaselineId: BASELINE_ID })
 }
 
-function task5ContentCommit(): string {
-  const repositoryRoot = process.cwd()
-  const baselineAtHead = runGit(repositoryRoot, "cat-file", "-e", `HEAD:${DEVELOPMENT_BASELINE_PATH}`)
-  const revision = baselineAtHead.status === 0 ? "HEAD^" : "HEAD"
-  const resolved = runGit(repositoryRoot, "rev-parse", revision)
-  if (resolved.status !== 0) throw new Error(resolved.stderr)
-  return resolved.stdout.trim()
+const LOWERCASE_GIT_COMMIT = /^[0-9a-f]{40}$/
+const BASELINE_HISTORY_ERROR = "Unable to resolve baseline publication history."
+
+function parseUniqueBaselineAddCommit(stdout: string): string {
+  const match = /^([0-9a-f]{40})(?:\r?\n)?$/.exec(stdout)
+  if (!match) throw new Error(BASELINE_HISTORY_ERROR)
+  return match[1]
+}
+
+function parseSingleParentCommit(stdout: string, expectedCommit: string): string {
+  if (!LOWERCASE_GIT_COMMIT.test(expectedCommit)) throw new Error(BASELINE_HISTORY_ERROR)
+  const match = /^([0-9a-f]{40}) ([0-9a-f]{40})(?:\r?\n)?$/.exec(stdout)
+  if (!match || match[1] !== expectedCommit) throw new Error(BASELINE_HISTORY_ERROR)
+  return match[2]
+}
+
+function baselineHistoryGit(root: string, ...args: string[]): string {
+  const result = runGit(root, ...args)
+  if (result.error || result.signal || result.status !== 0 || typeof result.stdout !== "string") {
+    throw new Error(BASELINE_HISTORY_ERROR)
+  }
+  return result.stdout
+}
+
+function requireBaselinePathState(root: string, commit: string, expectedPresent: boolean): void {
+  const stdout = baselineHistoryGit(root, "ls-tree", "--full-name", "--name-only", commit, "--", DEVELOPMENT_BASELINE_PATH)
+  const matchesExpectedState = expectedPresent
+    ? stdout === `${DEVELOPMENT_BASELINE_PATH}\n` || stdout === `${DEVELOPMENT_BASELINE_PATH}\r\n`
+    : stdout === ""
+  if (!matchesExpectedState) throw new Error(BASELINE_HISTORY_ERROR)
+}
+
+function task5ContentCommit(repositoryRoot = process.cwd()): string {
+  const addCommit = parseUniqueBaselineAddCommit(baselineHistoryGit(
+    repositoryRoot,
+    "log",
+    "HEAD",
+    "--full-history",
+    "--diff-filter=A",
+    "--format=%H",
+    "--",
+    DEVELOPMENT_BASELINE_PATH,
+  ))
+  const parent = parseSingleParentCommit(
+    baselineHistoryGit(repositoryRoot, "rev-list", "--parents", "-n", "1", addCommit),
+    addCommit,
+  )
+  requireBaselinePathState(repositoryRoot, addCommit, true)
+  requireBaselinePathState(repositoryRoot, parent, false)
+  return parent
+}
+
+function task5ContentCommitAt(root: string): string {
+  return task5ContentCommit(root)
+}
+
+function baselineHistoryFixture(): { root: string; contentCommit: string; publicationCommit: string } {
+  const root = mkdtempSync(join(tmpdir(), "flowdoc-baseline-history-"))
+  fixtureRoots.push(root)
+  initializeFixtureRepository(root)
+  write(root, "content.txt", "canonical content\n")
+  const contentCommit = commitFixture(root, "canonical content")
+  write(root, DEVELOPMENT_BASELINE_PATH, { baseline: true })
+  const publicationCommit = commitFixture(root, "publish development baseline")
+  return { root, contentCommit, publicationCommit }
 }
 
 function assertCanonicalBaselineState(root: string, contentCommit: string): any {
@@ -887,6 +945,80 @@ const TRUTH_PLANE_POSITIVE_LEDGER: { name: string, mutation: (root: string) => v
 ]
 
 describe("canonical documentation spine", () => {
+  test("resolves the unique baseline publication parent before and after later descendant commits", () => {
+    const { root, contentCommit } = baselineHistoryFixture()
+    expect(task5ContentCommitAt(root)).toBe(contentCommit)
+
+    write(root, "later.txt", "later descendant\n")
+    commitFixture(root, "later descendant")
+    expect(task5ContentCommitAt(root)).toBe(contentCommit)
+  })
+
+  test("fails closed when reachable history has zero or multiple baseline additions", () => {
+    const zeroRoot = mkdtempSync(join(tmpdir(), "flowdoc-baseline-history-zero-"))
+    fixtureRoots.push(zeroRoot)
+    initializeFixtureRepository(zeroRoot)
+    write(zeroRoot, "content.txt", "no baseline\n")
+    commitFixture(zeroRoot, "content without baseline")
+    expect(() => task5ContentCommitAt(zeroRoot)).toThrow(/baseline publication history/i)
+
+    const multiple = baselineHistoryFixture()
+    rmSync(join(multiple.root, DEVELOPMENT_BASELINE_PATH))
+    commitFixture(multiple.root, "remove development baseline")
+    write(multiple.root, DEVELOPMENT_BASELINE_PATH, { baseline: "republished" })
+    commitFixture(multiple.root, "republish development baseline")
+    expect(() => task5ContentCommitAt(multiple.root)).toThrow(/baseline publication history/i)
+  })
+
+  test("fails closed when the baseline is added by a root commit or Git history cannot be resolved", () => {
+    const rootAdd = mkdtempSync(join(tmpdir(), "flowdoc-baseline-history-root-"))
+    fixtureRoots.push(rootAdd)
+    initializeFixtureRepository(rootAdd)
+    write(rootAdd, DEVELOPMENT_BASELINE_PATH, { baseline: true })
+    commitFixture(rootAdd, "root baseline publication")
+    expect(() => task5ContentCommitAt(rootAdd)).toThrow(/baseline publication history/i)
+
+    const noHistory = mkdtempSync(join(tmpdir(), "flowdoc-baseline-history-invalid-"))
+    fixtureRoots.push(noHistory)
+    expect(() => task5ContentCommitAt(noHistory)).toThrow(/baseline publication history/i)
+  })
+
+  test.each([
+    ["empty", ""],
+    ["duplicate", `${"1".repeat(40)}\n${"1".repeat(40)}\n`],
+    ["multiple", `${"1".repeat(40)}\n${"2".repeat(40)}\n`],
+    ["short", "1".repeat(39)],
+    ["nonhex", "g".repeat(40)],
+    ["uppercase", "A".repeat(40)],
+    ["extra fields", `${"1".repeat(40)} unexpected`],
+  ])("rejects %s baseline-add output", (_name, stdout) => {
+    expect(() => parseUniqueBaselineAddCommit(stdout)).toThrow(/baseline publication history/i)
+  })
+
+  test("parses one exact lowercase baseline-add commit", () => {
+    const commit = "1".repeat(40)
+    expect(parseUniqueBaselineAddCommit(`${commit}\n`)).toBe(commit)
+  })
+
+  test.each([
+    ["empty", ""],
+    ["duplicate lines", `${"1".repeat(40)} ${"2".repeat(40)}\n${"1".repeat(40)} ${"2".repeat(40)}\n`],
+    ["root commit", `${"1".repeat(40)}\n`],
+    ["short parent", `${"1".repeat(40)} ${"2".repeat(39)}\n`],
+    ["nonhex parent", `${"1".repeat(40)} ${"g".repeat(40)}\n`],
+    ["uppercase parent", `${"1".repeat(40)} ${"A".repeat(40)}\n`],
+    ["multiple parents", `${"1".repeat(40)} ${"2".repeat(40)} ${"3".repeat(40)}\n`],
+    ["wrong commit", `${"4".repeat(40)} ${"2".repeat(40)}\n`],
+  ])("rejects %s baseline-parent output", (_name, stdout) => {
+    expect(() => parseSingleParentCommit(stdout, "1".repeat(40))).toThrow(/baseline publication history/i)
+  })
+
+  test("parses the sole parent of the exact baseline-add commit", () => {
+    const commit = "1".repeat(40)
+    const parent = "2".repeat(40)
+    expect(parseSingleParentCommit(`${commit} ${parent}\n`, commit)).toBe(parent)
+  })
+
   test("loads the approved pending-baseline model without publishing a baseline record", () => {
     const root = fixture()
     const model = loadPending(root)
