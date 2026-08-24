@@ -255,13 +255,8 @@ describe("PDF-PILOT-08B-R2C-M canonical full-document renderer execution", () =>
   })
 
   it("publishes reproducible structural evidence without retaining external bytes or claiming visual fidelity", () => {
-    const proof = readFileSync(resolve(
-      process.cwd(),
-      "docs/PDF_CANONICAL_FULL_DOCUMENT_RENDERER_PROOF.md",
-    ), "utf8")
-    const pilot = readFileSync(resolve(process.cwd(), "docs/PDF_REPORT_FIDELITY_PILOT.md"), "utf8")
-    const ledger = readFileSync(resolve(process.cwd(), "docs/PHASE_LEDGER.md"), "utf8")
-    const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8")
+
+
     const packageReadme = readFileSync(resolve(process.cwd(), "packages/pdf-renderer-pilot/README.md"), "utf8")
     const packageJson = readJson<any>("packages/pdf-renderer-pilot/package.json")
     const builder = readFileSync(resolve(
@@ -273,11 +268,7 @@ describe("PDF-PILOT-08B-R2C-M canonical full-document renderer execution", () =>
       "packages/pdf-renderer-pilot/scripts/inspect-canonical-full-document-proof.py",
     ), "utf8")
 
-    expect(proof).toContain("Status: PDF-PILOT-08B-R2C-M deterministic thirteen-page PDF execution and")
-    expect(proof).toContain("visual fidelity remains pending")
-    expect(pilot).toContain("## PDF-PILOT-08B-R2C-M Scope")
-    expect(ledger).toContain("## PDF-PILOT-08B-R2C-M Full-Document Renderer Execution")
-    expect(readme).toContain("PDF canonical full-document execution")
+
     expect(packageReadme).toContain("Full-Document Renderer Execution")
     expect(packageJson.scripts).toMatchObject({
       "build:full-document-subsets": "npm run build:full-document-regular-subset && npm run build:full-document-bold-subset",

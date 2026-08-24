@@ -186,13 +186,8 @@ describe("PDF-PILOT-08A canonical report content parity", () => {
     const phase07 = readJson<any>(
       "packages/pdf-renderer-pilot/fixtures/canonical-report-twelve-page-summary.v1.json",
     )
-    const doc = readFileSync(resolve(
-      process.cwd(),
-      "docs/PDF_CANONICAL_REPORT_CONTENT_PARITY_PROOF.md",
-    ), "utf8")
-    const pilot = readFileSync(resolve(process.cwd(), "docs/PDF_REPORT_FIDELITY_PILOT.md"), "utf8")
-    const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8")
-    const ledger = readFileSync(resolve(process.cwd(), "docs/PHASE_LEDGER.md"), "utf8")
+
+
     const builder = readFileSync(resolve(
       process.cwd(),
       "packages/pdf-renderer-pilot/scripts/build-canonical-report-request.mjs",
@@ -262,10 +257,7 @@ describe("PDF-PILOT-08A canonical report content parity", () => {
     ))).toBe(false)
     expect(builder).toContain("--content-parity-manifest")
     expect(builder).toContain("External content parity source does not match the pinned identity.")
-    expect(doc).toContain("Status: PDF-PILOT-08A decision-content parity proof accepted.")
-    expect(doc).toContain("Next phase: `PDF-PILOT-08B` typography and layout calibration.")
-    expect(pilot).toContain("## PDF-PILOT-08A Scope")
-    expect(readme).toContain("PDF canonical report decision-content parity")
-    expect(ledger).toContain("## PDF-PILOT-08A Canonical Report Decision-Content Parity")
+
+
   })
 })

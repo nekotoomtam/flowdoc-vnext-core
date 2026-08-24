@@ -275,13 +275,8 @@ describe("PDF-PILOT-08B-R2C-A canonical report display formatting", () => {
     const qa = readJson<any>(
       "packages/pdf-renderer-pilot/fixtures/canonical-report-display-formatting-qa.v1.json",
     )
-    const proof = readFileSync(resolve(
-      process.cwd(),
-      "docs/PDF_CANONICAL_REPORT_DISPLAY_FORMATTING_PROOF.md",
-    ), "utf8")
-    const pilot = readFileSync(resolve(process.cwd(), "docs/PDF_REPORT_FIDELITY_PILOT.md"), "utf8")
-    const ledger = readFileSync(resolve(process.cwd(), "docs/PHASE_LEDGER.md"), "utf8")
-    const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8")
+
+
     const packageJson = readJson<any>("packages/pdf-renderer-pilot/package.json")
     expect(qa).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-A",
@@ -301,10 +296,8 @@ describe("PDF-PILOT-08B-R2C-A canonical report display formatting", () => {
         pdfRendering: "not-run",
       },
     })
-    expect(proof).toContain("Status: PDF-PILOT-08B-R2C-A typed display formatting accepted.")
-    expect(pilot).toContain("## PDF-PILOT-08B-R2C-A Scope")
-    expect(ledger).toContain("## PDF-PILOT-08B-R2C-A Typed Display Formatting")
-    expect(readme).toContain("PDF canonical report typed display formatting")
+
+
     expect(packageJson.scripts["build:report-display-formatting"]).toBe(
       "node scripts/build-canonical-report-display-formatting.mjs",
     )

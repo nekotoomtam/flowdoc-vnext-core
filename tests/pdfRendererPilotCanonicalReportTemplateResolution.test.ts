@@ -233,13 +233,8 @@ describe("PDF-PILOT-08B-R2B canonical report template and resolution", () => {
     const qa = readJson<any>(
       "packages/pdf-renderer-pilot/fixtures/canonical-report-template-resolution-qa.v1.json",
     )
-    const proof = readFileSync(resolve(
-      process.cwd(),
-      "docs/PDF_CANONICAL_REPORT_TEMPLATE_RESOLUTION_PROOF.md",
-    ), "utf8")
-    const pilot = readFileSync(resolve(process.cwd(), "docs/PDF_REPORT_FIDELITY_PILOT.md"), "utf8")
-    const ledger = readFileSync(resolve(process.cwd(), "docs/PHASE_LEDGER.md"), "utf8")
-    const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8")
+
+
     const packageJson = readJson<any>("packages/pdf-renderer-pilot/package.json")
 
     expect(qa).toMatchObject({
@@ -265,10 +260,8 @@ describe("PDF-PILOT-08B-R2B canonical report template and resolution", () => {
         productionPdfClaimed: false,
       },
     })
-    expect(proof).toContain("Status: PDF-PILOT-08B-R2B canonical report template and resolution accepted.")
-    expect(pilot).toContain("## PDF-PILOT-08B-R2B Scope")
-    expect(ledger).toContain("## PDF-PILOT-08B-R2B Canonical Report Template And Resolution")
-    expect(readme).toContain("PDF canonical report template and resolution")
+
+
     expect(packageJson.scripts["build:report-template-resolution"]).toBe(
       "node scripts/build-canonical-report-template-resolution.mjs",
     )

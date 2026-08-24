@@ -209,10 +209,8 @@ describe("PDF-PILOT-06 all-five-image multi-page resource matrix", () => {
     const request = readJson<any>("fixtures/pdf-pilot-all-five-images-five-page-request.v1.json")
     const summary = readJson<any>("packages/pdf-renderer-pilot/fixtures/all-five-images-five-page-summary.v1.json")
     const qa = readJson<any>("packages/pdf-renderer-pilot/fixtures/all-five-images-five-page-qa.v1.json")
-    const doc = readFileSync(resolve(process.cwd(), "docs/PDF_ALL_IMAGES_RESOURCE_MATRIX.md"), "utf8")
-    const pilot = readFileSync(resolve(process.cwd(), "docs/PDF_REPORT_FIDELITY_PILOT.md"), "utf8")
-    const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8")
-    const ledger = readFileSync(resolve(process.cwd(), "docs/PHASE_LEDGER.md"), "utf8")
+
+
     const builder = readFileSync(resolve(
       process.cwd(),
       "packages/pdf-renderer-pilot/scripts/build-all-images-multi-page-proof-runtime.ts",
@@ -288,10 +286,7 @@ describe("PDF-PILOT-06 all-five-image multi-page resource matrix", () => {
     })
     expect(builder).toContain("FLOWDOC_PDF_PILOT_REPORT_ASSET_ROOT")
     expect(builder).not.toMatch(/[A-Z]:\\Users\\/u)
-    expect(doc).toContain("Status: PDF-PILOT-06 all-five-image multi-page resource matrix accepted.")
-    expect(doc).toContain("Next phase: `PDF-PILOT-07` canonical 12-page report composition fixture.")
-    expect(pilot).toContain("## PDF-PILOT-06 Scope")
-    expect(readme).toContain("PDF all-images resource matrix")
-    expect(ledger).toContain("## PDF-PILOT-06 All-Five-Image Multi-Page Resource Matrix")
+
+
   })
 })

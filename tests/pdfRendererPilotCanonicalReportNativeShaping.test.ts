@@ -235,13 +235,8 @@ describe("PDF-PILOT-08B-R2C-D canonical report native shaping", () => {
     const qa = readJson<any>(
       "packages/pdf-renderer-pilot/fixtures/canonical-report-native-shaping-qa.v1.json",
     )
-    const proof = readFileSync(resolve(
-      process.cwd(),
-      "docs/PDF_CANONICAL_REPORT_NATIVE_SHAPING_PROOF.md",
-    ), "utf8")
-    const pilot = readFileSync(resolve(process.cwd(), "docs/PDF_REPORT_FIDELITY_PILOT.md"), "utf8")
-    const ledger = readFileSync(resolve(process.cwd(), "docs/PHASE_LEDGER.md"), "utf8")
-    const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8")
+
+
     const packageJson = readJson<any>("packages/pdf-renderer-pilot/package.json")
     expect(qa).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-D",
@@ -260,10 +255,8 @@ describe("PDF-PILOT-08B-R2C-D canonical report native shaping", () => {
       boundary: { nativeRustybuzzShaping: "executed", lineBoxes: "not-run", pagination: "not-run" },
       nextPhase: "PDF-PILOT-08B-R2C-E concrete ICU4X and line-height binding for line-break execution",
     })
-    expect(proof).toContain("Status: PDF-PILOT-08B-R2C-D native shaping accepted.")
-    expect(pilot).toContain("## PDF-PILOT-08B-R2C-D Scope")
-    expect(ledger).toContain("## PDF-PILOT-08B-R2C-D Native Rustybuzz Shaping Execution")
-    expect(readme).toContain("PDF canonical report native shaping")
+
+
     expect(packageJson.scripts["build:report-native-shaping"]).toBe(
       "node scripts/build-canonical-report-native-shaping.mjs",
     )

@@ -183,10 +183,8 @@ describe("PDF-PILOT-04 digest-bound image and complete one-page paint proof", ()
     const summary = readJson<any>("packages/pdf-renderer-pilot/fixtures/image-one-page-proof-summary.v1.json")
     const qa = readJson<any>("packages/pdf-renderer-pilot/fixtures/image-one-page-proof-qa.v1.json")
     const pinned = corpus.referenceArtifacts.find((artifact: any) => artifact.artifactId === "ocr-accuracy-image")
-    const doc = readFileSync(resolve(process.cwd(), "docs/PDF_IMAGE_ONE_PAGE_RENDERER_PROOF.md"), "utf8")
-    const pilot = readFileSync(resolve(process.cwd(), "docs/PDF_REPORT_FIDELITY_PILOT.md"), "utf8")
-    const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8")
-    const ledger = readFileSync(resolve(process.cwd(), "docs/PHASE_LEDGER.md"), "utf8")
+
+
     const builder = readFileSync(resolve(
       process.cwd(),
       "packages/pdf-renderer-pilot/scripts/build-image-one-page-proof-runtime.ts",
@@ -246,10 +244,7 @@ describe("PDF-PILOT-04 digest-bound image and complete one-page paint proof", ()
     ))).toBe(false)
     expect(builder).toContain("FLOWDOC_PDF_PILOT_OCR_ACCURACY_IMAGE")
     expect(builder).not.toMatch(/[A-Z]:\\Users\\/u)
-    expect(doc).toContain("Status: PDF-PILOT-04 digest-bound image and complete one-page paint proof accepted.")
-    expect(doc).toContain("Next phase: `PDF-PILOT-05` multi-page font/image resource reuse proof.")
-    expect(pilot).toContain("## PDF-PILOT-04 Scope")
-    expect(readme).toContain("PDF image one-page renderer proof")
-    expect(ledger).toContain("## PDF-PILOT-04 Digest-Bound Image One-Page Paint Proof")
+
+
   })
 })

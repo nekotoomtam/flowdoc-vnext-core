@@ -53,7 +53,6 @@ The package must remain runnable without any parent editor checkout.
   - `fixtures/product-report-vnext-baseline.flowdoc.json`
   - `fixtures/product-report-vnext-minimal.flowdoc.json`
   - `fixtures/reorder-blocked-target-qa.flowdoc.json`
-  - role definitions: `docs/FIXTURE_ROLES.md`
 - Node v1 inventory audit records the current canonical, graph, operation,
   pagination, backend-passage, and product-presentation coverage before
   text-block grammar and image contracts change the schema.
@@ -187,9 +186,8 @@ The package must remain runnable without any parent editor checkout.
   transition and the 128-line exclusion row is inactive. Text/style,
   semantic-only, authored-box, fixed-height, exclusion, empty-block,
   alternate-history, Worker, Editor, Backend, production, and V1 retirement
-  remain inactive. Evidence:
-  `docs/LIVE_DRAFT_MR1_UNIFIED_INCREMENTAL_ROOT_5B.md`,
-  `fixtures/live-draft-unified-incremental-root-5b-manifest.v1.json`, and
+  remain inactive. Evidence includes
+  `fixtures/live-draft-unified-incremental-root-5b-manifest.v1.json` and
   `tests/liveDraftMr1UnifiedIncrementalRoot5b.test.ts`. The final focused gate
   passed 12 files / 142 tests; the complete Core gate passed 453 files / 2,512
   tests plus type-check. Phase 5B-2 remains stopped pending explicit review and
@@ -1904,17 +1902,12 @@ The package must remain runnable without any parent editor checkout.
 - `docs/TEXT_BLOCK_V1_GRAMMAR_VALIDATOR.md`: Phase 249 pure validator,
   deterministic normalization planner/apply boundary, and product fixture
   acceptance evidence
-- `docs/TEXT_BLOCK_V1_PRODUCER_ALIGNMENT.md`: Phase 250 table row/column
-  producer alignment with canonical empty `children: []` text-blocks
 - `docs/TEXT_BLOCK_V1_VERSION_MIGRATION_DECISION.md`: Phase 251 active
   package v2/document v3 compatibility, target document v4, explicit
   copy-forward migration, and activation gate decision
 - `docs/IMAGE_SOURCE_CONTRACT.md`: Phase 252 package v3/document v4 image asset
   manifest, static/field source union, inline/block placement, and lifecycle
   ownership decision
-- `docs/PACKAGE_V3_IMAGE_TARGET_SCHEMAS.md`: Phase 253 isolated ImageAssetRegistry
-  v1, DataSnapshot v2, and image field-to-asset validation without active parser
-  changes
 - `docs/DOCUMENT_V4_IMAGE_TARGET_SCHEMAS.md`: Phase 254 isolated shared image
   source/frame/accessibility, target text-block inline-image, block image, and
   source-reference validation schemas
@@ -1929,10 +1922,6 @@ The package must remain runnable without any parent editor checkout.
   and source unknown-key loss guard
 - `docs/VERSION_CAPABILITY_CONTRACT.md`: Phase 258 core version-pair capability
   facts and cross-repo reporting boundary
-- `docs/READ_ONLY_RUNTIME_V4.md`: Phase 260 isolated v4 structural read session,
-  capability lock, and downstream consumer boundary
-- `docs/DOCUMENT_V4_REORDER_OPERATION.md`: Phase 262 operation-granular
-  capability and same-parent v4 reorder vertical slice
 - `docs/DOCUMENT_V4_DELETE_OPERATION.md`: Phase 263 block-subtree deletion,
   registry retention, and downstream mutation boundary
 - `docs/DOCUMENT_V4_DUPLICATE_OPERATION.md`: Phase 264 block-subtree duplicate,
@@ -1953,18 +1942,12 @@ The package must remain runnable without any parent editor checkout.
   ownership, binding precedence, effective denials, containment, and cardinality
 - `docs/WORKSPACE_BOUNDARY.md`: active project/package boundary
 - `docs/LEGACY_MIGRATION_GATE.md`: decision gate before moving old code
-- `docs/TEMPLATE_AUTHORING_CORE_PLAN.md`: draft architecture reset for the
-  dynamic node-based docgen template builder
 - `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`: implementation phases for the
   template authoring architecture reset
-- `docs/SHARED_TEMPLATE_CORE_CONTRACT.md`: shared browser/Node-safe core
-  contract for authoring and generation runtimes
 - `docs/NODE_FAMILY_CAPABILITY_MODEL.md`: node family, containment, and
   capability model that prevents prototype-style node proliferation
 - `docs/FRONTEND_AUTHORING_RUNTIME_PLAN.md`: frontend editing/runtime plan for
   smooth typing, selection, IME, dirty scopes, and checkpointing
-- `docs/TEXT_EDITING_TRANSACTION_PLAN.md`: granular text transaction direction
-  for typing, split/merge, inline fields, and history grouping
 - `docs/DURABLE_HISTORY_BOUNDARY.md`: Phase 88 durable-ready authoring history
   and undo/redo metadata boundary before durable stores or replay execution
 - `docs/LIVE_LAYOUT_AND_EXACT_GENERATION_PLAN.md`: live authoring layout versus
@@ -2200,58 +2183,16 @@ The package must remain runnable without any parent editor checkout.
   foundation close audit and risk register
 - `docs/BACKEND_GENERATION_RUNTIME_PLAN.md`: API generation runtime direction
   for template plus data to artifacts
-- `docs/GENERATION_API_ROUTE_BOUNDARY.md`: Phase 86 pure generation readiness
-  route response boundary before concrete server/storage/artifact work
 - `docs/SESSION_STORAGE_BOUNDARY.md`: Phase 87 canonical package session
   storage record boundary before concrete storage adapters or durable history
 - `docs/LARGE_DOCUMENT_PERFORMANCE_CONTRACT.md`: large-document guardrails for
   rendering, typing, layout, and exact generation
-- `docs/RUNTIME_USAGE_MAP.md`: frontend/backend usage map for how real app
-  actions call the shared core
-- `docs/ACTION_JOB_CONTRACT.md`: action, command, intent, job, and workflow
-  contract for future runtime scheduling
-- `docs/TEMPLATE_BUILDER_SANDBOX_BOUNDARY.md`: extractable sandbox package
-  boundary for the first visible template builder shell
-- `docs/TEMPLATE_BUILDER_INTERACTION_BOUNDARY.md`: structure-first node
-  selection and inspector interaction contract
-- `docs/TEMPLATE_BUILDER_MUTATION_BRIDGE_BOUNDARY.md`: first safe browser to
-  bridge to core mutation path for the sandbox
-- `docs/TEMPLATE_BUILDER_DELTA_BOUNDARY.md`: bounded change-packet response
-  contract beside the existing sandbox snapshot response
 - `docs/TEMPLATE_BUILDER_BROWSER_CACHE_BOUNDARY.md`: browser runtime cache
   contract for consuming sandbox change packets after boot
-- `docs/TEMPLATE_BUILDER_TEXT_ACTION_BOUNDARY.md`: explicit text insert action
-  contract before DOM caret and IME work
-- `docs/TEMPLATE_BUILDER_HISTORY_BOUNDARY.md`: sandbox authoring history
-  summary contract before undo/redo execution
-- `docs/TEMPLATE_BUILDER_UNDO_REDO_BOUNDARY.md`: sandbox text undo/redo replay
-  contract before durable history or caret/IME work
-- `docs/TEMPLATE_BUILDER_LIVE_LAYOUT_BOUNDARY.md`: sandbox live-layout request
-  summary contract before a concrete browser live renderer
-- `docs/TEMPLATE_BUILDER_WYSIWYG_DRAFT_DESIGN_LOCK.md`: WYSIWYG text draft
-  design lock before visible draft editing implementation
-- `docs/TEMPLATE_BUILDER_WYSIWYG_DRAFT_BOUNDARY.md`: first visible sandbox
-  WYSIWYG text draft boundary for browser-local canvas editing before rich text
-  and caret/IME work
-- `docs/TEMPLATE_BUILDER_DRAFT_SELECTION_BOUNDARY.md`: browser-local active
-  draft selection range boundary before rich inline range mapping and IME work
-- `docs/TEMPLATE_BUILDER_DRAFT_COMMAND_CONTEXT_BOUNDARY.md`: browser-local
-  command context and readiness boundary derived from active draft selection
-  before command execution
-- `docs/TEMPLATE_BUILDER_DRAFT_TEXT_COMMAND_BOUNDARY.md`: browser-local text
-  command execution boundary for active drafts before key, rich text, IME, and
-  durable DOM selection work
-- `docs/TEMPLATE_BUILDER_DRAFT_SELECTION_CARET_BOUNDARY.md`: browser-local
-  active draft range/caret hardening before rich DOM mapping and IME work
-- `docs/TEMPLATE_BUILDER_DRAFT_COMPOSITION_BOUNDARY.md`: browser-local IME
-  composition guard boundary for active drafts before language-specific IME,
-  rich DOM mapping, and per-keystroke transactions
 - `docs/EDITOR_UX_NORTH_STAR.md`: Phase 43 editor UX and normalized editor
   view constraint before deeper WYSIWYG/runtime work
 - `docs/MODULAR_RESPONSIBILITY_CONTRACT.md`: Phase 44 responsibility-sliced
   file/module guard before deeper editor runtime work
-- `docs/TEMPLATE_BUILDER_NORMALIZED_EDITOR_VIEW_BOUNDARY.md`: Phase 45
-  normalized editor view boundary for lookup-first sandbox runtime indexes
 - `docs/TEMPLATE_BUILDER_RUNTIME_CACHE_MODULE_BOUNDARY.md`: Phase 46
   runtime-cache module boundary for boot, refresh, and packet apply ownership
 - `docs/TEMPLATE_BUILDER_VISIBLE_RANGE_BOUNDARY.md`: Phase 47 visible range
@@ -2372,18 +2313,8 @@ The package must remain runnable without any parent editor checkout.
   rich inline live/exact parity audit
 - `docs/FIVE_LANE_PROJECT_PROGRESS_INDEX.md`: Phase 131 five-lane project
   progress index and roadmap audit
-- `docs/LEGACY_REFERENCE_LESSONS.md`: reference-only lessons from the old
-  FlowDocEditor architecture
 - `docs/PACKAGE_CONSUMPTION_STRATEGY.md`: local and future dependency options
-- `docs/VNEXT_CORE_REDESIGN_PLAN.md`: target architecture for the next core lane
-- `docs/OPERATION_KERNEL_SPLIT_PLAN.md`: Lane B operation split boundary
-- `docs/LAYOUT_PIPELINE_SPLIT_PLAN.md`: Lane C layout pipeline split boundary
-- `docs/LAYOUT_INTERNAL_EXTRACTION_PLAN.md`: Phase 17 measured pagination
-  internal split boundary
 - `docs/PHASE_LEDGER.md`: historical vNext core phase ledger
-- `docs/PHASE_10_CLOSE_AUDIT.md`: pagination/export boundary close audit
-- `docs/TABLE_PAGINATION_VNEXT_PLAN.md`: table pagination direction
-- `docs/PHASE_12_REPOSITORY_EXTRACTION_CHECKLIST.md`: extraction record
 
 ## Not Implemented Yet
 

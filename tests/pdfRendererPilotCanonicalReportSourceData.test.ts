@@ -224,21 +224,7 @@ describe("PDF-PILOT-08B-R1 canonical report source-data binding", () => {
     const previous = readJson<any>(
       "packages/pdf-renderer-pilot/fixtures/canonical-report-typography-calibrated-twelve-page-summary.v1.json",
     )
-    const proof = readFileSync(resolve(
-      process.cwd(),
-      "docs/PDF_CANONICAL_REPORT_SOURCE_DATA_CORRECTION_PROOF.md",
-    ), "utf8")
-    const contentProof = readFileSync(resolve(
-      process.cwd(),
-      "docs/PDF_CANONICAL_REPORT_CONTENT_PARITY_PROOF.md",
-    ), "utf8")
-    const typographyProof = readFileSync(resolve(
-      process.cwd(),
-      "docs/PDF_CANONICAL_REPORT_TYPOGRAPHY_CALIBRATION_PROOF.md",
-    ), "utf8")
-    const pilot = readFileSync(resolve(process.cwd(), "docs/PDF_REPORT_FIDELITY_PILOT.md"), "utf8")
-    const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8")
-    const ledger = readFileSync(resolve(process.cwd(), "docs/PHASE_LEDGER.md"), "utf8")
+
     const packageJson = readJson<any>("packages/pdf-renderer-pilot/package.json")
 
     expect(summary).toMatchObject({
@@ -283,15 +269,6 @@ describe("PDF-PILOT-08B-R1 canonical report source-data binding", () => {
     expect(previous.artifact.sha256).toBe(
       "45f9969ec01b1e1d168b624fff969b1fc32056f17d0596ced1c00ead58273b92",
     )
-    expect(proof).toContain(
-      "PDF: output/pdf/flowdoc-pdf-pilot-canonical-report-source-backed-twelve-page.pdf",
-    )
-    expect(proof).toContain("Status: PDF-PILOT-08B-R1 source-data correction accepted.")
-    expect(contentProof).toContain("factual parity claim is superseded")
-    expect(typographyProof).toMatch(/factual\s+content claim is superseded/u)
-    expect(pilot).toContain("## PDF-PILOT-08B-R1 Scope")
-    expect(readme).toContain("PDF canonical report source-data correction")
-    expect(ledger).toContain("## PDF-PILOT-08B-R1 Canonical Report Source-Data Correction")
     expect(packageJson.scripts).toMatchObject({
       "build:source-data-manifest": expect.any(String),
       "build:source-data-request": expect.any(String),

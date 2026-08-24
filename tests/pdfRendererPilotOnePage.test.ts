@@ -311,10 +311,7 @@ describe("PDF-PILOT-03 Thai embedded-font one-page renderer proof", () => {
     })
     const summary = readJson<any>("packages/pdf-renderer-pilot/fixtures/one-page-proof-summary.v1.json")
     const qa = readJson<any>("packages/pdf-renderer-pilot/fixtures/one-page-proof-qa.v1.json")
-    const doc = readFileSync(resolve(process.cwd(), "docs/PDF_THAI_ONE_PAGE_RENDERER_PROOF.md"), "utf8")
-    const pilot = readFileSync(resolve(process.cwd(), "docs/PDF_REPORT_FIDELITY_PILOT.md"), "utf8")
-    const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8")
-    const ledger = readFileSync(resolve(process.cwd(), "docs/PHASE_LEDGER.md"), "utf8")
+
 
     if (result.status !== "rendered") throw new Error("proof must render")
     expect(summary.artifact).toEqual(result.artifact)
@@ -349,10 +346,7 @@ describe("PDF-PILOT-03 Thai embedded-font one-page renderer proof", () => {
       },
       productionBinding: false,
     })
-    expect(doc).toContain("Status: PDF-PILOT-03 Thai embedded-font one-page renderer proof accepted.")
-    expect(doc).toContain("Next phase: `PDF-PILOT-04` digest-bound image and complete one-page paint proof.")
-    expect(pilot).toContain("## PDF-PILOT-03 Scope")
-    expect(readme).toContain("PDF Thai one-page renderer proof")
-    expect(ledger).toContain("## PDF-PILOT-03 Thai Embedded-Font One-Page Renderer Proof")
+
+
   })
 })

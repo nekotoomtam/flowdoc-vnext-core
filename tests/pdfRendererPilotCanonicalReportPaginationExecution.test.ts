@@ -272,13 +272,8 @@ describe("PDF-PILOT-08B-R2C-J canonical report pagination execution", () => {
     const qa = readJson<any>(
       "packages/pdf-renderer-pilot/fixtures/canonical-report-pagination-execution-qa.v1.json",
     )
-    const proof = readFileSync(resolve(
-      process.cwd(),
-      "docs/PDF_CANONICAL_REPORT_PAGINATION_EXECUTION_PROOF.md",
-    ), "utf8")
-    const pilot = readFileSync(resolve(process.cwd(), "docs/PDF_REPORT_FIDELITY_PILOT.md"), "utf8")
-    const ledger = readFileSync(resolve(process.cwd(), "docs/PHASE_LEDGER.md"), "utf8")
-    const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8")
+
+
     const packageReadme = readFileSync(resolve(process.cwd(), "packages/pdf-renderer-pilot/README.md"), "utf8")
     const packageJson = readJson<any>("packages/pdf-renderer-pilot/package.json")
     expect(qa).toMatchObject({
@@ -302,10 +297,8 @@ describe("PDF-PILOT-08B-R2C-J canonical report pagination execution", () => {
       },
       nextPhase: "PDF-PILOT-08B-R2C-K generated static-zone instances and renderer handoff",
     })
-    expect(proof).toContain("Status: PDF-PILOT-08B-R2C-J bounded pagination and authoritative thirteen-page plan accepted; rendering remains blocked.")
-    expect(pilot).toContain("## PDF-PILOT-08B-R2C-J Scope")
-    expect(ledger).toContain("## PDF-PILOT-08B-R2C-J Pagination Execution")
-    expect(readme).toContain("PDF canonical report bounded pagination execution")
+
+
     expect(packageReadme).toContain("Pagination Execution Evidence")
     expect(packageJson.scripts["build:report-pagination-execution"]).toBe(
       "node scripts/build-canonical-report-pagination-execution.mjs",

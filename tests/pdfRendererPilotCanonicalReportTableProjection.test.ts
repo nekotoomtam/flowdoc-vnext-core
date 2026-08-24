@@ -228,13 +228,8 @@ describe("PDF-PILOT-08B-R2C-C canonical report table projection", () => {
     const qa = readJson<any>(
       "packages/pdf-renderer-pilot/fixtures/canonical-report-table-projection-qa.v1.json",
     )
-    const proof = readFileSync(resolve(
-      process.cwd(),
-      "docs/PDF_CANONICAL_REPORT_TABLE_PROJECTION_PROOF.md",
-    ), "utf8")
-    const pilot = readFileSync(resolve(process.cwd(), "docs/PDF_REPORT_FIDELITY_PILOT.md"), "utf8")
-    const ledger = readFileSync(resolve(process.cwd(), "docs/PHASE_LEDGER.md"), "utf8")
-    const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8")
+
+
     const packageJson = readJson<any>("packages/pdf-renderer-pilot/package.json")
     expect(qa).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-C",
@@ -257,10 +252,8 @@ describe("PDF-PILOT-08B-R2C-C canonical report table projection", () => {
     })
     expect(qa.projections.map((projection: { tableId: string }) => projection.tableId))
       .toEqual(PROJECTION_BUNDLE.projectedTables.map((table) => table.resolution.definition.tableId))
-    expect(proof).toContain("Status: PDF-PILOT-08B-R2C-C table projection accepted.")
-    expect(pilot).toContain("## PDF-PILOT-08B-R2C-C Scope")
-    expect(ledger).toContain("## PDF-PILOT-08B-R2C-C Report Table Projection And Geometry Correction")
-    expect(readme).toContain("PDF canonical report table projection")
+
+
     expect(packageJson.scripts["build:report-table-projection"]).toBe(
       "node scripts/build-canonical-report-table-projection.mjs",
     )

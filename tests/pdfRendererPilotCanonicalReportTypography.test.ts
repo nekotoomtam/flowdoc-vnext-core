@@ -233,13 +233,7 @@ describe("PDF-PILOT-08B canonical report typography calibration", () => {
     const phase08a = readJson<any>(
       "packages/pdf-renderer-pilot/fixtures/canonical-report-content-parity-twelve-page-summary.v1.json",
     )
-    const doc = readFileSync(resolve(
-      process.cwd(),
-      "docs/PDF_CANONICAL_REPORT_TYPOGRAPHY_CALIBRATION_PROOF.md",
-    ), "utf8")
-    const pilot = readFileSync(resolve(process.cwd(), "docs/PDF_REPORT_FIDELITY_PILOT.md"), "utf8")
-    const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8")
-    const ledger = readFileSync(resolve(process.cwd(), "docs/PHASE_LEDGER.md"), "utf8")
+
 
     expect(request).toMatchObject({
       measurementProfileId: "pdf-pilot-rustybuzz-0.20.1-ibm-plex-regular-bold-v1",
@@ -307,10 +301,7 @@ describe("PDF-PILOT-08B canonical report typography calibration", () => {
     )
     expect(existsSync(resolve(process.cwd(), regular.subset.path))).toBe(true)
     expect(existsSync(resolve(process.cwd(), bold.subset.path))).toBe(true)
-    expect(doc).toContain("Status: PDF-PILOT-08B typography and layout calibration accepted.")
-    expect(doc).toContain("Next phase: `PDF-PILOT-08C` visual acceptance thresholds.")
-    expect(pilot).toContain("## PDF-PILOT-08B Scope")
-    expect(readme).toContain("PDF canonical report typography calibration")
-    expect(ledger).toContain("## PDF-PILOT-08B Canonical Report Typography And Layout Calibration")
+
+
   })
 })

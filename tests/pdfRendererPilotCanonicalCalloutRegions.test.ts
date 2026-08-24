@@ -165,22 +165,14 @@ describe("PDF-PILOT-08B-R2C-Q measured callouts and region thresholds", () => {
   })
 
   it("publishes the Q proof and keeps generic box compatibility downstream", () => {
-    const proof = readFileSync(resolve(
-      process.cwd(),
-      "docs/PDF_CANONICAL_CALLOUT_REGION_THRESHOLDS_PROOF.md",
-    ), "utf8")
-    const pilot = readFileSync(resolve(process.cwd(), "docs/PDF_REPORT_FIDELITY_PILOT.md"), "utf8")
-    const ledger = readFileSync(resolve(process.cwd(), "docs/PHASE_LEDGER.md"), "utf8")
-    const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8")
+
+
     const packageReadme = readFileSync(
       resolve(process.cwd(), "packages/pdf-renderer-pilot/README.md"),
       "utf8",
     )
 
-    expect(proof).toContain("Status: PDF-PILOT-08B-R2C-Q measured callout treatment accepted")
-    expect(pilot).toContain("## PDF-PILOT-08B-R2C-Q Scope")
-    expect(ledger).toContain("## PDF-PILOT-08B-R2C-Q Callout and Region Thresholds")
-    expect(readme).toContain("PDF canonical callout and region thresholds")
+
     expect(packageReadme).toContain("Callout and Region Threshold Evidence")
     expect(COMPARISON.nextPhase).toBe(
       "PDF-PILOT-08B-R2C-R generic box-boundary and cross-reader compatibility audit",

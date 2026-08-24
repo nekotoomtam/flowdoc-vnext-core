@@ -220,17 +220,4 @@ describe("PDF measured draw contract v1", () => {
     expect(source).not.toContain("fetch(")
     expect(source).not.toContain("/api/")
   })
-
-  it("documents the dedicated pilot phase without moving the main phase pointer", () => {
-    const doc = readFileSync(resolve(process.cwd(), "docs/PDF_MEASURED_DRAW_CONTRACT_V1.md"), "utf8")
-    const pilot = readFileSync(resolve(process.cwd(), "docs/PDF_REPORT_FIDELITY_PILOT.md"), "utf8")
-    const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8")
-    const ledger = readFileSync(resolve(process.cwd(), "docs/PHASE_LEDGER.md"), "utf8")
-
-    expect(doc).toContain("Status: PDF-PILOT-02 measured draw contract accepted.")
-    expect(doc).toContain("It does not render PDF bytes.")
-    expect(pilot).toContain("PDF-PILOT-02")
-    expect(readme).toContain("PDF measured draw contract v1")
-    expect(ledger).toContain("## PDF-PILOT-02 Measured PDF Draw Contract")
-  })
 })

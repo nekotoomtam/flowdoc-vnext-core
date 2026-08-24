@@ -149,13 +149,8 @@ describe("PDF-PILOT-08B-R2C-R generic box and cross-reader audit", () => {
       process.cwd(),
       "packages/pdf-renderer-pilot/src/canonicalReportBodyDisplayList.ts",
     ), "utf8")
-    const proof = readFileSync(resolve(
-      process.cwd(),
-      "docs/PDF_GENERIC_BOX_CROSS_READER_AUDIT.md",
-    ), "utf8")
-    const pilot = readFileSync(resolve(process.cwd(), "docs/PDF_REPORT_FIDELITY_PILOT.md"), "utf8")
-    const ledger = readFileSync(resolve(process.cwd(), "docs/PHASE_LEDGER.md"), "utf8")
-    const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8")
+
+
     const packageReadme = readFileSync(
       resolve(process.cwd(), "packages/pdf-renderer-pilot/README.md"),
       "utf8",
@@ -168,10 +163,8 @@ describe("PDF-PILOT-08B-R2C-R generic box and cross-reader audit", () => {
     expect(renderer).toContain('command.kind === "fill-rect"')
     expect(renderer).toContain('command.kind === "stroke-rect"')
     expect(calloutAdapter).toContain("function calloutProjection")
-    expect(proof).toContain("Status: PDF-PILOT-08B-R2C-R cross-reader baseline accepted")
-    expect(pilot).toContain("## PDF-PILOT-08B-R2C-R Scope")
-    expect(ledger).toContain("## PDF-PILOT-08B-R2C-R Generic Box and Cross-Reader Audit")
-    expect(readme).toContain("PDF generic box and cross-reader audit")
+
+
     expect(packageReadme).toContain("Generic Box and Cross-Reader Audit")
   })
 })

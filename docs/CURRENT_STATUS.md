@@ -1,821 +1,131 @@
-# Current Status
+# Legacy Current Status Compatibility Index
 
-Status: updated after Runtime Binding / Implementation Planning Gate.
+Status: compact compatibility index for legacy D2 tests.
 
-Use this file first when orienting current work. Use
-`docs/PHASE_LEDGER.md` and `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md` for the
-full historical audit trail.
+Owner-facing truth now lives in:
 
-## Latest Completed Phase
+- `docs/manifest.json`
+- `docs/DOCUMENT_MAP.md`
+- `docs/project/CURRENT_STATE.md`
+- `docs/project/ROADMAP.md`
+- `docs/project/RISK_REGISTER.md`
+- `docs/project/KNOWN_UNKNOWNS.md`
 
-Runtime Binding / Implementation Planning Gate.
+This file intentionally keeps only legacy discovery markers still pinned by tests.
+Do not add new phase planning truth here; add active truth to canonical project docs instead.
 
-Recent completed gate markers retained for pointer guards:
+Original document: Current status.
 
-- Text Engine WASM Toolchain Version Compatibility Gate.
-- Text Engine WASM Toolchain Rust Upgrade Execution Gate.
-- Text Engine WASM Bindgen Export Dependency Gate.
-- Text Engine WASM Artifact Production Retry Gate.
-- Artifact Digest Pinning Execution.
-- Native Evidence Summary Gate.
-- WASM Evidence Summary Gate.
-- Native/WASM Parity Summary Gate.
-- Renderer-backed Drift Summary Gate.
-- Numeric Drift Threshold Decision.
-- Accepted Summary Manifest Population.
-- Measurement Hardening Close Audit.
-- Template Publish / Variable Schema / Render API Planning Gate.
-- Template Publish / Version Boundary Gate.
-- Template Publish Validation Evidence Gate.
-- Template Publish Accepted Version Metadata Gate.
-- Template Publish Close Audit.
-- Variable Schema / Data Contract Planning Gate.
-- Variable Reference Discovery Gate.
-- Variable Schema Metadata Shape Gate.
-- Data Contract Validation Policy Gate.
-- Required / Missing / Default Value Policy Gate.
-- Compatibility Policy With Published Template Versions Gate.
-- Variable Schema / Data Contract Close Audit.
-- Render API Contract Planning Gate.
-- Render API Request Envelope Contract Gate.
-- Render API Response / Status Contract Gate.
-- Render-Readiness Validation Policy Gate.
-- Artifact Pointer / Job Status Placeholder Policy Gate.
-- Render API Error / Blocker Vocabulary Gate.
-- Render API Contract Close Audit.
-- Mini Infrastructure Close Audit.
-- Runtime Binding / Implementation Planning Gate.
-- Historical current-status marker retained for pointer guards: Status: updated after Mini Infrastructure Close Audit.
-- Historical current-status marker retained for pointer guards: Status: updated after Render API Contract Close Audit.
-- Historical current-status marker retained for pointer guards: Status: updated after Render API Error / Blocker Vocabulary Gate.
-- Historical current-status marker retained for pointer guards: Status: updated after Artifact Pointer / Job Status Placeholder Policy Gate.
-- Historical current-status marker retained for pointer guards: Status: updated after Render-Readiness Validation Policy Gate.
+## Legacy Test Markers
 
-The internal-alpha evidence lane across Phases 172-180 remains bounded
-evidence. Phase 182 ranks the production blockers and selects measurement
-rollout / digest / parity / drift as the first production hardening lane.
-Phase 183 defines the digest, parity, drift, fixture-evidence, and replacement
-blocker policy for that lane. Phase 184 selects the v1 measurement fixture
-matrix and required JSON-safe summary facts. Phase 185 defines the JSON-safe
-summary manifest shape for carrying those facts without raw evidence in root
-tests/docs. Phase 186 adds a JSON-safe stub summary manifest for that matrix,
-with release-gating rows still unknown/missing and no production readiness
-claim. Phase 187 ranks those missing evidence gaps, groups them by owner, and
-selects digest/runtime identity as the first prerequisite. Phase 188 defines a
-package-local runtime identity digest evidence builder in
-`@flowdoc/text-engine-rust-wasm`, plus a JSON-safe root summary handoff shape,
-while keeping the current digest pending and downstream evidence lanes
-blocked. Phase 189 decides the digest cannot be pinned yet because no
-package-local WASM artifact is present, then adds a package-local
-retained-pending population summary with `digestStatus="pending"` and
-`sha256=null`. Phase 190 checks the recorded candidate artifact paths, finds no
-package-local WASM artifact, defines
-`packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm` as the
-accepted future output path, and keeps the digest pending. Phase 191 defines
-the package-local build command/output metadata, finds the artifact cannot be
-produced yet because `wasm-pack` and `wasm32-unknown-unknown` are unavailable
-and `rust-shaper` is still a binary native smoke crate, and keeps digest
-pinning blocked. Phase 192 accepts the `wasm-pack` path over direct Cargo plus
-`wasm-bindgen`, adds a minimal package-local `cdylib`/`rlib` crate target and
-`wasm:build` script metadata, keeps the native smoke path intact, and keeps
-artifact production blocked because `wasm-pack` and `wasm32-unknown-unknown`
-are still unavailable. Phase 193 defines the acquisition/provisioning path for
-`wasm-pack` and `wasm32-unknown-unknown`, adds a package-local
-`wasm:check-toolchain` diagnostic that reports JSON-safe availability and
-exits zero, keeps the `wasm-pack` version pending until installed, and keeps
-artifact production plus digest pinning blocked. Phase 194 adds the optional
-package-local `wasm:readiness-smoke` wrapper, runs it successfully with exit
-code `0`, records JSON-safe unavailable/blocked toolchain status, and keeps
-artifact production plus digest pinning blocked because `wasm-pack` and
-`wasm32-unknown-unknown` are still unavailable. Phase 195 reruns the
-readiness smoke, confirms the toolchain is still unavailable, does not run
-`wasm:build`, records `artifactProduced=false`, `artifactPointer=null`,
-`fileSizeBytes=null`, `digestStatus="pending"`, and `sha256=null`, then keeps
-Phase 196 digest pinning blocked until a real artifact exists. The Text Engine
-WASM Toolchain Provisioning Bootstrap Gate defines developer/CI bootstrap as
-the accepted provisioning strategy, adds a package-local `wasm:bootstrap-plan`
-plan/check script, captures `rustc` and `cargo` version policy, keeps
-`wasm-pack` pending until installed, keeps the `wasm32-unknown-unknown` target
-missing, and keeps artifact production plus digest pinning blocked. The Text
-Engine WASM Toolchain Provisioning Execution Gate then attempts the accepted
-provisioning path: `rustup target add wasm32-unknown-unknown` succeeds, but
-`cargo install wasm-pack --locked` fails while installing `wasm-pack v0.15.0`
-because dependency `cargo-platform@0.3.3` requires `rustc 1.91` and the
-current toolchain reports `rustc 1.88.0`. Post-execution
-`wasm:readiness-smoke` reports `wasm32UnknownUnknownInstalled=true`,
-`wasmPackAvailable=false`, and `toolchainReady=false`, so artifact production
-and digest pinning remain blocked. The Text Engine WASM Toolchain Version
-Compatibility Gate compares upgrade Rust, older pinned `wasm-pack`, pinned CI
-image, internal tool cache, and preinstalled developer toolchain strategies.
-It selects Rust toolchain upgrade to `1.91+` as the immediate strategy, selects
-a pinned CI image as the longer-term reproducible strategy, keeps
-`wasm32-unknown-unknown` recorded as installed, and keeps artifact production
-blocked until `wasm-pack` is available and readiness reports
-`toolchainReady=true`. The Text Engine WASM Toolchain Rust Upgrade Execution
-Gate then executes the immediate strategy: `rustup update stable` succeeds,
-the toolchain reports `rustc 1.96.0` and `cargo 1.96.0`,
-`wasm32-unknown-unknown` remains installed, `cargo install wasm-pack --locked`
-succeeds, `wasm-pack --version` reports `wasm-pack 0.15.0`, and
-package-local `wasm:readiness-smoke` reports `toolchainReady=true` plus
-`canProduceArtifactNow=true`. No artifact is produced in that phase, so digest
-pinning remains blocked until a real
-`packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm` exists. The
-Text Engine WASM Artifact Production Retry Gate then confirms readiness still
-reports `toolchainReady=true`, runs package-local `wasm:build`, and records
-the exact blocker: `wasm-pack` fails after compile because
-`rust-shaper/Cargo.toml` does not include `wasm-bindgen = "0.2"`. The accepted
-artifact is still absent, generated package metadata is not produced, and
-Artifact Digest Pinning Execution remains blocked. The Text Engine WASM
-Bindgen Export Dependency Gate then adds `wasm-bindgen = "0.2"` package-locally
-under `rust-shaper`, resolves `wasm-bindgen 0.2.126` in `Cargo.lock`, exports
-only readiness marker and boundary-version functions through `#[wasm_bindgen]`,
-keeps the native `main.rs` rustybuzz smoke path intact, and verifies both
-WASM-target and native cargo checks. It does not retry artifact production, so
-the accepted artifact remains absent at that point. The Text Engine WASM
-Artifact Production Retry Gate then uses the bindgen gate as source of truth,
-reruns package-local readiness with `toolchainReady=true`, runs `wasm:build`,
-and produces the accepted artifact at
-`packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm` with
-`fileSizeBytes=13782`. Generated JS/TypeScript/package metadata shape is
-recorded in the package-local summary, while `digestStatus="pending"` and
-`sha256=null` remain unchanged because sha256 pinning is not in this phase.
-Artifact Digest Pinning Execution then confirms the accepted package-local
-artifact exists, computes the real artifact sha256 as
-`4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44`, validates
-the matrix id, corpus id, policy revision, measurement profile id, output
-shape, and package-local artifact path, and pins the package-local runtime
-identity digest summary. Native evidence, WASM evidence, native/WASM parity,
-renderer-backed drift, numeric thresholds, accepted manifests, production
-binding, and default-measurer replacement remain blocked.
-Native Evidence Summary Gate then adds a package-local JSON-safe metadata
-summary for the smallest native subset:
-`v1-measure-thai-line-break-core` and
-`v1-measure-latin-product-paragraphs`. The summary is attached to the pinned
-digest context, keeps raw native output outside root docs/tests, and keeps
-WASM evidence, parity, drift, thresholds, accepted manifests, production
-binding, and default-measurer replacement blocked.
-WASM Evidence Summary Gate then adds the matching package-local JSON-safe
-metadata summary for the same Thai line-break core and canonical Latin
-paragraph subset. It uses the same pinned digest context, keeps raw WASM output
-outside root docs/tests, and keeps native/WASM parity, renderer-backed drift,
-numeric thresholds, accepted manifests, production binding, and
-default-measurer replacement blocked.
-Native/WASM Parity Summary Gate then compares the native and WASM summary
-metadata for that same subset. It records matching digest context, matrix id,
-corpus id, policy revision, measurement profile id, output shape, fixture ids,
-scenario ids, and required fact coverage, while keeping raw native/WASM output
-outside root docs/tests. Renderer-backed drift, numeric thresholds, accepted
-manifests, production binding, and default-measurer replacement remain
-blocked.
-Renderer-backed Drift Summary Gate then adds package-local JSON-safe
-renderer-backed drift summary metadata for that same subset. It records
-matching parity/digest context and unthresholded drift metadata coverage while
-keeping raw native/WASM/renderer output outside root docs/tests. Numeric drift
-thresholds, accepted manifests, production binding, and default-measurer
-replacement remain blocked.
-Numeric Drift Threshold Decision then accepts a JSON-safe threshold policy for
-that same subset and matching drift context. It defines width and height drift
-PASS at `<=0.5pt`, warning at `>0.5pt` and `<=1.0pt`, blocked above `1.0pt`,
-and release-gating line-count drift as zero-only. Raw native/WASM/renderer
-evidence remains outside root docs/tests, and accepted manifests, production
-binding, and default-measurer replacement remain blocked.
-Accepted Summary Manifest Population then adds a JSON-safe accepted manifest
-for that same minimal subset. It populates accepted entries for
-`v1-measure-thai-line-break-core` and
-`v1-measure-latin-product-paragraphs`, carrying digest, native evidence, WASM
-evidence, native/WASM parity, renderer-backed drift, numeric threshold policy,
-and retention pointer statuses only. Raw native/WASM/renderer evidence remains
-outside root docs/tests. The full v1 matrix remains partial, and production
-binding plus default-measurer replacement remain blocked.
-Measurement Hardening Close Audit then confirms those accepted manifest
-entries, verifies each row carries pinned digest, native evidence, WASM
-evidence, native/WASM parity, renderer-backed drift, numeric threshold policy,
-and retention pointer statuses, and decides the minimal subset is sufficient
-for a mini infrastructure checkpoint only. The audit recommends pivoting next
-to a Template Publish / Variable Schema / Render API planning gate. It keeps
-the full v1 matrix `partial-not-accepted`, leaves the remaining release-gating
-measurement rows for later production-readiness work, and keeps production
-binding plus default-measurer replacement blocked.
-Template Publish / Variable Schema / Render API Planning Gate then ranks the
-next non-measurement mini infrastructure lanes. It selects Template Publish /
-Version Boundary first because Variable Schema / Data Contract and Render API
-Contract need a stable published template/version target before their
-contracts can safely attach. It defines the first-lane evidence requirements
-for a later dedicated Template Publish / Version Boundary Gate while keeping
-this phase planning-only, making no package/document schema changes, and
-leaving measurement production readiness plus default-measurer replacement
-blocked.
-Template Publish / Version Boundary Gate then accepts a JSON-safe
-publish/version boundary fixture at
-`fixtures/template-publish-version-boundary.v1.json`. It separates mutable
-draft template identity from immutable published template version identity,
-defines published version metadata, immutability rules, canonical package
-v2/document v3 candidate requirements, validation evidence shape, retention
-pointer evidence, and rollback/deprecation/superseding policy names. It keeps
-Variable Schema / Data Contract and Render API Contract deferred, makes no
-package/document schema change, and selects Template Publish Validation
-Evidence Gate as the next step.
-Template Publish Validation Evidence Gate then adds JSON-safe validation
-evidence at `fixtures/template-publish-validation-evidence.v1.json` for the
-canonical `fixtures/product-report-vnext.flowdoc.json` package v2/document v3
-candidate. It records package parse, graph diagnostics, key/data diagnostics,
-export-readiness, measurement, rejected blocker vocabulary, and retention
-pointer summaries without mutating package/document schema, producing renderer
-bytes, claiming storage durability, implementing backend routes/auth/authz, or
-attaching Variable Schema / Render API contracts. It selects Template Publish
-Accepted Version Metadata Gate as the next step.
-Template Publish Accepted Version Metadata Gate then populates JSON-safe
-accepted version metadata at
-`fixtures/template-publish-accepted-version-metadata.v1.json`. It carries
-`templateId`, `templateVersionId`, `versionOrdinal`, source package id,
-package/document versions, title, status, lifecycle policy, source snapshot
-pointer, validation evidence pointer/status, export-readiness
-`ready-with-warnings` plus warning count `1`, and measurement status
-`mini-checkpoint-only`. It keeps draft template identity separate from
-published version identity, marks the accepted template version id and source
-snapshot pointer immutable, makes no package/document schema change, and
-selects Template Publish Close Audit as the next step.
-Template Publish Close Audit then confirms the accepted metadata exists,
-preserves the required accepted version fields, keeps draft template identity
-separate from published template version identity, confirms accepted
-`templateVersionId`, source snapshot pointer, and validation evidence pointer
-immutability, preserves export-readiness `ready-with-warnings` plus warning
-count `1`, and keeps measurement scoped to `mini-checkpoint-only`. It decides
-ready-with-warnings is acceptable for closing the Template Publish mini lane
-because warning visibility is preserved and no renderer artifact or production
-renderer readiness is claimed. The Template Publish mini lane can close for a
-mini infrastructure checkpoint only, and the next lane is Variable Schema /
-Data Contract Planning Gate.
-Variable Schema / Data Contract Planning Gate then confirms the Template
-Publish mini lane is closed for a mini infrastructure checkpoint only,
-confirms the accepted published template version metadata target exists,
-preserves draft/published identity separation and immutable accepted pointers,
-ranks the first Variable Schema / Data Contract sub-lanes, and selects
-variable reference discovery / candidate variable list first. It defines
-JSON-safe gate evidence for a later Variable Reference Discovery Gate while
-keeping this phase planning-only, making no package/document schema change,
-leaving Render API Contract deferred, and keeping production binding plus
-default-measurer replacement blocked.
-Variable Reference Discovery Gate then produces JSON-safe discovery evidence
-at `fixtures/variable-reference-discovery.v1.json` for the accepted published
-template version target. It uses `fixtures/product-report-vnext.flowdoc.json`
-as the source snapshot, confirms package parse status `ready`, discovers 11
-authored `field-ref` occurrences, produces 6 candidate variable ids, preserves
-section/zone/table occurrence summaries, cross-references every discovered
-field-ref against the package field registry, records no unresolved references,
-no unsupported references, no duplicate candidate ids, and no blockers before
-Variable Schema Metadata Shape Gate. It keeps package/document schema
-unchanged and keeps Render API Contract deferred.
-Variable Schema Metadata Shape Gate then defines JSON-safe metadata shape
-evidence at `fixtures/variable-schema-metadata-shape.v1.json` for the six
-discovered candidate variables. It confirms the discovery fixture, attachment
-target, candidate ids, and summary counts, maps each candidate to
-`variableId`, `sourceFieldKey`, `valueTypeCandidate`,
-`displayLabelCandidate`, `occurrenceCount`, `occurrenceContextSummary`,
-`registryStatus`, and deferred policy status fields, preserves table-cell
-context for `metric-value-total-field` and `metric-value-risk-field`, keeps
-required/default/missing-value behavior deferred as metadata statuses, leaves
-Data Contract Validation Policy and Render API Contract deferred, and makes no
-package/document schema mutation.
-Data Contract Validation Policy Gate then defines JSON-safe validation policy
-vocabulary at `fixtures/data-contract-validation-policy.v1.json` from the
-accepted metadata shape. It confirms all six candidate variables, accepts
-result statuses `valid`, `valid-with-warnings`, and `blocked`, defines type,
-required-field, missing-value, default-value, unsupported-value,
-unknown-variable, extra-variable, and table-cell policy status vocabulary,
-names invalid-payload blocker vocabulary, preserves table-cell occurrence
-context for `metric-value-total-field` and `metric-value-risk-field`, keeps
-Required / Missing / Default Value detailed behavior deferred to a later gate,
-keeps Compatibility Policy With Published Template Versions deferred, keeps
-Render API Contract deferred, implements no runtime data validation, and makes
-no package/document schema mutation.
-Required / Missing / Default Value Policy Gate then defines concrete
-JSON-safe policy metadata at
-`fixtures/required-missing-default-value-policy.v1.json`. It confirms Data
-Contract Validation Policy Gate status `accepted-vocabulary-only`, confirms
-candidate variables and validation result statuses, maps required/missing/
-default policy rows for all six variables, blocks missing required
-`report.total` because it has no default metadata, treats required variables
-with default metadata and optional variables as `valid-with-warnings` when
-missing, records defaults as metadata only without runtime application,
-preserves table-cell context for `metric-value-total-field` and
-`metric-value-risk-field`, defines extra variables as warnings unless they
-conflict with known variable ids, keeps table-cell context mismatch blocked,
-keeps Compatibility Policy With Published Template Versions deferred, keeps
-Render API Contract deferred, implements no runtime data validation or runtime
-default application, and makes no package/document schema mutation.
-Compatibility Policy With Published Template Versions Gate then defines
-JSON-safe compatibility policy metadata at
-`fixtures/variable-compatibility-policy.v1.json`. It confirms Required /
-Missing / Default Value Policy Gate status `accepted-policy-metadata-only`,
-confirms all six candidate variables and per-variable required/missing/default
-policy, defines compatibility statuses `compatible`,
-`compatible-with-warnings`, `incompatible-blocked`, and `unknown`, defines
-compatibility dimensions for variable id stability, value type stability,
-required/default changes, table-cell context, added/removed/renamed variables,
-and published template version identity, and records blocker/warning
-vocabulary for incompatible and warning-only version changes. It keeps Render
-API Contract deferred, implements no runtime data validation, runtime default
-application, or runtime compatibility enforcement, and makes no
-package/document schema mutation.
-Variable Schema / Data Contract Close Audit then confirms the evidence chain
-from variable reference discovery through compatibility policy. It verifies
-`fixtures/variable-reference-discovery.v1.json`,
-`fixtures/variable-schema-metadata-shape.v1.json`,
-`fixtures/data-contract-validation-policy.v1.json`,
-`fixtures/required-missing-default-value-policy.v1.json`, and
-`fixtures/variable-compatibility-policy.v1.json`, confirms the six candidate
-variables, confirms compatibility statuses and policy decisions, and decides
-the Variable Schema / Data Contract mini lane can close for a mini
-infrastructure checkpoint only. It keeps runtime data validation, runtime
-default application, runtime compatibility enforcement, full Variable Schema /
-Data Contract runtime implementation, and Render API Contract implementation
-deferred, makes no package/document schema mutation, and selects Render API
-Contract Planning Gate as the next lane.
-Render API Contract Planning Gate then confirms the Variable Schema / Data
-Contract Close Audit is complete and scoped to a mini infrastructure
-checkpoint only, confirms the accepted published template version target
-`template-product-report-vnext@v1`, confirms the variable/data contract
-evidence chain, ranks Render API request envelope, response/status,
-render-readiness validation, artifact pointer / job status placeholder, and
-error/blocker vocabulary sub-lanes, and selects Render API request envelope
-contract first. It keeps the phase planning-only, implements no backend route,
-Render API runtime, renderer artifact bytes, storage durability, auth/authz,
-runtime data validation, runtime default application, runtime compatibility
-enforcement, package/document schema mutation, production measurement binding,
-or default-measurer replacement.
-Render API Request Envelope Contract Gate then defines JSON-safe request
-envelope contract metadata at
-`fixtures/render-api-request-envelope-contract.v1.json` for
-`template-product-report-vnext@v1`. It confirms source snapshot and validation
-evidence pointers, carries the variable/data contract evidence pointers,
-defines the `variables` payload container keyed by candidate variable id,
-maps request envelope statuses `envelope-valid`,
-`envelope-valid-with-warnings`, and `envelope-blocked`, defines malformed
-envelope blockers, records client request/correlation metadata, names
-idempotency and duplicate request policy metadata, and selects Render API
-Response / Status Contract Gate next. It keeps response/status,
-render-readiness validation, artifact pointer / job status placeholders,
-backend routes, Render API runtime, renderer artifact bytes, storage
-durability, auth/authz, actual render execution, runtime data validation,
-runtime default application, runtime compatibility enforcement, package/schema
-mutation, production measurement binding, and default-measurer replacement
-deferred.
-Render API Response / Status Contract Gate then defines JSON-safe response
-and status contract metadata at
-`fixtures/render-api-response-status-contract.v1.json` for the accepted
-request envelope. It confirms request envelope id
-`render-api-request-envelope-contract-v1`, request envelope version `1`,
-accepted template target `template-product-report-vnext@v1`, the `variables`
-payload container, required/optional/table-cell-bound variable ids, and the
-request envelope status vocabulary. It maps `envelope-valid` to `accepted`,
-`envelope-valid-with-warnings` to `accepted-with-warnings`,
-`envelope-blocked` to `blocked`, and `unknown` to `unknown`, records accepted,
-warning, and blocked response shapes, and keeps render job status plus
-artifact pointer as metadata-only placeholders. It selects Render-Readiness
-Validation Policy Gate next. It does not implement backend routes, Render API
-runtime, storage durability, auth/authz, renderer artifact bytes, actual
-render execution, runtime data validation, runtime default application,
-runtime compatibility enforcement, package/document schema mutation,
-production measurement binding, or default-measurer replacement.
-Render-Readiness Validation Policy Gate then defines JSON-safe readiness
-policy metadata at `fixtures/render-readiness-validation-policy.v1.json` for
-the accepted request envelope and response/status contract. It confirms
-request envelope id `render-api-request-envelope-contract-v1`, request
-envelope version `1`, response contract id
-`render-api-response-status-contract-v1`, response status vocabulary,
-envelope-to-response mapping, and metadata-only job/artifact placeholders. It
-maps `accepted` to `render-ready`, `accepted-with-warnings` to
-`render-ready-with-warnings`, `blocked` to `render-blocked`,
-`deferred-job-placeholder` to `readiness-deferred`, and `unknown` to
-`unknown`. It defines required evidence checks, deferred runtime checks,
-readiness blocker/warning vocabulary, and selects Artifact Pointer / Job
-Status Placeholder Policy Gate next. It does not implement backend routes,
-Render API runtime, storage durability, auth/authz, renderer artifact bytes,
-actual render execution, runtime data validation, runtime default
-application, runtime compatibility enforcement, package/document schema
-mutation, production measurement binding, or default-measurer replacement.
-Artifact Pointer / Job Status Placeholder Policy Gate then defines JSON-safe
-artifact pointer and job status placeholder policy metadata at
-`fixtures/artifact-pointer-job-status-placeholder-policy.v1.json` for the
-accepted readiness policy. It confirms readiness policy id
-`render-readiness-validation-policy-v1`, response contract id
-`render-api-response-status-contract-v1`, request envelope id
-`render-api-request-envelope-contract-v1`, request envelope version `1`, and
-accepted template target `template-product-report-vnext@v1`. It defines job
-status placeholder vocabulary `job-placeholder-deferred`,
-`job-not-created`, `job-blocked-before-creation`, and `job-unknown`; artifact
-pointer placeholder vocabulary `artifact-pointer-null`,
-`artifact-not-produced`, `artifact-blocked-before-production`, and
-`artifact-unknown`; and placeholder fields for job status, job id, artifact
-pointer, artifact bytes, artifact lifecycle, storage durability, and renderer
-execution status. It keeps job id `null`, artifact pointer `null`, artifact
-retention pointer `null`, artifact bytes unproduced, storage durability not
-claimed, backend route unimplemented, renderer execution unimplemented, and
-selects Render API Error / Blocker Vocabulary Gate next. It does not
-implement backend routes, Render API runtime, durable job lifecycle, storage
-durability, auth/authz, renderer artifact bytes, actual render execution,
-runtime data validation, runtime default application, runtime compatibility
-enforcement, package/document schema mutation, production measurement
-binding, or default-measurer replacement.
-Render API Error / Blocker Vocabulary Gate then defines JSON-safe
-error/blocker vocabulary metadata at
-`fixtures/render-api-error-blocker-vocabulary.v1.json`. It confirms the
-artifact/job placeholder policy id
-`artifact-pointer-job-status-placeholder-policy-v1`, readiness policy id
-`render-readiness-validation-policy-v1`, response contract id
-`render-api-response-status-contract-v1`, request envelope id
-`render-api-request-envelope-contract-v1`, request envelope version `1`, and
-accepted template target `template-product-report-vnext@v1`. It preserves
-malformed request envelope blockers, response/status blocked summary shape,
-readiness blockers/warnings, and artifact/job placeholder blockers/warnings;
-groups vocabulary by request-envelope, response-status, render-readiness,
-artifact-job-placeholder, deferred-backend-route, deferred-storage,
-deferred-auth-authz, deferred-renderer-execution, deferred-runtime-validation,
-and schema-mutation boundaries; defines severity vocabulary `warning`,
-`blocked`, `deferred`, and `unknown`; and defines a JSON-safe error summary
-shape with runtime and production readiness flags set false. It selects Render
-API Contract Close Audit next. It does not implement runtime error handling,
-backend routes, Render API runtime, durable job lifecycle, storage durability,
-auth/authz, renderer artifact bytes, actual render execution, runtime data
-validation, runtime default application, runtime compatibility enforcement,
-package/document schema mutation, production measurement binding, or
-default-measurer replacement.
-Render API Contract Close Audit then confirms the full Render API Contract
-evidence chain: planning, request envelope, response/status, render-readiness,
-artifact/job placeholder, and error/blocker vocabulary. It verifies the
-accepted template target `template-product-report-vnext@v1`, confirms
-Template Publish and Variable Schema / Data Contract mini lanes are closed for
-mini infrastructure checkpoint scope only, confirms Measurement remains
-mini-checkpoint-only with full v1 production readiness blocked, and decides
-the Render API Contract mini lane can close for a mini infrastructure
-checkpoint only. It explicitly does not claim backend route readiness, Render
-API runtime readiness, renderer execution readiness, artifact byte production,
-durable job lifecycle, production storage durability, auth/authz readiness,
-runtime data validation, runtime default application, runtime compatibility
-enforcement, or full measurement production readiness. It selects Mini
-Infrastructure Close Audit next.
-Mini Infrastructure Close Audit then confirms Measurement Hardening, Template
-Publish, Variable Schema / Data Contract, and Render API Contract each have
-close-audit decisions scoped to a mini infrastructure checkpoint only. It
-decides the mini infrastructure checkpoint can close, selects Runtime Binding
-/ Implementation Planning Gate next, and keeps production readiness blocked:
-no backend routes, no Render API runtime, no durable job lifecycle, no
-production storage durability, no auth/authz, no renderer execution or
-artifact bytes, no runtime data validation/default application/compatibility
-enforcement/error handling, no package/document schema mutation, no
-`measureVNextText(...)` replacement, and no full measurement production
-readiness claim.
-Runtime Binding / Implementation Planning Gate then ranks the first runtime
-binding implementation lanes and selects Render API Request Envelope Runtime
-Binding Gate as the first implementation slice for the next thread. It keeps
-the phase planning-only and defines a handoff plan that starts from
-`docs/RUNTIME_BINDING_IMPLEMENTATION_PLANNING_GATE.md`, reads the accepted
-request envelope, template publish, variable compatibility, and blocker
-vocabulary fixtures, and implements only a package-local/core request
-envelope metadata validator next. It does not implement runtime binding,
-backend routes, Render API runtime, storage durability, auth/authz, durable
-jobs, renderer execution, artifact bytes, runtime data validation/default
-application/compatibility enforcement/error handling, package/document schema
-mutation, `measureVNextText(...)` replacement, or full measurement production
-readiness.
+`v1-measurement-evidence-corpus-v1`
 
-## Current Next Phase
+1. Measurement rollout / digest / parity / drift.
+
+4667b7fe401eddf09133a8a22af11456ab018b2a32c668a031b8120a79db8a44
+
+8. Package/document schema changes, if any are required later.
+
+Accepted Summary Manifest Population.
+
+Artifact Digest Pinning Execution.
+
+Artifact Pointer / Job Status Placeholder Policy Gate.
+
+Compatibility Policy With Published Template Versions Gate.
+
+Data Contract Validation Policy Gate.
+
+digest identity is pinned
+
+Do not claim production readiness from internal-alpha evidence.
+
+Do not execute external text engines in core.
+
+Do not replace the default measurer
+
+fileSizeBytes=13782
+
+Historical current-status marker retained for pointer guards: Status: updated after Mini Infrastructure Close Audit.
+
+Historical current-status marker retained for pointer guards: Status: updated after Render API Contract Close Audit.
+
+keeps raw evidence outside core
+
+measurement-evidence-summary-manifest-v1
+
+Measurement Hardening Close Audit.
+
+Mini Infrastructure Close Audit.
+
+Native Evidence Summary Gate.
+
+native/WASM parity is matching
+
+Native/WASM Parity Summary Gate.
+
+Numeric Drift Threshold Decision.
+
+Proven Internal-Alpha Path
+
+Raw native/WASM/renderer evidence remains outside root tests/docs.
+
+Render API Contract Close Audit.
+
+Render API Contract Planning Gate.
+
+Render API Error / Blocker Vocabulary Gate.
+
+Render API Request Envelope Contract Gate.
 
 Render API Request Envelope Runtime Binding Gate.
 
-Goal:
+Render API Response / Status Contract Gate.
 
-- use Runtime Binding / Implementation Planning Gate as source of truth;
-- start from `docs/RUNTIME_BINDING_IMPLEMENTATION_PLANNING_GATE.md`;
-- read `docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md` and
-  `fixtures/render-api-request-envelope-contract.v1.json`;
-- implement a package-local/core request envelope metadata validator only;
-- validate accepted template version identity
-  `template-product-report-vnext@v1`;
-- validate source snapshot, validation evidence, and variable/data contract
-  pointers are present;
-- validate `variables` is a JSON object keyed by variable id;
-- return JSON-safe request envelope statuses:
-  `envelope-valid`, `envelope-valid-with-warnings`, and `envelope-blocked`;
-- map malformed envelope blockers to the accepted request envelope vocabulary;
-- keep backend routes, production storage durability, auth/authz, durable job
-  lifecycle, renderer execution, artifact bytes, runtime validation, runtime
-  defaults, runtime compatibility enforcement, runtime error handling,
-  package/document schema changes, and production contenteditable blocked or
-  deferred;
-- keep the measurement close-audit decision scoped to mini infrastructure
-  checkpoint readiness only;
-- keep full measurement production readiness blocked until the remaining v1
-  release-gating matrix rows are accepted and a later binding phase explicitly
-  accepts default-measurer replacement;
-- keep raw native/WASM/renderer evidence outside root tests/docs;
-- keep root checks independent from `wasm-pack` and the WASM target;
-- keep production binding and default-measurer replacement blocked;
-- keep runtime data validation, runtime default application, runtime
-  compatibility enforcement, full Variable Schema / Data Contract runtime
-  implementation, and Render API runtime implementation deferred;
-- keep `measureVNextText(...)` unchanged.
+Renderer-backed Drift Summary Gate.
 
-## Proven Internal-Alpha Path
+Render-Readiness Validation Policy Gate.
 
-One bounded path works:
+Required / Missing / Default Value Policy Gate.
 
-```text
-open canonical package fixture
--> edit one active text block
--> save package/session, durable history, and rich-inline records
--> reload package/session record
--> generate minimal PDF spike bytes from the reloaded package
--> store artifact bytes
--> retrieve artifact bytes
--> produce a JSON-safe status report
-```
+Runtime Binding / Implementation Planning Gate.
 
-Primary evidence:
+Status: updated after Artifact Pointer / Job Status Placeholder Policy Gate.
 
-- `docs/INTERNAL_ALPHA_VERTICAL_SLICE.md`
-- `packages/internal-alpha-runner/src/internalAlphaVerticalSlice.ts`
-- `tests/internalAlphaVerticalSlice.test.ts`
+Status: updated after Mini Infrastructure Close Audit.
 
-## Production Blockers
+Status: updated after Render API Contract Close Audit.
 
-Ranked after Phase 182:
+Status: updated after Render API Error / Blocker Vocabulary Gate.
 
-1. Measurement rollout / digest / parity / drift.
-2. Production storage durability and transaction strategy.
-3. Backend routes and auth/authz.
-4. PDF renderer fidelity.
-5. Production contenteditable/input binding.
-6. DOCX renderer.
-7. Collaboration/offline semantics.
-8. Package/document schema changes, if any are required later.
+Status: updated after Render-Readiness Validation Policy Gate.
 
-Phase 183 blocks measurement replacement until digest identity is pinned,
-native/WASM parity is matching, drift thresholds are accepted, required v1
-measurement fixture evidence is present, and a later binding phase explicitly
-accepts default-measurer replacement.
+Status: updated after Runtime Binding / Implementation Planning Gate.
 
-Phase 184 maps the release-gating evidence matrix under
-`v1-measurement-evidence-corpus-v1` and keeps raw evidence outside core.
+Template Publish Accepted Version Metadata Gate.
 
-Phase 185 defines `measurement-evidence-summary-manifest-v1` as a JSON-safe
-shape only. Raw native/WASM/renderer evidence remains outside root tests/docs.
+Template Publish Close Audit.
 
-Phase 186 adds
-`fixtures/measurement-evidence-summary-manifest.stub.v1.json` as a JSON-safe
-stub only. It keeps `rawEvidenceIncluded=false`, all release-gating fixture
-statuses unknown, required fact coverage missing, digest identity pending,
-native/WASM parity not-run, renderer-backed drift unknown, and retention
-pointers null or external placeholders.
+Template Publish Validation Evidence Gate.
 
-Phase 187 ranks the coverage gaps from that stub. The first blocker is
-digest/runtime identity, followed by native evidence, WASM evidence, parity
-summaries, renderer-backed drift summaries, numeric drift thresholds, and an
-accepted summary manifest. Default-measurer replacement remains blocked.
+Template Publish / Variable Schema / Render API Planning Gate.
 
-Phase 188 adds the first package-local digest/runtime identity evidence builder
-path under `packages/text-engine-rust-wasm`. The builder returns JSON-safe
-root summaries only, keeps raw runtime/WASM evidence outside root docs/tests,
-and leaves the current WASM artifact digest `pending`. Native evidence, WASM
-evidence, native/WASM parity summaries, renderer-backed drift summaries,
-numeric thresholds, accepted manifests, and default-measurer replacement
-remain blocked.
+Template Publish / Version Boundary Gate.
 
-Phase 189 adds
-`packages/text-engine-rust-wasm/fixtures/runtime-identity-digest-evidence-population.v1.json`
-as a package-local retained-pending summary. It records that no package-local
-WASM artifact is present, `canPinDigestNow=false`, `digestStatus="pending"`,
-`sha256=null`, `rawEvidenceIncluded=false`, `productionReady=false`, and
-`defaultMeasurerReplacement=false`.
+Text Engine WASM Artifact Production Retry Gate.
 
-Phase 190 adds
-`packages/text-engine-rust-wasm/fixtures/wasm-artifact-digest-pinning.v1.json`
-as a package-local pinning summary. It records that all Phase 189 candidate
-paths are absent, the accepted future artifact output path is
-`packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`, no retained
-artifact pointer exists yet, `canPinDigestNow=false`, `digestStatus="pending"`,
-and `sha256=null`.
+Text Engine WASM Bindgen Export Dependency Gate.
 
-Phase 191 adds
-`packages/text-engine-rust-wasm/fixtures/wasm-artifact-build-output.v1.json`
-as package-local build output metadata. It records the accepted future command
-`wasm-pack build rust-shaper --target web --out-dir ../pkg --out-name flowdoc_text_engine`,
-but marks it `blocked-not-runnable` because `wasm-pack` is unavailable,
-`wasm32-unknown-unknown` is not installed, and `rust-shaper` is not a
-WASM-ready library crate.
+Text Engine WASM Toolchain Version Compatibility Gate.
 
-Phase 192 adds
-`packages/text-engine-rust-wasm/fixtures/wasm-build-toolchain-readiness.v1.json`
-as package-local readiness metadata. It records `wasm-pack` as the accepted
-path, direct Cargo plus `wasm-bindgen` as a deferred alternate, `cargo`
-available, `wasm-pack` unavailable, `wasm-bindgen` CLI unavailable,
-`wasm32-unknown-unknown` absent, root checks not requiring WASM tooling, and
-`rust-shaper` minimally crate-target ready with `cdylib`/`rlib` plus
-`src/lib.rs`.
+Use this file first when orienting current work.
 
-Phase 193 adds
-`packages/text-engine-rust-wasm/fixtures/wasm-toolchain-acquisition.v1.json`
-and `packages/text-engine-rust-wasm/scripts/check-wasm-toolchain.mjs`. It
-records `wasm-pack` acquisition as developer/CI bootstrap outside root checks,
-`rustup target add wasm32-unknown-unknown` as the target provisioning path,
-`wasm-pack` version pinning as pending until installed, and keeps
-`canProduceArtifactNow=false`, `artifactPointer=null`, `digestStatus="pending"`,
-and `sha256=null`.
+Variable Reference Discovery Gate.
 
-Phase 194 adds
-`packages/text-engine-rust-wasm/fixtures/wasm-toolchain-optional-readiness-smoke.v1.json`
-and package script `wasm:readiness-smoke`. It records that the smoke ran and
-exited zero, `smoke.status="completed-blocked"`,
-`availability.availabilityStatus="unavailable-blocked"`,
-`wasmPackAvailable=false`, `wasm32UnknownUnknownInstalled=false`,
-`toolchainReady=false`, `canProduceArtifactNow=false`,
-`artifactProduced=false`, `artifactPointer=null`, `digestStatus="pending"`,
-and `sha256=null`. Phase 195 may build only if the package-local toolchain is
-actually available; otherwise it must record the blocker or propose a
-dedicated provisioning/bootstrap phase.
+Variable Schema / Data Contract Close Audit.
 
-Phase 195 adds
-`packages/text-engine-rust-wasm/fixtures/wasm-artifact-production.v1.json`.
-It reruns the package-local readiness smoke, records
-`acceptedBuild.runStatus="not-run-toolchain-unavailable"`,
-`artifact.artifactProduced=false`, `artifact.artifactExists=false`,
-`artifact.artifactPointer=null`, `artifact.retentionPointer=null`,
-`artifact.fileSizeBytes=null`, `digest.digestStatus="pending"`,
-`digest.sha256=null`, `rawEvidenceIncluded=false`, `productionReady=false`,
-and `defaultMeasurerReplacement=false`. It does not run `wasm:build` because
-`wasm-pack` and `wasm32-unknown-unknown` are still unavailable, and it blocks
-Phase 196 digest pinning until a real artifact exists.
+Variable Schema / Data Contract Planning Gate.
 
-The Text Engine WASM Toolchain Provisioning Bootstrap Gate adds
-`packages/text-engine-rust-wasm/scripts/plan-wasm-toolchain-bootstrap.mjs`,
-package script `wasm:bootstrap-plan`, and
-`packages/text-engine-rust-wasm/fixtures/wasm-toolchain-provisioning-bootstrap.v1.json`.
-It records `bootstrap.mode="plan-and-check-only"`,
-`bootstrap.installExecuted=false`,
-`provisioningDecision.strategy="developer-or-ci-bootstrap"`,
-`acceptedProvisioning.wasmPack.command="cargo install wasm-pack --locked"`,
-`acceptedProvisioning.wasm32UnknownUnknown.command="rustup target add wasm32-unknown-unknown"`,
-`versionPolicy.rustc.currentVersion="rustc 1.88.0 (6b00bc388 2025-06-23)"`,
-`versionPolicy.cargo.currentVersion="cargo 1.88.0 (873a06493 2025-05-10)"`,
-`versionPolicy.wasmPack.status="pending-until-installed"`,
-`versionPolicy.rustTarget.status="missing"`, `toolchainReady=false`,
-`artifactProduced=false`, `digestStatus="pending"`, and `sha256=null`.
+Variable Schema Metadata Shape Gate.
 
-The Text Engine WASM Toolchain Provisioning Execution Gate adds
-`packages/text-engine-rust-wasm/fixtures/wasm-toolchain-provisioning-execution.v1.json`.
-It records that provisioning execution was allowed and attempted. The
-`wasm32-unknown-unknown` target was installed successfully, while
-`cargo install wasm-pack --locked` failed after selecting
-`wasm-pack v0.15.0` because `cargo-platform@0.3.3` requires `rustc 1.91`
-and the current toolchain is `rustc 1.88.0`. The post-execution readiness
-smoke records `wasm32UnknownUnknownInstalled=true`,
-`wasmPackAvailable=false`, `toolchainReady=false`,
-`artifactProduced=false`, `digestStatus="pending"`, and `sha256=null`.
-Artifact production must not be retried until `toolchainReady=true`.
-
-The Text Engine WASM Toolchain Version Compatibility Gate adds
-`packages/text-engine-rust-wasm/fixtures/wasm-toolchain-version-compatibility.v1.json`.
-It compares upgrade Rust, older pinned `wasm-pack`, pinned CI image, internal
-tool cache, and preinstalled developer toolchain strategies. It accepts
-`upgrade-rust-toolchain-to-1.91-plus` as the immediate strategy, accepts
-`pinned-ci-image` as the longer-term reproducible strategy, keeps
-`wasm32UnknownUnknownInstalled=true`, keeps `wasmPackAvailable=false`, keeps
-`toolchainReady=false`, and blocks artifact production plus digest pinning.
-
-The Text Engine WASM Toolchain Rust Upgrade Execution Gate adds
-`packages/text-engine-rust-wasm/fixtures/wasm-toolchain-rust-upgrade-execution.v1.json`.
-It executes `rustup update stable`, records `rustc 1.96.0` and
-`cargo 1.96.0`, verifies `wasm32-unknown-unknown` remains installed, retries
-`cargo install wasm-pack --locked` only after the Rust `1.91+` condition is
-met, records `wasm-pack 0.15.0`, and reruns package-local
-`wasm:readiness-smoke` with `toolchainReady=true` and
-`canProduceArtifactNow=true`. It does not produce the artifact or pin sha256;
-the next dedicated gate is artifact production retry.
-
-The Text Engine WASM Artifact Production Retry Gate adds
-`packages/text-engine-rust-wasm/fixtures/wasm-artifact-production-retry.v1.json`.
-It confirms `wasmPackAvailable=true`, `wasmPackVersion="wasm-pack 0.15.0"`,
-`wasm32UnknownUnknownInstalled=true`, `toolchainReady=true`, and
-`canProduceArtifactNow=true`, then runs package-local `wasm:build`. The first
-retry failed with `failed-missing-wasm-bindgen-dependency` because
-`rust-shaper/Cargo.toml` lacked `wasm-bindgen = "0.2"`. After the bindgen
-dependency/export gate, the retry now succeeds, the accepted artifact exists
-at `packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm`,
-`fileSizeBytes=13782`, generated package metadata is recorded as `generated`,
-`digestStatus="pending"`, and `sha256=null`.
-
-The Text Engine WASM Bindgen Export Dependency Gate adds
-`packages/text-engine-rust-wasm/fixtures/wasm-bindgen-export-dependency.v1.json`.
-It adds `wasm-bindgen = "0.2"` to `rust-shaper/Cargo.toml`, records
-`wasm-bindgen 0.2.126` in `Cargo.lock`, switches the WASM library to minimal
-`#[wasm_bindgen]` exports for readiness marker and boundary version, keeps the
-native `main.rs` rustybuzz smoke path intact, passes package-local native and
-WASM target cargo checks, does not retry `wasm:build`, and keeps
-`digestStatus="pending"` with `sha256=null`.
-
-The post-bindgen Text Engine WASM Artifact Production Retry Gate reruns
-package-local readiness, confirms `toolchainReady=true`, runs
-`npm.cmd --prefix packages/text-engine-rust-wasm run wasm:build`, and produces
-the accepted artifact plus generated JS/TypeScript/package metadata under
-`packages/text-engine-rust-wasm/pkg/`. The package-local retry summary records
-`artifactProduced=true`, `artifactPointer="packages/text-engine-rust-wasm/pkg/flowdoc_text_engine_bg.wasm"`,
-`fileSizeBytes=13782`, `generatedPackageMetadataShape.status="generated"`,
-`digestStatus="pending"`, `sha256=null`, and
-`sha256ComputedThisPhase=false`. Artifact Digest Pinning Execution is now the
-next safe step; production measurement binding remains blocked.
-
-## Current Hard Limits
-
-- Do not claim production readiness from internal-alpha evidence.
-- Do not copy legacy editor runtime.
-- Do not add production contenteditable binding without a dedicated phase.
-- Do not add backend routes/auth/storage production claims in doc-only phases.
-- Do not add PDF/DOCX production renderer work as incidental cleanup.
-- Do not replace the default measurer as part of the measurement hardening
-  gate.
-- Do not implement Data Contract Validation Policy as runtime behavior in
-  metadata-shape phases.
-- Do not implement Required / Missing / Default Value Policy as runtime
-  behavior in metadata-shape phases.
-- Do not implement runtime data validation in policy-vocabulary phases.
-- Do not implement Compatibility Policy With Published Template Versions as
-  incidental variable/data contract work.
-- Do not apply variable default values at runtime in policy-metadata phases.
-- Do not implement runtime compatibility enforcement in policy-metadata phases.
-- Do not implement Render API runtime in planning, envelope-shape,
-  response/status, or readiness metadata phases.
-- Do not produce renderer artifact bytes or execute rendering in planning,
-  envelope-shape, response/status, or readiness metadata phases.
-- Do not execute external text engines in core.
-- Do not put raw evidence in root tests/docs.
-- Do not require `wasm-pack` or `wasm32-unknown-unknown` in root checks.
-- Do not change package/document schema as part of status/documentation work.
-
-## Read First
-
-- `docs/NEXT_PHASE_POINTER.md`
-- `docs/RENDER_READINESS_VALIDATION_POLICY_GATE.md`
-- `fixtures/render-readiness-validation-policy.v1.json`
-- `tests/renderReadinessValidationPolicyGate.test.ts`
-- `docs/RENDER_API_RESPONSE_STATUS_CONTRACT_GATE.md`
-- `fixtures/render-api-response-status-contract.v1.json`
-- `tests/renderApiResponseStatusContractGate.test.ts`
-- `docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md`
-- `fixtures/render-api-request-envelope-contract.v1.json`
-- `tests/renderApiRequestEnvelopeContractGate.test.ts`
-- `docs/RENDER_API_CONTRACT_PLANNING_GATE.md`
-- `tests/renderApiContractPlanningGate.test.ts`
-- `docs/VARIABLE_SCHEMA_DATA_CONTRACT_CLOSE_AUDIT.md`
-- `docs/REQUIRED_MISSING_DEFAULT_VALUE_POLICY_GATE.md`
-- `fixtures/required-missing-default-value-policy.v1.json`
-- `docs/DATA_CONTRACT_VALIDATION_POLICY_GATE.md`
-- `fixtures/data-contract-validation-policy.v1.json`
-- `docs/VARIABLE_SCHEMA_METADATA_SHAPE_GATE.md`
-- `fixtures/variable-schema-metadata-shape.v1.json`
-- `docs/VARIABLE_REFERENCE_DISCOVERY_GATE.md`
-- `fixtures/variable-reference-discovery.v1.json`
-- `docs/VARIABLE_SCHEMA_DATA_CONTRACT_PLANNING_GATE.md`
-- `docs/TEMPLATE_PUBLISH_CLOSE_AUDIT.md`
-- `docs/TEMPLATE_PUBLISH_ACCEPTED_VERSION_METADATA_GATE.md`
-- `fixtures/template-publish-accepted-version-metadata.v1.json`
-- `docs/TEMPLATE_PUBLISH_VALIDATION_EVIDENCE_GATE.md`
-- `fixtures/template-publish-validation-evidence.v1.json`
-- `docs/TEMPLATE_PUBLISH_VERSION_BOUNDARY_GATE.md`
-- `fixtures/template-publish-version-boundary.v1.json`
-- `docs/TEMPLATE_VARIABLE_RENDER_API_PLANNING_GATE.md`
-- `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`
-- `docs/ACCEPTED_SUMMARY_MANIFEST_POPULATION.md`
-- `docs/NUMERIC_DRIFT_THRESHOLD_DECISION.md`
-- `docs/RENDERER_BACKED_DRIFT_SUMMARY_GATE.md`
-- `docs/NATIVE_WASM_PARITY_SUMMARY_GATE.md`
-- `docs/WASM_EVIDENCE_SUMMARY_GATE.md`
-- `docs/NATIVE_EVIDENCE_SUMMARY_GATE.md`
-- `docs/TEXT_ENGINE_WASM_BINDGEN_EXPORT_DEPENDENCY_GATE.md`
-- `docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_RETRY_GATE.md`
-- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_RUST_UPGRADE_EXECUTION_GATE.md`
-- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_VERSION_COMPATIBILITY_GATE.md`
-- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_PROVISIONING_EXECUTION_GATE.md`
-- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_PROVISIONING_BOOTSTRAP_GATE.md`
-- `docs/TEXT_ENGINE_WASM_ARTIFACT_PRODUCTION_GATE.md`
-- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_OPTIONAL_READINESS_SMOKE.md`
-- `docs/TEXT_ENGINE_WASM_TOOLCHAIN_ACQUISITION_GATE.md`
-- `docs/TEXT_ENGINE_WASM_BUILD_TOOLCHAIN_READINESS_GATE.md`
-- `docs/TEXT_ENGINE_WASM_ARTIFACT_BUILD_OUTPUT_GATE.md`
-- `docs/TEXT_ENGINE_WASM_ARTIFACT_DIGEST_PINNING_GATE.md`
-- `docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_POPULATION_GATE.md`
-- `docs/TEXT_ENGINE_RUNTIME_IDENTITY_DIGEST_EVIDENCE_BUILDER_GATE.md`
-- `docs/MEASUREMENT_EVIDENCE_COVERAGE_GAP_TRIAGE_GATE.md`
-- `docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_FIXTURE_STUB_GATE.md`
-- `docs/MEASUREMENT_EVIDENCE_SUMMARY_MANIFEST_GATE.md`
-- `docs/V1_MEASUREMENT_FIXTURE_EVIDENCE_MATRIX_GATE.md`
-- `docs/MEASUREMENT_DIGEST_PARITY_DRIFT_HARDENING_GATE.md`
-- `docs/V1_HARDENING_BACKLOG_TRIAGE_GATE.md`
-- `docs/INTERNAL_ALPHA_CLOSE_AUDIT_AND_DOC_CONSOLIDATION_GATE.md`
-- `docs/INTERNAL_ALPHA_VERTICAL_SLICE.md`
-- `docs/MEASUREMENT_ROLLOUT_GATE.md`
-- `docs/TEXT_ENGINE_RUNTIME_IDENTITY_BOUNDARY.md`
-- `docs/TEXT_ENGINE_RENDERER_BACKED_PROVIDER_BOUNDARY.md`
-- `docs/TEXT_ENGINE_LINE_WRAP_EVIDENCE_BOUNDARY.md`
-- `docs/PHASE_LEDGER.md`
-- `docs/PHASE_18_IMPLEMENTATION_ROADMAP.md`
+WASM Evidence Summary Gate.

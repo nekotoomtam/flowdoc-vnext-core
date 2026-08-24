@@ -225,13 +225,8 @@ describe("PDF-PILOT-07 canonical twelve-page report composition", () => {
     const qa = readJson<any>(
       "packages/pdf-renderer-pilot/fixtures/canonical-report-twelve-page-qa.v1.json",
     )
-    const doc = readFileSync(resolve(
-      process.cwd(),
-      "docs/PDF_CANONICAL_REPORT_COMPOSITION_PROOF.md",
-    ), "utf8")
-    const pilot = readFileSync(resolve(process.cwd(), "docs/PDF_REPORT_FIDELITY_PILOT.md"), "utf8")
-    const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8")
-    const ledger = readFileSync(resolve(process.cwd(), "docs/PHASE_LEDGER.md"), "utf8")
+
+
     const builder = readFileSync(resolve(
       process.cwd(),
       "packages/pdf-renderer-pilot/scripts/build-canonical-report-request.mjs",
@@ -349,10 +344,7 @@ describe("PDF-PILOT-07 canonical twelve-page report composition", () => {
     })
     expect(builder).toContain("FLOWDOC_PDF_PILOT_REPORT_ROOT")
     expect(builder).not.toMatch(/[A-Z]:\\Users\\/u)
-    expect(doc).toContain("Status: PDF-PILOT-07 canonical twelve-page report composition proof accepted.")
-    expect(doc).toContain("Next phase: `PDF-PILOT-08` report-wide visual-diff calibration")
-    expect(pilot).toContain("## PDF-PILOT-07 Scope")
-    expect(readme).toContain("PDF canonical report composition")
-    expect(ledger).toContain("## PDF-PILOT-07 Canonical Twelve-Page Report Composition")
+
+
   })
 })

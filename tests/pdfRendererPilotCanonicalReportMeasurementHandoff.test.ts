@@ -231,13 +231,8 @@ describe("PDF-PILOT-08B-R2C-B canonical report measurement-request handoff", () 
     const qa = readJson<any>(
       "packages/pdf-renderer-pilot/fixtures/canonical-report-measurement-handoff-qa.v1.json",
     )
-    const proof = readFileSync(resolve(
-      process.cwd(),
-      "docs/PDF_CANONICAL_REPORT_MEASUREMENT_HANDOFF_PROOF.md",
-    ), "utf8")
-    const pilot = readFileSync(resolve(process.cwd(), "docs/PDF_REPORT_FIDELITY_PILOT.md"), "utf8")
-    const ledger = readFileSync(resolve(process.cwd(), "docs/PHASE_LEDGER.md"), "utf8")
-    const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8")
+
+
     const packageJson = readJson<any>("packages/pdf-renderer-pilot/package.json")
     expect(qa).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-B",
@@ -252,10 +247,8 @@ describe("PDF-PILOT-08B-R2C-B canonical report measurement-request handoff", () 
       boundary: { textShaping: "not-run", lineBreaking: "not-run", pagination: "not-run" },
       nextPhase: "PDF-PILOT-08B-R2C-C report table projection and geometry correction",
     })
-    expect(proof).toContain("Status: PDF-PILOT-08B-R2C-B measurement-request handoff accepted.")
-    expect(pilot).toContain("## PDF-PILOT-08B-R2C-B Scope")
-    expect(ledger).toContain("## PDF-PILOT-08B-R2C-B Measurement Request And Table Geometry Handoff")
-    expect(readme).toContain("PDF canonical report measurement-request handoff")
+
+
     expect(packageJson.scripts["build:report-measurement-handoff"]).toBe(
       "node scripts/build-canonical-report-measurement-handoff.mjs",
     )

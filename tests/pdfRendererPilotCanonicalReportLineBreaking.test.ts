@@ -250,13 +250,8 @@ describe("PDF-PILOT-08B-R2C-E canonical report line breaking", () => {
     const qa = readJson<any>(
       "packages/pdf-renderer-pilot/fixtures/canonical-report-line-breaking-qa.v1.json",
     )
-    const proof = readFileSync(resolve(
-      process.cwd(),
-      "docs/PDF_CANONICAL_REPORT_LINE_BREAKING_PROOF.md",
-    ), "utf8")
-    const pilot = readFileSync(resolve(process.cwd(), "docs/PDF_REPORT_FIDELITY_PILOT.md"), "utf8")
-    const ledger = readFileSync(resolve(process.cwd(), "docs/PHASE_LEDGER.md"), "utf8")
-    const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8")
+
+
     const packageJson = readJson<any>("packages/pdf-renderer-pilot/package.json")
     expect(qa).toMatchObject({
       phaseId: "PDF-PILOT-08B-R2C-E",
@@ -275,10 +270,8 @@ describe("PDF-PILOT-08B-R2C-E canonical report line breaking", () => {
       nextPhase: "PDF-PILOT-08B-R2C-F line-box acceptance and vertical block/table composition readiness",
     })
     expect(qa.overflowMeasurements).toEqual([])
-    expect(proof).toContain("Status: PDF-PILOT-08B-R2C-E native line-box evidence accepted.")
-    expect(pilot).toContain("## PDF-PILOT-08B-R2C-E Scope")
-    expect(ledger).toContain("## PDF-PILOT-08B-R2C-E Native ICU4X Line Breaking")
-    expect(readme).toContain("PDF canonical report native line breaking")
+
+
     expect(packageJson.scripts["build:report-line-breaking"]).toBe(
       "node scripts/build-canonical-report-line-breaking.mjs",
     )

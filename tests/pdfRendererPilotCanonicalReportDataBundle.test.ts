@@ -154,13 +154,8 @@ describe("PDF-PILOT-08B-R2A canonical report data and binding lock", () => {
     const qa = readJson<any>(
       "packages/pdf-renderer-pilot/fixtures/canonical-report-data-bundle-qa.v1.json",
     )
-    const proof = readFileSync(resolve(
-      process.cwd(),
-      "docs/PDF_CANONICAL_REPORT_DATA_BINDING_LOCK.md",
-    ), "utf8")
-    const pilot = readFileSync(resolve(process.cwd(), "docs/PDF_REPORT_FIDELITY_PILOT.md"), "utf8")
-    const ledger = readFileSync(resolve(process.cwd(), "docs/PHASE_LEDGER.md"), "utf8")
-    const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8")
+
+
     const packageJson = readJson<any>("packages/pdf-renderer-pilot/package.json")
 
     expect(qa).toMatchObject({
@@ -189,10 +184,8 @@ describe("PDF-PILOT-08B-R2A canonical report data and binding lock", () => {
         deterministicRebuild: true,
       },
     })
-    expect(proof).toContain("Status: PDF-PILOT-08B-R2A report data and binding lock accepted.")
-    expect(pilot).toContain("## PDF-PILOT-08B-R2A Scope")
-    expect(ledger).toContain("## PDF-PILOT-08B-R2A Canonical Report Data And Binding Lock")
-    expect(readme).toContain("PDF canonical report data and binding lock")
+
+
     expect(packageJson.scripts["build:report-data-bundle"]).toBe(
       "node scripts/build-canonical-report-data-bundle.mjs",
     )

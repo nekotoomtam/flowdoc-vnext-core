@@ -145,13 +145,8 @@ describe("PDF-PILOT-08B-R2C-O canonical reader hierarchy", () => {
   })
 
   it("publishes the decision while leaving static-zone and composition parity downstream", () => {
-    const proof = readFileSync(resolve(
-      process.cwd(),
-      "docs/PDF_CANONICAL_READER_HIERARCHY_PROOF.md",
-    ), "utf8")
-    const pilot = readFileSync(resolve(process.cwd(), "docs/PDF_REPORT_FIDELITY_PILOT.md"), "utf8")
-    const ledger = readFileSync(resolve(process.cwd(), "docs/PHASE_LEDGER.md"), "utf8")
-    const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8")
+
+
     const packageReadme = readFileSync(
       resolve(process.cwd(), "packages/pdf-renderer-pilot/README.md"),
       "utf8",
@@ -161,10 +156,7 @@ describe("PDF-PILOT-08B-R2C-O canonical reader hierarchy", () => {
       "packages/pdf-renderer-pilot/scripts/inspect-canonical-full-document-visual-comparison.py",
     ), "utf8")
 
-    expect(proof).toContain("Status: PDF-PILOT-08B-R2C-O reader hierarchy accepted")
-    expect(pilot).toContain("## PDF-PILOT-08B-R2C-O Scope")
-    expect(ledger).toContain("## PDF-PILOT-08B-R2C-O Reader Hierarchy Calibration")
-    expect(readme).toContain("PDF canonical reader hierarchy")
+
     expect(packageReadme).toContain("Reader Hierarchy Calibration")
     expect(inspector).toContain('"roleWeightGapImproved": current_bold_gap < baseline_bold_gap')
     expect(inspector).toContain('"informationHierarchyAccepted": True')

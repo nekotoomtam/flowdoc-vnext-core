@@ -270,13 +270,8 @@ describe("PDF-PILOT-08B-R2C-G canonical report vertical capacity", () => {
     const qa = readJson<any>(
       "packages/pdf-renderer-pilot/fixtures/canonical-report-vertical-capacity-qa.v1.json",
     )
-    const proof = readFileSync(resolve(
-      process.cwd(),
-      "docs/PDF_CANONICAL_REPORT_VERTICAL_CAPACITY_PROOF.md",
-    ), "utf8")
-    const pilot = readFileSync(resolve(process.cwd(), "docs/PDF_REPORT_FIDELITY_PILOT.md"), "utf8")
-    const ledger = readFileSync(resolve(process.cwd(), "docs/PHASE_LEDGER.md"), "utf8")
-    const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8")
+
+
     const packageReadme = readFileSync(resolve(process.cwd(), "packages/pdf-renderer-pilot/README.md"), "utf8")
     const packageJson = readJson<any>("packages/pdf-renderer-pilot/package.json")
     expect(qa).toMatchObject({
@@ -309,10 +304,8 @@ describe("PDF-PILOT-08B-R2C-G canonical report vertical capacity", () => {
     })
     expect(qa.appliedByRule).toHaveLength(12)
     expect(qa.bySection).toHaveLength(12)
-    expect(proof).toContain("Status: PDF-PILOT-08B-R2C-G capacity evidence accepted; twelve-page fidelity blocked.")
-    expect(pilot).toContain("## PDF-PILOT-08B-R2C-G Scope")
-    expect(ledger).toContain("## PDF-PILOT-08B-R2C-G Vertical Capacity")
-    expect(readme).toContain("PDF canonical report vertical capacity")
+
+
     expect(packageReadme).toContain("Vertical Capacity Evidence")
     expect(packageJson.scripts["build:report-vertical-capacity"]).toBe(
       "node scripts/build-canonical-report-vertical-capacity.mjs",

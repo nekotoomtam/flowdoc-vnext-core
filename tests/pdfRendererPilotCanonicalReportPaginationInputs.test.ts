@@ -282,13 +282,8 @@ describe("PDF-PILOT-08B-R2C-I canonical report pagination inputs", () => {
     const qa = readJson<any>(
       "packages/pdf-renderer-pilot/fixtures/canonical-report-pagination-inputs-qa.v1.json",
     )
-    const proof = readFileSync(resolve(
-      process.cwd(),
-      "docs/PDF_CANONICAL_REPORT_PAGINATION_INPUTS_PROOF.md",
-    ), "utf8")
-    const pilot = readFileSync(resolve(process.cwd(), "docs/PDF_REPORT_FIDELITY_PILOT.md"), "utf8")
-    const ledger = readFileSync(resolve(process.cwd(), "docs/PHASE_LEDGER.md"), "utf8")
-    const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8")
+
+
     const packageReadme = readFileSync(resolve(process.cwd(), "packages/pdf-renderer-pilot/README.md"), "utf8")
     const packageJson = readJson<any>("packages/pdf-renderer-pilot/package.json")
     expect(qa).toMatchObject({
@@ -320,10 +315,8 @@ describe("PDF-PILOT-08B-R2C-I canonical report pagination inputs", () => {
       },
       nextPhase: "PDF-PILOT-08B-R2C-J bounded document composition transition and pagination execution",
     })
-    expect(proof).toContain("Status: PDF-PILOT-08B-R2C-I pagination inputs and footer capacity proof accepted; pagination remains blocked.")
-    expect(pilot).toContain("## PDF-PILOT-08B-R2C-I Scope")
-    expect(ledger).toContain("## PDF-PILOT-08B-R2C-I Pagination Inputs")
-    expect(readme).toContain("PDF canonical report pagination inputs")
+
+
     expect(packageReadme).toContain("Pagination Input Evidence")
     expect(packageJson.scripts["build:report-pagination-inputs"]).toBe(
       "node scripts/build-canonical-report-pagination-inputs.mjs",

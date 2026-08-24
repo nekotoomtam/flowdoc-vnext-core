@@ -130,13 +130,8 @@ describe("PDF-PILOT-08B-R2C-P canonical static and section calibration", () => {
   })
 
   it("publishes the boundary and leaves callout treatment downstream", () => {
-    const proof = readFileSync(resolve(
-      process.cwd(),
-      "docs/PDF_CANONICAL_STATIC_SECTION_CALIBRATION_PROOF.md",
-    ), "utf8")
-    const pilot = readFileSync(resolve(process.cwd(), "docs/PDF_REPORT_FIDELITY_PILOT.md"), "utf8")
-    const ledger = readFileSync(resolve(process.cwd(), "docs/PHASE_LEDGER.md"), "utf8")
-    const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8")
+
+
     const packageReadme = readFileSync(
       resolve(process.cwd(), "packages/pdf-renderer-pilot/README.md"),
       "utf8",
@@ -146,10 +141,7 @@ describe("PDF-PILOT-08B-R2C-P canonical static and section calibration", () => {
       "packages/pdf-renderer-pilot/scripts/inspect-canonical-full-document-visual-comparison.py",
     ), "utf8")
 
-    expect(proof).toContain("Status: PDF-PILOT-08B-R2C-P static and section calibration accepted")
-    expect(pilot).toContain("## PDF-PILOT-08B-R2C-P Scope")
-    expect(ledger).toContain("## PDF-PILOT-08B-R2C-P Static and Section Calibration")
-    expect(readme).toContain("PDF canonical static and section calibration")
+
     expect(packageReadme).toContain("Static and Section Calibration")
     expect(inspector).toContain('"bodyCommandsStayInsideCalibratedWidth"')
     expect(inspector).toContain('"measuredStaticZoneCalibrationAccepted": True')
