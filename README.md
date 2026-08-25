@@ -1405,7 +1405,8 @@ The package must remain runnable without any parent editor checkout.
 - External file-backed storage adapter and artifact byte store slices are now
   historical core package-lane evidence; current storage ownership is
   represented by `flowdoc-vnext-backend/src/storage/fileJsonStorage.ts` and
-  its backend tests.
+  its backend tests. The old core package source/config for these lanes is now
+  removed.
 - Storage-backed RC roundtrip, backend route storage binding, and artifact job
   execution slices are now historical internal-alpha runner evidence; current
   route/job/session/rich-inline/submission ownership is represented by
@@ -1755,6 +1756,10 @@ The package must remain runnable without any parent editor checkout.
   lanes off deprecated non-route compatibility helper/type imports from
   `@flowdoc/vnext-core` while preserving their historical JSON evidence shape.
   See `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`.
+- Core Package-Lane Source Cleanup removes the old `packages/storage-file-json`
+  and `packages/internal-alpha-runner` source/config after backend parity and
+  historical-test retirement prove current ownership. See
+  `docs/CORE_SERVICE_CONSUMER_MAP.md` and `docs/CORE_RETENTION_MAP.md`.
 - Core Non-Route Public Export Narrowing completes Window NR-C by narrowing
   `src/index.ts` to retained non-route facts and removing service-shaped
   compatibility helper/type/constants from the package public entrypoint. See
@@ -1860,7 +1865,8 @@ The package must remain runnable without any parent editor checkout.
   deprecation markers for non-route service-shaped helper names
 - `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`: Phase 238-241 Window NR-B/NR-C
   retained-test rewrite, public-entrypoint test cleanup, package-lane cleanup,
-  and public export narrowing for non-route service-shaped helpers
+  public export narrowing, and package-lane source/config removal for non-route
+  service-shaped helpers
 - `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`: Phase 242-246 allowlist,
   vertical-slice, storage-adapter, and composition-test rewrite progress, and
   source deletion closeout for owner-module compatibility helpers after NR-C

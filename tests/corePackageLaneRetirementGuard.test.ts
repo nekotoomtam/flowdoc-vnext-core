@@ -34,10 +34,32 @@ describe("core package-lane retirement guard", () => {
     "src/tests/submissionRoute.test.ts",
   ]
 
+  const retiredCorePackageLaneDirectories = [
+    "packages/storage-file-json",
+    "packages/internal-alpha-runner",
+  ]
+
   it("does not keep direct concrete package-lane behavior tests in core", () => {
     for (const testPath of retiredCorePackageLaneTests) {
       expect(existsSync(join(repoRoot, testPath)), `${testPath} should be retired from core tests`).toBe(false)
     }
+  })
+
+  it("removes old concrete package-lane source and root aliases from core", () => {
+    const tsconfig = readText("tsconfig.json")
+    const consumerMap = readText("docs/CORE_SERVICE_CONSUMER_MAP.md")
+    const retentionMap = readText("docs/CORE_RETENTION_MAP.md")
+    const retainedRewrite = readText("docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md")
+
+    for (const packagePath of retiredCorePackageLaneDirectories) {
+      expect(existsSync(join(repoRoot, packagePath)), `${packagePath} should be removed from core`).toBe(false)
+    }
+
+    expect(tsconfig).not.toContain("@flowdoc/storage-file-json")
+    expect(tsconfig).not.toContain("@flowdoc/internal-alpha-runner")
+    expect(`${consumerMap}\n${retentionMap}\n${retainedRewrite}`).toContain("old concrete package lane source/config is removed from core")
+    expect(consumerMap).not.toContain("remove old core package source/config in the next cleanup")
+    expect(retentionMap).not.toContain("old source/config is pending deletion only")
   })
 
   it("points current ownership evidence at backend replacement modules and tests", () => {

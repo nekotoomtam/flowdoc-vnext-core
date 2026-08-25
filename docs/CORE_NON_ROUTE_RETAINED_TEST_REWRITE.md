@@ -6,7 +6,9 @@ Status: Window NR-B retained-test rewrite, public-entrypoint test cleanup,
 package-lane cleanup, Window NR-C public export narrowing, and package-lane
 test retirement for the remaining non-route service-shaped helper exports.
 Phase 246 later completes owner-module compatibility source deletion in
-`docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`.
+`docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`. The old concrete package
+lane source/config is removed from core after backend replacement evidence
+covered those lanes.
 
 ## Purpose
 
@@ -81,9 +83,8 @@ migration evidence, not as current API.
 
 ## Package-Lane Cleanup
 
-The old concrete package lanes now own their internal-alpha compatibility
-record evidence instead of importing the deprecated core helper/type names
-through `@flowdoc/vnext-core`:
+The old concrete package lanes first moved their internal-alpha compatibility
+record evidence off deprecated core helper/type names before source deletion:
 
 - `packages/internal-alpha-runner/src/internalAlphaRecords.ts` creates the
   internal-alpha session and rich-inline record envelopes from retained
@@ -99,9 +100,10 @@ through `@flowdoc/vnext-core`:
   rich-inline-session collections as `unknown` JSON envelope payloads instead
   of importing compatibility record shapes from public core.
 
-This cleanup preserves the historical record JSON shape for internal-alpha
+That cleanup preserved the historical record JSON shape for internal-alpha
 evidence while removing package consumers of the deprecated public helper/type
-names before Window NR-C.
+names before Window NR-C. The package-local source/config is now retired; the
+current owner is backend replacement evidence, not core packages.
 
 ## Package-Lane Test Retirement
 
@@ -129,10 +131,10 @@ Current ownership evidence now lives in backend-owned modules and tests:
 - `flowdoc-vnext-backend/src/tests/richInlineSessionRecord.test.ts`;
 - `flowdoc-vnext-backend/src/tests/submissionRoute.test.ts`.
 
-This retirement does not delete the old package source/config yet. It removes
-the current-test authority that made those package lanes look like active core
-behavior. The next cleanup can remove the old source/config while preserving
-historical phase documents as bounded evidence.
+This retirement removed the current-test authority that made those package
+lanes look like active core behavior. The follow-up cleanup now deletes the
+old package source/config while preserving historical phase documents as
+bounded evidence; old concrete package lane source/config is removed from core.
 
 ## Window NR-C Public Export Narrowing
 
@@ -209,8 +211,9 @@ exports and no longer exist as current source helpers.
   backend/package-owned evidence, not core helper reintroduction.
 - Internal-alpha package lanes preserve historical compatibility record JSON
   shape, but own it locally as evidence rather than core public API.
-- Old package source/config remains until a separate source deletion cleanup,
-  but current tests no longer require concrete package behavior to live in core.
+- Historical package-lane docs still mention deleted package paths as bounded
+  migration evidence; current tests no longer require concrete package behavior
+  to live in core.
 
 ## UNKNOWN
 
@@ -232,12 +235,8 @@ exports and no longer exist as current source helpers.
 - `docs/CORE_SESSION_RICH_WORKFLOW_SPLIT_MAP.md`
 - README and phase ledger pointers
 - guard tests for Window NR-B
-- `packages/internal-alpha-runner/src/internalAlphaRecords.ts`
-- `packages/internal-alpha-runner/src/internalAlphaVerticalSlice.ts`
-- `packages/internal-alpha-runner/src/storageBackedRcRoundtrip.ts`
-- `packages/internal-alpha-runner/src/storageRouteBinding.ts`
-- `packages/internal-alpha-runner/src/index.ts`
-- `packages/storage-file-json/src/index.ts`
+- retired package-lane source/config under `packages/internal-alpha-runner/**`
+- retired package-lane source/config under `packages/storage-file-json/**`
 - `tests/backendRouteStorageBinding.test.ts`
 - `tests/internalAlphaVerticalSlice.test.ts`
 - `tests/storageAdapter.test.ts`
@@ -255,8 +254,8 @@ exports and no longer exist as current source helpers.
   facts instead of compatibility envelope ownership.
 - Test imports changed: compatibility record evidence now avoids deprecated
   helper names from the public core entrypoint.
-- Package-lane implementation changed: internal-alpha smoke evidence uses
-  package-local record factories backed by retained core facts.
+- Package-lane implementation was retired from core after backend replacement
+  evidence covered concrete storage and internal-alpha behavior.
 - Test behavior changed again: direct core package-lane behavior tests are
   retired in favor of backend replacement evidence.
 - Storage adapter typing changed: package-session and rich-inline-session
@@ -268,6 +267,7 @@ exports and no longer exist as current source helpers.
   rich-inline-session collection payloads are generic `unknown` values.
 - Phase 246 later removes the owner-module compatibility helper source while
   leaving retained facts public.
+- Old concrete package lane source/config is removed from core.
 - Runtime behavior is unchanged.
 
 ## Tests Run
@@ -279,7 +279,8 @@ exports and no longer exist as current source helpers.
 ## Risks Left
 
 - Do not reintroduce the deleted compatibility helper source.
-- Remove old concrete package source/config in the next cleanup.
+- Historical package-lane docs remain as bounded evidence after source/config
+  deletion.
 - Production rich-inline replay execution and submission workflow storage remain
   backend work outside this core patch.
 

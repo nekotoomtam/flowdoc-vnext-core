@@ -7,7 +7,7 @@ export removal, backend non-route consumer rewiring, Window NR-B
 retained-test rewrite/public-entrypoint test cleanup, package-lane cleanup,
 Window NR-C public export narrowing, and Phase 246 non-route compatibility
 source deletion, with package-lane test retirement recorded after backend
-parity audit.
+parity audit and old package-lane source/config deletion recorded after that.
 
 ## Purpose
 
@@ -38,6 +38,8 @@ retained-test rewrite, package-lane cleanup, and Window NR-C public export
 narrowing are recorded in `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`;
 Phase 246 compatibility helper source deletion is recorded in
 `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`.
+The old concrete package lane source/config is removed from core after backend
+package-lane parity and direct core package-lane behavior test retirement.
 
 ## Move + Retain Rule
 
@@ -78,8 +80,8 @@ Every service concern move must answer both sides before code is removed:
 | Rich inline session persistence | storage adapter writes, backend API calls, replay service, conflict resolution execution now represented by `flowdoc-vnext-backend/src/storage/richInlineSessionRecord.ts` | rich inline commit semantics, history records, replay patch validation facts, and before/after child snapshots now split into `createVNextRichInlineReplayValidation(...)`; compatibility persistence record source is deleted in Phase 246 | backend consumer rewire, Window NR-B public-entrypoint test cleanup, package-lane cleanup, Window NR-C public export narrowing, and Phase 246 source deletion complete; see `docs/CORE_RICH_INLINE_REPLAY_VALIDATION_SPLIT.md`, `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`, `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`, and `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md` |
 | Submission state | reviewer workflow service, actor/reviewer permissions, route/storage execution now represented by `flowdoc-vnext-backend/src/routes/submissionRoute.ts` | package/document/data identity facts, external workflow status facts, validation facts, and no-mutation contracts now split into `createVNextSubmissionIdentityStatus(...)`; compatibility workflow state record source is deleted in Phase 246 | backend consumer rewire, Window NR-B public-entrypoint test cleanup, package-lane cleanup, Window NR-C public export narrowing, and Phase 246 source deletion complete; see `docs/CORE_SUBMISSION_IDENTITY_STATUS_SPLIT.md`, `docs/CORE_BACKEND_CONSUMER_REWIRE_CLOSEOUT.md`, `docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md`, and `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md` |
 | Editor bridge runtime | backend/editor transport wrappers and product read endpoints currently represented by `src/editorBridge/runtime.ts` consumers | read-only package/graph/pagination/export readiness projection, eventually renamed toward a generic read model | split-contract |
-| Concrete file JSON storage | `flowdoc-vnext-backend/src/storage/fileJsonStorage.ts`, `flowdoc-vnext-backend/src/tests/fileJsonStorage.test.ts`, and future production adapters | no concrete file/db/object-store storage in exported `src/**`; direct core package-lane behavior tests are retired; old source/config is pending deletion only | move-backend |
-| Internal alpha runner | `flowdoc-vnext-backend/src/storage/storageRouteBinding.ts`, `flowdoc-vnext-backend/src/artifacts/artifactJobExecution.ts`, `flowdoc-vnext-backend/src/storage/sessionRecord.ts`, `flowdoc-vnext-backend/src/storage/richInlineSessionRecord.ts`, `flowdoc-vnext-backend/src/routes/submissionRoute.ts`, `flowdoc-vnext-backend/src/tests/storageRouteBinding.test.ts`, `flowdoc-vnext-backend/src/tests/artifactJobExecution.test.ts`, `flowdoc-vnext-backend/src/tests/richInlineSessionRecord.test.ts`, and `flowdoc-vnext-backend/src/tests/submissionRoute.test.ts` | no runner execution in exported `src/**`; direct core package-lane behavior tests are retired; old source/config is pending deletion only | move-backend |
+| Concrete file JSON storage | `flowdoc-vnext-backend/src/storage/fileJsonStorage.ts`, `flowdoc-vnext-backend/src/tests/fileJsonStorage.test.ts`, and future production adapters | no concrete file/db/object-store storage in exported `src/**`; direct core package-lane behavior tests are retired; old concrete package lane source/config is removed from core | move-backend |
+| Internal alpha runner | `flowdoc-vnext-backend/src/storage/storageRouteBinding.ts`, `flowdoc-vnext-backend/src/artifacts/artifactJobExecution.ts`, `flowdoc-vnext-backend/src/storage/sessionRecord.ts`, `flowdoc-vnext-backend/src/storage/richInlineSessionRecord.ts`, `flowdoc-vnext-backend/src/routes/submissionRoute.ts`, `flowdoc-vnext-backend/src/tests/storageRouteBinding.test.ts`, `flowdoc-vnext-backend/src/tests/artifactJobExecution.test.ts`, `flowdoc-vnext-backend/src/tests/richInlineSessionRecord.test.ts`, and `flowdoc-vnext-backend/src/tests/submissionRoute.test.ts` | no runner execution in exported `src/**`; direct core package-lane behavior tests are retired; old concrete package lane source/config is removed from core | move-backend |
 | Template builder sandbox server | backend/editor-lab route, static serving, browser smoke harness | core mutation, packet, and projection contracts consumed by the sandbox | move-backend-or-editor-lab |
 | Text engine WASM and PDF renderer spike | renderer adapter packages and runtime bindings | SPI/contracts, measurement identity, renderer-consumption contracts, and bounded evidence summaries | defer |
 
@@ -134,9 +136,9 @@ Core guard tests should keep these facts true:
    `docs/CORE_COMPATIBILITY_SOURCE_CLEANUP_AUDIT.md`.
 5. Remove deprecated route source files only after historical docs and source
    evidence no longer need them.
-6. Remove old concrete package lane source/config from core; backend parity,
-   consumer rewiring, and direct core package-lane behavior test retirement are
-   proven.
+6. Old concrete package lane source/config is removed from core after backend
+   parity, consumer rewiring, and direct core package-lane behavior test
+   retirement were proven.
 
 ## PASS
 
@@ -159,6 +161,8 @@ Core guard tests should keep these facts true:
 - Direct core package-lane behavior tests are retired after backend replacement
   modules and tests proved the current storage, route-binding, artifact-job,
   session-record, rich-inline-record, and submission-route ownership.
+- Old concrete package lane source/config is removed from core, leaving
+  backend modules/tests as the current concrete package-lane evidence.
 - De-export work is gated by parity, consumer rewiring, retained contract
   coverage, and boundary guard tests.
 
@@ -172,9 +176,8 @@ Core guard tests should keep these facts true:
   remain until source cleanup.
 - Backend and core can drift if duplicated route/storage behavior remains active
   for too long.
-- Old concrete package source/config remains in core until the next deletion
-  cleanup, but no direct core package-lane behavior tests remain as current
-  authority.
+- Historical package-lane docs still mention deleted package paths as bounded
+  migration evidence; do not treat them as current source owners.
 - Session, rich-inline, and submission retained helpers now exist, backend
   consumer rewiring is proven, and service-shaped compatibility helper source
   is deleted.
@@ -212,6 +215,7 @@ Core guard tests should keep these facts true:
 - Phase 246 compatibility helper source deletion is recorded as complete.
 - Direct core package-lane behavior tests are retired; backend replacement
   tests are current package-lane evidence.
+- Old concrete package lane source/config is removed from core.
 
 ## Tests Run
 
@@ -221,8 +225,8 @@ Core guard tests should keep these facts true:
 
 - Deprecated route source cleanup remains optional.
 - Do not reintroduce deleted non-route compatibility helper source.
-- Core package source/config deletion remains the next cleanup; historical-test
-  replacement is now complete.
+- Historical package-lane docs remain as bounded evidence after source/config
+  deletion; backend replacement tests are current authority.
 
 ## Intentionally Not Changed
 

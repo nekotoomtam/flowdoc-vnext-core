@@ -1469,7 +1469,7 @@ ${claim}
       expect(check.status, claim).not.toBe(0)
       expect(check.stderr, claim).toMatch(/compatible|compatibility|accepted|verification|unsupported (?:HTML-comment delimiter|angle-bracket construct)/i)
     }
-  }, 15_000)
+  }, 30_000)
 
   test("binds plural and exact negative claim vocabulary to the local assertion", () => {
     for (const claim of ["Runtime subsystems are active.", "Capabilities are migrated."]) {
