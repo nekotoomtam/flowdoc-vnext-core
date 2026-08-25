@@ -26,6 +26,20 @@ describe("layout public surface cleanup guard", () => {
     symbol: "createVNextTextBlockSpatialIndexUpdateV1",
     inspectionSymbol: "inspectVNextTextBlockSpatialIndexUpdateV1",
   }
+  const internalV1LayoutImplementations = [
+    {
+      source: "src/layout/textBlockSpatialWrappingLayoutV1.ts",
+      symbol: "layoutVNextTextBlockSpatialWrappingV1",
+      inspectionSymbol: "inspectVNextTextBlockSpatialWrappingLayoutV1",
+      retirementNote: "spatial wrapping V1 implementation is internal-only in current core",
+    },
+    {
+      source: "src/layout/textBlockAuthoredBoxGeometryV1.ts",
+      symbol: "layoutVNextTextBlockAuthoredBoxGeometryV1",
+      inspectionSymbol: "inspectVNextTextBlockAuthoredBoxGeometryV1",
+      retirementNote: "authored box geometry V1 implementation is internal-only in current core",
+    },
+  ]
 
   it("removes the retired initial-flow legacy adapter from current core", () => {
     const publicSurface = publicCore as Record<string, unknown>
@@ -51,5 +65,21 @@ describe("layout public surface cleanup guard", () => {
     expect(phaseLedger).toContain(
       "spatial index update V1 wrapper is retired from current core",
     )
+  })
+
+  it("keeps retained V1 layout implementations internal instead of public", () => {
+    const publicSurface = publicCore as Record<string, unknown>
+    const docs = normalizeText([
+      readText("docs/LIVE_DRAFT_MR1_SPATIAL_WRAPPING_3A.md"),
+      readText("docs/LIVE_DRAFT_MR1_AUTHORED_BOX_GEOMETRY_4A.md"),
+      readText("docs/PHASE_LEDGER.md"),
+    ].join("\n"))
+
+    for (const implementation of internalV1LayoutImplementations) {
+      expect(existsSync(join(repoRoot, implementation.source))).toBe(true)
+      expect(publicSurface[implementation.symbol]).toBeUndefined()
+      expect(publicSurface[implementation.inspectionSymbol]).toBeUndefined()
+      expect(docs).toContain(implementation.retirementNote)
+    }
   })
 })

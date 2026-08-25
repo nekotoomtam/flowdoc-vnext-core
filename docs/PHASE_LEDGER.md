@@ -166,6 +166,8 @@ checkpoint at implementation baseline `a249b30`.
   `tests/textBlockSpatialWrappingLayoutV1.test.ts`.
 - Later cleanup note: the spatial index update V1 wrapper is retired from
   current core, including its source, public export, and direct test.
+- Later cleanup note: the spatial wrapping V1 implementation is internal-only
+  in current core; retained characterization evidence imports it directly.
 - Verification: focused Phase 3 gate passed 8 files / 46 tests;
   `npm run type-check` and `git diff --check` passed; final full
   `npm run check` passed 417 files / 2,078 tests including type-check.
@@ -203,6 +205,9 @@ implementation baseline
   `src/layout/textBlockAuthoredBoxGeometryContractV1.ts`,
   `src/layout/textBlockAuthoredBoxGeometryV1.ts`, and
   `tests/textBlockAuthoredBoxGeometryV1.test.ts`.
+- Later cleanup note: the authored box geometry V1 implementation is
+  internal-only in current core; retained characterization evidence imports it
+  directly.
 - Verification: focused Phase 4A gate passed 8 files / 131 tests;
   `git diff --check` passed; full `npm run check` passed 420 files / 2,114
   tests including type-check.

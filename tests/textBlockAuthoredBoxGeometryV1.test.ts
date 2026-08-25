@@ -6,10 +6,14 @@ import {
   createVNextTextBlockInitialFlowV1,
   createVNextTextBlockPersistentFlowTreeV1,
   createVNextTextBlockSpatialIndexV1,
+} from "../src/index.js"
+import {
   inspectVNextTextBlockAuthoredBoxGeometryV1,
   layoutVNextTextBlockAuthoredBoxGeometryV1,
+} from "../src/layout/textBlockAuthoredBoxGeometryV1.js"
+import {
   layoutVNextTextBlockSpatialWrappingV1,
-} from "../src/index.js"
+} from "../src/layout/textBlockSpatialWrappingLayoutV1.js"
 import { stringifyVNextCanonicalJson } from
   "../src/fingerprint/canonicalJson.js"
 import {

@@ -1642,6 +1642,8 @@ At the original Phase 3 baseline, move/resize update evidence retained exact
 old/new affected-band unions and reported `completeIndexRebuildCount: 0`; that
 spatial index update V1 wrapper is retired from current core, so current
 surface evidence keeps before/after provider and layout composition only.
+The spatial wrapping V1 implementation is internal-only in current core while
+its retained characterization evidence remains available in source and tests.
 
 All accepted Phase 3 boundaries retain `mayPublishLayout: false`,
 `productionBinding: false`, and `stagedEditorApply: false`.
@@ -1671,6 +1673,9 @@ larger of Phase 3 flow height and the retained spatial-index
 `maximumBottomLayoutUnit`; overlay envelopes can extend height without
 excluding flow. The empty and overlay-only fast path performs zero spatial
 queries. This is no spatial-line reuse/reconvergence claim.
+The authored box geometry V1 implementation is internal-only in current core
+while its retained characterization evidence remains available in source and
+tests.
 
 Every accepted result retains `mayPublishLayout: false`,
 `productionBinding: false`, and `stagedEditorApply: false`. The positioned

@@ -102,6 +102,7 @@ describe("Live Draft MR1 authored box geometry 4A handoff", () => {
       expect(record).toContain("`mayPublishLayout: false`")
       expect(record).toContain("`productionBinding: false`")
       expect(record).toContain("`stagedEditorApply: false`")
+      expect(record).toContain("authored box geometry V1 implementation is internal-only in current core")
       expect(record).toContain(deferredNoGo)
       expect(record).toContain("Phase 4B")
     }
@@ -131,13 +132,15 @@ describe("Live Draft MR1 authored box geometry 4A handoff", () => {
     }
   })
 
-  it("guards the required public Phase 4A exports", () => {
+  it("guards the required public Phase 4A contracts", () => {
     const publicIndexLines = read("src/index.ts").split(/\r?\n/gu)
 
     for (const statement of [
       'export * from "./layout/textBlockInitialFlowRequestBindingV1.js"',
       'export * from "./layout/textBlockAuthoredBoxGeometryContractV1.js"',
-      'export * from "./layout/textBlockAuthoredBoxGeometryV1.js"',
     ]) expect(publicIndexLines).toContain(statement)
+    expect(publicIndexLines).not.toContain(
+      'export * from "./layout/textBlockAuthoredBoxGeometryV1.js"',
+    )
   })
 })

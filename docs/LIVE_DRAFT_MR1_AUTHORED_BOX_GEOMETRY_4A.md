@@ -79,6 +79,9 @@ runtime activation.
   Phase 4A fingerprints.
 - Zero-inset evidence retains exact Phase 3 geometry after removing only the
   Phase 4A wrapper and regenerated fingerprint facts.
+- The authored box geometry V1 implementation is internal-only in current core;
+  retained characterization evidence imports it directly instead of exposing it
+  through the public index.
 
 ## Auto-Height And Spatial Evidence
 

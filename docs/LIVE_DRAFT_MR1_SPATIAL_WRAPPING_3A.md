@@ -104,6 +104,9 @@ incremental spatial-line reuse.
 - Historical move/resize path-copy evidence remains documented, and current
   before/after provider/layout composition passes without the retired update
   wrapper.
+- The spatial wrapping V1 implementation is internal-only in current core;
+  retained characterization evidence imports it directly instead of exposing it
+  through the public index.
 - MR1-Q exact tree/request/index identity gates and non-publishable,
   non-production authority limits remain enforced.
 

@@ -6,13 +6,15 @@ import {
   createVNextCompactFingerprint,
   createVNextTextBlockPersistentFlowTreeV1,
   createVNextTextBlockSpatialIndexV1,
-  inspectVNextTextBlockSpatialWrappingLayoutV1,
-  layoutVNextTextBlockSpatialWrappingV1,
   provideVNextTextBlockFlowRegionsV1,
   type VNextTextBlockMultiRunLayoutRequestV1,
   type VNextTextBlockSpatialWrapPolicyV1,
   type VNextTextBlockSyntheticPositionedObjectInputV1,
 } from "../src/index.js"
+import {
+  inspectVNextTextBlockSpatialWrappingLayoutV1,
+  layoutVNextTextBlockSpatialWrappingV1,
+} from "../src/layout/textBlockSpatialWrappingLayoutV1.js"
 import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
 import { legacyTextOnlyLayoutRequestFixture } from "./helpers/textBlockInitialFlowV1.js"
 import { SPATIAL_GEOMETRY_OWNER_FINGERPRINT } from "./helpers/textBlockSpatialWrappingV1.js"

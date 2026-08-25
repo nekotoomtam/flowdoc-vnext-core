@@ -82,7 +82,7 @@ describe("Live Draft MR1 spatial wrapping 3A handoff", () => {
     expect(next).toContain(historicalDeferredNoGo)
   })
 
-  it("pins public exports and section-bounded historical cross-runtime and ledger evidence", () => {
+  it("pins public contracts and section-bounded historical cross-runtime and ledger evidence", () => {
     const publicIndexLines = read("src/index.ts").split(/\r?\n/gu)
     const crossRuntime = read("docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md")
     const ledger = read("docs/PHASE_LEDGER.md")
@@ -95,8 +95,10 @@ describe("Live Draft MR1 spatial wrapping 3A handoff", () => {
       'export * from "./layout/textBlockSpatialIndexV1.js"',
       'export * from "./layout/textBlockFlowRegionProviderV1.js"',
       'export * from "./layout/textBlockSpatialWrappingLayoutContractV1.js"',
-      'export * from "./layout/textBlockSpatialWrappingLayoutV1.js"',
     ]) expect(publicIndexLines).toContain(statement)
+    expect(publicIndexLines).not.toContain(
+      'export * from "./layout/textBlockSpatialWrappingLayoutV1.js"',
+    )
 
     expect(requiredReading).toContain("`docs/LIVE_DRAFT_MR1_SPATIAL_WRAPPING_3A.md`")
     for (const active of [phase3, ledgerPhase3]) {
@@ -105,6 +107,7 @@ describe("Live Draft MR1 spatial wrapping 3A handoff", () => {
       expect(active).toContain("`productionBinding: false`")
       expect(active).toContain("`stagedEditorApply: false`")
       expect(active).toContain("spatial index update V1 wrapper is retired from current core")
+      expect(active).toContain("spatial wrapping V1 implementation is internal-only in current core")
       expect(active).toContain(historicalDeferredNoGo)
     }
   })

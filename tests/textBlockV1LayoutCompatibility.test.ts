@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import * as Core from "../src/index.js"
 import {
   layoutVNextTextBlockAuthoredBoxGeometryV1,
-} from "../src/index.js"
+} from "../src/layout/textBlockAuthoredBoxGeometryV1.js"
 import {
   acceptedAuthoredBoxGeometryFixture,
 } from "./helpers/textBlockAuthoredBoxGeometryV1.js"

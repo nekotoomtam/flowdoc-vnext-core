@@ -5,11 +5,13 @@ import {
   createVNextTextBlockSpatialIndexV1,
   createVNextTextBlockSpatialIndexV2,
   inspectVNextTextBlockSpatialWrappingLayoutV2,
-  layoutVNextTextBlockSpatialWrappingV1,
   layoutVNextTextBlockSpatialWrappingV2,
   type VNextTextBlockMultiRunLayoutRequestV1,
   type VNextTextBlockSyntheticPositionedObjectInputV1,
 } from "../src/index.js"
+import {
+  layoutVNextTextBlockSpatialWrappingV1,
+} from "../src/layout/textBlockSpatialWrappingLayoutV1.js"
 import {
   acceptedInlineImageFlowTreeFixture,
   acceptedInlineImageSpatialFixture,
