@@ -69,9 +69,9 @@ describe("Live Draft MR1 spatial wrapping 3A handoff", () => {
     expect(regions).toContain("overlay")
     expect(regions).toContain("zero-space advancement")
     expect(regions).toContain("expanded-band stabilization")
-    expect(updates).toContain("path-copy")
-    expect(updates).toContain("exact old/new affected-band union")
-    expect(updates).toContain("completeIndexRebuildCount: 0")
+    expect(updates).toContain("Phase 3 baseline, move and resize used path-copy")
+    expect(updates).toContain("spatial index update V1 wrapper is retired from current core")
+    expect(updates).toContain("before/after provider and layout composition")
     expect(blockers).toContain(historicalDeferredNoGo)
     expect(verification).toMatch(/Focused Phase 3 result: \d+ test files passed \/ \d+ tests passed\./u)
     expect(verification).toMatch(
@@ -93,7 +93,6 @@ describe("Live Draft MR1 spatial wrapping 3A handoff", () => {
     for (const statement of [
       'export * from "./layout/textBlockSpatialIndexContractV1.js"',
       'export * from "./layout/textBlockSpatialIndexV1.js"',
-      'export * from "./layout/textBlockSpatialIndexUpdateV1.js"',
       'export * from "./layout/textBlockFlowRegionProviderV1.js"',
       'export * from "./layout/textBlockSpatialWrappingLayoutContractV1.js"',
       'export * from "./layout/textBlockSpatialWrappingLayoutV1.js"',
@@ -105,6 +104,7 @@ describe("Live Draft MR1 spatial wrapping 3A handoff", () => {
       expect(active).toContain("`mayPublishLayout: false`")
       expect(active).toContain("`productionBinding: false`")
       expect(active).toContain("`stagedEditorApply: false`")
+      expect(active).toContain("spatial index update V1 wrapper is retired from current core")
       expect(active).toContain(historicalDeferredNoGo)
     }
   })

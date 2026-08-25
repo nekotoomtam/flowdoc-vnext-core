@@ -1631,17 +1631,17 @@ tests.
 `Phase 3: Core Spatial Wrapping 3A` is accepted as a bounded Core synthetic QA
 checkpoint at implementation baseline `a249b30`.
 
-Core now owns the strict `core-synthetic-qa-only` persistent y-interval treap,
+Core owns the strict `core-synthetic-qa-only` persistent y-interval treap,
 subtree max-bottom query pruning, Flow Region Provider, left/right/middle and
 multiple rectangular wrapping intervals, top/bottom barrier and full-width
-zero-space advancement, overlay neutrality, move/resize path copying, and
-expanded-band stabilization. The no-flow-affecting path performs zero spatial
-index queries, and the chosen no-exclusion fixture retains exact accepted
-MR1-Q line geometry and fragments.
+zero-space advancement, overlay neutrality, and expanded-band stabilization.
+The no-flow-affecting path performs zero spatial index queries, and the chosen
+no-exclusion fixture retains exact accepted MR1-Q line geometry and fragments.
 
-Move/resize results retain exact old/new affected-band unions and report
-`completeIndexRebuildCount: 0`; this is not a spatial-line reuse or
-reconvergence claim.
+At the original Phase 3 baseline, move/resize update evidence retained exact
+old/new affected-band unions and reported `completeIndexRebuildCount: 0`; that
+spatial index update V1 wrapper is retired from current core, so current
+surface evidence keeps before/after provider and layout composition only.
 
 All accepted Phase 3 boundaries retain `mayPublishLayout: false`,
 `productionBinding: false`, and `stagedEditorApply: false`.

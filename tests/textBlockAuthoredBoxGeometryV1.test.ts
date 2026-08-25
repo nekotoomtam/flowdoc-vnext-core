@@ -6,7 +6,6 @@ import {
   createVNextTextBlockInitialFlowV1,
   createVNextTextBlockPersistentFlowTreeV1,
   createVNextTextBlockSpatialIndexV1,
-  createVNextTextBlockSpatialIndexUpdateV1,
   inspectVNextTextBlockAuthoredBoxGeometryV1,
   layoutVNextTextBlockAuthoredBoxGeometryV1,
   layoutVNextTextBlockSpatialWrappingV1,
@@ -467,7 +466,7 @@ describe("TextBlock authored box geometry v1", () => {
     expect(result.work.verticalAdvanceCount).toBeGreaterThan(0)
   })
 
-  it("composes a path-copied move without replacing the persistent flow tree", () => {
+  it("composes a move without replacing the persistent flow tree", () => {
     const fixture = acceptedAuthoredBoxGeometryFixture({
       entries: [{
         objectId: "movable",
@@ -485,22 +484,28 @@ describe("TextBlock authored box geometry v1", () => {
         wrapPolicy: "rectangular-exclusion",
       }],
     })
-    const update = createVNextTextBlockSpatialIndexUpdateV1({
-      previousIndex: fixture.spatialIndex,
-      expectedPreviousIndexFingerprint: fixture.spatialIndex.fingerprint,
+    const movedIndex = createVNextTextBlockSpatialIndexV1({
+      inputAuthority: "core-synthetic-qa-only",
       persistentFlowTree: fixture.tree,
       request: fixture.request,
-      objectId: "movable",
-      geometryOwnerFingerprint: SPATIAL_GEOMETRY_OWNER_FINGERPRINT,
-      nextGeometry: {
+      entries: [{
+        objectId: "movable",
+        geometryOwnerFingerprint: SPATIAL_GEOMETRY_OWNER_FINGERPRINT,
         xLayoutUnit: 20_000_000,
         yLayoutUnit: 30_000_000,
         widthLayoutUnit: 15_000_000,
         heightLayoutUnit: 25_000_000,
-      },
+        clearance: {
+          topLayoutUnit: 0,
+          rightLayoutUnit: 0,
+          bottomLayoutUnit: 0,
+          leftLayoutUnit: 0,
+        },
+        wrapPolicy: "rectangular-exclusion",
+      }],
     })
-    expect(update.status).toBe("accepted")
-    if (update.status !== "accepted") throw new Error("spatial update blocked")
+    expect(movedIndex.status).toBe("accepted")
+    if (movedIndex.status !== "accepted") throw new Error("spatial move index blocked")
     const before = layoutVNextTextBlockAuthoredBoxGeometryV1({
       initialFlow: fixture.initialFlow,
       persistentFlowTree: fixture.tree,
@@ -511,7 +516,7 @@ describe("TextBlock authored box geometry v1", () => {
       initialFlow: fixture.initialFlow,
       persistentFlowTree: fixture.tree,
       request: fixture.request,
-      spatialIndex: update.nextIndex,
+      spatialIndex: movedIndex.index,
     })
     if (before.status !== "accepted" || after.status !== "accepted") {
       throw new Error("move composition blocked")
@@ -522,7 +527,6 @@ describe("TextBlock authored box geometry v1", () => {
     expect(after.spatialIndexFingerprint)
       .not.toBe(before.spatialIndexFingerprint)
     expect(after.fingerprint).not.toBe(before.fingerprint)
-    expect(update.work.completeIndexRebuildCount).toBe(0)
     expect(before.lines[0]?.availableIntervals.map((interval) => [
       interval.contentStartLayoutUnit,
       interval.contentEndLayoutUnit,
@@ -568,22 +572,45 @@ describe("TextBlock authored box geometry v1", () => {
         },
       ],
     })
-    const update = createVNextTextBlockSpatialIndexUpdateV1({
-      previousIndex: fixture.spatialIndex,
-      expectedPreviousIndexFingerprint: fixture.spatialIndex.fingerprint,
+    const resizedIndex = createVNextTextBlockSpatialIndexV1({
+      inputAuthority: "core-synthetic-qa-only",
       persistentFlowTree: fixture.tree,
       request: fixture.request,
-      objectId: "resizable-deepest",
-      geometryOwnerFingerprint: SPATIAL_GEOMETRY_OWNER_FINGERPRINT,
-      nextGeometry: {
-        xLayoutUnit: 60_000_000,
-        yLayoutUnit: 40_000_000,
-        widthLayoutUnit: 10_000_000,
-        heightLayoutUnit: 5_000_000,
-      },
+      entries: [
+        {
+          objectId: "resizable-deepest",
+          geometryOwnerFingerprint: SPATIAL_GEOMETRY_OWNER_FINGERPRINT,
+          xLayoutUnit: 60_000_000,
+          yLayoutUnit: 40_000_000,
+          widthLayoutUnit: 10_000_000,
+          heightLayoutUnit: 5_000_000,
+          clearance: {
+            topLayoutUnit: 0,
+            rightLayoutUnit: 0,
+            bottomLayoutUnit: 0,
+            leftLayoutUnit: 0,
+          },
+          wrapPolicy: "overlay",
+        },
+        {
+          objectId: "retained-second-deepest",
+          geometryOwnerFingerprint: SPATIAL_GEOMETRY_OWNER_FINGERPRINT,
+          xLayoutUnit: 60_000_000,
+          yLayoutUnit: 35_000_000,
+          widthLayoutUnit: 10_000_000,
+          heightLayoutUnit: 20_000_000,
+          clearance: {
+            topLayoutUnit: 0,
+            rightLayoutUnit: 0,
+            bottomLayoutUnit: 0,
+            leftLayoutUnit: 0,
+          },
+          wrapPolicy: "overlay",
+        },
+      ],
     })
-    expect(update.status).toBe("accepted")
-    if (update.status !== "accepted") throw new Error("spatial resize blocked")
+    expect(resizedIndex.status).toBe("accepted")
+    if (resizedIndex.status !== "accepted") throw new Error("spatial resize index blocked")
     const before = layoutVNextTextBlockAuthoredBoxGeometryV1({
       initialFlow: fixture.initialFlow,
       persistentFlowTree: fixture.tree,
@@ -594,20 +621,19 @@ describe("TextBlock authored box geometry v1", () => {
       initialFlow: fixture.initialFlow,
       persistentFlowTree: fixture.tree,
       request: fixture.request,
-      spatialIndex: update.nextIndex,
+      spatialIndex: resizedIndex.index,
     })
     if (before.status !== "accepted" || after.status !== "accepted") {
       throw new Error("resize composition blocked")
     }
 
     expect(fixture.spatialIndex.summary.maximumBottomLayoutUnit).toBe(70_000_000)
-    expect(update.nextIndex.summary.maximumBottomLayoutUnit).toBe(55_000_000)
+    expect(resizedIndex.index.summary.maximumBottomLayoutUnit).toBe(55_000_000)
     expect(before.geometry.spatialMaximumBottomLayoutUnit).toBe(70_000_000)
     expect(before.geometry.outerHeightLayoutUnit).toBe(74_000_000)
     expect(after.geometry.spatialMaximumBottomLayoutUnit).toBe(55_000_000)
     expect(after.geometry.contentExtentBottomLayoutUnit).toBe(55_000_000)
     expect(after.geometry.outerHeightLayoutUnit).toBe(59_000_000)
-    expect(update.work.completeIndexRebuildCount).toBe(0)
   })
 
   it("blocks every unsupported Initial Flow capability without partial geometry", () => {

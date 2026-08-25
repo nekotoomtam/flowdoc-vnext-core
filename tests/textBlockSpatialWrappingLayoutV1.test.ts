@@ -3,10 +3,8 @@ import * as ts from "typescript"
 import { describe, expect, it } from "vitest"
 import {
   acceptVNextTextBlockMultiRunLayoutV1,
-  collectVNextTextBlockSpatialIndexNodesForQaV1,
   createVNextCompactFingerprint,
   createVNextTextBlockPersistentFlowTreeV1,
-  createVNextTextBlockSpatialIndexUpdateV1,
   createVNextTextBlockSpatialIndexV1,
   inspectVNextTextBlockSpatialWrappingLayoutV1,
   layoutVNextTextBlockSpatialWrappingV1,
@@ -671,7 +669,7 @@ describe("TextBlock spatial wrapping layout v1", () => {
     })
   })
 
-  it("composes a path-copied move into exact before/after spatial layouts", () => {
+  it("composes a move into exact before/after spatial layouts", () => {
     const request = oneHundredUnitRequest()
     request.shapingRuns[0]!.clusters = request.shapingRuns[0]!.clusters.map(
       (cluster) => ({ ...cluster, advanceLayoutUnit: 30_000_000 }),
@@ -683,22 +681,20 @@ describe("TextBlock spatial wrapping layout v1", () => {
       rightLayoutUnit: 60_000_000,
       bottomLayoutUnit: 20_000_000,
     })])
-    const moved = createVNextTextBlockSpatialIndexUpdateV1({
-      previousIndex: fixture.spatialIndex,
-      expectedPreviousIndexFingerprint: fixture.spatialIndex.fingerprint,
+    const moved = createVNextTextBlockSpatialIndexV1({
+      inputAuthority: "core-synthetic-qa-only",
       persistentFlowTree: fixture.tree,
       request: fixture.request,
-      objectId: "moving-middle",
-      geometryOwnerFingerprint: SPATIAL_GEOMETRY_OWNER_FINGERPRINT,
-      nextGeometry: {
-        xLayoutUnit: 40_000_000,
-        yLayoutUnit: 40_000_000,
-        widthLayoutUnit: 20_000_000,
-        heightLayoutUnit: 20_000_000,
-      },
+      entries: [spatialEntry({
+        objectId: "moving-middle",
+        leftLayoutUnit: 40_000_000,
+        topLayoutUnit: 40_000_000,
+        rightLayoutUnit: 60_000_000,
+        bottomLayoutUnit: 60_000_000,
+      })],
     })
     expect(moved.status).toBe("accepted")
-    if (moved.status !== "accepted") throw new Error("composed move blocked")
+    if (moved.status !== "accepted") throw new Error("composed move index blocked")
     const previousLayout = layoutVNextTextBlockSpatialWrappingV1({
       persistentFlowTree: fixture.tree,
       request: fixture.request,
@@ -708,7 +704,7 @@ describe("TextBlock spatial wrapping layout v1", () => {
     const nextLayout = layoutVNextTextBlockSpatialWrappingV1({
       persistentFlowTree: fixture.tree,
       request: fixture.request,
-      spatialIndex: moved.nextIndex,
+      spatialIndex: moved.index,
       startYLayoutUnit: 0,
     })
     expect(previousLayout.status).toBe("accepted")
@@ -723,10 +719,6 @@ describe("TextBlock spatial wrapping layout v1", () => {
     expect(nextLayout.lines[0]!.availableIntervals).toEqual([
       { startLayoutUnit: 0, endLayoutUnit: 100_000_000 },
     ])
-    expect(moved.update.affectedBands).toEqual([
-      { topLayoutUnit: 0, bottomLayoutUnit: 20_000_000 },
-      { topLayoutUnit: 40_000_000, bottomLayoutUnit: 60_000_000 },
-    ])
     expect(previousLayout.mayPublishLayout).toBe(false)
     expect(nextLayout.mayPublishLayout).toBe(false)
     expect(previousLayout.productionBinding).toBe(false)
@@ -736,7 +728,7 @@ describe("TextBlock spatial wrapping layout v1", () => {
   })
 
   it("composes a resize through provider and layout without replacing the flow tree", () => {
-    const fixture = layoutFixture(oneHundredUnitRequest(), [
+    const initialEntries = [
       spatialEntry({
         objectId: "resizing-left",
         leftLayoutUnit: 0,
@@ -766,25 +758,26 @@ describe("TextBlock spatial wrapping layout v1", () => {
         bottomLayoutUnit: 110_000_000,
         wrapPolicy: "overlay",
       }),
-    ])
+    ]
+    const fixture = layoutFixture(oneHundredUnitRequest(), initialEntries)
     const persistentFlowTree = fixture.tree
     const persistentFlowTreeFingerprint = fixture.tree.fingerprint
-    const resized = createVNextTextBlockSpatialIndexUpdateV1({
-      previousIndex: fixture.spatialIndex,
-      expectedPreviousIndexFingerprint: fixture.spatialIndex.fingerprint,
+    const resized = createVNextTextBlockSpatialIndexV1({
+      inputAuthority: "core-synthetic-qa-only",
       persistentFlowTree: fixture.tree,
       request: fixture.request,
-      objectId: "resizing-left",
-      geometryOwnerFingerprint: SPATIAL_GEOMETRY_OWNER_FINGERPRINT,
-      nextGeometry: {
-        xLayoutUnit: 0,
-        yLayoutUnit: 0,
-        widthLayoutUnit: 40_000_000,
-        heightLayoutUnit: 20_000_000,
-      },
+      entries: [
+        spatialEntry({
+          objectId: "resizing-left",
+          leftLayoutUnit: 0,
+          rightLayoutUnit: 40_000_000,
+          bottomLayoutUnit: 20_000_000,
+        }),
+        ...initialEntries.slice(1),
+      ],
     })
     expect(resized.status).toBe("accepted")
-    if (resized.status !== "accepted") throw new Error("composed resize blocked")
+    if (resized.status !== "accepted") throw new Error("composed resize index blocked")
     const previousRegion = provideVNextTextBlockFlowRegionsV1({
       spatialIndex: fixture.spatialIndex,
       persistentFlowTree: fixture.tree,
@@ -793,7 +786,7 @@ describe("TextBlock spatial wrapping layout v1", () => {
       contentInsets: { leftLayoutUnit: 0, rightLayoutUnit: 0 },
     })
     const nextRegion = provideVNextTextBlockFlowRegionsV1({
-      spatialIndex: resized.nextIndex,
+      spatialIndex: resized.index,
       persistentFlowTree: fixture.tree,
       request: fixture.request,
       band: { topLayoutUnit: 0, bottomLayoutUnit: 10_000_000 },
@@ -816,7 +809,7 @@ describe("TextBlock spatial wrapping layout v1", () => {
     const nextLayout = layoutVNextTextBlockSpatialWrappingV1({
       persistentFlowTree: fixture.tree,
       request: fixture.request,
-      spatialIndex: resized.nextIndex,
+      spatialIndex: resized.index,
       startYLayoutUnit: 0,
     })
     expect(previousLayout).toMatchObject({
@@ -827,17 +820,7 @@ describe("TextBlock spatial wrapping layout v1", () => {
       status: "accepted",
       lines: [{ fragments: [{ xLayoutUnit: 40_000_000 }] }],
     })
-    expect(resized.update.affectedBands).toEqual([
-      { topLayoutUnit: 0, bottomLayoutUnit: 20_000_000 },
-    ])
-    const previousNodes = collectVNextTextBlockSpatialIndexNodesForQaV1(
-      fixture.spatialIndex,
-    )
-    const nextNodes = collectVNextTextBlockSpatialIndexNodesForQaV1(
-      resized.nextIndex,
-    )
-    expect(nextNodes.some((node) => previousNodes.includes(node))).toBe(true)
-    expect(resized.nextIndex.persistentFlowTreeFingerprint).toBe(
+    expect(resized.index.persistentFlowTreeFingerprint).toBe(
       persistentFlowTreeFingerprint,
     )
     expect(fixture.tree).toBe(persistentFlowTree)

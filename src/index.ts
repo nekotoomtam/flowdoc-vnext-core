@@ -64,7 +64,6 @@ export * from "./layout/textBlockPersistentFlowUpdateV1.js"
 export * from "./layout/textBlockFlowRegionProviderV1.js"
 export * from "./layout/textBlockSpatialIndexContractV1.js"
 export * from "./layout/textBlockSpatialIndexV1.js"
-export * from "./layout/textBlockSpatialIndexUpdateV1.js"
 export * from "./layout/textBlockSpatialIndexContractV2.js"
 export {
   createVNextTextBlockSpatialIndexV2,

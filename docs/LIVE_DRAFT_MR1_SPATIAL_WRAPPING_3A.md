@@ -81,14 +81,12 @@ incremental spatial-line reuse.
 
 ## Move And Resize Evidence
 
-- Move and resize use path-copy treap delete/insert operations resolved from
-  the process-local object-id binding; they do not rebuild the complete index.
-- Accepted work reports `completeIndexRebuildCount: 0` and preserves object
-  identity for unchanged entries and at least one untouched subtree in the
-  bounded structural-sharing fixture. Delete work counts include nodes
-  inspected while merging both retained subtrees.
-- Every update retains the exact old/new affected-band union. Disjoint move
-  bands remain separate; touching or overlapping resize bands merge.
+- At the Phase 3 baseline, move and resize used path-copy treap delete/insert
+  operations resolved from the process-local object-id binding, with exact
+  old/new affected-band unions and bounded structural-sharing evidence.
+- The spatial index update V1 wrapper is retired from current core; current
+  spatial wrapping evidence keeps before/after provider and layout composition
+  without exporting that wrapper.
 - Composed evidence moves a middle exclusion below line 0 and changes the
   layout from two line-0 intervals to one full-width interval. Resizing a left
   exclusion changes both provider interval start and fragment x while the
@@ -103,8 +101,9 @@ incremental spatial-line reuse.
   fingerprints pass.
 - Left/right/middle/multiple rectangular wrapping, barriers, overlay,
   zero-space advancement, hard breaks, and expanded-band re-query pass.
-- Move/resize path copying, affected-band union, structural sharing, and
-  before/after provider/layout composition pass.
+- Historical move/resize path-copy evidence remains documented, and current
+  before/after provider/layout composition passes without the retired update
+  wrapper.
 - MR1-Q exact tree/request/index identity gates and non-publishable,
   non-production authority limits remain enforced.
 

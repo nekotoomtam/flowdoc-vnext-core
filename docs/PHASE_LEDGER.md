@@ -149,9 +149,10 @@ checkpoint at implementation baseline `a249b30`.
   closure, Core-derived fragment geometry, and monotonic expanded-band
   stabilization without trusting retained `request.lines` as new spatial
   decisions.
-- Added path-copy move/resize updates with exact old/new affected-band unions,
-  `completeIndexRebuildCount: 0`, and bounded untouched-subtree identity reuse.
-  This does not claim spatial-line reuse or reconvergence.
+- At the original Phase 3 baseline, path-copy move/resize updates covered exact
+  old/new affected-band unions, `completeIndexRebuildCount: 0`, and bounded
+  untouched-subtree identity reuse. This did not claim spatial-line reuse or
+  reconvergence.
 - Empty and overlay-only indexes retain the zero-query fast path. A 1,024-entry
   narrow query proves pruning without a complete scan. The no-exclusion
   fixture retains exact accepted MR1-Q line range/y/fragment parity.
@@ -161,9 +162,10 @@ checkpoint at implementation baseline `a249b30`.
 - Evidence: `docs/LIVE_DRAFT_MR1_SPATIAL_WRAPPING_3A.md`,
   `tests/liveDraftMr1SpatialWrapping3a.test.ts`,
   `tests/textBlockSpatialIndexV1.test.ts`,
-  `tests/textBlockSpatialIndexUpdateV1.test.ts`,
   `tests/textBlockFlowRegionProviderV1.test.ts`, and
   `tests/textBlockSpatialWrappingLayoutV1.test.ts`.
+- Later cleanup note: the spatial index update V1 wrapper is retired from
+  current core, including its source, public export, and direct test.
 - Verification: focused Phase 3 gate passed 8 files / 46 tests;
   `npm run type-check` and `git diff --check` passed; final full
   `npm run check` passed 417 files / 2,078 tests including type-check.
