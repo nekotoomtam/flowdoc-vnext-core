@@ -1444,7 +1444,8 @@ The package must remain runnable without any parent editor checkout.
   JSON-safe summary facts while keeping raw evidence outside core.
 - Measurement evidence summary manifest gate defines a JSON-safe manifest
   shape for digest identity, parity, drift, status, and retention pointers
-  while keeping raw native/WASM/renderer evidence outside root tests/docs.
+  while keeping raw native/WASM/renderer evidence outside root documentation or
+  tests.
 - Measurement evidence summary manifest fixture stub gate adds
   `fixtures/measurement-evidence-summary-manifest.stub.v1.json` with all
   release-gating fixture rows still unknown/missing, raw evidence excluded, and
@@ -1517,29 +1518,29 @@ The package must remain runnable without any parent editor checkout.
 - Native evidence summary gate adds package-local JSON-safe metadata for the
   Thai line-break core and canonical Latin paragraph subset, attaches it to
   the pinned digest context, and keeps raw native evidence outside root
-  docs/tests while blocking WASM evidence, parity, drift, thresholds, accepted
-  manifests, and production measurement replacement.
+  documentation or tests while blocking WASM evidence, parity, drift,
+  thresholds, accepted manifests, and production measurement replacement.
 - WASM evidence summary gate adds package-local JSON-safe metadata for the
   same Thai line-break core and canonical Latin paragraph subset, attaches it
   to the same pinned digest context, and keeps raw WASM evidence outside root
-  docs/tests while blocking native/WASM parity, drift, thresholds, accepted
-  manifests, and production measurement replacement.
+  documentation or tests while blocking native/WASM parity, drift, thresholds,
+  accepted manifests, and production measurement replacement.
 - Native/WASM parity summary gate compares the native and WASM summary
   metadata for that same subset, records matching digest context, fixture ids,
   scenario ids, and required fact coverage, and keeps raw native/WASM evidence
-  outside root docs/tests while blocking renderer drift, thresholds, accepted
-  manifests, and production measurement replacement.
+  outside root documentation or tests while blocking renderer drift,
+  thresholds, accepted manifests, and production measurement replacement.
 - Renderer-backed drift summary gate adds package-local JSON-safe metadata for
   the same Thai line-break core and canonical Latin paragraph subset, records
   unthresholded drift metadata against the matched parity/digest context, and
-  keeps raw native/WASM/renderer evidence outside root docs/tests while
-  blocking numeric thresholds, accepted manifests, and production measurement
-  replacement.
+  keeps raw native/WASM/renderer evidence outside root documentation or tests
+  while blocking numeric thresholds, accepted manifests, and production
+  measurement replacement.
 - Numeric drift threshold decision accepts the package-local JSON-safe width,
   height, and line-count drift threshold policy for that same subset and
   context while keeping raw native/WASM/renderer evidence outside root
-  docs/tests and blocking accepted manifest population, production binding,
-  and default-measurer replacement.
+  documentation or tests and blocking accepted manifest population, production
+  binding, and default-measurer replacement.
 - Accepted summary manifest population adds a root JSON-safe manifest with
   accepted entries for the same Thai line-break core and canonical Latin
   paragraph subset while keeping the full v1 matrix partial and keeping
@@ -2355,9 +2356,9 @@ The package must remain runnable without any parent editor checkout.
 - concrete native/WASM parity execution, ICU4X execution, default
   renderer-backed provider binding, or production measurement replacement
   beyond the Phase 135 renderer-backed provider bridge boundary
-- raw native/WASM/renderer evidence values in root docs/tests, full-matrix
-  accepted summary manifest, WASM artifact loading, or production measurement
-  replacement beyond the template/variable/render planning gate
+- raw native/WASM/renderer evidence values in root documentation or tests,
+  full-matrix accepted summary manifest, WASM artifact loading, or production
+  measurement replacement beyond the template/variable/render planning gate
 - concrete production publish route or storage behavior, variable schema/data
   contract implementation, runtime data validation, runtime default
   application, runtime compatibility enforcement, durable job lifecycle,
