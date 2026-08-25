@@ -30,7 +30,6 @@ describe("core non-route retained-test rewrite", () => {
     "tests/sessionPackageSnapshot.test.ts",
     "tests/richInlineReplayValidation.test.ts",
     "tests/submissionIdentityStatus.test.ts",
-    "tests/backendRouteStorageBinding.test.ts",
     "tests/richInlineLiveExactParityAudit.test.ts",
     "tests/storageAdapter.test.ts",
     "tests/verticalSliceStorageSimulation.test.ts",
@@ -132,39 +131,45 @@ describe("core non-route retained-test rewrite", () => {
     expect(doc).toContain("Public entrypoint exports are now narrowed to retained facts")
   })
 
-  it("rewires old concrete package lanes off public compatibility helpers", () => {
-    const packageSources = [
-      "packages/internal-alpha-runner/src/internalAlphaRecords.ts",
-      "packages/internal-alpha-runner/src/internalAlphaVerticalSlice.ts",
-      "packages/internal-alpha-runner/src/storageBackedRcRoundtrip.ts",
-      "packages/internal-alpha-runner/src/storageRouteBinding.ts",
-      "packages/storage-file-json/src/index.ts",
+  it("retires old concrete package-lane behavior tests in favor of backend replacement evidence", () => {
+    const doc = readText("docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md")
+    const consumerMap = readText("docs/CORE_SERVICE_CONSUMER_MAP.md")
+    const retention = readText("docs/CORE_RETENTION_MAP.md")
+    const retiredTests = [
+      "tests/storageFileJsonAdapter.test.ts",
+      "tests/artifactByteStoreSlice.test.ts",
+      "tests/storageBackedRcRoundtripSmoke.test.ts",
+      "tests/backendRouteStorageBinding.test.ts",
+      "tests/artifactJobExecutionSlice.test.ts",
+      "tests/internalAlphaVerticalSlice.test.ts",
     ]
-    const deprecatedPublicNames = [
-      "createVNextSessionStorageRecord",
-      "createVNextRichInlineSessionPersistenceRecord",
-      "createVNextSubmissionStateRecord",
-      "VNextSessionStorageRecord",
-      "VNextRichInlineSessionPersistenceRecord",
+    const backendEvidence = [
+      "flowdoc-vnext-backend/src/storage/fileJsonStorage.ts",
+      "flowdoc-vnext-backend/src/storage/storageRouteBinding.ts",
+      "flowdoc-vnext-backend/src/artifacts/artifactJobExecution.ts",
+      "flowdoc-vnext-backend/src/storage/sessionRecord.ts",
+      "flowdoc-vnext-backend/src/storage/richInlineSessionRecord.ts",
+      "flowdoc-vnext-backend/src/routes/submissionRoute.ts",
+      "flowdoc-vnext-backend/src/tests/fileJsonStorage.test.ts",
+      "flowdoc-vnext-backend/src/tests/storageRouteBinding.test.ts",
+      "flowdoc-vnext-backend/src/tests/artifactJobExecution.test.ts",
+      "flowdoc-vnext-backend/src/tests/richInlineSessionRecord.test.ts",
+      "flowdoc-vnext-backend/src/tests/submissionRoute.test.ts",
     ]
 
-    for (const sourcePath of packageSources) {
-      const source = readText(sourcePath)
-
-      for (const importName of deprecatedPublicNames) {
-        expectNoNamedImportFrom(source, "@flowdoc/vnext-core", importName)
-      }
+    for (const testPath of retiredTests) {
+      expect(doc).toContain(testPath)
+    }
+    for (const path of backendEvidence) {
+      expect(doc).toContain(path)
+      expect(consumerMap).toContain(path)
+      expect(retention).toContain(path)
     }
 
-    const packageRecords = readText("packages/internal-alpha-runner/src/internalAlphaRecords.ts")
-    const fileJsonAdapter = readText("packages/storage-file-json/src/index.ts")
-    const doc = readText("docs/CORE_NON_ROUTE_RETAINED_TEST_REWRITE.md")
-
-    expect(packageRecords).toContain("createVNextSessionPackageSnapshot")
-    expect(packageRecords).toContain("createVNextRichInlineReplayValidation")
-    expect(fileJsonAdapter).toContain("packageSessions: FlowDocFileJsonStorageCollection<unknown>")
-    expect(fileJsonAdapter).toContain("richInlineSessions: FlowDocFileJsonStorageCollection<unknown>")
     expect(doc).toContain("Package-Lane Cleanup")
+    expect(doc).toContain("Package-Lane Test Retirement")
+    expect(consumerMap).toContain("backend package-lane parity and historical-test retirement are now proven")
+    expect(retention).toContain("direct core package-lane behavior tests are retired")
   })
 
   it("publishes Window NR-B in repo navigation", () => {

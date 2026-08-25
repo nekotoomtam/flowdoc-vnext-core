@@ -12,8 +12,6 @@ describe("PDF renderer decision gate", () => {
     const ledger = readText("../docs/PHASE_LEDGER.md")
     const roadmap = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
     const rootPackage = readText("../package.json")
-    const runnerPackage = readText("../packages/internal-alpha-runner/package.json")
-    const artifactJobTest = readText("./artifactJobExecutionSlice.test.ts")
 
     expect(doc).toContain("Status: Phase 178 PDF renderer decision gate.")
     expect(doc).toContain("Continue using the existing dependency-free minimal PDF spike for internal-alpha")
@@ -31,9 +29,8 @@ describe("PDF renderer decision gate", () => {
     expect(roadmap).toContain("Current next step after Phase 178:")
     expect(roadmap).toContain("Phase 179: Measurement Rollout Gate")
     expect(roadmap).toContain("Phase 179 is now complete")
-    expect(artifactJobTest).toContain("historical Phase 178 handoff")
+    expect(doc).toContain("vertical slice evidence only")
     expect(rootPackage).not.toMatch(/pdfkit|pdf-lib|jspdf|playwright|puppeteer/u)
-    expect(runnerPackage).not.toMatch(/pdfkit|pdf-lib|jspdf|playwright|puppeteer/u)
   })
 
   it("keeps the decision report and non-work explicit", () => {

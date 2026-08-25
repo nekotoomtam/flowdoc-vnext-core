@@ -54,9 +54,17 @@ describe("core retention map", () => {
       "src/authoring/richInlineSessionPersistence.ts",
       "src/workflow/submissionState.ts",
       "src/editorBridge/runtime.ts",
-      "packages/storage-file-json",
-      "packages/internal-alpha-runner",
-      "flowdoc-vnext-backend",
+      "flowdoc-vnext-backend/src/storage/fileJsonStorage.ts",
+      "flowdoc-vnext-backend/src/storage/storageRouteBinding.ts",
+      "flowdoc-vnext-backend/src/artifacts/artifactJobExecution.ts",
+      "flowdoc-vnext-backend/src/storage/sessionRecord.ts",
+      "flowdoc-vnext-backend/src/storage/richInlineSessionRecord.ts",
+      "flowdoc-vnext-backend/src/routes/submissionRoute.ts",
+      "flowdoc-vnext-backend/src/tests/fileJsonStorage.test.ts",
+      "flowdoc-vnext-backend/src/tests/storageRouteBinding.test.ts",
+      "flowdoc-vnext-backend/src/tests/artifactJobExecution.test.ts",
+      "flowdoc-vnext-backend/src/tests/richInlineSessionRecord.test.ts",
+      "flowdoc-vnext-backend/src/tests/submissionRoute.test.ts",
     ]
 
     for (const section of requiredSections) {
@@ -69,6 +77,7 @@ describe("core retention map", () => {
     expect(doc).toContain("backend owns")
     expect(doc).toContain("core retains")
     expect(doc).toContain("temporary duplicate")
+    expect(doc).toContain("direct core package-lane behavior tests are retired")
     expect(doc).toContain("Backend non-route consumer rewiring is now proven")
     expect(doc).toContain("Do not remove public exports only because backend P1 exists.")
     expect(audit).toContain("## Recommended Next Patch")

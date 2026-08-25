@@ -31,8 +31,6 @@ describe("core service consumer map", () => {
       "src/authoring/sessionStorage.ts",
       "src/authoring/richInlineSessionPersistence.ts",
       "src/workflow/submissionState.ts",
-      "packages/storage-file-json",
-      "packages/internal-alpha-runner",
       "flowdoc-vnext-backend/src/routes/generationRoute.ts",
       "flowdoc-vnext-backend/src/routes/artifactRoute.ts",
       "flowdoc-vnext-backend/src/storage/fileJsonStorage.ts",
@@ -41,6 +39,11 @@ describe("core service consumer map", () => {
       "flowdoc-vnext-backend/src/storage/sessionRecord.ts",
       "flowdoc-vnext-backend/src/storage/richInlineSessionRecord.ts",
       "flowdoc-vnext-backend/src/routes/submissionRoute.ts",
+      "flowdoc-vnext-backend/src/tests/fileJsonStorage.test.ts",
+      "flowdoc-vnext-backend/src/tests/storageRouteBinding.test.ts",
+      "flowdoc-vnext-backend/src/tests/artifactJobExecution.test.ts",
+      "flowdoc-vnext-backend/src/tests/richInlineSessionRecord.test.ts",
+      "flowdoc-vnext-backend/src/tests/submissionRoute.test.ts",
       "flowdoc-vnext-editor",
       "src/core/coreAdapter.ts",
     ]
@@ -59,6 +62,7 @@ describe("core service consumer map", () => {
     expect(doc).toContain("createFlowDocBackendArtifactGenerationRouteResponse")
     expect(doc).toContain("Backend consumer rewiring is merged")
     expect(doc).toContain("Backend tests assert")
+    expect(doc).toContain("backend package-lane parity and historical-test retirement are now proven")
     expect(doc).toContain("no direct service-shaped export consumer was found")
   })
 

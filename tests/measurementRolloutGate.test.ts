@@ -11,7 +11,6 @@ describe("measurement rollout gate", () => {
     const readme = readText("../README.md")
     const ledger = readText("../docs/PHASE_LEDGER.md")
     const roadmap = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
-    const pdfDecisionTest = readText("./pdfRendererDecisionGate.test.ts")
 
     expect(doc).toContain("Status: Phase 179 measurement rollout gate.")
     expect(doc).toContain("Allow guarded internal-alpha measurement evidence")
@@ -33,7 +32,7 @@ describe("measurement rollout gate", () => {
     expect(roadmap).toContain("Current next step after Phase 179:")
     expect(roadmap).toContain("Phase 180: Internal Alpha Vertical Slice")
     expect(roadmap).toContain("Phase 180 is now complete")
-    expect(pdfDecisionTest).toContain("historical Phase 178 handoff")
+    expect(roadmap).toContain("## Historical Phase 178 Handoff")
   })
 
   it("keeps production rollout blockers and non-work explicit", () => {

@@ -58,7 +58,7 @@ describe("internal alpha close audit and documentation consolidation gate", () =
     const readme = readText("../README.md")
     const ledger = readText("../docs/PHASE_LEDGER.md")
     const roadmap = readText("../docs/PHASE_18_IMPLEMENTATION_ROADMAP.md")
-    const phase180Test = readText("./internalAlphaVerticalSlice.test.ts")
+    const audit = readText("../docs/INTERNAL_ALPHA_CLOSE_AUDIT_AND_DOC_CONSOLIDATION_GATE.md")
 
     expect(readme).toContain("Internal alpha close audit and documentation consolidation gate")
     expect(readme).toContain("docs/INTERNAL_ALPHA_CLOSE_AUDIT_AND_DOC_CONSOLIDATION_GATE.md")
@@ -68,7 +68,7 @@ describe("internal alpha close audit and documentation consolidation gate", () =
     expect(roadmap).toContain("## Phase 181: Internal Alpha Close Audit And Documentation Consolidation Gate")
     expect(roadmap).toContain("Historical Phase 181 Handoff")
     expect(roadmap).toContain("Phase 182: V1 Hardening Backlog Triage Gate")
-    expect(phase180Test).toContain("historical Phase 181 handoff")
+    expect(audit).toContain("Phase-specific docs remain evidence records and are not deleted or moved.")
   })
 
   it("keeps required audit report sections visible", () => {

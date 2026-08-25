@@ -1399,27 +1399,18 @@ The package must remain runnable without any parent editor checkout.
 - Pre-Phase 172 risk / unknown register sharpens input, browser, commit,
   fallback, field-chip, and storage-coupling risks so the storage choice gate
   cannot inherit production input readiness claims by accident.
-- Concrete storage choice gate selects `packages/storage-file-json` as the
-  first external internal-alpha record adapter path, defers SQLite/native
-  dependency risk, and keeps artifact bytes for a later byte-store slice.
-- External file-backed storage adapter slice implements
-  `@flowdoc/storage-file-json` outside core with real JSON record
-  read-after-write, idempotency replay, expectedRevision conflicts, and
-  revision increments while leaving artifact bytes to Phase 174.
-- Artifact byte store slice adds a separate filesystem byte store in
-  `@flowdoc/storage-file-json` with sha256 computation, read-back, missing
-  artifact errors, and manifest-to-byte consistency checks while keeping
-  record writes and byte writes non-transactional.
-- Storage-backed RC roundtrip smoke adds `@flowdoc/internal-alpha-runner` and
-  runs the first RC scenario through concrete file-backed records plus artifact
-  bytes before route-shaped storage binding.
-- Backend route storage binding boundary adds route-shaped helpers over the
-  concrete record adapter for session save/load and artifact request/status/
-  metadata without registering a server route or streaming bytes.
-- Artifact job execution slice runs the internal-alpha job path from queued
-  job through minimal PDF spike bytes, filesystem byte storage, rendered
-  manifest, and rendered job status without claiming production renderer or
-  backend readiness.
+- Concrete storage choice gate historically selected the first internal-alpha
+  file-backed JSON record adapter path, defers SQLite/native dependency risk,
+  and keeps artifact bytes for a later byte-store slice.
+- External file-backed storage adapter and artifact byte store slices are now
+  historical core package-lane evidence; current storage ownership is
+  represented by `flowdoc-vnext-backend/src/storage/fileJsonStorage.ts` and
+  its backend tests.
+- Storage-backed RC roundtrip, backend route storage binding, and artifact job
+  execution slices are now historical internal-alpha runner evidence; current
+  route/job/session/rich-inline/submission ownership is represented by
+  backend-owned modules and tests. See `docs/CORE_SERVICE_CONSUMER_MAP.md` and
+  `docs/CORE_RETENTION_MAP.md`.
 - PDF renderer decision gate keeps the dependency-free minimal PDF spike as
   internal-alpha evidence only and defers production renderer package selection
   until after measurement rollout evidence.
