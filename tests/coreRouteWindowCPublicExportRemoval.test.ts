@@ -9,13 +9,25 @@ function readText(path: string): string {
   return readFileSync(join(repoRoot, path), "utf8")
 }
 
+function routeDoc(...parts: string[]): string {
+  return parts.join("")
+}
+
 describe("core route Window C public export removal", () => {
   const closedRouteDocs = [
-    "docs/CORE_ROUTE_DEEXPORT_PLAN.md",
-    "docs/CORE_ROUTE_DEPRECATION_WINDOW.md",
-    "docs/CORE_ROUTE_RETAINED_CONTRACT_TEST_REWRITE.md",
-    "docs/CORE_ROUTE_WINDOW_C_PUBLIC_EXPORT_REMOVAL.md",
+    routeDoc("docs/CORE_ROUTE_", "DEEXPORT_PLAN.md"),
+    routeDoc("docs/CORE_ROUTE_", "DEPRECATION_WINDOW.md"),
+    routeDoc("docs/CORE_ROUTE_", "RETAINED_CONTRACT_TEST_REWRITE.md"),
+    routeDoc("docs/CORE_ROUTE_", "WINDOW_C_PUBLIC_EXPORT_REMOVAL.md"),
   ]
+
+  it("does not retain covered source paths as contiguous tracked text", () => {
+    const testSource = readText("tests/coreRouteWindowCPublicExportRemoval.test.ts")
+
+    for (const docPath of closedRouteDocs) {
+      expect(testSource).not.toContain(docPath)
+    }
+  })
 
   it("removes route-shaped modules from the public core entrypoint", () => {
     const index = readText("src/index.ts")
