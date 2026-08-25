@@ -184,10 +184,12 @@ line reuse/reconvergence, and later-phase product behavior are not accepted.
 Focused command:
 
 ```text
-npx vitest run tests/liveDraftMr1CompleteGeometryBoundary.test.ts tests/liveDraftMr1PersistentFlowFoundation.test.ts tests/liveDraftMr1SpatialWrapping3a.test.ts tests/liveDraftMr1AuthoredBoxGeometry4a.test.ts tests/textBlockInitialFlowRequestBindingV1.test.ts tests/textBlockInitialFlowTextOnlyAdapterV1.test.ts tests/textBlockAuthoredBoxGeometryV1.test.ts tests/textBlockSpatialWrappingLayoutV1.test.ts
+npx vitest run tests/liveDraftMr1CompleteGeometryBoundary.test.ts tests/liveDraftMr1PersistentFlowFoundation.test.ts tests/liveDraftMr1SpatialWrapping3a.test.ts tests/liveDraftMr1AuthoredBoxGeometry4a.test.ts tests/textBlockInitialFlowRequestBindingV1.test.ts tests/textBlockAuthoredBoxGeometryV1.test.ts tests/textBlockSpatialWrappingLayoutV1.test.ts
 ```
 
 The focused Phase 4A gate passed 8 files / 131 tests.
+Later layout cleanup retires the initial-flow text-only legacy adapter from
+current core; the original focused total above remains historical evidence.
 
 Complete command:
 

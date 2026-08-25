@@ -23,11 +23,11 @@ helper, so plain text, supported local typography, misleading display labels,
 unused pinned faces, and valid producer `localStyle` properties inserted outside
 schema order preserve exact direct-MR1/adapter layout and fingerprint parity.
 
-The new Initial Flow handoff path invokes legacy MR1 only through the explicit
-adapter. For accepted text-subset-ready rows, the adapter reproduces exact
-legacy MR1 layout parity. List, inline-image, and empty-block geometry report
-`geometry-contract-required`. Unsupported capability rows fail closed before
-the adapter invokes legacy layout.
+The historical Initial Flow handoff path invoked legacy MR1 through an explicit
+adapter. That adapter proved exact legacy MR1 layout parity for accepted
+text-subset-ready rows, then became historical evidence after later layout
+lanes replaced it as current Core surface. List, inline-image, and empty-block
+geometry still report `geometry-contract-required` in this checkpoint evidence.
 
 Strict runtime schemas validate the retained root and nested measurement,
 paragraph-style, font-face, authored-box, parent-region, and atom facts before
@@ -49,14 +49,14 @@ snapshot, then passes that snapshot rather than Zod-reconstructed data to
 unchanged MR1. Unknown fields, lowercase font digests, safe integer layout
 units, and exact discriminated measurement-run variants remain mandatory.
 
-The adapter accepts malformed runtime input as `unknown` and returns
+The retired adapter accepted malformed runtime input as `unknown` and returned
 deterministic structured blockers. Both blank and whitespace-only `layoutId`
-values stop before legacy invocation and return metadata with
-`layoutId: "unavailable"`; valid nonblank values remain unchanged. A field
+values stopped before legacy invocation and returned metadata with
+`layoutId: "unavailable"`; valid nonblank values remained unchanged. A field
 resolving to `""` (an effectively rendered-empty field), a hard-break-only row,
-and other zero-text cases require the empty-layout contract before legacy MR1.
-Independent list-only and inline-image-only rows prove that each unsupported
-geometry capability blocks on its own.
+and other zero-text cases required the empty-layout contract before legacy MR1.
+Independent list-only and inline-image-only rows proved that each unsupported
+geometry capability blocked on its own.
 
 The public MR1-P surface is:
 
@@ -67,9 +67,10 @@ The public MR1-P surface is:
   effective shaping-style identity used by Core and the external producer;
 - `createVNextTextBlockInitialFlowV1(...)` and
   `inspectVNextTextBlockInitialFlowV1(...)` for classification and
-  process-local provenance inspection; and
-- `adaptVNextTextBlockInitialFlowToLegacyLayoutV1(...)` for the only new
-  Initial Flow handoff to legacy MR1.
+  process-local provenance inspection.
+
+The initial-flow text-only legacy adapter is retired from current core; its
+source, public export, and direct test are no longer current surface.
 
 The Initial Flow handoff remains non-production and non-publishable:
 publication and production activation remain NO-GO, and every accepted result
@@ -172,7 +173,6 @@ Reviewed Core runtime baseline: `c9a3e09`.
   `tests/liveDraftMr1CompleteGeometryBoundary.test.ts`,
   `tests/textBlockInitialFlowParentRegionV1.test.ts`,
   `tests/textBlockInitialFlowInputV1.test.ts`,
-  `tests/textBlockInitialFlowTextOnlyAdapterV1.test.ts`, and
   `tests/textBlockMultiRunLayoutV1.test.ts`.
 - Runtime-focused result: 5 test files passed; 115 tests passed.
 - Section-bounded documentation guard result: 1 test file passed; 5 tests passed.

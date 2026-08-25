@@ -115,20 +115,12 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     }
   })
 
-  it("limits adapter exclusivity to the new Initial Flow handoff path", () => {
+  it("keeps retired adapter evidence historical instead of current surface", () => {
     const boundary = normalize(read("../docs/LIVE_DRAFT_MR1_COMPLETE_GEOMETRY_BOUNDARY.md"))
     const handoff = normalize(read("../docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md"))
 
     for (const document of [boundary, handoff]) {
-      expect(document).toContain(
-        "The new Initial Flow handoff path invokes legacy MR1 only through the explicit adapter.",
-      )
-      expect(document).toContain(
-        "For accepted text-subset-ready rows, the adapter reproduces exact legacy MR1 layout parity.",
-      )
-      expect(document).toContain(
-        "Unsupported capability rows fail closed before the adapter invokes legacy layout.",
-      )
+      expect(document).toContain("initial-flow text-only legacy adapter is retired from current core")
     }
 
     expect(handoff).not.toContain("The existing MR1 layout is now reachable only")
@@ -189,7 +181,7 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     expect(index).toContain('export * from "./layout/textBlockInitialFlowParentRegionV1.js"')
     expect(index).toContain('export * from "./layout/textBlockEffectiveShapingStyleIdentityV1.js"')
     expect(index).toContain('export * from "./layout/textBlockInitialFlowInputV1.js"')
-    expect(index).toContain('export * from "./layout/textBlockInitialFlowTextOnlyAdapterV1.js"')
+    expect(index).not.toContain('export * from "./layout/textBlockInitialFlowTextOnlyAdapterV1.js"')
 
     for (const path of [
       "docs/superpowers/specs/2026-07-21-persistent-text-block-spatial-flow-design.md",
@@ -198,11 +190,10 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
       "src/layout/textBlockEffectiveShapingStyleIdentityV1.ts",
       "src/layout/textBlockInitialFlowParentRegionV1.ts",
       "src/layout/textBlockInitialFlowInputV1.ts",
-      "src/layout/textBlockInitialFlowTextOnlyAdapterV1.ts",
       "tests/textBlockInitialFlowParentRegionV1.test.ts",
       "tests/textBlockInitialFlowInputV1.test.ts",
-      "tests/textBlockInitialFlowTextOnlyAdapterV1.test.ts",
     ]) expect(requiredReading).toContain(`\`${path}\``)
+    expect(requiredReading).toContain("initial-flow text-only legacy adapter is retired from current core")
 
     for (const path of [
       "packages/text-engine-rust-wasm/src/multiRunLayout.ts",
@@ -210,7 +201,6 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
       "tests/liveDraftMr1CompleteGeometryBoundary.test.ts",
       "tests/textBlockInitialFlowParentRegionV1.test.ts",
       "tests/textBlockInitialFlowInputV1.test.ts",
-      "tests/textBlockInitialFlowTextOnlyAdapterV1.test.ts",
       "tests/textBlockMultiRunLayoutV1.test.ts",
     ]) expect(boundary).toContain(`\`${path}\``)
 
@@ -219,7 +209,6 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
       "src/layout/textBlockEffectiveShapingStyleIdentityV1.ts",
       "tests/textBlockInitialFlowParentRegionV1.test.ts",
       "tests/textBlockInitialFlowInputV1.test.ts",
-      "tests/textBlockInitialFlowTextOnlyAdapterV1.test.ts",
     ]) expect(ledger).toContain(`\`${path}\``)
 
     for (const publicFunction of [
@@ -228,7 +217,6 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
       "createVNextTextBlockEffectiveShapingStyleIdentityV1(...)\n",
       "createVNextTextBlockInitialFlowV1(...)\n",
       "inspectVNextTextBlockInitialFlowV1(...)\n",
-      "adaptVNextTextBlockInitialFlowToLegacyLayoutV1(...)\n",
     ]) expect(boundary).toContain(publicFunction.trim())
 
     for (const evidence of [

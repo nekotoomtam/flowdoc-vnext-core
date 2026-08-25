@@ -556,10 +556,11 @@ Core:
 - `src/layout/textBlockEffectiveShapingStyleIdentityV1.ts`
 - `src/layout/textBlockInitialFlowParentRegionV1.ts`
 - `src/layout/textBlockInitialFlowInputV1.ts`
-- `src/layout/textBlockInitialFlowTextOnlyAdapterV1.ts`
 - `tests/textBlockInitialFlowParentRegionV1.test.ts`
 - `tests/textBlockInitialFlowInputV1.test.ts`
-- `tests/textBlockInitialFlowTextOnlyAdapterV1.test.ts`
+
+The initial-flow text-only legacy adapter is retired from current core after
+the later layout lanes replaced it as active surface.
 
 Editor:
 
