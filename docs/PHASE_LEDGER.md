@@ -236,6 +236,9 @@ at accepted Task 11 implementation head `f8eb3ba`.
   expanded-band requery, and move/resize affected bands.
 - The authored-box V2 projection includes image fragments and auto-height;
   fixed-height, overflow, and clipping remain rejected.
+- Later cleanup note: the inline-image line-box V1 implementation is
+  internal-only in current core; retained characterization evidence imports it
+  directly.
 - Exact Initial Flow/evidence/tree/index/provider/layout object binding,
   capability checks, immutable registration, and fingerprint validation reject
   cloned, changed, accessor-shaped, mutable, and production-bound inputs.

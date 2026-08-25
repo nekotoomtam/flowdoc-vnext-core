@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest"
 import {
   createVNextTextBlockPersistentFlowTreeV2,
   inspectVNextTextBlockPersistentFlowTreeV2,
-  VNEXT_TEXT_BLOCK_INLINE_IMAGE_ALIGNMENT_POLICY_V1,
 } from "../src/index.js"
+import {
+  VNEXT_TEXT_BLOCK_INLINE_IMAGE_ALIGNMENT_POLICY_V1,
+} from "../src/layout/textBlockInlineImageLineBoxV1.js"
 import { acceptedInlineImageEvidenceFixture } from "./helpers/textBlockInlineImageFlowV2.js"
 
 describe("VNext TextBlock Persistent Flow Tree V2", () => {

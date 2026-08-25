@@ -34,7 +34,6 @@ export * from "./binding/keyHistory.js"
 export * from "./binding/repeatCollectionFormSlots.js"
 export * from "./fingerprint/compactFingerprint.js"
 export * from "./layout/layoutUnitPolicyV1.js"
-export * from "./layout/textBlockInlineImageLineBoxV1.js"
 export * from "./layout/textBlockFlowEvidenceContractV2.js"
 export {
   acceptVNextTextBlockFlowEvidenceV2,

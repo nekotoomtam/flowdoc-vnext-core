@@ -3,7 +3,7 @@ import {
   combineVNextTextBlockFlowLineMetricsV2,
   resolveVNextTextBlockInlineImageLineMetricsV1,
   VNEXT_TEXT_BLOCK_INLINE_IMAGE_ALIGNMENT_POLICY_V1,
-} from "../src/index.js"
+} from "../src/layout/textBlockInlineImageLineBoxV1.js"
 
 describe("inline-image line-box policy", () => {
   it.each([

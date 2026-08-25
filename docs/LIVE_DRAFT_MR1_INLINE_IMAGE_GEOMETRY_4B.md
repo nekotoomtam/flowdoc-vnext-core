@@ -50,6 +50,9 @@ paragraph-metric alignment. `baseline`, `text-bottom`, and `middle` calculate
 image extents deterministically; `middle` uses floor toward negative infinity.
 The line reducer combines paragraph strut, text, and image extents, then
 retains the resulting baseline and line geometry in V2 output.
+The inline-image line-box V1 implementation is internal-only in current core;
+retained characterization evidence imports it directly while current public
+Phase 4B surface starts at the V2 flow/tree/index/provider/layout contracts.
 
 ## Producer And Runtime Evidence
 

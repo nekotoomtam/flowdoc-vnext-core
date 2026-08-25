@@ -88,6 +88,15 @@ describe("layout public surface cleanup guard", () => {
       ],
     },
   ]
+  const internalInlineImageLineBoxV1Implementation = {
+    source: "src/layout/textBlockInlineImageLineBoxV1.ts",
+    symbols: [
+      "VNEXT_TEXT_BLOCK_INLINE_IMAGE_ALIGNMENT_POLICY_V1",
+      "resolveVNextTextBlockInlineImageLineMetricsV1",
+      "combineVNextTextBlockFlowLineMetricsV2",
+    ],
+    retirementNote: "inline-image line-box V1 implementation is internal-only in current core",
+  }
 
   it("removes the retired initial-flow legacy adapter from current core", () => {
     const publicSurface = publicCore as Record<string, unknown>
@@ -164,5 +173,19 @@ describe("layout public surface cleanup guard", () => {
     expect(docs).toContain(
       "initial flow V1 implementation is internal-only in current core",
     )
+  })
+
+  it("keeps retained inline-image line-box V1 implementation internal instead of public", () => {
+    const publicSurface = publicCore as Record<string, unknown>
+    const docs = normalizeText([
+      readText("docs/LIVE_DRAFT_MR1_INLINE_IMAGE_GEOMETRY_4B.md"),
+      readText("docs/PHASE_LEDGER.md"),
+    ].join("\n"))
+
+    expect(existsSync(join(repoRoot, internalInlineImageLineBoxV1Implementation.source))).toBe(true)
+    for (const symbol of internalInlineImageLineBoxV1Implementation.symbols) {
+      expect(publicSurface[symbol]).toBeUndefined()
+    }
+    expect(docs).toContain(internalInlineImageLineBoxV1Implementation.retirementNote)
   })
 })

@@ -115,14 +115,6 @@ const withModuleSourceOverrides = (
   ?? loadPhase4BModuleSource(modulePath)
 
 const phase4BExpectedExports: Readonly<Record<string, readonly string[]>> = {
-  "./layout/textBlockInlineImageLineBoxV1.js": [
-    "VNEXT_TEXT_BLOCK_INLINE_IMAGE_ALIGNMENT_POLICY_V1",
-    "VNextTextBlockBaselineExtentV1",
-    "VNextTextBlockInlineImageLineMetricsResultV1",
-    "VNextTextBlockFlowLineMetricsResultV2",
-    "resolveVNextTextBlockInlineImageLineMetricsV1",
-    "combineVNextTextBlockFlowLineMetricsV2",
-  ],
   "./layout/textBlockFlowEvidenceContractV2.js": [
     "VNextTextBlockFlowEvidenceInputV2",
     "VNextTextBlockFlowEvidenceV2",
@@ -202,8 +194,7 @@ const reviewedPostPhase4BV2RootModulePaths = new Set([
   "./layout/textBlockUnifiedLayoutTransitionEvidenceV2.js",
 ])
 const isPhase4BRootModule = (modulePath: string): boolean =>
-  modulePath === "./layout/textBlockInlineImageLineBoxV1.js"
-  || /^\.\/layout\/.*V2\.js$/iu.test(modulePath)
+  /^\.\/layout\/.*V2\.js$/iu.test(modulePath)
 
 const producerInvocationAuthorityType =
   "VNextTextBlockTransitionProducerInvocationAuthorityV2"
@@ -353,6 +344,7 @@ const assertHandoffEvidence = (handoff: string): void => {
   for (const evidence of [
     "`textBlockPersistentFlowTreeInternalsV1.ts`", "`textBlockFlowRegionKernelV1.ts`", "`textBlockSpatialWrappingKernelV1.ts`", "`textBlockAuthoredBoxGeometryKernelV1.ts`",
     "`tests/textBlockV1LayoutCompatibility.test.ts`", "V2 text-only path is normalized",
+    "inline-image line-box V1 implementation is internal-only in current core",
   ]) expect(architecture).toContain(evidence)
   for (const evidence of ["`node-native-mr1`", "`browser-worker-wasm-mr1`", "Node-native and Worker-WASM U+FFFC", "neither U+FFFC nor hard breaks"]) expect(runtime).toContain(evidence)
   for (const evidence of ["`src/layout/textBlockPersistentFlowTreeV2.ts`", "exact upstream Initial Flow/evidence provenance", "no MR1-Q, reuse, or reconvergence claim"]) expect(persistent).toContain(evidence)
