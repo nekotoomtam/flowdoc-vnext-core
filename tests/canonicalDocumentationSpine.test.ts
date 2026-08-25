@@ -352,10 +352,18 @@ function loadPending(root: string) {
   return loadCanonicalDocumentationModel(root, { allowPendingBaselineId: BASELINE_ID })
 }
 
-function task5ContentCommit(): string {
-  const repositoryRoot = process.cwd()
+function task5ContentCommit(repositoryRoot = process.cwd()): string {
   const baselineAtHead = runGit(repositoryRoot, "cat-file", "-e", `HEAD:${DEVELOPMENT_BASELINE_PATH}`)
-  const revision = baselineAtHead.status === 0 ? "HEAD^" : "HEAD"
+  if (baselineAtHead.status === 0) {
+    const baselinePublications = runGit(repositoryRoot, "log", "--diff-filter=A", "--format=%H", "--", DEVELOPMENT_BASELINE_PATH)
+    if (baselinePublications.status !== 0) throw new Error(baselinePublications.stderr)
+    const publicationCommit = baselinePublications.stdout.trim().split(/\r?\n/).filter(Boolean)[0]
+    if (!publicationCommit) throw new Error(`could not find ${DEVELOPMENT_BASELINE_PATH} publication commit`)
+    const publishedContentCommit = runGit(repositoryRoot, "rev-parse", `${publicationCommit}^`)
+    if (publishedContentCommit.status !== 0) throw new Error(publishedContentCommit.stderr)
+    return publishedContentCommit.stdout.trim()
+  }
+  const revision = "HEAD"
   const resolved = runGit(repositoryRoot, "rev-parse", revision)
   if (resolved.status !== 0) throw new Error(resolved.stderr)
   return resolved.stdout.trim()
