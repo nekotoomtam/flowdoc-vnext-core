@@ -44,7 +44,8 @@ runtime activation.
 - `inspectVNextTextBlockInitialFlowRequestBindingV1(...)` is the shared owner
   for exact process-local Initial Flow/request equality. The text-only adapter
   consumes the same inspector without changing its accepted or blocked
-  behavior.
+  behavior. The request binding implementation is internal-only in current
+  core; retained characterization evidence imports it directly.
 - The exact bound request width preserves content-local Phase 3 behavior
   unchanged.
 - Every `outerWidthPt`, `contentWidthPt`, and `contentInsetPt` edge is converted

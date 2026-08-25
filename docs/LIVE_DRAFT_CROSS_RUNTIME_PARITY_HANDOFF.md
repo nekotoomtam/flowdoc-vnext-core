@@ -561,6 +561,9 @@ Core:
 
 The initial-flow text-only legacy adapter is retired from current core after
 the later layout lanes replaced it as active surface.
+The initial flow V1 implementation is internal-only in current core; retained
+characterization evidence imports parent-region ownership, classification, and
+request binding directly.
 
 Editor:
 

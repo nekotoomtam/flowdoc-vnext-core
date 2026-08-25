@@ -4,13 +4,15 @@ import * as sourceStateInternals from "../src/layout/textBlockUnifiedLayoutSourc
 import * as transitionEvidenceInternals from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
   acceptVNextTextBlockFlowEvidenceV2,
-  createVNextTextBlockInitialFlowV1,
   type TextRunStyleV4Target,
   type VNextTextBlockFlowEvidenceInputV2,
   type VNextTextBlockFlowEvidenceV2,
-  type VNextTextBlockInitialFlowV1,
   type VNextTextBlockResolvedShapingRunV1,
 } from "../src/index.js"
+import {
+  createVNextTextBlockInitialFlowV1,
+  type VNextTextBlockInitialFlowV1,
+} from "../src/layout/textBlockInitialFlowInputV1.js"
 import {
   createVNextTextBlockUnifiedLayoutSourceStateImagePaintTransitionInternalV1,
   createVNextTextBlockUnifiedLayoutSourceStateCompleteInternalV1,

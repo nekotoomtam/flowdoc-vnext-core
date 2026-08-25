@@ -3,8 +3,10 @@ import { resolve } from "node:path"
 import { describe, expect, it } from "vitest"
 import {
   createVNextTextBlockInitialFlowV1,
+} from "../src/layout/textBlockInitialFlowInputV1.js"
+import {
   inspectVNextTextBlockInitialFlowRequestBindingV1,
-} from "../src/index.js"
+} from "../src/layout/textBlockInitialFlowRequestBindingV1.js"
 import {
   imageOnlyGeometryBuildInputFixture,
   legacyTextOnlyBuildInputFixture,

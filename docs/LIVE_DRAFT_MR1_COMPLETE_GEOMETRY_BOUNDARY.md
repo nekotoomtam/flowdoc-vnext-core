@@ -58,16 +58,15 @@ and other zero-text cases required the empty-layout contract before legacy MR1.
 Independent list-only and inline-image-only rows proved that each unsupported
 geometry capability blocked on its own.
 
-The public MR1-P surface is:
+The current public MR1-P surface is:
 
-- `createVNextTextBlockInitialFlowParentRegionV1(...)` and
-  `inspectVNextTextBlockInitialFlowParentRegionV1(...)` for parent-region
-  ownership;
 - `createVNextTextBlockEffectiveShapingStyleIdentityV1(...)` for the shared
-  effective shaping-style identity used by Core and the external producer;
-- `createVNextTextBlockInitialFlowV1(...)` and
-  `inspectVNextTextBlockInitialFlowV1(...)` for classification and
-  process-local provenance inspection.
+  effective shaping-style identity used by Core and the external producer.
+
+The initial flow V1 implementation is internal-only in current core; retained
+characterization evidence imports parent-region ownership, classification,
+request binding, and process-local classifier provenance directly from
+`src/layout`.
 
 The initial-flow text-only legacy adapter is retired from current core; its
 source, public export, and direct test are no longer current surface.

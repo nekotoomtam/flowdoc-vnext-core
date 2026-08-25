@@ -2,15 +2,17 @@ import {
   acceptVNextTextBlockFlowEvidenceV2,
   createVNextTextBlockSpatialIndexV2,
   createVNextTextBlockPersistentFlowTreeV2,
-  createVNextTextBlockInitialFlowV1,
   type UnitValueV4Target,
   type VNextTextBlockFlowEvidenceInputV2,
   type VNextTextBlockFlowEvidenceV2,
-  type VNextTextBlockInitialFlowV1,
   type VNextTextBlockResolvedShapingRunV1,
   type VNextTextBlockSyntheticPositionedObjectInputV1,
   type VNextTextBlockV4MeasurementRun,
 } from "../../src/index.js"
+import {
+  createVNextTextBlockInitialFlowV1,
+  type VNextTextBlockInitialFlowV1,
+} from "../../src/layout/textBlockInitialFlowInputV1.js"
 import {
   completeTextGeometryBuildInputFixture,
   listImageGeometryBuildInputFixture,

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import {
   createVNextTextBlockInitialFlowParentRegionV1,
   inspectVNextTextBlockInitialFlowParentRegionV1,
-} from "../src/index.js"
+} from "../src/layout/textBlockInitialFlowParentRegionV1.js"
 
 describe("TextBlock Initial Flow parent region v1", () => {
   it("creates deterministic immutable body, column, and table-cell regions", () => {

@@ -82,6 +82,8 @@ Reviewed Core runtime baseline: `c9a3e09`.
   Combined focused verification: 6 files / 120 tests.
 - Later cleanup note: the initial-flow text-only legacy adapter is retired from
   current core, including its source, public export, and direct test.
+- Later cleanup note: the initial flow V1 implementation is internal-only in
+  current core; retained characterization evidence imports it directly.
 - Next: Phase 2 Persistent Flow Tree Foundation. Do not start spatial wrapping,
   list decoration, inline-image geometry, empty-block geometry, Editor, Backend,
   table auto-fit, publication, or production activation in this checkpoint.

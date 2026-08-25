@@ -4,7 +4,6 @@ import { resolve } from "node:path"
 import { describe, expect, it } from "vitest"
 import type {
   TextBlockNodeV4Target,
-  VNextTextBlockInitialFlowV1,
   VNextTextBlockV4MeasurementRequest,
   VNextTextBlockV4MeasurementRun,
 } from "../src/index.js"
@@ -12,9 +11,14 @@ import {
   acceptVNextTextBlockFlowEvidenceV2,
   createVNextAuthoredBoxPlanV1,
   createVNextLayoutUnitPolicyV1,
-  createVNextTextBlockInitialFlowV1,
-  createVNextTextBlockInitialFlowParentRegionV1,
 } from "../src/index.js"
+import {
+  createVNextTextBlockInitialFlowV1,
+  type VNextTextBlockInitialFlowV1,
+} from "../src/layout/textBlockInitialFlowInputV1.js"
+import {
+  createVNextTextBlockInitialFlowParentRegionV1,
+} from "../src/layout/textBlockInitialFlowParentRegionV1.js"
 import { createVNextTextBlockUnifiedLayoutRootV1 } from
   "../src/layout/textBlockUnifiedLayoutRootV1.js"
 import { FLOWDOC_TEXT_ENGINE_MR1_SARABUN_FONT_FACES_V1 } from

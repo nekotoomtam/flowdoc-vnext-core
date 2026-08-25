@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest"
-import * as core from "../src/index.js"
+import {
+  createVNextTextBlockInitialFlowV1,
+  inspectVNextTextBlockInitialFlowV1,
+} from "../src/layout/textBlockInitialFlowInputV1.js"
 import {
   completeTextGeometryBuildInputFixture,
   emptyGeometryBuildInputFixture,
@@ -12,8 +15,6 @@ import {
   mixedTypographyLayoutRequestFixture,
   renderedEmptyFieldGeometryBuildInputFixture,
 } from "./helpers/textBlockInitialFlowV1.js"
-
-const { createVNextTextBlockInitialFlowV1 } = core
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T
@@ -70,13 +71,7 @@ describe("TextBlock Initial Flow input v1", () => {
     ])
     expect(first.flow.authoredBoxPlan.contentWidthPt).toBe(90)
     expect(first.flow.declaredLineHeightLayoutUnit).toBe(14_000_000)
-    const inspectInitialFlow = (core as unknown as Record<string, unknown>)[
-      "inspectVNextTextBlockInitialFlowV1"
-    ]
-    expect(inspectInitialFlow).toBeTypeOf("function")
-    if (typeof inspectInitialFlow === "function") {
-      expect(inspectInitialFlow(first.flow)).toMatchObject({ status: "valid" })
-    }
+    expect(inspectVNextTextBlockInitialFlowV1(first.flow)).toMatchObject({ status: "valid" })
     expect(Object.isFrozen(first.flow)).toBe(true)
     expect(JSON.stringify(input)).toBe(before)
   })

@@ -135,10 +135,12 @@ describe("Live Draft MR1 authored box geometry 4A handoff", () => {
   it("guards the required public Phase 4A contracts", () => {
     const publicIndexLines = read("src/index.ts").split(/\r?\n/gu)
 
-    for (const statement of [
-      'export * from "./layout/textBlockInitialFlowRequestBindingV1.js"',
+    expect(publicIndexLines).toContain(
       'export * from "./layout/textBlockAuthoredBoxGeometryContractV1.js"',
-    ]) expect(publicIndexLines).toContain(statement)
+    )
+    expect(publicIndexLines).not.toContain(
+      'export * from "./layout/textBlockInitialFlowRequestBindingV1.js"',
+    )
     expect(publicIndexLines).not.toContain(
       'export * from "./layout/textBlockAuthoredBoxGeometryV1.js"',
     )

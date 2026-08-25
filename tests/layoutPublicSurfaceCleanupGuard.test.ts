@@ -60,6 +60,34 @@ describe("layout public surface cleanup guard", () => {
       retirementNote: "flow region provider V1 implementation is internal-only in current core",
     },
   ]
+  const internalInitialFlowV1Implementations = [
+    {
+      source: "src/layout/textBlockInitialFlowParentRegionV1.ts",
+      symbols: [
+        "VNEXT_TEXT_BLOCK_INITIAL_FLOW_PARENT_REGION_SOURCE",
+        "VNEXT_TEXT_BLOCK_INITIAL_FLOW_PARENT_REGION_VERSION",
+        "createVNextTextBlockInitialFlowParentRegionV1",
+        "inspectVNextTextBlockInitialFlowParentRegionV1",
+      ],
+    },
+    {
+      source: "src/layout/textBlockInitialFlowInputV1.ts",
+      symbols: [
+        "VNEXT_TEXT_BLOCK_INITIAL_FLOW_SOURCE",
+        "VNEXT_TEXT_BLOCK_INITIAL_FLOW_VERSION",
+        "createVNextTextBlockInitialFlowV1",
+        "inspectVNextTextBlockInitialFlowV1",
+      ],
+    },
+    {
+      source: "src/layout/textBlockInitialFlowRequestBindingV1.ts",
+      symbols: [
+        "VNEXT_TEXT_BLOCK_INITIAL_FLOW_REQUEST_BINDING_SOURCE",
+        "VNEXT_TEXT_BLOCK_INITIAL_FLOW_REQUEST_BINDING_VERSION",
+        "inspectVNextTextBlockInitialFlowRequestBindingV1",
+      ],
+    },
+  ]
 
   it("removes the retired initial-flow legacy adapter from current core", () => {
     const publicSurface = publicCore as Record<string, unknown>
@@ -117,5 +145,24 @@ describe("layout public surface cleanup guard", () => {
       }
       expect(docs).toContain(implementation.retirementNote)
     }
+  })
+
+  it("keeps retained initial-flow V1 implementations internal instead of public", () => {
+    const publicSurface = publicCore as Record<string, unknown>
+    const docs = normalizeText([
+      readText("docs/LIVE_DRAFT_MR1_COMPLETE_GEOMETRY_BOUNDARY.md"),
+      readText("docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md"),
+      readText("docs/PHASE_LEDGER.md"),
+    ].join("\n"))
+
+    for (const implementation of internalInitialFlowV1Implementations) {
+      expect(existsSync(join(repoRoot, implementation.source))).toBe(true)
+      for (const symbol of implementation.symbols) {
+        expect(publicSurface[symbol]).toBeUndefined()
+      }
+    }
+    expect(docs).toContain(
+      "initial flow V1 implementation is internal-only in current core",
+    )
   })
 })

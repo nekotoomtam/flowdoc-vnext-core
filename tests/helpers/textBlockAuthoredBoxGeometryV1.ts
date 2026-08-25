@@ -2,10 +2,12 @@ import {
   acceptVNextTextBlockMultiRunLayoutV1,
   convertVNextPointToLayoutUnitV1,
   createVNextAuthoredBoxPlanV1,
-  createVNextTextBlockInitialFlowV1,
   createVNextTextBlockPersistentFlowTreeV1,
   type VNextTextBlockSyntheticPositionedObjectInputV1,
 } from "../../src/index.js"
+import {
+  createVNextTextBlockInitialFlowV1,
+} from "../../src/layout/textBlockInitialFlowInputV1.js"
 import {
   createVNextTextBlockSpatialIndexV1,
 } from "../../src/layout/textBlockSpatialIndexV1.js"

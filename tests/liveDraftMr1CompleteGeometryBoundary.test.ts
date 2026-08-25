@@ -178,9 +178,10 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     const normalizedLedger = normalize(ledger)
     const combinedFocusedResult = "Combined focused verification: 6 files / 120 tests."
 
-    expect(index).toContain('export * from "./layout/textBlockInitialFlowParentRegionV1.js"')
+    expect(index).not.toContain('export * from "./layout/textBlockInitialFlowParentRegionV1.js"')
     expect(index).toContain('export * from "./layout/textBlockEffectiveShapingStyleIdentityV1.js"')
-    expect(index).toContain('export * from "./layout/textBlockInitialFlowInputV1.js"')
+    expect(index).not.toContain('export * from "./layout/textBlockInitialFlowInputV1.js"')
+    expect(index).not.toContain('export * from "./layout/textBlockInitialFlowRequestBindingV1.js"')
     expect(index).not.toContain('export * from "./layout/textBlockInitialFlowTextOnlyAdapterV1.js"')
 
     for (const path of [
@@ -212,11 +213,7 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     ]) expect(ledger).toContain(`\`${path}\``)
 
     for (const publicFunction of [
-      "createVNextTextBlockInitialFlowParentRegionV1(...)\n",
-      "inspectVNextTextBlockInitialFlowParentRegionV1(...)\n",
       "createVNextTextBlockEffectiveShapingStyleIdentityV1(...)\n",
-      "createVNextTextBlockInitialFlowV1(...)\n",
-      "inspectVNextTextBlockInitialFlowV1(...)\n",
     ]) expect(boundary).toContain(publicFunction.trim())
 
     for (const evidence of [
@@ -233,6 +230,7 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     }
 
     expect(normalizedBoundary).toContain("does not create cross-process serialization authority")
+    expect(normalizedBoundary).toContain("initial flow V1 implementation is internal-only in current core")
     expect(normalizedBoundary).toContain("supported styled text and resolved fields")
     expect(normalizedBoundary).toContain("`fontFamilyKey`")
     expect(normalizedBoundary).toContain("`resolved-run-typography`")

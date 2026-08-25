@@ -2,12 +2,16 @@ import {
   createVNextCompactFingerprint,
   createVNextAuthoredBoxPlanV1,
   createVNextLayoutUnitPolicyV1,
-  createVNextTextBlockInitialFlowParentRegionV1,
   type TextBlockNodeV4Target,
-  type VNextTextBlockInitialFlowBuildInputV1,
   type VNextTextBlockMultiRunLayoutRequestV1,
   type VNextTextBlockV4MeasurementRequest,
 } from "../../src/index.js"
+import type {
+  VNextTextBlockInitialFlowBuildInputV1,
+} from "../../src/layout/textBlockInitialFlowInputV1.js"
+import {
+  createVNextTextBlockInitialFlowParentRegionV1,
+} from "../../src/layout/textBlockInitialFlowParentRegionV1.js"
 
 function effectiveShapingStyleKey(input: {
   fontFaceId: string

@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest"
 import {
   acceptVNextTextBlockFlowEvidenceV2,
-  createVNextTextBlockInitialFlowV1,
   inspectVNextTextBlockFlowEvidenceV2,
   type VNextTextBlockFlowEvidenceInputV2,
-  type VNextTextBlockInitialFlowV1,
 } from "../src/index.js"
+import {
+  createVNextTextBlockInitialFlowV1,
+  type VNextTextBlockInitialFlowV1,
+} from "../src/layout/textBlockInitialFlowInputV1.js"
 import { acceptedInlineImageEvidenceFixture } from
   "./helpers/textBlockInlineImageFlowV2.js"
 import {
