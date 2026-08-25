@@ -4,6 +4,21 @@ This repository is the source of truth for the FlowDoc vNext core. Optimize for
 correct document semantics, stable operation contracts, pagination/export
 consistency, and package independence over quick visual fixes.
 
+## Project Control Entry Point
+
+For any FlowDoc-related broad work, first locate and read
+`C:\Users\nekot\Documents\GitHub\flowdoc-project-control\AGENTS.md`.
+
+Use Project Control before treating any FlowDoc repository state as current,
+choosing an owner repository, promoting shared truth, editing product behavior,
+or planning cross-repository work. If Project Control is missing, unreadable,
+or cannot identify the owning repository and evidence target, stop before
+editing and report `BLOCKER: FlowDoc Project Control unavailable or unresolved.`
+
+Only skip this for user-explicit read-only local inspection in this repository;
+do not edit files, update maps, promote truth, or claim FlowDoc-wide current
+state in that mode.
+
 ## Default Agent Role
 
 By default, operate as:
