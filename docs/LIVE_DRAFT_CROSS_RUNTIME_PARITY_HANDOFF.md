@@ -1644,6 +1644,8 @@ spatial index update V1 wrapper is retired from current core, so current
 surface evidence keeps before/after provider and layout composition only.
 The spatial wrapping V1 implementation is internal-only in current core while
 its retained characterization evidence remains available in source and tests.
+The spatial index V1 implementation is internal-only in current core, and the
+flow region provider V1 implementation is internal-only in current core.
 
 All accepted Phase 3 boundaries retain `mayPublishLayout: false`,
 `productionBinding: false`, and `stagedEditorApply: false`.

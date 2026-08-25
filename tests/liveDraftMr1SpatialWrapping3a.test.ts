@@ -92,10 +92,12 @@ describe("Live Draft MR1 spatial wrapping 3A handoff", () => {
 
     for (const statement of [
       'export * from "./layout/textBlockSpatialIndexContractV1.js"',
-      'export * from "./layout/textBlockSpatialIndexV1.js"',
-      'export * from "./layout/textBlockFlowRegionProviderV1.js"',
       'export * from "./layout/textBlockSpatialWrappingLayoutContractV1.js"',
     ]) expect(publicIndexLines).toContain(statement)
+    for (const statement of [
+      'export * from "./layout/textBlockSpatialIndexV1.js"',
+      'export * from "./layout/textBlockFlowRegionProviderV1.js"',
+    ]) expect(publicIndexLines).not.toContain(statement)
     expect(publicIndexLines).not.toContain(
       'export * from "./layout/textBlockSpatialWrappingLayoutV1.js"',
     )
@@ -108,6 +110,8 @@ describe("Live Draft MR1 spatial wrapping 3A handoff", () => {
       expect(active).toContain("`stagedEditorApply: false`")
       expect(active).toContain("spatial index update V1 wrapper is retired from current core")
       expect(active).toContain("spatial wrapping V1 implementation is internal-only in current core")
+      expect(active).toContain("spatial index V1 implementation is internal-only in current core")
+      expect(active).toContain("flow region provider V1 implementation is internal-only in current core")
       expect(active).toContain(historicalDeferredNoGo)
     }
   })

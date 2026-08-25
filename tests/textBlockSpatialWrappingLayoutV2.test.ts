@@ -2,13 +2,15 @@ import { describe, expect, it } from "vitest"
 import {
   acceptVNextTextBlockMultiRunLayoutV1,
   createVNextTextBlockPersistentFlowTreeV1,
-  createVNextTextBlockSpatialIndexV1,
   createVNextTextBlockSpatialIndexV2,
   inspectVNextTextBlockSpatialWrappingLayoutV2,
   layoutVNextTextBlockSpatialWrappingV2,
   type VNextTextBlockMultiRunLayoutRequestV1,
   type VNextTextBlockSyntheticPositionedObjectInputV1,
 } from "../src/index.js"
+import {
+  createVNextTextBlockSpatialIndexV1,
+} from "../src/layout/textBlockSpatialIndexV1.js"
 import {
   layoutVNextTextBlockSpatialWrappingV1,
 } from "../src/layout/textBlockSpatialWrappingLayoutV1.js"

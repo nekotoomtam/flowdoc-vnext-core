@@ -107,6 +107,10 @@ incremental spatial-line reuse.
 - The spatial wrapping V1 implementation is internal-only in current core;
   retained characterization evidence imports it directly instead of exposing it
   through the public index.
+- The spatial index V1 implementation is internal-only in current core; its
+  retained source supports later internal wrappers without public export.
+- The flow region provider V1 implementation is internal-only in current core;
+  its retained source supports wrapping characterization without public export.
 - MR1-Q exact tree/request/index identity gates and non-publishable,
   non-production authority limits remain enforced.
 

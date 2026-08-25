@@ -4,9 +4,11 @@ import {
   createVNextAuthoredBoxPlanV1,
   createVNextTextBlockInitialFlowV1,
   createVNextTextBlockPersistentFlowTreeV1,
-  createVNextTextBlockSpatialIndexV1,
   type VNextTextBlockSyntheticPositionedObjectInputV1,
 } from "../../src/index.js"
+import {
+  createVNextTextBlockSpatialIndexV1,
+} from "../../src/layout/textBlockSpatialIndexV1.js"
 import {
   emptyGeometryBuildInputFixture,
   hardBreakOnlyGeometryBuildInputFixture,

@@ -40,6 +40,26 @@ describe("layout public surface cleanup guard", () => {
       retirementNote: "authored box geometry V1 implementation is internal-only in current core",
     },
   ]
+  const internalV1SupportImplementations = [
+    {
+      source: "src/layout/textBlockSpatialIndexV1.ts",
+      symbols: [
+        "createVNextTextBlockSpatialIndexV1",
+        "inspectVNextTextBlockSpatialIndexV1",
+        "collectVNextTextBlockSpatialIndexNodesForQaV1",
+        "queryVNextTextBlockSpatialIndexV1",
+      ],
+      retirementNote: "spatial index V1 implementation is internal-only in current core",
+    },
+    {
+      source: "src/layout/textBlockFlowRegionProviderV1.ts",
+      symbols: [
+        "provideVNextTextBlockFlowRegionsV1",
+        "inspectVNextTextBlockFlowRegionResultV1",
+      ],
+      retirementNote: "flow region provider V1 implementation is internal-only in current core",
+    },
+  ]
 
   it("removes the retired initial-flow legacy adapter from current core", () => {
     const publicSurface = publicCore as Record<string, unknown>
@@ -79,6 +99,22 @@ describe("layout public surface cleanup guard", () => {
       expect(existsSync(join(repoRoot, implementation.source))).toBe(true)
       expect(publicSurface[implementation.symbol]).toBeUndefined()
       expect(publicSurface[implementation.inspectionSymbol]).toBeUndefined()
+      expect(docs).toContain(implementation.retirementNote)
+    }
+  })
+
+  it("keeps retained V1 support implementations internal instead of public", () => {
+    const publicSurface = publicCore as Record<string, unknown>
+    const docs = normalizeText([
+      readText("docs/LIVE_DRAFT_MR1_SPATIAL_WRAPPING_3A.md"),
+      readText("docs/PHASE_LEDGER.md"),
+    ].join("\n"))
+
+    for (const implementation of internalV1SupportImplementations) {
+      expect(existsSync(join(repoRoot, implementation.source))).toBe(true)
+      for (const symbol of implementation.symbols) {
+        expect(publicSurface[symbol]).toBeUndefined()
+      }
       expect(docs).toContain(implementation.retirementNote)
     }
   })

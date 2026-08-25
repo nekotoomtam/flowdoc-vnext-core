@@ -2,13 +2,15 @@ import { readFileSync } from "node:fs"
 import * as ts from "typescript"
 import { describe, expect, it } from "vitest"
 import {
-  collectVNextTextBlockSpatialIndexNodesForQaV1,
   createVNextCompactFingerprint,
+  type VNextTextBlockSyntheticPositionedObjectInputV1,
+} from "../src/index.js"
+import {
+  collectVNextTextBlockSpatialIndexNodesForQaV1,
   createVNextTextBlockSpatialIndexV1,
   inspectVNextTextBlockSpatialIndexV1,
   queryVNextTextBlockSpatialIndexV1,
-  type VNextTextBlockSyntheticPositionedObjectInputV1,
-} from "../src/index.js"
+} from "../src/layout/textBlockSpatialIndexV1.js"
 import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
 import { acceptedSpatialWrappingFixture } from "./helpers/textBlockSpatialWrappingV1.js"
 

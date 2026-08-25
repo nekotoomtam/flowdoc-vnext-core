@@ -168,6 +168,9 @@ checkpoint at implementation baseline `a249b30`.
   current core, including its source, public export, and direct test.
 - Later cleanup note: the spatial wrapping V1 implementation is internal-only
   in current core; retained characterization evidence imports it directly.
+- Later cleanup note: the spatial index V1 implementation is internal-only in
+  current core, and the flow region provider V1 implementation is internal-only
+  in current core.
 - Verification: focused Phase 3 gate passed 8 files / 46 tests;
   `npm run type-check` and `git diff --check` passed; final full
   `npm run check` passed 417 files / 2,078 tests including type-check.

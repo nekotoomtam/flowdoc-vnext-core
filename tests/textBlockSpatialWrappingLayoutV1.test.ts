@@ -5,12 +5,16 @@ import {
   acceptVNextTextBlockMultiRunLayoutV1,
   createVNextCompactFingerprint,
   createVNextTextBlockPersistentFlowTreeV1,
-  createVNextTextBlockSpatialIndexV1,
-  provideVNextTextBlockFlowRegionsV1,
   type VNextTextBlockMultiRunLayoutRequestV1,
   type VNextTextBlockSpatialWrapPolicyV1,
   type VNextTextBlockSyntheticPositionedObjectInputV1,
 } from "../src/index.js"
+import {
+  createVNextTextBlockSpatialIndexV1,
+} from "../src/layout/textBlockSpatialIndexV1.js"
+import {
+  provideVNextTextBlockFlowRegionsV1,
+} from "../src/layout/textBlockFlowRegionProviderV1.js"
 import {
   inspectVNextTextBlockSpatialWrappingLayoutV1,
   layoutVNextTextBlockSpatialWrappingV1,
