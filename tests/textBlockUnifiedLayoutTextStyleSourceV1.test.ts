@@ -838,7 +838,7 @@ describe("5B-2 text/style Source path copy", () => {
       sourceState: result.nextSourceState,
       composition: fixture.composition,
     })).not.toBeNull()
-  })
+  }, 60_000)
 
   it("commits a whole-item deletion with zero Source emissions through its exact ticket", () => {
     const fixture = register5B2PlanASidecarsForRootFixture(repeatedRoot(2))

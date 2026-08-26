@@ -1,13 +1,28 @@
 import { existsSync, readFileSync } from "node:fs"
-import { join } from "node:path"
+import { execFileSync } from "node:child_process"
+import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { describe, expect, it } from "vitest"
 
 const repoRoot = fileURLToPath(new URL("../", import.meta.url))
-const backendRoot = join(repoRoot, "..", "flowdoc-vnext-backend")
+const canonicalRepoRoot = resolveCanonicalRepoRoot(repoRoot)
+const backendRoot = join(canonicalRepoRoot, "..", "flowdoc-vnext-backend")
 
 function readText(path: string): string {
   return readFileSync(join(repoRoot, path), "utf8")
+}
+
+function resolveCanonicalRepoRoot(root: string): string {
+  try {
+    const commonGitDir = execFileSync(
+      "git",
+      ["-C", root, "rev-parse", "--git-common-dir"],
+      { encoding: "utf8" },
+    ).trim()
+    return dirname(resolve(root, commonGitDir))
+  } catch {
+    return root
+  }
 }
 
 describe("core package-lane retirement guard", () => {
