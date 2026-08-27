@@ -36,9 +36,9 @@ approved release API.
 
 `src/index.ts` currently exposes a broad evidence surface:
 
-- `STAR_EXPORT_LINES=186`
+- `STAR_EXPORT_LINES=187`
 - `NAMED_EXPORT_BLOCKS=30`
-- `TOTAL_EXPORT_DECLARATIONS=216`
+- `TOTAL_EXPORT_DECLARATIONS=217`
 
 Top-level public declarations by source area:
 
@@ -51,7 +51,7 @@ Top-level public declarations by source area:
 | authoring | 16 |
 | generation | 14 |
 | composition | 13 |
-| schema | 9 |
+| schema | 10 |
 | toc | 6 |
 | persistence | 5 |
 | binding | 3 |
@@ -72,6 +72,10 @@ The largest areas are layout, table, pagination, renderer, authoring,
 generation, and composition. That distribution is useful as current evidence,
 but it is too broad to treat as an approved public API without a staged
 consumer adoption plan.
+
+The Core consumer surface freeze adds one schema-area root export for
+`src/schema/consumerSurface.ts`; it is a planning contract, not a package
+release subpath or destructive export narrowing.
 
 ## Consumer Evidence
 
@@ -153,10 +157,10 @@ The next safe public-boundary step is additive, not destructive:
 ## Behavior Changed
 
 - Documentation and guard coverage only.
-- No runtime source changed.
-- No package export changed.
-- No schema, persistence, operation, pagination, renderer, or generation
+- Additive consumer-surface contract source only.
+- No parser, runtime, migration, pagination, renderer, or generation execution
   behavior changed.
+- No package export changed.
 
 ## Tests Run
 

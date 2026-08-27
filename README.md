@@ -1899,6 +1899,8 @@ The package must remain runnable without any parent editor checkout.
   and source unknown-key loss guard
 - `docs/VERSION_CAPABILITY_CONTRACT.md`: Phase 258 core version-pair capability
   facts and cross-repo reporting boundary
+- `docs/CORE_CONSUMER_SURFACE_FREEZE.md`: Core consumer import, subpath,
+  retained, and blocked-surface planning freeze before frontend redesign
 - `docs/DOCUMENT_V4_DELETE_OPERATION.md`: Phase 263 block-subtree deletion,
   registry retention, and downstream mutation boundary
 - `docs/DOCUMENT_V4_DUPLICATE_OPERATION.md`: Phase 264 block-subtree duplicate,
