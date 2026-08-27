@@ -42,6 +42,27 @@ export type VNextPackageVersionInspection =
       status: "invalid-version-markers"
     }
 
+export const VNEXT_CORE_VERSION_SURFACE_RETIREMENT_INVENTORY_VERSION = 1 as const
+
+export type VNextCoreVersionSurfaceRetirementDisposition =
+  | "active-runtime"
+  | "deleted"
+  | "retained-for-evidence"
+  | "retained-for-migration"
+  | "blocked"
+
+export interface VNextCoreVersionSurfaceRetirementRecord {
+  id: string
+  owner: "core"
+  packageVersion: number
+  documentVersion: number
+  targetPackageVersion?: number
+  targetDocumentVersion?: number
+  disposition: VNextCoreVersionSurfaceRetirementDisposition
+  paths: readonly string[]
+  reason: string
+}
+
 const ACTIVE_PAIR = {
   packageVersion: VNEXT_ACTIVE_PACKAGE_VERSION,
   documentVersion: VNEXT_ACTIVE_DOCUMENT_VERSION,
@@ -51,6 +72,58 @@ const MIGRATION_TARGET_PAIR = {
   packageVersion: VNEXT_TARGET_PACKAGE_VERSION,
   documentVersion: VNEXT_TEXT_BLOCK_V1_TARGET_DOCUMENT_VERSION,
 } as const
+
+export const VNEXT_CORE_VERSION_SURFACE_RETIREMENT_INVENTORY = [
+  {
+    id: "active-package-v2-document-v3-runtime",
+    owner: "core",
+    packageVersion: ACTIVE_PAIR.packageVersion,
+    documentVersion: ACTIVE_PAIR.documentVersion,
+    disposition: "active-runtime",
+    paths: ["src/persistence/package.ts", "src/runtime/session.ts", "src/schema/documentVersionPolicy.ts"],
+    reason: "Canonical persisted input remains package v2/document v3 and keeps active parser/runtime authority.",
+  },
+  {
+    id: "package-v3-document-v4-target-parser",
+    owner: "core",
+    packageVersion: MIGRATION_TARGET_PAIR.packageVersion,
+    documentVersion: MIGRATION_TARGET_PAIR.documentVersion,
+    disposition: "retained-for-migration",
+    paths: ["src/persistence/packageV3.ts", "src/runtime/readOnlySessionV4.ts"],
+    reason: "Package v3/document v4 is a recognized migration target with read-only validation, not an active runtime pair.",
+  },
+  {
+    id: "package-v2-to-v3-explicit-copy-forward-migration",
+    owner: "core",
+    packageVersion: ACTIVE_PAIR.packageVersion,
+    documentVersion: ACTIVE_PAIR.documentVersion,
+    targetPackageVersion: MIGRATION_TARGET_PAIR.packageVersion,
+    targetDocumentVersion: MIGRATION_TARGET_PAIR.documentVersion,
+    disposition: "retained-for-migration",
+    paths: ["src/migration/packageV2ToV3.ts", "src/migration/packageV2ToV3Types.ts"],
+    reason: "Core owns only the pure source-immutable semantic plan and target validation; Backend owns revisioned persistence.",
+  },
+  {
+    id: "phase-258-consumer-evidence",
+    owner: "core",
+    packageVersion: MIGRATION_TARGET_PAIR.packageVersion,
+    documentVersion: MIGRATION_TARGET_PAIR.documentVersion,
+    disposition: "retained-for-evidence",
+    paths: ["docs/VERSION_CAPABILITY_CONTRACT.md", "docs/PHASE_LEDGER.md"],
+    reason: "Historical cross-repo capability evidence remains useful but does not activate the v4 runtime.",
+  },
+  {
+    id: "silent-read-normalization-or-compatibility-adapter",
+    owner: "core",
+    packageVersion: ACTIVE_PAIR.packageVersion,
+    documentVersion: ACTIVE_PAIR.documentVersion,
+    targetPackageVersion: MIGRATION_TARGET_PAIR.packageVersion,
+    targetDocumentVersion: MIGRATION_TARGET_PAIR.documentVersion,
+    disposition: "blocked",
+    paths: ["docs/WORKSPACE_BOUNDARY.md", "docs/LEGACY_MIGRATION_GATE.md"],
+    reason: "Silent read normalization and exported compatibility adapters are explicitly blocked; migration must stay an explicit copy-forward plan.",
+  },
+] as const satisfies readonly VNextCoreVersionSurfaceRetirementRecord[]
 
 export const VNEXT_CORE_VERSION_CAPABILITY_CONTRACT = {
   contractVersion: VNEXT_VERSION_CAPABILITY_CONTRACT_VERSION,

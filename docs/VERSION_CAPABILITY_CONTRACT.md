@@ -22,10 +22,31 @@ Package 3/document 4 has a named read projection and an isolated generic block
 lifecycle kernel. It remains outside the active v3 operation runtime,
 pagination, exact renderer, and export runtime.
 
+## Version Surface Retirement Inventory
+
+The contract now publishes `VNEXT_CORE_VERSION_SURFACE_RETIREMENT_INVENTORY`
+beside the capability matrix so version-related surfaces cannot linger without
+a disposition.
+
+| Surface | Disposition | Reason |
+|---|---|---|
+| active package v2/document v3 runtime | active-runtime | Canonical persisted input remains active and is not an old surface. |
+| package v3/document v4 target parser/read-only runtime | retained-for-migration | The target is required for explicit migration validation and read-only inspection. |
+| package v2 to v3 explicit copy-forward planner | retained-for-migration | Core owns the source-immutable semantic plan; Backend owns revisioned persistence. |
+| Phase 258 consumer evidence | retained-for-evidence | Historical cross-repo capability evidence stays useful without activating v4 runtime behavior. |
+| silent read normalization or compatibility adapter | blocked | Silent package-read normalization and exported compatibility adapters remain prohibited. |
+
+No version surface is classified as `deleted` in this lane: the reviewed
+surfaces are either active, migration-retained, evidence-retained, or blocked.
+Future version changes must update this inventory when deleting, retaining, or
+blocking a surface.
+
 ## Public APIs
 
 - `VNEXT_CORE_VERSION_CAPABILITY_CONTRACT` publishes active and migration
   target facts plus remaining activation blockers.
+- `VNEXT_CORE_VERSION_SURFACE_RETIREMENT_INVENTORY` publishes the version
+  surface cleanup and retention classification.
 - `getVNextCoreVersionSupport(packageVersion, documentVersion)` classifies an
   explicit pair.
 - `inspectVNextPackageVersionCapability(value)` reads only top-level package
@@ -74,6 +95,8 @@ are unavailable.
 - `canCreateReadOnlySession` distinguishes safe structural consumption from
   active runtime support.
 - Backend/editor can consume one retained core capability vocabulary.
+- Version surfaces are classified as active, retained-for-migration,
+  retained-for-evidence, or blocked before Backend adoption work proceeds.
 - Remaining activation work is named instead of hidden behind a generic
   downstream blocker.
 
@@ -124,6 +147,9 @@ Core consumers can inspect version markers and obtain precise semantic support
 without invoking active or target package parsers. The target package remains
 inactive for runtime use.
 
+Core also publishes a machine-readable version-surface retirement inventory.
+This is classification-only and does not delete or activate any runtime path.
+
 ## Intentionally Not Changed
 
 - package parser acceptance;
@@ -131,6 +157,7 @@ inactive for runtime use.
 - document operations, graph, pagination, rendering, or export;
 - backend routes or persistence in this repository;
 - editor state or UI in this repository.
+- deletion of version-related source paths.
 
 ## Next Recommended Direction
 
