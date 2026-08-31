@@ -18,6 +18,21 @@ that phrase is retained only as prior handoff evidence.
 This is a parallel product handoff for FlowDoc Live Draft Preview. It does not
 replace `docs/NEXT_PHASE_POINTER.md` or change the existing Core phase pointer.
 
+## Authority Boundary
+
+This repository-local handoff is owned by `repo-core` and preserves bounded
+historical implementation context for Core Live Draft and TextBlock geometry.
+It is not FlowDoc-wide documentation authority, product readiness evidence,
+Editor or Backend activation evidence, or map truth.
+
+Project Control governs shared interpretation and cleanup through
+`docs/domains/flowdoc-documentation-authority-policy.md`; historical superpowers sources are retired.
+Use the Project Control syntheses at
+`docs/versions/V0_1_0a_1/core/text-block/OVERVIEW.md`,
+`docs/versions/V0_1_0a_1/core/live-draft/geometry-and-scene-projection.md`, and
+`docs/versions/V0_1_0a_1/core/live-draft/persistent-flow-and-range-foundations.md`
+for cross-repository context.
+
 ## Objective
 
 Make Form editing update a page-shaped Draft Preview immediately in the
@@ -506,13 +521,9 @@ activation, and Editor staged apply remain NO-GO.
 Core:
 
 - `docs/LIVE_DRAFT_MR1_UNIFIED_TEXT_BLOCK_ROOT_5A.md`
-- `docs/superpowers/specs/2026-07-28-unified-incremental-live-draft-product-readiness-design.md`
-- `docs/superpowers/plans/2026-07-28-unified-text-block-retained-root-5a.md`
 - `docs/LIVE_DRAFT_MR1_INLINE_IMAGE_GEOMETRY_4B.md`
 - `docs/LIVE_DRAFT_MR1_AUTHORED_BOX_GEOMETRY_4A.md`
 - `docs/LIVE_DRAFT_MR1_SPATIAL_WRAPPING_3A.md`
-- `docs/superpowers/specs/2026-07-21-persistent-text-block-spatial-flow-design.md`
-- `docs/superpowers/plans/2026-07-21-text-block-complete-geometry-boundary.md`
 - `docs/LIVE_DRAFT_MR1_COMPLETE_GEOMETRY_BOUNDARY.md`
 - `docs/LIVE_DRAFT_MR1_PERSISTENT_FLOW_FOUNDATION.md`
 - `docs/MEASUREMENT_HARDENING_CLOSE_AUDIT.md`

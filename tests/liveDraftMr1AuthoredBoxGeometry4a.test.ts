@@ -83,9 +83,7 @@ describe("Live Draft MR1 authored box geometry 4A handoff", () => {
     const phase3 = read("docs/LIVE_DRAFT_MR1_SPATIAL_WRAPPING_3A.md")
     const crossRuntime = read("docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md")
     const ledger = read("docs/PHASE_LEDGER.md")
-    const design = read(
-      "docs/superpowers/specs/2026-07-27-initial-text-block-authored-box-geometry-design.md",
-    )
+    const evidence = read(evidencePath)
     const phase3Next = normalize(sectionAtPeerHeading(phase3, "## Next Checkpoint"))
     const crossPhase4a = normalize(
       sectionAtPeerHeading(crossRuntime, "## Phase 4A Initial TextBlock Authored Box Geometry"),
@@ -106,9 +104,7 @@ describe("Live Draft MR1 authored box geometry 4A handoff", () => {
       expect(record).toContain(deferredNoGo)
       expect(record).toContain("Phase 4B")
     }
-    expect(design).toContain(
-      "Status: implemented and accepted as the bounded Phase 4A Core checkpoint.",
-    )
+    expect(evidence).toContain("Phase 4A is accepted as a bounded Core-only authored-box geometry checkpoint.")
   })
 
   it("records numeric focused and full verification totals in every active Phase 4A record", () => {

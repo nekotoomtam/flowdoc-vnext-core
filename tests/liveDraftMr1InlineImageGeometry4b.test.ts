@@ -419,7 +419,7 @@ describe("Live Draft MR1 inline-image geometry 4B handoff", () => {
   it("retains Phase 4B historical records and deferred rows after active pointers advance", () => {
     const phase4a = normalize(read("docs/LIVE_DRAFT_MR1_AUTHORED_BOX_GEOMETRY_4A.md"))
     const ledger = read("docs/PHASE_LEDGER.md")
-    const design = read("docs/superpowers/specs/2026-07-27-inline-image-line-box-geometry-design.md")
+    const handoff = read(handoffPath)
     const ledgerPhase4b = normalize(
       sectionAtPeerHeading(ledger, "## Phase 4B Inline Image Line-Box Geometry"),
     )
@@ -433,7 +433,7 @@ describe("Live Draft MR1 inline-image geometry 4B handoff", () => {
     for (const directive of supersededActiveDirectives) {
       expect(ledgerPhase4b).not.toContain(directive)
     }
-    expect(design).toContain("**Status:** Implemented and accepted as the bounded Core-only Phase 4B checkpoint")
+    expect(handoff).toContain("Status: implemented and accepted as the bounded Core-only Phase 4B checkpoint")
   })
 
   it("maps the complete public Phase 4B exports to their intended modules", () => {

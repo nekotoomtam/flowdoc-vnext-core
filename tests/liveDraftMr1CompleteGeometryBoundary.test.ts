@@ -185,8 +185,6 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
     expect(index).not.toContain('export * from "./layout/textBlockInitialFlowTextOnlyAdapterV1.js"')
 
     for (const path of [
-      "docs/superpowers/specs/2026-07-21-persistent-text-block-spatial-flow-design.md",
-      "docs/superpowers/plans/2026-07-21-text-block-complete-geometry-boundary.md",
       "docs/LIVE_DRAFT_MR1_COMPLETE_GEOMETRY_BOUNDARY.md",
       "src/layout/textBlockEffectiveShapingStyleIdentityV1.ts",
       "src/layout/textBlockInitialFlowParentRegionV1.ts",
@@ -195,6 +193,9 @@ describe("Live Draft MR1-P complete geometry boundary", () => {
       "tests/textBlockInitialFlowInputV1.test.ts",
     ]) expect(requiredReading).toContain(`\`${path}\``)
     expect(requiredReading).toContain("initial-flow text-only legacy adapter is retired from current core")
+    expect(handoff).toContain("docs/versions/V0_1_0a_1/core/text-block/OVERVIEW.md")
+    expect(handoff).toContain("docs/versions/V0_1_0a_1/core/live-draft/geometry-and-scene-projection.md")
+    expect(handoff).toContain("historical superpowers sources are retired")
 
     for (const path of [
       "packages/text-engine-rust-wasm/src/multiRunLayout.ts",

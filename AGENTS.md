@@ -19,6 +19,22 @@ Only skip this for user-explicit read-only local inspection in this repository;
 do not edit files, update maps, promote truth, or claim FlowDoc-wide current
 state in that mode.
 
+## Documentation Authority
+
+Project Control is the canonical home for FlowDoc-wide shared understanding,
+including Work paths, Phase state, Checklist targets, Evidence targets,
+documentation authority, repository ownership, and map-truth boundaries.
+
+Core Markdown may remain only for Core-owned implementation, runtime
+contracts, package-local tests, setup guidance, and bounded historical evidence.
+It must not become a second source of FlowDoc-wide truth. The governing policy
+is
+`C:\Users\nekot\Documents\GitHub\flowdoc-project-control\docs\domains\flowdoc-documentation-authority-policy.md`.
+
+Do not create product-repository `docs/superpowers/plans` or `docs/superpowers/specs` files for FlowDoc-wide truth.
+Put shared or cross-repository plans in Project Control Work, Phase, Checklist,
+and Evidence targets first.
+
 ## Default Agent Role
 
 By default, operate as:
