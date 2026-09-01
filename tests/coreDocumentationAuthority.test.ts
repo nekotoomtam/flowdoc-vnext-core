@@ -16,12 +16,32 @@ const retiredHiddenSuperpowersMarkdown = [
   ".superpowers/sdd/2026-07-31-unified-incremental-root-transition-5b-1-v3-corrective/final-verification.md",
   ".superpowers/sdd/2026-07-31-unified-incremental-root-transition-5b-1-v3-corrective/source-envelope-verification.md",
 ] as const
+const retiredProjectMarkdown = [
+  "docs/project/CURRENT_STATE.md",
+  "docs/project/ROADMAP.md",
+  "docs/project/RISK_REGISTER.md",
+  "docs/project/KNOWN_UNKNOWNS.md",
+] as const
+const retiredProjectDocumentIds = [
+  "DOC-CORE-PROJECT-CURRENT-STATE",
+  "DOC-CORE-PROJECT-ROADMAP",
+  "DOC-CORE-PROJECT-RISK-REGISTER",
+  "DOC-CORE-PROJECT-KNOWN-UNKNOWNS",
+] as const
 const activeReferenceFiles = [
   "docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md",
   "tests/liveDraftMr1CompleteGeometryBoundary.test.ts",
   "tests/liveDraftMr1AuthoredBoxGeometry4a.test.ts",
   "tests/liveDraftMr1InlineImageGeometry4b.test.ts",
 ] as const
+
+type Manifest = {
+  canonicalRoots: string[]
+  documents: Array<{
+    documentId: string
+    path: string
+  }>
+}
 
 async function pathExists(path: string): Promise<boolean> {
   try {
@@ -96,5 +116,33 @@ describe("Core documentation authority", () => {
     const agents = normalize(await readFile(join(projectRoot, "AGENTS.md"), "utf8"))
     expect(agents).toContain("Project Control is the canonical home for FlowDoc-wide shared understanding")
     expect(agents).toContain("Core Markdown may remain only for Core-owned implementation")
+  })
+
+  it("keeps Core docs/project state, roadmap, risk, and unknown docs retired into Project Control", async () => {
+    for (const path of retiredProjectMarkdown) {
+      await expect(pathExists(join(projectRoot, path)), path).resolves.toBe(false)
+    }
+    await expect(listMarkdownFiles("docs/project")).resolves.toEqual([])
+
+    const manifest = JSON.parse(await readFile(join(projectRoot, "docs/manifest.json"), "utf8")) as Manifest
+    expect(manifest.canonicalRoots).not.toContain("docs/project")
+
+    const retiredIds = new Set<string>(retiredProjectDocumentIds)
+    const activeRetiredRows = manifest.documents.filter((document) => (
+      document.path.startsWith("docs/project/")
+      || retiredIds.has(document.documentId)
+    ))
+    expect(activeRetiredRows).toEqual([])
+
+    const currentStatus = normalize(await readFile(join(projectRoot, "docs/CURRENT_STATUS.md"), "utf8"))
+    const nextPhasePointer = normalize(await readFile(join(projectRoot, "docs/NEXT_PHASE_POINTER.md"), "utf8"))
+    const phaseLedger = normalize(await readFile(join(projectRoot, "docs/PHASE_LEDGER.md"), "utf8"))
+    const documentMap = normalize(await readFile(join(projectRoot, "docs/DOCUMENT_MAP.md"), "utf8"))
+
+    for (const pointer of [currentStatus, nextPhasePointer, phaseLedger]) {
+      expect(pointer).toContain("Project Control")
+      expect(pointer).toContain("core-project-docs-retirement-2026-09-01.md")
+    }
+    expect(documentMap).not.toContain("docs/project/")
   })
 })

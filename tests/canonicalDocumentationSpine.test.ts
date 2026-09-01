@@ -2234,6 +2234,22 @@ A dual-status token is qualified.
     expect(check.status, check.stderr).toBe(0)
   })
 
+  test("regenerates document map after retiring legacy project docs", () => {
+    const root = fixture()
+    addTruthPlane(root)
+    expect(runCli(root, "scripts/generate-canonical-docs.mjs").status).toBe(0)
+
+    rewriteJson(root, "docs/manifest.json", (manifest) => {
+      manifest.canonicalRoots = ["docs/coordination", "docs/versions/0_1"]
+      manifest.documents = manifest.documents.filter((document: any) => !document.path.startsWith("docs/project/"))
+    })
+    rmSync(join(root, "docs/project"), { force: true, recursive: true })
+
+    const generation = runCli(root, "scripts/generate-canonical-docs.mjs")
+    expect(generation.status, generation.stderr).toBe(0)
+    expect(readFileSync(join(root, "docs/DOCUMENT_MAP.md"), "utf8")).not.toContain("DOC-CORE-PROJECT-CURRENT-STATE")
+  })
+
   test.each(["absent", "present"] as const)("uses one committed baseline-state assertion for a complete $state fixture", (state) => {
     const contentCommit = task5ContentCommit()
     const root = state === "absent"
@@ -2252,8 +2268,8 @@ A dual-status token is qualified.
     const root = process.cwd()
     const contentCommit = task5ContentCommit()
     const model = assertCanonicalBaselineState(root, contentCommit)
-    expect(documentMapping(model.documents.filter((document: any) => document.path !== DEVELOPMENT_BASELINE_PATH))).toEqual([...DOCUMENT_ROWS, ...TRUTH_DOCUMENT_ROWS])
-    expect(model.manifest.canonicalRoots).toEqual(["docs/project", "docs/coordination", "docs/versions/0_1"])
+    expect(documentMapping(model.documents.filter((document: any) => document.path !== DEVELOPMENT_BASELINE_PATH))).toEqual([...DOCUMENT_ROWS, ...TRUTH_DOCUMENT_ROWS.slice(0, 1)])
+    expect(model.manifest.canonicalRoots).toEqual(["docs/coordination", "docs/versions/0_1"])
     expect(model.documents.filter((document: any) => !model.manifest.canonicalRoots.some((canonicalRoot: string) => document.path.startsWith(`${canonicalRoot}/`))).map((document: any) => document.path)).toEqual([
       "docs/manifest.json", "docs/DOCUMENT_MAP.md", "docs/glossary.json", "docs/GLOSSARY.md", "docs/GLOSSARY_TH.md", "docs/VERSION_POLICY.md",
     ])
@@ -2261,30 +2277,7 @@ A dual-status token is qualified.
     expect(model.glossary.terms.every((term: any) => term.appliesTo.contractIds.length === 0 && term.appliesTo.schemaIds.length === 0)).toBe(true)
     expect(model.compatibility).toEqual({ compatibilitySchemaVersion: 1, coreEditor: "not-verified", coreBackend: "not-verified", endToEnd: "not-verified" })
     expect(readFileSync(join(root, "docs/VERSION_POLICY.md"), "utf8")).toMatch(/0\.1\.0-a\.1.*not authorized|not authorized.*0\.1\.0-a\.1/i)
-    expect(readFileSync(join(root, "docs/project/CURRENT_STATE.md"), "utf8")).toMatch(/zero runtime\s+subsystems.*migrated|no runtime subsystem.*migrated/i)
-    expect(model.embeddedRecords.map((record: any) => record.recordId)).toEqual([
-      "RISK-CORE-DOCUMENTATION-STALE-SOURCE-001",
-      "RISK-CORE-DOCUMENTATION-DUAL-TRUTH-001",
-      "RISK-CORE-DOCUMENTATION-TEST-COUPLING-001",
-      "RISK-CORE-DOCUMENTATION-PACKAGE-SURFACE-001",
-      "RISK-FLOWDOC-COORDINATION-DUAL-OWNER-001",
-      "RISK-FLOWDOC-COORDINATION-BASELINE-GHOST-001",
-      "UNKNOWN-CORE-DOCUMENTATION-CONTRACT-INVENTORY-001",
-      "UNKNOWN-CORE-DOCUMENTATION-TEST-MIGRATION-001",
-      "UNKNOWN-CORE-PACKAGE-PUBLIC-DOCS-001",
-      "UNKNOWN-FLOWDOC-COMPATIBILITY-EDITOR-001",
-      "UNKNOWN-FLOWDOC-COMPATIBILITY-BACKEND-001",
-      "UNKNOWN-FLOWDOC-COORDINATION-REPOSITORY-001",
-      "WORK-CORE-LAYOUT-CUTOVER-001",
-      "WORK-CORE-REMAINING-SUBSYSTEM-CUTOVER-001",
-      "WORK-CORE-PACKAGE-RELEASE-BOUNDARY-001",
-      "WORK-FLOWDOC-EDITOR-BACKEND-ADOPTION-001",
-      "WORK-FLOWDOC-COORDINATION-TRANSFER-001",
-      "WORK-FLOWDOC-AGENT-SYSTEM-REDESIGN-001",
-    ])
-    const realRecordSources = ["docs/project/RISK_REGISTER.md", "docs/project/KNOWN_UNKNOWNS.md", "docs/project/ROADMAP.md"].map((path) => readFileSync(join(root, path), "utf8"))
-    expect(realRecordSources.reduce((count, source) => count + [...source.matchAll(/^## [A-Z][A-Z0-9-]+ — [^\r\n]+\r?\n<!-- FLOWDOC-RECORD\r?\n[^\r\n]+\r?\n-->(?=\r?\n|$)/gm)].length, 0)).toBe(18)
-    expect(realRecordSources.reduce((count, source) => count + [...source.matchAll(/^<!-- FLOWDOC-RECORD$/gm)].length, 0)).toBe(18)
+    expect(model.embeddedRecords.map((record: any) => record.recordId)).toEqual([])
     expect(generated(root)).toEqual(renderGeneratedFiles(model))
   })
 })

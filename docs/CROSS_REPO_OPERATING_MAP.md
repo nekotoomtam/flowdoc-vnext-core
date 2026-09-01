@@ -2,17 +2,14 @@
 
 Status: compact compatibility index for legacy D2 tests.
 
-Owner-facing truth now lives in:
+Owner-facing FlowDoc-wide truth now lives in Project Control:
 
+- `C:\Users\nekot\Documents\GitHub\flowdoc-project-control\docs\domains\core-project-docs-retirement-2026-09-01.md`
 - `docs/manifest.json`
 - `docs/DOCUMENT_MAP.md`
-- `docs/project/CURRENT_STATE.md`
-- `docs/project/ROADMAP.md`
-- `docs/project/RISK_REGISTER.md`
-- `docs/project/KNOWN_UNKNOWNS.md`
 
 This file intentionally keeps only legacy discovery markers still pinned by tests.
-Do not add new phase planning truth here; add active truth to canonical project docs instead.
+Do not add new phase planning truth here; add FlowDoc-wide truth to Project Control and Core-owned implementation truth to scoped Core docs.
 
 Original document: Cross-repo operating map.
 

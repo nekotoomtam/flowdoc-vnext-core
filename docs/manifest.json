@@ -2,7 +2,6 @@
   "manifestSchemaVersion": 1,
   "repositoryId": "REPO-FLOWDOC-CORE",
   "canonicalRoots": [
-    "docs/project",
     "docs/coordination",
     "docs/versions/0_1"
   ],
@@ -19,10 +18,6 @@
     {"documentId":"DOC-CORE-VERSION-0-1-VERSION-OVERVIEW","title":"Core 0.1 version overview","path":"docs/versions/0_1/VERSION_OVERVIEW.md","kind":"current-state","scope":"core","subsystem":"versioning","audience":"both","authority":"navigation","lifecycle":"active","appliesTo":{"repositoryIds":["REPO-FLOWDOC-CORE"],"releaseLines":["0.1"],"contractIds":[],"schemaIds":[]}},
     {"documentId":"DOC-CORE-VERSION-0-1-CAPABILITY-SET","title":"Core 0.1 capability set","path":"docs/versions/0_1/CAPABILITY_SET.md","kind":"current-state","scope":"core","subsystem":"versioning","audience":"both","authority":"navigation","lifecycle":"active","appliesTo":{"repositoryIds":["REPO-FLOWDOC-CORE"],"releaseLines":["0.1"],"contractIds":[],"schemaIds":[]}},
     {"documentId":"DOC-CORE-VERSION-0-1-COMPATIBILITY","title":"Core 0.1 compatibility record","path":"docs/versions/0_1/COMPATIBILITY.md","kind":"compatibility","scope":"cross-repository","subsystem":"versioning","audience":"internal","authority":"normative","lifecycle":"active","appliesTo":{"repositoryIds":["REPO-FLOWDOC-CORE","REPO-FLOWDOC-EDITOR","REPO-FLOWDOC-BACKEND"],"releaseLines":["0.1"],"contractIds":[],"schemaIds":[]}},
-    {"documentId":"DOC-CORE-PROJECT-VERSION-POLICY","title":"Core project version policy","path":"docs/VERSION_POLICY.md","kind":"version-policy","scope":"cross-repository","subsystem":"versioning","audience":"internal","authority":"normative","lifecycle":"active","appliesTo":{"repositoryIds":["REPO-FLOWDOC-CORE","REPO-FLOWDOC-EDITOR","REPO-FLOWDOC-BACKEND"],"releaseLines":[],"contractIds":[],"schemaIds":[]}},
-    {"documentId":"DOC-CORE-PROJECT-CURRENT-STATE","title":"Core project current state","path":"docs/project/CURRENT_STATE.md","kind":"current-state","scope":"core","subsystem":"project","audience":"internal","authority":"evidence","lifecycle":"active","appliesTo":{"repositoryIds":["REPO-FLOWDOC-CORE"],"releaseLines":[],"contractIds":[],"schemaIds":[]}},
-    {"documentId":"DOC-CORE-PROJECT-RISK-REGISTER","title":"Core project risk register","path":"docs/project/RISK_REGISTER.md","kind":"risk-register","scope":"cross-repository","subsystem":"project","audience":"internal","authority":"normative","lifecycle":"active","appliesTo":{"repositoryIds":["REPO-FLOWDOC-CORE","REPO-FLOWDOC-EDITOR","REPO-FLOWDOC-BACKEND"],"releaseLines":[],"contractIds":[],"schemaIds":[]}},
-    {"documentId":"DOC-CORE-PROJECT-KNOWN-UNKNOWNS","title":"Core project known unknowns","path":"docs/project/KNOWN_UNKNOWNS.md","kind":"known-unknowns","scope":"cross-repository","subsystem":"project","audience":"internal","authority":"normative","lifecycle":"active","appliesTo":{"repositoryIds":["REPO-FLOWDOC-CORE","REPO-FLOWDOC-EDITOR","REPO-FLOWDOC-BACKEND"],"releaseLines":[],"contractIds":[],"schemaIds":[]}},
-    {"documentId":"DOC-CORE-PROJECT-ROADMAP","title":"Core project roadmap","path":"docs/project/ROADMAP.md","kind":"roadmap","scope":"cross-repository","subsystem":"project","audience":"internal","authority":"normative","lifecycle":"active","appliesTo":{"repositoryIds":["REPO-FLOWDOC-CORE","REPO-FLOWDOC-EDITOR","REPO-FLOWDOC-BACKEND"],"releaseLines":[],"contractIds":[],"schemaIds":[]}}
+    {"documentId":"DOC-CORE-PROJECT-VERSION-POLICY","title":"Core project version policy","path":"docs/VERSION_POLICY.md","kind":"version-policy","scope":"cross-repository","subsystem":"versioning","audience":"internal","authority":"normative","lifecycle":"active","appliesTo":{"repositoryIds":["REPO-FLOWDOC-CORE","REPO-FLOWDOC-EDITOR","REPO-FLOWDOC-BACKEND"],"releaseLines":[],"contractIds":[],"schemaIds":[]}}
   ]
 }

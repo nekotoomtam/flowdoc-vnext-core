@@ -28,7 +28,8 @@ const REQUIRED_DOCUMENT_PATHS = Object.freeze([
   ...GENERATED_PATHS.slice(3),
   STRUCTURED_PATHS.compatibility,
 ])
-const CANONICAL_ROOTS = Object.freeze(["docs/project", "docs/coordination", "docs/versions/0_1"])
+const CANONICAL_ROOTS = Object.freeze(["docs/coordination", "docs/versions/0_1"])
+const LEGACY_PROJECT_CANONICAL_ROOTS = Object.freeze(["docs/project", ...CANONICAL_ROOTS])
 const DOCUMENT_KINDS = new Set(["navigation", "glossary", "repository-index", "coordination-boundary", "development-baseline", "release-composition", "current-state", "compatibility", "version-policy", "risk-register", "known-unknowns", "roadmap"])
 const SCOPES = new Set(["core", "editor", "backend", "cross-repository"])
 const SUBSYSTEMS = new Set(["documentation", "terminology", "coordination", "versioning", "project"])
@@ -54,12 +55,18 @@ const RECORD_DOCUMENTS = Object.freeze({
   roadmap: { recordKind: "work", prefix: "WORK", fields: ["recordId", "recordKind", "lifecycle", "motivatedBy"], sections: ["Motivating risks and unknowns", "Non-goals", "Lifecycle"], referenceField: "motivatedBy", referenceSection: "Motivating risks and unknowns" },
 })
 const TASK_4_REPOSITORY_IDS = Object.freeze(["REPO-FLOWDOC-CORE", "REPO-FLOWDOC-EDITOR", "REPO-FLOWDOC-BACKEND"])
-const TASK_4_DOCUMENT_ROWS = Object.freeze([
+const TASK_4_VERSION_POLICY_DOCUMENT_ROW = Object.freeze(
   { documentId: "DOC-CORE-PROJECT-VERSION-POLICY", path: "docs/VERSION_POLICY.md", kind: "version-policy", scope: "cross-repository", subsystem: "versioning", audience: "internal", authority: "normative", lifecycle: "active", repositoryIds: TASK_4_REPOSITORY_IDS, releaseLines: [], contractIds: [], schemaIds: [] },
+)
+const LEGACY_TASK_4_PROJECT_DOCUMENT_ROWS = Object.freeze([
   { documentId: "DOC-CORE-PROJECT-CURRENT-STATE", path: "docs/project/CURRENT_STATE.md", kind: "current-state", scope: "core", subsystem: "project", audience: "internal", authority: "evidence", lifecycle: "active", repositoryIds: ["REPO-FLOWDOC-CORE"], releaseLines: [], contractIds: [], schemaIds: [] },
   { documentId: "DOC-CORE-PROJECT-RISK-REGISTER", path: "docs/project/RISK_REGISTER.md", kind: "risk-register", scope: "cross-repository", subsystem: "project", audience: "internal", authority: "normative", lifecycle: "active", repositoryIds: TASK_4_REPOSITORY_IDS, releaseLines: [], contractIds: [], schemaIds: [] },
   { documentId: "DOC-CORE-PROJECT-KNOWN-UNKNOWNS", path: "docs/project/KNOWN_UNKNOWNS.md", kind: "known-unknowns", scope: "cross-repository", subsystem: "project", audience: "internal", authority: "normative", lifecycle: "active", repositoryIds: TASK_4_REPOSITORY_IDS, releaseLines: [], contractIds: [], schemaIds: [] },
   { documentId: "DOC-CORE-PROJECT-ROADMAP", path: "docs/project/ROADMAP.md", kind: "roadmap", scope: "cross-repository", subsystem: "project", audience: "internal", authority: "normative", lifecycle: "active", repositoryIds: TASK_4_REPOSITORY_IDS, releaseLines: [], contractIds: [], schemaIds: [] },
+])
+const TASK_4_DOCUMENT_ROWS = Object.freeze([
+  TASK_4_VERSION_POLICY_DOCUMENT_ROW,
+  ...LEGACY_TASK_4_PROJECT_DOCUMENT_ROWS,
 ])
 
 function fail(message) {
@@ -178,11 +185,16 @@ function parseDocument(record) {
 }
 
 function validateTask4ManifestRows(documents) {
-  const expectedIds = new Set(TASK_4_DOCUMENT_ROWS.map((row) => row.documentId))
-  const expectedPaths = new Set(TASK_4_DOCUMENT_ROWS.map((row) => row.path))
+  const expectedRows = TASK_4_DOCUMENT_ROWS
+  const expectedIds = new Set(expectedRows.map((row) => row.documentId))
+  const expectedPaths = new Set(expectedRows.map((row) => row.path))
   const task4Rows = documents.filter((document) => expectedIds.has(document.documentId) || expectedPaths.has(document.path))
   if (task4Rows.length === 0) return
-  for (const expected of TASK_4_DOCUMENT_ROWS) {
+  const legacyProjectRows = task4Rows.filter((document) => document.path.startsWith("docs/project/") || LEGACY_TASK_4_PROJECT_DOCUMENT_ROWS.some((row) => row.documentId === document.documentId))
+  const rowsToValidate = legacyProjectRows.length === 0
+    ? [TASK_4_VERSION_POLICY_DOCUMENT_ROW]
+    : expectedRows
+  for (const expected of rowsToValidate) {
     const actual = documents.find((document) => document.documentId === expected.documentId)
     if (!actual) fail(`Task 4 manifest is missing row ${expected.documentId}`)
     for (const field of ["path", "kind", "scope", "subsystem", "audience", "authority", "lifecycle"]) {
@@ -201,8 +213,11 @@ function parseManifest(value) {
   if (value.manifestSchemaVersion !== 1) fail("manifestSchemaVersion must be 1")
   id(value.repositoryId, "REPO", "manifest repositoryId")
   const canonicalRoots = array(value.canonicalRoots, "canonicalRoots")
-  if (JSON.stringify(canonicalRoots) !== JSON.stringify(CANONICAL_ROOTS)) fail(`canonicalRoots must exactly equal ${CANONICAL_ROOTS.join(", ")}`)
+  const hasCurrentCanonicalRoots = JSON.stringify(canonicalRoots) === JSON.stringify(CANONICAL_ROOTS)
+  const hasLegacyProjectCanonicalRoots = JSON.stringify(canonicalRoots) === JSON.stringify(LEGACY_PROJECT_CANONICAL_ROOTS)
+  if (!hasCurrentCanonicalRoots && !hasLegacyProjectCanonicalRoots) fail(`canonicalRoots must exactly equal ${CANONICAL_ROOTS.join(", ")}`)
   const documents = array(value.documents, "manifest documents").map(parseDocument)
+  if (hasCurrentCanonicalRoots && documents.some((document) => document.path.startsWith("docs/project/"))) fail("docs/project document paths are retired from active canonical roots")
   validateTask4ManifestRows(documents)
   return { ...value, canonicalRoots, documents }
 }
@@ -1102,6 +1117,7 @@ export function validateCanonicalDocumentationModel(model, options = {}) {
   for (const document of documents) {
     const markdown = structuralMarkdownByPath[document.path]
     if (markdown === undefined) continue
+    if (generated.has(document.path)) continue
     validateMarkdownReferenceDirection(root, document, markdown, documents)
     for (const reference of collectCanonicalReferences(markdown)) {
       if (!knownIds.has(reference)) fail(`unresolved canonical reference ${reference}`)
