@@ -2,6 +2,24 @@
 
 Status: Runtime Binding / Implementation Planning Gate complete.
 
+## Authority Boundary
+
+Owner repository: Core.
+
+Scope: Core-local implementation context for the Runtime Binding /
+Implementation Planning Gate.
+
+Governing Project Control record:
+`flowdoc-product-development-resumption > flowdoc-documentation-authority-cleanup`;
+retained-value record
+`docs/domains/core-render-api-planning-boundary-2026-09-01.md`.
+
+Project Control owns FlowDoc-wide Work, Phase, Checklist, Evidence, Risk,
+Unknown, Roadmap, and cleanup state.
+
+This file does not promote Core, Backend, Editor, compatibility, frontend
+readiness, FlowDoc product truth, or map truth.
+
 This planning gate uses Mini Infrastructure Close Audit as source of truth and
 turns the closed mini infrastructure checkpoint into an implementation
 handoff. It is planning-only. It does not implement runtime binding, backend

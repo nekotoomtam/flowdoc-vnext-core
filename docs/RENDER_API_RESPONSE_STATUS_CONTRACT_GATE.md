@@ -2,6 +2,24 @@
 
 Status: Render API Response / Status Contract Gate complete.
 
+## Authority Boundary
+
+Owner repository: Core.
+
+Scope: Core-local implementation context for the Render API Response / Status
+Contract Gate.
+
+Governing Project Control record:
+`flowdoc-product-development-resumption > flowdoc-documentation-authority-cleanup`;
+retained-value record
+`docs/domains/core-render-api-planning-boundary-2026-09-01.md`.
+
+Project Control owns FlowDoc-wide Work, Phase, Checklist, Evidence, Risk,
+Unknown, Roadmap, and cleanup state.
+
+This file does not promote Core, Backend, Editor, compatibility, frontend
+readiness, FlowDoc product truth, or map truth.
+
 This gate uses Render API Request Envelope Contract Gate as source of truth.
 It defines the JSON-safe Render API response/status contract for the accepted
 request envelope before render-readiness, artifact pointer lifecycle, job
