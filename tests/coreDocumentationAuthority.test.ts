@@ -9,6 +9,13 @@ const retiredSuperpowersMarkdown = [
   "docs/superpowers/specs/2026-07-27-initial-text-block-authored-box-geometry-design.md",
   "docs/superpowers/specs/2026-07-27-inline-image-line-box-geometry-design.md",
 ] as const
+const retiredHiddenSuperpowersMarkdown = [
+  ".superpowers/sdd/2026-07-31-unified-incremental-root-transition-5b-1-corrective/collision-fix-report.md",
+  ".superpowers/sdd/2026-07-31-unified-incremental-root-transition-5b-1-corrective/delivery-fix-report.md",
+  ".superpowers/sdd/2026-07-31-unified-incremental-root-transition-5b-1-v3-corrective/final-review-verdict.md",
+  ".superpowers/sdd/2026-07-31-unified-incremental-root-transition-5b-1-v3-corrective/final-verification.md",
+  ".superpowers/sdd/2026-07-31-unified-incremental-root-transition-5b-1-v3-corrective/source-envelope-verification.md",
+] as const
 const activeReferenceFiles = [
   "docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md",
   "tests/liveDraftMr1CompleteGeometryBoundary.test.ts",
@@ -78,5 +85,16 @@ describe("Core documentation authority", () => {
     expect(handoff).toContain("text-block/OVERVIEW.md")
     expect(handoff).toContain("live-draft/geometry-and-scene-projection.md")
     expect(handoff).toContain("historical superpowers sources are retired")
+  })
+
+  it("keeps hidden superpowers SDD Markdown retired from Core", async () => {
+    for (const path of retiredHiddenSuperpowersMarkdown) {
+      await expect(pathExists(join(projectRoot, path)), path).resolves.toBe(false)
+    }
+    await expect(listMarkdownFiles(".superpowers")).resolves.toEqual([])
+
+    const agents = normalize(await readFile(join(projectRoot, "AGENTS.md"), "utf8"))
+    expect(agents).toContain("Project Control is the canonical home for FlowDoc-wide shared understanding")
+    expect(agents).toContain("Core Markdown may remain only for Core-owned implementation")
   })
 })
