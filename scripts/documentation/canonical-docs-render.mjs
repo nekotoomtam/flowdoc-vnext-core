@@ -3,6 +3,18 @@ import { dirname, relative } from "node:path"
 import { GENERATED_PATHS } from "./canonical-docs-model.mjs"
 
 export const GENERATED_HEADER = "<!-- GENERATED FILE — DO NOT EDIT -->\n"
+const GENERATED_AUTHORITY_BOUNDARY = [
+  "## Authority Boundary",
+  "",
+  "Owner repository: Core.",
+  "",
+  "Scope: Core-owned generated documentation view produced from Core canonical documentation sources. It may show navigation, glossary, release-line, capability, or compatibility records only within the Core canonical-documentation spine and its checked source files.",
+  "",
+  "Project Control owns FlowDoc-wide Work, Phase, Checklist, Evidence, Risk, Unknown, Roadmap, documentation authority, product terminology, compatibility promotion, and cleanup state. Governing Project Control Work: `flowdoc-product-development-resumption > flowdoc-documentation-authority-cleanup`; retained-value record: `docs/domains/core-generated-docs-boundary-2026-09-01.md`.",
+  "",
+  "This generated view does not promote Core, Backend, Editor, compatibility, release readiness, frontend readiness, FlowDoc product truth, Project Control terminology authority, or map truth.",
+  "",
+].join("\n") + "\n"
 
 function byId(left, right, key) {
   return left[key] === right[key] ? 0 : left[key] < right[key] ? -1 : 1
@@ -19,7 +31,7 @@ function section(title, documents, from) {
 }
 
 function header(title) {
-  return `${GENERATED_HEADER}\n# ${title}\n\n`
+  return `${GENERATED_HEADER}\n# ${title}\n\n${GENERATED_AUTHORITY_BOUNDARY}`
 }
 
 export function renderDocumentMap(model) {

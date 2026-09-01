@@ -47,6 +47,17 @@ const boundedRenderApiContractMarkdown = [
   "docs/RENDER_API_ERROR_BLOCKER_VOCABULARY_GATE.md",
   "docs/RENDER_API_CONTRACT_CLOSE_AUDIT.md",
 ] as const
+const boundedCanonicalGeneratedMarkdown = [
+  "docs/DOCUMENT_MAP.md",
+  "docs/GLOSSARY.md",
+  "docs/GLOSSARY_TH.md",
+  "docs/versions/0_1/VERSION_OVERVIEW.md",
+  "docs/versions/0_1/CAPABILITY_SET.md",
+] as const
+const boundedCanonicalVersionMarkdown = [
+  ...boundedCanonicalGeneratedMarkdown,
+  "docs/versions/0_1/COMPATIBILITY.md",
+] as const
 const activeReferenceFiles = [
   "docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md",
   "tests/liveDraftMr1CompleteGeometryBoundary.test.ts",
@@ -202,5 +213,25 @@ describe("Core documentation authority", () => {
       expect(text, path).toContain("core-render-api-contract-boundary-2026-09-01.md")
       expect(text, path).toContain("does not promote Core, Backend, Editor, compatibility, frontend readiness, FlowDoc product truth, or map truth")
     }
+  })
+
+  it("keeps surviving canonical generated and version docs bounded to Core-owned documentation context", async () => {
+    for (const path of boundedCanonicalVersionMarkdown) {
+      const text = normalize(await readFile(join(projectRoot, path), "utf8"))
+      expect(text, path).toContain("Authority Boundary")
+      expect(text, path).toContain("Owner repository: Core.")
+      expect(text, path).toContain("Project Control owns FlowDoc-wide Work, Phase, Checklist, Evidence, Risk, Unknown, Roadmap, documentation authority, product terminology, compatibility promotion, and cleanup state.")
+      expect(text, path).toContain("flowdoc-product-development-resumption > flowdoc-documentation-authority-cleanup")
+      expect(text, path).toContain("core-generated-docs-boundary-2026-09-01.md")
+      expect(text, path).toContain("does not promote Core, Backend, Editor, compatibility, release readiness, frontend readiness, FlowDoc product truth, Project Control terminology authority, or map truth")
+    }
+
+    for (const path of boundedCanonicalGeneratedMarkdown) {
+      const text = normalize(await readFile(join(projectRoot, path), "utf8"))
+      expect(text, path).toContain("Core-owned generated documentation view")
+    }
+
+    const compatibility = normalize(await readFile(join(projectRoot, "docs/versions/0_1/COMPATIBILITY.md"), "utf8"))
+    expect(compatibility).toContain("Core-owned authored compatibility metadata and non-claim prose")
   })
 })

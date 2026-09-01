@@ -2162,7 +2162,16 @@ A dual-status token is qualified.
     expect(second.status, second.stderr).toBe(0)
     expect(generated(root)).toEqual(initial)
     expect(Object.keys(initial)).toEqual([...GENERATED_PATHS])
-    for (const output of Object.values(initial)) expect(output.startsWith(GENERATED_HEADER)).toBe(true)
+    for (const output of Object.values(initial)) {
+      expect(output.startsWith(GENERATED_HEADER)).toBe(true)
+      expect(output).toContain("## Authority Boundary")
+      expect(output).toContain("Owner repository: Core.")
+      expect(output).toContain("Core-owned generated documentation view")
+      expect(output).toContain("Project Control owns FlowDoc-wide Work, Phase, Checklist, Evidence, Risk, Unknown, Roadmap, documentation authority, product terminology, compatibility promotion, and cleanup state.")
+      expect(output).toContain("flowdoc-product-development-resumption > flowdoc-documentation-authority-cleanup")
+      expect(output).toContain("core-generated-docs-boundary-2026-09-01.md")
+      expect(output).toContain("does not promote Core, Backend, Editor, compatibility, release readiness, frontend readiness, FlowDoc product truth, Project Control terminology authority, or map truth")
+    }
   })
 
   test("renders language-specific labels and definitions in one immutable Term-ID order", () => {
