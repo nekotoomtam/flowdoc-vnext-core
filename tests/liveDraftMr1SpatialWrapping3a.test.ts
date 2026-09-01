@@ -19,6 +19,7 @@ describe("Live Draft MR1 spatial wrapping 3A handoff", () => {
     const handoff = read("docs/LIVE_DRAFT_MR1_SPATIAL_WRAPPING_3A.md")
     const headings = handoff.split(/\r?\n/gu).filter((line) => line.startsWith("## "))
     expect(headings).toEqual([
+      "## Authority Boundary",
       "## Status",
       "## Outcome",
       "## Capability Matrix",

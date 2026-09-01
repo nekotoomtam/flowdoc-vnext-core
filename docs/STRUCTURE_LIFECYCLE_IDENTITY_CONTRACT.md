@@ -1,5 +1,13 @@
 # Structure Lifecycle Identity Contract
 
+## Authority Boundary
+
+Owner repository: Core.
+Scope: Core-local documentation context for this repository file. This file may describe Core-owned implementation, runtime contracts, package-local tests, setup guidance, or bounded historical evidence.
+Project Control owns FlowDoc-wide Work, Phase, Checklist, Evidence, Risk, Unknown, Roadmap, documentation authority, product terminology, compatibility promotion, and map truth. Governing Work: `flowdoc-product-development-resumption > flowdoc-documentation-authority-cleanup`; governing Project Control record: `docs/domains/product-repo-markdown-boundary-completion-2026-09-01.md`.
+This file does not promote Core, Backend, Editor, compatibility, release readiness, frontend readiness, FlowDoc product truth, Project Control terminology authority, or map truth.
+
+
 Status: Phase 270 retained core identity contract. This phase implements strict
 JSON-safe identity metadata for Structure Definition drafts, Published
 Structure Versions, and Materialized Document Instances. It does not activate

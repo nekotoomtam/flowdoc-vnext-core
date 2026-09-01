@@ -301,6 +301,7 @@ const assertHandoffEvidence = (handoff: string): void => {
   const headings = handoff.split(/\r?\n/gu).filter((line) => line.startsWith("## "))
 
   expect(headings).toEqual([
+    "## Authority Boundary",
     "## Status",
     "## Outcome",
     "## Architecture Evidence",

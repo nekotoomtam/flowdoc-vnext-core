@@ -1,5 +1,13 @@
 # Template Builder Contenteditable Range Mapping Boundary
 
+## Authority Boundary
+
+Owner repository: Core.
+Scope: Core-local documentation context for this repository file. This file may describe Core-owned implementation, runtime contracts, package-local tests, setup guidance, or bounded historical evidence.
+Project Control owns FlowDoc-wide Work, Phase, Checklist, Evidence, Risk, Unknown, Roadmap, documentation authority, product terminology, compatibility promotion, and map truth. Governing Work: `flowdoc-product-development-resumption > flowdoc-documentation-authority-cleanup`; governing Project Control record: `docs/domains/product-repo-markdown-boundary-completion-2026-09-01.md`.
+This file does not promote Core, Backend, Editor, compatibility, release readiness, frontend readiness, FlowDoc product truth, Project Control terminology authority, or map truth.
+
+
 Phase 117 adds a browser-local range mapping boundary for future
 contenteditable editing. The boundary consumes bounded segment facts instead of
 live DOM nodes, then maps anchor/focus selection positions to FlowDoc draft

@@ -24,6 +24,7 @@ describe("Live Draft MR1 authored box geometry 4A handoff", () => {
     const headings = handoff.split(/\r?\n/gu).filter((line) => line.startsWith("## "))
 
     expect(headings).toEqual([
+      "## Authority Boundary",
       "## Status",
       "## Outcome",
       "## Capability Matrix",

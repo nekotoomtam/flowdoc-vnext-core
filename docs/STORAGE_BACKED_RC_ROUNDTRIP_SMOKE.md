@@ -1,5 +1,13 @@
 # Storage-Backed RC Roundtrip Smoke
 
+## Authority Boundary
+
+Owner repository: Core.
+Scope: Core-local documentation context for this repository file. This file may describe Core-owned implementation, runtime contracts, package-local tests, setup guidance, or bounded historical evidence.
+Project Control owns FlowDoc-wide Work, Phase, Checklist, Evidence, Risk, Unknown, Roadmap, documentation authority, product terminology, compatibility promotion, and map truth. Governing Work: `flowdoc-product-development-resumption > flowdoc-documentation-authority-cleanup`; governing Project Control record: `docs/domains/product-repo-markdown-boundary-completion-2026-09-01.md`.
+This file does not promote Core, Backend, Editor, compatibility, release readiness, frontend readiness, FlowDoc product truth, Project Control terminology authority, or map truth.
+
+
 Status: Phase 175 storage-backed RC roundtrip smoke.
 
 Phase 175 runs the first internal-alpha RC roundtrip through concrete external

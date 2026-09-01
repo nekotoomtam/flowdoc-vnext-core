@@ -1,8 +1,11 @@
+import { execFile } from "node:child_process"
 import { access, readdir, readFile } from "node:fs/promises"
 import { join, relative } from "node:path"
+import { promisify } from "node:util"
 import { describe, expect, it } from "vitest"
 
 const projectRoot = process.cwd()
+const execFileAsync = promisify(execFile)
 const retiredSuperpowersMarkdown = [
   "docs/superpowers/plans/2026-07-21-text-block-complete-geometry-boundary.md",
   "docs/superpowers/specs/2026-07-21-persistent-text-block-spatial-flow-design.md",
@@ -102,6 +105,18 @@ async function listMarkdownFiles(relativeDir: string): Promise<string[]> {
 
 function normalize(value: string): string {
   return value.replace(/\s+/gu, " ")
+}
+
+async function trackedMarkdownFiles(): Promise<string[]> {
+  const { stdout } = await execFileAsync("git", ["ls-files", "--", "*.md"], {
+    cwd: projectRoot,
+    encoding: "utf8",
+  })
+  return stdout.split(/\r?\n/u).filter(Boolean).sort()
+}
+
+function hasAuthorityBoundary(value: string): boolean {
+  return /^#{1,2} Authority Boundary$/mu.test(value)
 }
 
 describe("Core documentation authority", () => {
@@ -233,5 +248,15 @@ describe("Core documentation authority", () => {
 
     const compatibility = normalize(await readFile(join(projectRoot, "docs/versions/0_1/COMPATIBILITY.md"), "utf8"))
     expect(compatibility).toContain("Core-owned authored compatibility metadata and non-claim prose")
+  })
+
+  it("keeps every tracked Core Markdown file explicitly bounded", async () => {
+    const missingAuthorityBoundary = []
+    for (const path of await trackedMarkdownFiles()) {
+      const text = await readFile(join(projectRoot, path), "utf8")
+      if (!hasAuthorityBoundary(text)) missingAuthorityBoundary.push(path)
+    }
+
+    expect(missingAuthorityBoundary).toEqual([])
   })
 })

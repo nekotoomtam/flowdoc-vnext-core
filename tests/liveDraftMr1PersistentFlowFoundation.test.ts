@@ -20,6 +20,7 @@ describe("Live Draft MR1 persistent flow foundation handoff", () => {
     const handoff = read("docs/LIVE_DRAFT_MR1_PERSISTENT_FLOW_FOUNDATION.md")
     const headings = handoff.split(/\r?\n/u).filter((line) => line.startsWith("## "))
     expect(headings).toEqual([
+      "## Authority Boundary",
       "## Status",
       "## Outcome",
       "## Capability Matrix",
