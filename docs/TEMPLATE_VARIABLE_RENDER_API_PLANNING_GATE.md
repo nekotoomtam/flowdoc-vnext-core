@@ -2,6 +2,24 @@
 
 Status: Template Publish / Variable Schema / Render API Planning Gate complete.
 
+## Authority Boundary
+
+Owner repository: Core.
+
+Scope: Core-local implementation context for the Template Publish / Variable
+Schema / Render API Planning Gate.
+
+Governing Project Control record:
+`flowdoc-product-development-resumption > flowdoc-documentation-authority-cleanup`;
+retained-value record
+`docs/domains/core-render-api-contract-boundary-2026-09-01.md`.
+
+Project Control owns FlowDoc-wide Work, Phase, Checklist, Evidence, Risk,
+Unknown, Roadmap, and cleanup state.
+
+This file does not promote Core, Backend, Editor, compatibility, frontend
+readiness, FlowDoc product truth, or map truth.
+
 This phase uses Measurement Hardening Close Audit as source of truth. It plans
 and ranks the next non-measurement mini infrastructure lane across Template
 Publish / Version Boundary, Variable Schema / Data Contract, and Render API

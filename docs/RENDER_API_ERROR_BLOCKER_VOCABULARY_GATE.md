@@ -2,6 +2,24 @@
 
 Status: Render API Error / Blocker Vocabulary Gate complete.
 
+## Authority Boundary
+
+Owner repository: Core.
+
+Scope: Core-local implementation context for the Render API Error / Blocker
+Vocabulary Gate.
+
+Governing Project Control record:
+`flowdoc-product-development-resumption > flowdoc-documentation-authority-cleanup`;
+retained-value record
+`docs/domains/core-render-api-contract-boundary-2026-09-01.md`.
+
+Project Control owns FlowDoc-wide Work, Phase, Checklist, Evidence, Risk,
+Unknown, Roadmap, and cleanup state.
+
+This file does not promote Core, Backend, Editor, compatibility, frontend
+readiness, FlowDoc product truth, or map truth.
+
 This gate uses Artifact Pointer / Job Status Placeholder Policy Gate as source
 of truth. It defines JSON-safe Render API error/blocker vocabulary across
 request envelope, response/status, render-readiness, artifact/job placeholder,

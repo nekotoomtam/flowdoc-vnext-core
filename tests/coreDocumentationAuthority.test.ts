@@ -39,6 +39,14 @@ const boundedRenderApiPlanningMarkdown = [
   "docs/RENDER_API_RESPONSE_STATUS_CONTRACT_GATE.md",
   "docs/RUNTIME_BINDING_IMPLEMENTATION_PLANNING_GATE.md",
 ] as const
+const boundedRenderApiContractMarkdown = [
+  "docs/TEMPLATE_VARIABLE_RENDER_API_PLANNING_GATE.md",
+  "docs/RENDER_API_REQUEST_ENVELOPE_CONTRACT_GATE.md",
+  "docs/RENDER_READINESS_VALIDATION_POLICY_GATE.md",
+  "docs/ARTIFACT_POINTER_JOB_STATUS_PLACEHOLDER_POLICY_GATE.md",
+  "docs/RENDER_API_ERROR_BLOCKER_VOCABULARY_GATE.md",
+  "docs/RENDER_API_CONTRACT_CLOSE_AUDIT.md",
+] as const
 const activeReferenceFiles = [
   "docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md",
   "tests/liveDraftMr1CompleteGeometryBoundary.test.ts",
@@ -179,6 +187,19 @@ describe("Core documentation authority", () => {
       expect(text, path).toContain("Project Control owns FlowDoc-wide Work, Phase, Checklist, Evidence, Risk, Unknown, Roadmap, and cleanup state.")
       expect(text, path).toContain("flowdoc-documentation-authority-cleanup")
       expect(text, path).toContain("core-render-api-planning-boundary-2026-09-01.md")
+      expect(text, path).toContain("does not promote Core, Backend, Editor, compatibility, frontend readiness, FlowDoc product truth, or map truth")
+    }
+  })
+
+  it("keeps surviving Render API contract gates bounded to Core-local implementation context", async () => {
+    for (const path of boundedRenderApiContractMarkdown) {
+      const text = normalize(await readFile(join(projectRoot, path), "utf8"))
+      expect(text, path).toContain("Authority Boundary")
+      expect(text, path).toContain("Owner repository: Core.")
+      expect(text, path).toContain("Core-local implementation context")
+      expect(text, path).toContain("Project Control owns FlowDoc-wide Work, Phase, Checklist, Evidence, Risk, Unknown, Roadmap, and cleanup state.")
+      expect(text, path).toContain("flowdoc-documentation-authority-cleanup")
+      expect(text, path).toContain("core-render-api-contract-boundary-2026-09-01.md")
       expect(text, path).toContain("does not promote Core, Backend, Editor, compatibility, frontend readiness, FlowDoc product truth, or map truth")
     }
   })

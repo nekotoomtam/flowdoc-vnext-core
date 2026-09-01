@@ -2,6 +2,24 @@
 
 Status: Artifact Pointer / Job Status Placeholder Policy Gate complete.
 
+## Authority Boundary
+
+Owner repository: Core.
+
+Scope: Core-local implementation context for the Artifact Pointer / Job Status
+Placeholder Policy Gate.
+
+Governing Project Control record:
+`flowdoc-product-development-resumption > flowdoc-documentation-authority-cleanup`;
+retained-value record
+`docs/domains/core-render-api-contract-boundary-2026-09-01.md`.
+
+Project Control owns FlowDoc-wide Work, Phase, Checklist, Evidence, Risk,
+Unknown, Roadmap, and cleanup state.
+
+This file does not promote Core, Backend, Editor, compatibility, frontend
+readiness, FlowDoc product truth, or map truth.
+
 This gate uses Render-Readiness Validation Policy Gate as source of truth. It
 defines JSON-safe artifact pointer and job status placeholder policy metadata
 before backend routes, durable job lifecycle, production storage durability,
