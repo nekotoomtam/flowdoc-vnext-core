@@ -2,6 +2,25 @@
 
 Status: draft architecture reset.
 
+## Authority Boundary
+
+Owner repository: Core.
+
+Scope: Core-local implementation context for package key registry binding,
+inline field references, scalar data snapshots, binding diagnostics, and
+future key-history boundaries.
+
+Governing Project Control record:
+`flowdoc-product-development-resumption > flowdoc-documentation-authority-cleanup`;
+retained-value record
+`docs/domains/core-runtime-plan-boundary-2026-09-01.md`.
+
+Project Control owns FlowDoc-wide Work, Phase, Checklist, Evidence, Risk,
+Unknown, Roadmap, and cleanup state.
+
+This file does not promote Core, Backend, Editor, compatibility, frontend
+readiness, FlowDoc product truth, or map truth.
+
 Keys are central to the docgen product. Authors place key references in a
 dynamic node-based template, and generation receives data for those keys. Key
 history is important future work, but it is intentionally not part of this

@@ -2,6 +2,25 @@
 
 Status: draft architecture reset.
 
+## Authority Boundary
+
+Owner repository: Core.
+
+Scope: Core-local implementation context for browser authoring runtime
+contracts, editable session shape, normalized editor view boundaries, and
+runtime handoff constraints.
+
+Governing Project Control record:
+`flowdoc-product-development-resumption > flowdoc-documentation-authority-cleanup`;
+retained-value record
+`docs/domains/core-runtime-plan-boundary-2026-09-01.md`.
+
+Project Control owns FlowDoc-wide Work, Phase, Checklist, Evidence, Risk,
+Unknown, Roadmap, and cleanup state.
+
+This file does not promote Core, Backend, Editor, compatibility, frontend
+readiness, FlowDoc product truth, or map truth.
+
 The frontend authoring runtime is the browser-side editing engine for building
 and editing templates. It is not a backend generation engine, and it must not
 make exact export pagination a prerequisite for active typing.

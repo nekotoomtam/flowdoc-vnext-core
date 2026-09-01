@@ -2,6 +2,25 @@
 
 Status: Phase 23 baseline implemented for the pure live-layout boundary.
 
+## Authority Boundary
+
+Owner repository: Core.
+
+Scope: Core-local implementation context for the live-layout versus exact
+generation split, dirty-scope layout impact, viewport-first rendering, and
+export-readiness limits.
+
+Governing Project Control record:
+`flowdoc-product-development-resumption > flowdoc-documentation-authority-cleanup`;
+retained-value record
+`docs/domains/core-runtime-plan-boundary-2026-09-01.md`.
+
+Project Control owns FlowDoc-wide Work, Phase, Checklist, Evidence, Risk,
+Unknown, Roadmap, and cleanup state.
+
+This file does not promote Core, Backend, Editor, compatibility, frontend
+readiness, FlowDoc product truth, or map truth.
+
 vNext needs two layout profiles over one shared document model:
 
 - live layout for responsive browser authoring;

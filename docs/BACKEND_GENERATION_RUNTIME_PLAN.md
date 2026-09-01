@@ -2,6 +2,25 @@
 
 Status: Phase 24 baseline implemented for readiness-only runtime contracts.
 
+## Authority Boundary
+
+Owner repository: Core.
+
+Scope: Core-local implementation context for backend generation runtime
+contracts, diagnostics, response direction, and deferred runtime integration
+boundaries.
+
+Governing Project Control record:
+`flowdoc-product-development-resumption > flowdoc-documentation-authority-cleanup`;
+retained-value record
+`docs/domains/core-runtime-plan-boundary-2026-09-01.md`.
+
+Project Control owns FlowDoc-wide Work, Phase, Checklist, Evidence, Risk,
+Unknown, Roadmap, and cleanup state.
+
+This file does not promote Core, Backend, Editor, compatibility, frontend
+readiness, FlowDoc product truth, or map truth.
+
 The backend generation runtime turns canonical template packages and request
 data into deterministic diagnostics and output artifacts. It is the API-facing
 runtime, not the active browser typing engine.

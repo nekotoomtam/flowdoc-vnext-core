@@ -28,6 +28,12 @@ const retiredProjectDocumentIds = [
   "DOC-CORE-PROJECT-RISK-REGISTER",
   "DOC-CORE-PROJECT-KNOWN-UNKNOWNS",
 ] as const
+const boundedRuntimePlanMarkdown = [
+  "docs/BACKEND_GENERATION_RUNTIME_PLAN.md",
+  "docs/FRONTEND_AUTHORING_RUNTIME_PLAN.md",
+  "docs/KEY_REGISTRY_BINDING_PLAN.md",
+  "docs/LIVE_LAYOUT_AND_EXACT_GENERATION_PLAN.md",
+] as const
 const activeReferenceFiles = [
   "docs/LIVE_DRAFT_CROSS_RUNTIME_PARITY_HANDOFF.md",
   "tests/liveDraftMr1CompleteGeometryBoundary.test.ts",
@@ -144,5 +150,18 @@ describe("Core documentation authority", () => {
       expect(pointer).toContain("core-project-docs-retirement-2026-09-01.md")
     }
     expect(documentMap).not.toContain("docs/project/")
+  })
+
+  it("keeps surviving Core runtime plan docs bounded to Core-local implementation context", async () => {
+    for (const path of boundedRuntimePlanMarkdown) {
+      const text = normalize(await readFile(join(projectRoot, path), "utf8"))
+      expect(text, path).toContain("Authority Boundary")
+      expect(text, path).toContain("Owner repository: Core.")
+      expect(text, path).toContain("Core-local implementation context")
+      expect(text, path).toContain("Project Control owns FlowDoc-wide Work, Phase, Checklist, Evidence, Risk, Unknown, Roadmap, and cleanup state.")
+      expect(text, path).toContain("flowdoc-documentation-authority-cleanup")
+      expect(text, path).toContain("core-runtime-plan-boundary-2026-09-01.md")
+      expect(text, path).toContain("does not promote Core, Backend, Editor, compatibility, frontend readiness, FlowDoc product truth, or map truth")
+    }
   })
 })
