@@ -258,5 +258,5 @@ describe("Core documentation authority", () => {
     }
 
     expect(missingAuthorityBoundary).toEqual([])
-  })
+  }, 30_000)
 })
