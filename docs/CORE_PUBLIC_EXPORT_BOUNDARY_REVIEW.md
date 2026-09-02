@@ -44,9 +44,9 @@ approved release API.
 
 `src/index.ts` currently exposes a broad evidence surface:
 
-- `STAR_EXPORT_LINES=187`
+- `STAR_EXPORT_LINES=188`
 - `NAMED_EXPORT_BLOCKS=30`
-- `TOTAL_EXPORT_DECLARATIONS=217`
+- `TOTAL_EXPORT_DECLARATIONS=218`
 
 Top-level public declarations by source area:
 
@@ -57,7 +57,7 @@ Top-level public declarations by source area:
 | pagination | 21 |
 | renderer | 20 |
 | authoring | 16 |
-| generation | 14 |
+| generation | 15 |
 | composition | 13 |
 | schema | 10 |
 | toc | 6 |
