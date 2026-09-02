@@ -12,6 +12,18 @@ This private external package executes bounded PDF fidelity proofs from public
 `@flowdoc/vnext-core` measured draw contracts. It is not the production PDF
 renderer and Core does not import it.
 
+## Fixture Output Retirement
+
+As of the 2026-09-02 Core cleanup, tracked generated fixture outputs are retired from Core.
+The stored canonical proof manifests, QA summaries, and subset font artifacts
+under `packages/pdf-renderer-pilot/fixtures/` were historical regression
+outputs and should not be reintroduced as tracked source.
+
+The remaining package code stays only as a Core-local helper for local measured
+renderer and font-subset workflows used by bounded UAT/realdoc verification.
+This note does not select a production renderer, store PDF bytes, or promote
+legacy pilot evidence as current FlowDoc truth.
+
 ## PDF-PILOT-03 Profile
 
 The first profile accepts exactly one page containing opaque glyph runs, fills,

@@ -51,10 +51,16 @@ S result.
 
 Primary evidence:
 
-- `packages/pdf-renderer-pilot/fixtures/canonical-report-real-export-handoff.v1.json`;
 - `packages/pdf-renderer-pilot/scripts/build-canonical-report-export-handoff-runtime.ts`;
 - `tests/pdfExportHandoffV1.test.ts`;
-- `tests/pdfRendererPilotRealExportHandoff.test.ts`.
+- historical `tests/pdfRendererPilotRealExportHandoff.test.ts`, retired with
+  the generated fixture-output regression set.
+
+Retirement note: the canonical pilot fixture output is retired from Core. The
+old stored output
+`packages/pdf-renderer-pilot/fixtures/canonical-report-real-export-handoff.v1.json`
+is no longer tracked as source, and this document remains bounded historical
+context rather than current artifact evidence.
 
 Rebuild with:
 
