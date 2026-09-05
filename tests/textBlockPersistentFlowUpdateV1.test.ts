@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import {
   acceptVNextTextBlockMultiRunLayoutV1,
   collectVNextTextBlockPersistentFlowNodesForQaV1,
@@ -405,14 +405,82 @@ describe("TextBlock persistent flow update v1", () => {
     })).toMatchObject({ status: "blocked", issues: [{ code: "tree-provenance-mismatch" }] })
   }, 30_000)
 
-  it("fails closed on malformed projected atoms, UTF-16 clusters, and canonical advances", () => {
-    const base = projectionValidationFixture()
-    const invoke = (
-      mutate: (fixture: Pick<ReturnType<typeof projectionValidationFixture>, "nextRequest" | "nextRange">) => void,
-    ) => {
+  describe("malformed projected atoms, UTF-16 clusters, and canonical advances", () => {
+    type ProjectionMutation = (
+      fixture: Pick<ReturnType<typeof projectionValidationFixture>, "nextRequest" | "nextRange">,
+    ) => void
+    let base: ReturnType<typeof projectionValidationFixture>
+
+    function freezeSharedSetup<T>(value: T, seen = new WeakSet<object>()): T {
+      if (value == null || typeof value !== "object" || seen.has(value)) return value
+      seen.add(value)
+      for (const child of Object.values(value)) freezeSharedSetup(child, seen)
+      Object.freeze(value)
+      return value
+    }
+
+    beforeAll(() => {
+      // Keep registered tree identities; freeze rather than clone shared provenance.
+      base = freezeSharedSetup(projectionValidationFixture())
+    }, 5_000)
+
+    const cases: Array<[string, ProjectionMutation]> = [
+      ["resolved field without fieldKey", ({ nextRequest }) => {
+        const run = nextRequest.measurement.runs[1]! as VNextTextBlockMultiRunLayoutRequestV1["measurement"]["runs"][number]
+        run.kind = "resolved-field"
+        delete run.fieldKey
+      }],
+      ["generated page number with invalid owner fingerprint", ({ nextRequest }) => {
+        const run = nextRequest.measurement.runs[1]! as VNextTextBlockMultiRunLayoutRequestV1["measurement"]["runs"][number]
+        run.kind = "generated-page-number"
+        run.generatedOwnerFingerprint = "not-a-compact-fingerprint"
+      }],
+      ["hard-break atom mismatch", ({ nextRequest }) => {
+        const run = nextRequest.measurement.runs[1]! as VNextTextBlockMultiRunLayoutRequestV1["measurement"]["runs"][number]
+        run.kind = "hard-break"
+      }],
+      ["inline-image atom mismatch", ({ nextRequest }) => {
+        const run = nextRequest.measurement.runs[1]! as VNextTextBlockMultiRunLayoutRequestV1["measurement"]["runs"][number]
+        run.kind = "inline-image"
+      }],
+      ["measurement run start offset drift", ({ nextRequest }) => {
+        nextRequest.measurement.runs[1]!.renderStartOffset += 1
+      }],
+      ["measurement run rendered-text drift", ({ nextRequest }) => {
+        nextRequest.measurement.runs[1]!.renderedText = "source-drift"
+      }],
+      ["cluster start offset overlap", ({ nextRequest, nextRange }) => {
+        nextRequest.shapingRuns[0]!.clusters[nextRange.startUtf16 + 10]!.renderStartOffset -= 1
+      }],
+      ["cluster end offset overlap", ({ nextRequest, nextRange }) => {
+        nextRequest.shapingRuns[0]!.clusters[nextRange.startUtf16 + 10]!.renderEndOffset += 1
+      }],
+      ["cluster boundary splitting a UTF-16 surrogate pair", ({ nextRequest, nextRange }) => {
+        const emojiStart = nextRange.startUtf16 + 150
+        nextRequest.measurement.renderedText = replaceTextAt(
+          nextRequest.measurement.renderedText,
+          emojiStart,
+          emojiStart + 2,
+          "😀",
+        )
+        nextRequest.measurement.runs.forEach((run) => {
+          run.renderedText = nextRequest.measurement.renderedText.slice(
+            run.renderStartOffset,
+            run.renderEndOffset,
+          )
+        })
+        nextRequest.shapingRuns[0]!.text = nextRequest.measurement.renderedText
+        nextRequest.breakOffsets = nextRequest.breakOffsets.filter((offset) => offset !== emojiStart + 1)
+      }],
+      ["non-finite cluster advance", ({ nextRequest, nextRange }) => {
+        nextRequest.shapingRuns[0]!.clusters[nextRange.startUtf16 + 10]!.advanceLayoutUnit = Number.NaN
+      }],
+    ]
+
+    it.each(cases)("fails closed on %s", (_name, mutate) => {
       const fixture = {
         nextRequest: structuredClone(base.nextRequest),
-        nextRange: base.nextRange,
+        nextRange: structuredClone(base.nextRange),
       }
       mutate(fixture)
       let result: ReturnType<typeof createVNextTextBlockPersistentFlowUpdateV1> | undefined
@@ -429,57 +497,6 @@ describe("TextBlock persistent flow update v1", () => {
         status: "blocked",
         issues: [{ code: "range-projection-failed" }],
       })
-    }
-
-    invoke(({ nextRequest }) => {
-      const run = nextRequest.measurement.runs[1]! as VNextTextBlockMultiRunLayoutRequestV1["measurement"]["runs"][number]
-      run.kind = "resolved-field"
-      delete run.fieldKey
-    })
-    invoke(({ nextRequest }) => {
-      const run = nextRequest.measurement.runs[1]! as VNextTextBlockMultiRunLayoutRequestV1["measurement"]["runs"][number]
-      run.kind = "generated-page-number"
-      run.generatedOwnerFingerprint = "not-a-compact-fingerprint"
-    })
-    invoke(({ nextRequest }) => {
-      const run = nextRequest.measurement.runs[1]! as VNextTextBlockMultiRunLayoutRequestV1["measurement"]["runs"][number]
-      run.kind = "hard-break"
-    })
-    invoke(({ nextRequest }) => {
-      const run = nextRequest.measurement.runs[1]! as VNextTextBlockMultiRunLayoutRequestV1["measurement"]["runs"][number]
-      run.kind = "inline-image"
-    })
-    invoke(({ nextRequest }) => {
-      nextRequest.measurement.runs[1]!.renderStartOffset += 1
-    })
-    invoke(({ nextRequest }) => {
-      nextRequest.measurement.runs[1]!.renderedText = "source-drift"
-    })
-    invoke(({ nextRequest, nextRange }) => {
-      nextRequest.shapingRuns[0]!.clusters[nextRange.startUtf16 + 10]!.renderStartOffset -= 1
-    })
-    invoke(({ nextRequest, nextRange }) => {
-      nextRequest.shapingRuns[0]!.clusters[nextRange.startUtf16 + 10]!.renderEndOffset += 1
-    })
-    invoke(({ nextRequest, nextRange }) => {
-      const emojiStart = nextRange.startUtf16 + 150
-      nextRequest.measurement.renderedText = replaceTextAt(
-        nextRequest.measurement.renderedText,
-        emojiStart,
-        emojiStart + 2,
-        "😀",
-      )
-      nextRequest.measurement.runs.forEach((run) => {
-        run.renderedText = nextRequest.measurement.renderedText.slice(
-          run.renderStartOffset,
-          run.renderEndOffset,
-        )
-      })
-      nextRequest.shapingRuns[0]!.text = nextRequest.measurement.renderedText
-      nextRequest.breakOffsets = nextRequest.breakOffsets.filter((offset) => offset !== emojiStart + 1)
-    })
-    invoke(({ nextRequest, nextRange }) => {
-      nextRequest.shapingRuns[0]!.clusters[nextRange.startUtf16 + 10]!.advanceLayoutUnit = Number.NaN
     })
   })
 
