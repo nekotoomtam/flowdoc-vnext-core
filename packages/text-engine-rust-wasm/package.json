@@ -7,6 +7,7 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
+    "./creator-text-preview": "./src/creatorTextPreviewRuntimeV1.ts",
     ".": "./src/index.ts",
     "./browser-assets": "./src/browserAssets.ts",
     "./browser-assets-xr5": "./src/browserAssetsXr5.ts",

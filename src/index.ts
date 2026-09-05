@@ -343,3 +343,18 @@ export * from "./toc/tocV4Pagination.js"
 export * from "./toc/tocV4ResolutionInputs.js"
 export * from "./toc/tocV4PageResolution.js"
 export * from "./errors.js"
+export * from "./creatorPreview/contentV1.js"
+export * from "./creatorPreview/layoutV1.js"
+export {
+  createVNextCreatorPreviewMeasurementEngineV1,
+  VNEXT_CREATOR_PREVIEW_LAYOUT_PROFILE_V1,
+  VNEXT_CREATOR_PREVIEW_WASM_SHA256_V1,
+  VNEXT_CREATOR_PREVIEW_FONT_SHA256_V1,
+} from "./creatorPreview/engineV1.js"
+export type {
+  VNextCreatorPreviewEngineIdentityV1,
+  VNextCreatorPreviewMeasurementEngineV1,
+  VNextCreatorPreviewRawMeasurementProviderV1,
+  VNextCreatorPreviewShapeFactsV1,
+  VNextCreatorPreviewGlyphFactV1,
+} from "./creatorPreview/engineV1.js"

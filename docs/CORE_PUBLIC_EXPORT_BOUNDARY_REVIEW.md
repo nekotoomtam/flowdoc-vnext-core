@@ -44,9 +44,9 @@ approved release API.
 
 `src/index.ts` currently exposes a broad evidence surface:
 
-- `STAR_EXPORT_LINES=187`
-- `NAMED_EXPORT_BLOCKS=28`
-- `TOTAL_EXPORT_DECLARATIONS=215`
+- `STAR_EXPORT_LINES=189`
+- `NAMED_EXPORT_BLOCKS=30`
+- `TOTAL_EXPORT_DECLARATIONS=219`
 
 Top-level public declarations by source area:
 
@@ -65,6 +65,7 @@ Top-level public declarations by source area:
 | binding | 3 |
 | identity | 3 |
 | lifecycle | 4 |
+| creatorPreview | 4 |
 | migration | 3 |
 | resolution | 3 |
 | operations | 2 |
@@ -97,6 +98,20 @@ runtime export blocks. Its later D1/D2 approval is governed by Project Control
 `CORE_LAYOUT_RUNTIME_RETIREMENT.md` records the exact API and evidence boundary.
 The earlier review's no-go decision below remains historical to its own lane;
 this inventory update does not change package subpaths or broaden retirement.
+
+The Creator text Preview addition contributes two star exports and two named
+blocks from `src/creatorPreview`. The Core-owned validator, product layout DTOs,
+and verified measurement capability are bounded to `creator-text-preview/1`.
+The separate adapter subpath `@flowdoc/text-engine-rust-wasm/creator-text-preview`
+initializes the pinned raw engine under CCR `core-creator-preview-raw-facts-01`,
+governed by Project Control `flowdoc-core-creator-preview-dispatch-2026-09-06.md`
+under `flowdoc-product-development-resumption > flowdoc-frontend-expert-roadmap`.
+The initializer is trusted executable host code; wire identities cannot mint
+measurement capabilities. Existing RootV2, SceneDeliveryV2 and text-flow
+display-list restrictions remain unchanged. The focused source tests are
+`tests/creatorTextContentV1.test.ts` and `tests/creatorTextPreviewV1.test.ts`.
+This inventory entry does not accept downstream integration or release readiness.
+The consumer scans and gate results below remain historical to the original review.
 
 ## Consumer Evidence
 

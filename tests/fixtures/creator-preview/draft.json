@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 2,
+  "definition": {"id":"document-definition:demo","workspaceId":"workspace:local","title":"Customer letter","status":"draft"},
+  "draft": {"id":"document-draft:demo","defaultOrientation":"portrait","defaultPageWidth":210,"defaultPageHeight":297,"defaultPageUnit":"mm"},
+  "sections": [{"id":"section:main","title":"Main","sectionKey":"main","sectionKindKey":"flow-section","parentDraftSectionId":null,"sortOrder":0,"orientation":"portrait","pageWidth":210,"pageHeight":297,"pageUnit":"mm","styleDefaults":{}}],
+  "componentDefinitions": [{
+    "id":"pattern:customer","workspaceId":"workspace:local","name":"Customer","status":"draft","componentKindKey":"content-block",
+    "draft":{"id":"pattern-draft:customer","fields":[{"id":"field:customer-name","fieldKey":"customerName","fieldTypeKey":"text","label":"Customer name","required":false,"sortOrder":0}]}
+  }],
+  "componentInstances": [{
+    "id":"slot:customer","componentDefinitionId":"pattern:customer","draftSectionId":"section:main","instanceKey":"customer","slotKey":"customer","bindingScope":"customer","sortOrder":0,
+    "flowMode":"block","keepTogether":false,"layoutRegionKey":null,"overflowBehavior":"continue","repeatMode":"single","minEntries":1,"maxEntries":1,"required":true,"label":"Customer"
+  }],
+  "fieldBindingExpectations": [{"id":"binding:customer-name","draftComponentInstanceId":"slot:customer","fieldKey":"customerName","bindingPath":"customer.customerName","bindingValueKindKey":"scalar","repeatContext":null,"required":false}],
+  "content": {
+    "source":"flowdoc-creator-text-content","contractVersion":1,"layoutProfile":"creator-text-preview/1",
+    "sections":[{"sectionId":"section:main","items":[{"id":"placement:customer","kind":"slot","slotId":"slot:customer"}]}],
+    "patterns":[{"patternId":"pattern:customer","patternDraftId":"pattern-draft:customer","blocks":[
+      {"id":"block:greeting","kind":"paragraph","inlines":[
+        {"id":"inline:prefix","kind":"text","text":"Dear "},
+        {"id":"inline:customer-name","kind":"field","fieldId":"field:customer-name"},
+        {"id":"inline:suffix","kind":"text","text":", welcome."}
+      ]}
+    ]}]
+  }
+}
