@@ -44,9 +44,9 @@ approved release API.
 
 `src/index.ts` currently exposes a broad evidence surface:
 
-- `STAR_EXPORT_LINES=188`
+- `STAR_EXPORT_LINES=189`
 - `NAMED_EXPORT_BLOCKS=30`
-- `TOTAL_EXPORT_DECLARATIONS=218`
+- `TOTAL_EXPORT_DECLARATIONS=219`
 
 Top-level public declarations by source area:
 
@@ -64,7 +64,7 @@ Top-level public declarations by source area:
 | persistence | 5 |
 | binding | 3 |
 | identity | 3 |
-| lifecycle | 3 |
+| lifecycle | 4 |
 | migration | 3 |
 | resolution | 3 |
 | operations | 2 |
@@ -84,6 +84,11 @@ consumer adoption plan.
 The Core consumer surface freeze adds one schema-area root export for
 `src/schema/consumerSurface.ts`; it is a planning contract, not a package
 release subpath or destructive export narrowing.
+
+The Structure Pattern Slot boundary probe adds one lifecycle-area root export
+for `src/lifecycle/structurePatternSlots.ts`; it is an additive Core semantic
+boundary and does not add a package release subpath or destructive export
+narrowing.
 
 ## Consumer Evidence
 
@@ -168,7 +173,7 @@ The next safe public-boundary step is additive, not destructive:
 - Additive consumer-surface contract source only.
 - No parser, runtime, migration, pagination, renderer, or generation execution
   behavior changed.
-- No package export changed.
+- No `package.json` export map changed.
 
 ## Tests Run
 
@@ -178,7 +183,6 @@ The next safe public-boundary step is additive, not destructive:
 
 ## Intentionally Not Changed
 
-- `src/index.ts`
 - `package.json`
 - Backend source
 - Editor source

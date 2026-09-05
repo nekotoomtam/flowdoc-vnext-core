@@ -98,7 +98,7 @@ describe("core public export boundary review", () => {
     expect(doc).toContain("NO-GO: do not remove, rename, or narrow the root public entrypoint in this")
     expect(doc).toContain("The next safe public-boundary step is additive, not destructive:")
     expect(doc).toContain("Core, Editor, Backend, and FlowDoc release readiness remain unpromoted.")
-    expect(doc).toContain("- No package export changed.")
+    expect(doc).toContain("- No `package.json` export map changed.")
     expect(doc).toContain("- Release composition")
     expect(doc).toContain("- Project Control system map truth")
   })
