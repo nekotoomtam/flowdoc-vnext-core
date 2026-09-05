@@ -3,7 +3,7 @@ import type {
   VNextTextBlockMultiRunSourceSegmentV1,
   VNextTextBlockPositionedFragmentV1,
 } from "./textBlockMultiRunLayoutContractV1.js"
-import type { VNextTextBlockFlowIntervalV1 } from "./textBlockFlowRegionProviderV1.js"
+import type { VNextTextBlockFlowIntervalV1 } from "./textBlockFlowRegionContractInternalV1.js"
 import type {
   VNextTextBlockSpatialIntervalPlacementV1,
   VNextTextBlockSpatialWrappingWorkV1,

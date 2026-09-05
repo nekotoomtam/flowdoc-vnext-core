@@ -41,7 +41,7 @@ import { acceptedInlineImageEvidenceFixture } from "./helpers/textBlockInlineIma
 import { listImageGeometryBuildInputFixture } from "./helpers/textBlockInitialFlowV1.js"
 import {
   repeatedUnifiedLayoutRootSourceFixtureV1,
-} from "./helpers/textBlockUnifiedLayoutRootV1.js"
+} from "./helpers/textBlockUnifiedLayoutSource.js"
 import {
   imagePaintUnifiedLayoutChange5b,
 } from "./helpers/textBlockUnifiedIncremental5b.js"

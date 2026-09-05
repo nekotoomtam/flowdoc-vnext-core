@@ -33,8 +33,6 @@ import {
 import type {
   VNextTextBlockUnifiedLayoutRootV2,
 } from "../src/layout/textBlockUnifiedLayoutRootContractV2.js"
-import * as rootV1Module from "../src/layout/textBlockUnifiedLayoutRootV1.js"
-import * as sceneV1Module from "../src/layout/textBlockUnifiedLayoutSceneV1.js"
 import {
   inspectVNextTextBlockUnifiedSpatialStateV1,
   verifyVNextTextBlockUnifiedSpatialStateCandidateInternalV1,
@@ -316,15 +314,6 @@ describe("Phase 5B independent unified Root V2", () => {
   })
 
   it("bootstraps without Root V1 or Scene V1 construction", () => {
-    const rootV1Spy = vi.spyOn(
-      rootV1Module,
-      "createVNextTextBlockUnifiedLayoutRootV1",
-    )
-    const sceneV1Spy = vi.spyOn(
-      sceneV1Module,
-      "projectVNextTextBlockUnifiedLayoutSceneV1",
-    )
-    try {
       const input = unifiedLayoutRootBuildInputFixtureV2({
         content: "text-image-text-break",
         width: { value: 84, unit: "pt" },
@@ -338,8 +327,6 @@ describe("Phase 5B independent unified Root V2", () => {
 
       expect(result.root.contractVersion).toBe(2)
       expect(result.root.persistentScene.contractVersion).toBe(2)
-      expect(rootV1Spy).not.toHaveBeenCalled()
-      expect(sceneV1Spy).not.toHaveBeenCalled()
       expect(result.completeBuildWork).toMatchObject({
         completeRootV2BuildCount: 1,
         completeSourceItemVisitCount:
@@ -367,10 +354,6 @@ describe("Phase 5B independent unified Root V2", () => {
       }
       expect(inspectVNextTextBlockUnifiedLayoutRootV2(result.root))
         .toMatchObject({ status: "valid" })
-    } finally {
-      rootV1Spy.mockRestore()
-      sceneV1Spy.mockRestore()
-    }
   })
 
   it("keeps a prepared graph wholly unregistered until the atomic commit", () => {
@@ -506,21 +489,14 @@ describe("Phase 5B independent unified Root V2", () => {
       input,
       ROOT_V2_TEST_WORK_POLICY,
     )
-    const v1 = rootV1Module.createVNextTextBlockUnifiedLayoutRootV1(input)
-    if (v2.status !== "accepted" || v1.status !== "accepted") {
-      throw new Error("parity roots blocked")
-    }
-
-    expect(v2.root.lineTree.summary.lineCount)
-      .toBe(v1.root.authoredBoxGeometry.summary.lineCount)
-    expect(v2.root.authoredBoxSummary.outerHeightLayoutUnit)
-      .toBe(v1.root.authoredBoxGeometry.geometry.outerHeightLayoutUnit)
-    expect(v2.root.authoredBoxSummary.outerWidthLayoutUnit)
-      .toBe(v1.root.authoredBoxGeometry.geometry.outerWidthLayoutUnit)
-    expect(v2.root.persistentScene.summary.textFragmentCount)
-      .toBe(v1.root.authoredBoxGeometry.summary.textFragmentCount)
-    expect(v2.root.persistentScene.summary.inlineImageFragmentCount)
-      .toBe(v1.root.authoredBoxGeometry.summary.inlineImageFragmentCount)
+    if (v2.status !== "accepted") throw new Error("V2 root blocked")
+    // Frozen RootV1 reference captured before retirement at e3b9888b25fe963ef4316fe8066d086bae55db47.
+    // These values come from the old runtime, independent of this V2 execution.
+    expect(v2.root.lineTree.summary.lineCount).toBe(2)
+    expect(v2.root.authoredBoxSummary.outerHeightLayoutUnit).toBe(32_000_000)
+    expect(v2.root.authoredBoxSummary.outerWidthLayoutUnit).toBe(100_000_000)
+    expect(v2.root.persistentScene.summary.textFragmentCount).toBe(2)
+    expect(v2.root.persistentScene.summary.inlineImageFragmentCount).toBe(1)
   })
 
   it("blocks invalid material with a closed null result", () => {
@@ -549,6 +525,11 @@ describe("Phase 5B independent unified Root V2", () => {
 
     const rows: readonly unknown[] = [
       accessorInput,
+      null,
+      Object.assign(new (class ForeignEnvelope {})(), input),
+      { ...input, [Symbol("foreign")]: true },
+      new Proxy(input, { ownKeys: () => { throw new Error("hostile envelope") } }),
+      { ...input, bindProductionLayout: undefined },
       { ...input, bindProductionLayout: true },
       { ...input, initialFlow: structuredClone(input.initialFlow) },
       { ...input, evidence: structuredClone(input.evidence) },

@@ -51,6 +51,11 @@ The package must remain runnable without any parent editor checkout.
 
 ## Current Capability Slice
 
+- The old layout RootV1/SceneV1 runtime and four old layout wrappers are
+  retired under the bounded D1/D2 decision. V2 and its shared V1-named kernels
+  remain. See `docs/CORE_LAYOUT_RUNTIME_RETIREMENT.md` for the removed API
+  boundary and replacement evidence; historical phase summaries below retain
+  their original phase scope.
 - Document schema version: `3`
 - Package envelope target: `FlowDocPackage.packageVersion = 2`
 - Implemented baseline nodes: `zone`, `text-block`, `columns`, `column`,

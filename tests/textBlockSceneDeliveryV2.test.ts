@@ -48,13 +48,8 @@ import {
 import {
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
-import {
-  createVNextTextBlockUnifiedLayoutRootV1,
-} from "../src/layout/textBlockUnifiedLayoutRootV1.js"
-import {
-  acceptedUnifiedLayoutRootFixtureV1,
-  repeatedUnifiedLayoutRootSourceFixtureV1,
-} from "./helpers/textBlockUnifiedLayoutRootV1.js"
+import { acceptedUnifiedLayoutGeometryFixtureV2, createUnifiedLayoutGeometryFixtureV2 } from "./helpers/textBlockUnifiedLayoutGeometryV2.js"
+import { repeatedUnifiedLayoutRootSourceFixtureV1 } from "./helpers/textBlockUnifiedLayoutSource.js"
 import type {
   InlineImageFlowFixtureOptions,
 } from "./helpers/textBlockInlineImageFlowV2.js"
@@ -177,17 +172,17 @@ function refreshSingleChunkCompleteDeliveryOuterIdentities(
 }
 
 function sceneInputsFromAccepted(
-  accepted: ReturnType<typeof acceptedUnifiedLayoutRootFixtureV1>,
+  accepted: ReturnType<typeof acceptedUnifiedLayoutGeometryFixtureV2>,
   entries: InlineImageFlowFixtureOptions["entries"] = [],
 ) {
   const source = createVNextTextBlockUnifiedLayoutSourceStateCompleteInternalV1({
-    initialFlow: accepted.root.initialFlow,
-    evidence: accepted.root.evidence,
+    initialFlow: accepted.geometryInput.initialFlow,
+    evidence: accepted.geometryInput.evidence,
   })
   if (source.status !== "prepared") throw new Error("source blocked")
   const flow = createVNextTextBlockIncrementalFlowTreeCompleteInternalV1({
     sourceState: source.sourceState,
-    evidence: accepted.root.evidence,
+    evidence: accepted.geometryInput.evidence,
   })
   if (flow.status !== "prepared") throw new Error("flow blocked")
   const spatial = createVNextTextBlockUnifiedSpatialStateCompleteInternalV1({
@@ -199,8 +194,8 @@ function sceneInputsFromAccepted(
     sourceState: source.sourceState,
     flowTree: flow.flowTree,
     spatialState: spatial.spatialState,
-    spatialLayout: accepted.root.spatialLayout,
-    authoredBoxGeometry: accepted.root.authoredBoxGeometry,
+    spatialLayout: accepted.geometryInput.spatialLayout,
+    authoredBoxGeometry: accepted.geometryInput.authoredBoxGeometry,
   })
   if (lines.status !== "prepared") throw new Error("lines blocked")
   const scene = createVNextTextBlockPersistentSceneCompleteInternalV2({
@@ -213,7 +208,7 @@ function sceneInputsFromAccepted(
 
 function completeScene(options: InlineImageFlowFixtureOptions = {}) {
   return sceneInputsFromAccepted(
-    acceptedUnifiedLayoutRootFixtureV1(options),
+    acceptedUnifiedLayoutGeometryFixtureV2(options),
     options.entries,
   )
 }
@@ -223,7 +218,7 @@ function repeatedScene(lineCount: number) {
     lineCount,
     includeImages: true,
   })
-  const accepted = createVNextTextBlockUnifiedLayoutRootV1({
+  const accepted = createUnifiedLayoutGeometryFixtureV2({
     inputAuthority: "core-synthetic-qa-only",
     initialFlow: source.initialFlow,
     evidence: source.evidence,

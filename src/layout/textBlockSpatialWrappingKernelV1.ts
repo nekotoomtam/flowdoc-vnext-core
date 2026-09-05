@@ -1,7 +1,7 @@
 import type {
   VNextTextBlockFlowIntervalV1,
   VNextTextBlockFlowRegionWorkV1,
-} from "./textBlockFlowRegionProviderV1.js"
+} from "./textBlockFlowRegionContractInternalV1.js"
 import type { VNextTextBlockSpatialBandV1 } from "./textBlockSpatialIndexContractV1.js"
 import type { VNextTextBlockSpatialWrappingWorkV1 } from "./textBlockSpatialWrappingLayoutContractV1.js"
 

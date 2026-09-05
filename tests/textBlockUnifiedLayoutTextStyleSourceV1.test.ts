@@ -71,7 +71,7 @@ import {
 } from "./helpers/textBlockUnifiedLayoutRootV2.js"
 import {
   repeatedUnifiedLayoutRootSourceFixtureV1,
-} from "./helpers/textBlockUnifiedLayoutRootV1.js"
+} from "./helpers/textBlockUnifiedLayoutSource.js"
 import {
   admit5B2RootFixture,
   admitted5B2PlanAAuthorityRootFixture,

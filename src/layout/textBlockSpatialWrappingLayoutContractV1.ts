@@ -1,4 +1,4 @@
-import type { VNextTextBlockFlowIntervalV1 } from "./textBlockFlowRegionProviderV1.js"
+import type { VNextTextBlockFlowIntervalV1 } from "./textBlockFlowRegionContractInternalV1.js"
 import type {
   VNextTextBlockMultiRunSourceSegmentV1,
   VNextTextBlockPositionedFragmentV1,

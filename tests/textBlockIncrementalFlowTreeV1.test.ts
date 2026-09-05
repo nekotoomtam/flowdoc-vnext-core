@@ -15,7 +15,7 @@ import type {
   VNextTextBlockInitialFlowV1,
 } from "../src/layout/textBlockInitialFlowInputV1.js"
 import { acceptedInlineImageEvidenceFixture } from "./helpers/textBlockInlineImageFlowV2.js"
-import { repeatedUnifiedLayoutRootSourceFixtureV1 } from "./helpers/textBlockUnifiedLayoutRootV1.js"
+import { repeatedUnifiedLayoutRootSourceFixtureV1 } from "./helpers/textBlockUnifiedLayoutSource.js"
 
 function completePair(fixture: {
   initialFlow: VNextTextBlockInitialFlowV1

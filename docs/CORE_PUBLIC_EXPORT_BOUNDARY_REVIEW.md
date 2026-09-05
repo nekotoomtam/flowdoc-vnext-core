@@ -44,15 +44,15 @@ approved release API.
 
 `src/index.ts` currently exposes a broad evidence surface:
 
-- `STAR_EXPORT_LINES=189`
-- `NAMED_EXPORT_BLOCKS=30`
-- `TOTAL_EXPORT_DECLARATIONS=219`
+- `STAR_EXPORT_LINES=187`
+- `NAMED_EXPORT_BLOCKS=28`
+- `TOTAL_EXPORT_DECLARATIONS=215`
 
 Top-level public declarations by source area:
 
 | Source area | Export declarations |
 |---|---:|
-| layout | 47 |
+| layout | 43 |
 | table | 38 |
 | pagination | 21 |
 | renderer | 20 |
@@ -89,6 +89,14 @@ The Structure Pattern Slot boundary probe adds one lifecycle-area root export
 for `src/lifecycle/structurePatternSlots.ts`; it is an additive Core semantic
 boundary and does not add a package release subpath or destructive export
 narrowing.
+
+The bounded RootV1/SceneV1 retirement removes two contract star exports and two
+runtime export blocks. Its later D1/D2 approval is governed by Project Control
+`docs/domains/core-v1-closeout-plan-2026-09-05.md`, Work
+`flowdoc-product-development-resumption > flowdoc-frontend-expert-roadmap`.
+`CORE_LAYOUT_RUNTIME_RETIREMENT.md` records the exact API and evidence boundary.
+The earlier review's no-go decision below remains historical to its own lane;
+this inventory update does not change package subpaths or broaden retirement.
 
 ## Consumer Evidence
 

@@ -3,9 +3,6 @@ import { createVNextCompactFingerprint } from "../src/fingerprint/compactFingerp
 import * as lineTreeInternals from "../src/layout/textBlockPersistentLayoutLineTreeV1.js"
 import * as transitionEvidenceInternals from "../src/layout/textBlockUnifiedLayoutTransitionEvidenceV1.js"
 import {
-  createVNextTextBlockUnifiedLayoutRootV1,
-} from "../src/layout/textBlockUnifiedLayoutRootV1.js"
-import {
   createVNextTextBlockUnifiedLayoutSourceStateCompleteInternalV1,
 } from "../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
 import {
@@ -40,10 +37,8 @@ import type {
 import type {
   InlineImageFlowFixtureOptions,
 } from "./helpers/textBlockInlineImageFlowV2.js"
-import {
-  acceptedUnifiedLayoutRootFixtureV1,
-  repeatedUnifiedLayoutRootSourceFixtureV1,
-} from "./helpers/textBlockUnifiedLayoutRootV1.js"
+import { acceptedUnifiedLayoutGeometryFixtureV2, createUnifiedLayoutGeometryFixtureV2 } from "./helpers/textBlockUnifiedLayoutGeometryV2.js"
+import { repeatedUnifiedLayoutRootSourceFixtureV1 } from "./helpers/textBlockUnifiedLayoutSource.js"
 import {
   imagePaintUnifiedLayoutChange5b,
 } from "./helpers/textBlockUnifiedIncremental5b.js"
@@ -76,17 +71,17 @@ function exclusion(
 }
 
 function lineTreeFromAcceptedRoot(
-  accepted: ReturnType<typeof acceptedUnifiedLayoutRootFixtureV1>,
+  accepted: ReturnType<typeof acceptedUnifiedLayoutGeometryFixtureV2>,
   entries: readonly VNextTextBlockSyntheticPositionedObjectInputV1[],
 ) {
   const source = createVNextTextBlockUnifiedLayoutSourceStateCompleteInternalV1({
-    initialFlow: accepted.root.initialFlow,
-    evidence: accepted.root.evidence,
+    initialFlow: accepted.geometryInput.initialFlow,
+    evidence: accepted.geometryInput.evidence,
   })
   if (source.status !== "prepared") throw new Error("source state blocked")
   const flow = createVNextTextBlockIncrementalFlowTreeCompleteInternalV1({
     sourceState: source.sourceState,
-    evidence: accepted.root.evidence,
+    evidence: accepted.geometryInput.evidence,
   })
   if (flow.status !== "prepared") throw new Error("flow tree blocked")
   const spatial = createVNextTextBlockUnifiedSpatialStateCompleteInternalV1({
@@ -98,8 +93,8 @@ function lineTreeFromAcceptedRoot(
     sourceState: source.sourceState,
     flowTree: flow.flowTree,
     spatialState: spatial.spatialState,
-    spatialLayout: accepted.root.spatialLayout,
-    authoredBoxGeometry: accepted.root.authoredBoxGeometry,
+    spatialLayout: accepted.geometryInput.spatialLayout,
+    authoredBoxGeometry: accepted.geometryInput.authoredBoxGeometry,
   })
   if (lines.status !== "prepared") {
     throw new Error(`line tree blocked: ${JSON.stringify(lines.issues)}`)
@@ -118,7 +113,7 @@ function completeTree(
   options: InlineImageFlowFixtureOptions = {},
 ) {
   return lineTreeFromAcceptedRoot(
-    acceptedUnifiedLayoutRootFixtureV1(options),
+    acceptedUnifiedLayoutGeometryFixtureV2(options),
     options.entries ?? [],
   )
 }
@@ -137,7 +132,7 @@ function repeatedTree(lineCount: number) {
     lineCount,
     includeImages: false,
   })
-  const accepted = createVNextTextBlockUnifiedLayoutRootV1({
+  const accepted = createUnifiedLayoutGeometryFixtureV2({
     inputAuthority: "core-synthetic-qa-only",
     initialFlow: source.initialFlow,
     evidence: source.evidence,
@@ -297,10 +292,10 @@ describe("Phase 5B persistent layout line tree", () => {
     const tree = built.tree
 
     expect(tree.summary.lineCount)
-      .toBe(built.accepted.root.authoredBoxGeometry.summary.lineCount)
+      .toBe(built.accepted.geometryInput.authoredBoxGeometry.summary.lineCount)
     expect(tree.summary.fragmentCount).toBe(
-      built.accepted.root.authoredBoxGeometry.summary.textFragmentCount
-      + built.accepted.root.authoredBoxGeometry.summary.inlineImageFragmentCount,
+      built.accepted.geometryInput.authoredBoxGeometry.summary.textFragmentCount
+      + built.accepted.geometryInput.authoredBoxGeometry.summary.inlineImageFragmentCount,
     )
     expect(tree.summary.leafCount).toBe(tree.summary.lineCount)
     expect(tree.contracts).toMatchObject({
@@ -843,15 +838,15 @@ describe("Phase 5B persistent layout line tree", () => {
   })
 
   it("rejects foreign dependencies and returns only an unregistered candidate", () => {
-    const accepted = acceptedUnifiedLayoutRootFixtureV1()
+    const accepted = acceptedUnifiedLayoutGeometryFixtureV2()
     const source = createVNextTextBlockUnifiedLayoutSourceStateCompleteInternalV1({
-      initialFlow: accepted.root.initialFlow,
-      evidence: accepted.root.evidence,
+      initialFlow: accepted.geometryInput.initialFlow,
+      evidence: accepted.geometryInput.evidence,
     })
     if (source.status !== "prepared") throw new Error("source state blocked")
     const flow = createVNextTextBlockIncrementalFlowTreeCompleteInternalV1({
       sourceState: source.sourceState,
-      evidence: accepted.root.evidence,
+      evidence: accepted.geometryInput.evidence,
     })
     const spatial = createVNextTextBlockUnifiedSpatialStateCompleteInternalV1({
       sourceState: source.sourceState,
@@ -864,8 +859,8 @@ describe("Phase 5B persistent layout line tree", () => {
       sourceState: source.sourceState,
       flowTree: flow.flowTree,
       spatialState: spatial.spatialState,
-      spatialLayout: accepted.root.spatialLayout,
-      authoredBoxGeometry: accepted.root.authoredBoxGeometry,
+      spatialLayout: accepted.geometryInput.spatialLayout,
+      authoredBoxGeometry: accepted.geometryInput.authoredBoxGeometry,
     })
     expect(exact.status).toBe("prepared")
     if (exact.status !== "prepared") throw new Error("line tree blocked")
@@ -885,8 +880,8 @@ describe("Phase 5B persistent layout line tree", () => {
       sourceState: source.sourceState,
       flowTree: flow.flowTree,
       spatialState: spatial.spatialState,
-      spatialLayout: structuredClone(accepted.root.spatialLayout),
-      authoredBoxGeometry: accepted.root.authoredBoxGeometry,
+      spatialLayout: structuredClone(accepted.geometryInput.spatialLayout),
+      authoredBoxGeometry: accepted.geometryInput.authoredBoxGeometry,
     })).toMatchObject({
       status: "blocked",
       lineTree: null,

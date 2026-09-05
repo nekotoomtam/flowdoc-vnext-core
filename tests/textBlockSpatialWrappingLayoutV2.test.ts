@@ -1,19 +1,10 @@
 import { describe, expect, it } from "vitest"
 import {
-  acceptVNextTextBlockMultiRunLayoutV1,
-  createVNextTextBlockPersistentFlowTreeV1,
   createVNextTextBlockSpatialIndexV2,
   inspectVNextTextBlockSpatialWrappingLayoutV2,
   layoutVNextTextBlockSpatialWrappingV2,
-  type VNextTextBlockMultiRunLayoutRequestV1,
   type VNextTextBlockSyntheticPositionedObjectInputV1,
 } from "../src/index.js"
-import {
-  createVNextTextBlockSpatialIndexV1,
-} from "../src/layout/textBlockSpatialIndexV1.js"
-import {
-  layoutVNextTextBlockSpatialWrappingV1,
-} from "../src/layout/textBlockSpatialWrappingLayoutV1.js"
 import {
   acceptedInlineImageFlowTreeFixture,
   acceptedInlineImageSpatialFixture,
@@ -72,27 +63,6 @@ function layoutV2(
       spatialIndex: spatial.index,
       startYLayoutUnit: 0,
     }),
-  }
-}
-
-function v1Request(
-  fixture: ReturnType<typeof acceptedInlineImageFlowTreeFixture>,
-): VNextTextBlockMultiRunLayoutRequestV1 {
-  return {
-    layoutId: fixture.evidence.layoutId,
-    measurement: fixture.evidence.measurement,
-    layoutUnitPolicyFingerprint: fixture.evidence.layoutUnitPolicyFingerprint,
-    availableWidthLayoutUnit: fixture.evidence.availableWidthLayoutUnit,
-    declaredLineHeightLayoutUnit: fixture.evidence.declaredLineHeightLayoutUnit,
-    paragraphStyle: fixture.evidence.paragraphStyle,
-    fontFaces: fixture.evidence.fontFaces,
-    shapingRuns: fixture.evidence.shapingRuns,
-    breakOffsets: fixture.evidence.breakOffsets,
-    lines: fixture.evidence.breakOffsets.slice(0, -1).map((renderStartOffset, index) => ({
-      index,
-      renderStartOffset,
-      renderEndOffset: fixture.evidence.breakOffsets[index + 1]!,
-    })),
   }
 }
 
@@ -183,33 +153,85 @@ describe("TextBlock spatial wrapping layout V2", () => {
       .toEqual({ status: "valid", fingerprint: result.fingerprint })
   })
 
-  it("preserves exact V1 text-only geometry after normalization", () => {
+  it("preserves frozen baseline text-only geometry after normalization", () => {
     const v2 = layoutV2({ content: "text-only" })
     expect(v2.result.status).toBe("accepted")
     if (v2.result.status !== "accepted") throw new Error("V2 text layout blocked")
-    const request = v1Request(v2)
-    const accepted = acceptVNextTextBlockMultiRunLayoutV1(request)
-    if (accepted.status !== "accepted") throw new Error("V1 accepted layout blocked")
-    const persistent = createVNextTextBlockPersistentFlowTreeV1({
-      request,
-      acceptedLayout: accepted,
-    })
-    if (persistent.status !== "accepted") throw new Error("V1 tree blocked")
-    const spatial = createVNextTextBlockSpatialIndexV1({
-      inputAuthority: "core-synthetic-qa-only",
-      persistentFlowTree: persistent.tree,
-      request,
-      entries: [],
-    })
-    if (spatial.status !== "accepted") throw new Error("V1 index blocked")
-    const v1 = layoutVNextTextBlockSpatialWrappingV1({
-      persistentFlowTree: persistent.tree,
-      request,
-      spatialIndex: spatial.index,
-      startYLayoutUnit: 0,
-    })
-    if (v1.status !== "accepted") throw new Error("V1 layout blocked")
-    expect(normalizedGeometry(v2.result)).toEqual(normalizedGeometry(v1))
+    // Frozen from baseline e3b9888 V1 output before wrapper retirement.
+    expect(normalizedGeometry(v2.result)).toMatchInlineSnapshot(`
+      [
+        {
+          "availableIntervals": [
+            {
+              "endLayoutUnit": 90000000,
+              "startLayoutUnit": 0,
+            },
+          ],
+          "baselineOffsetLayoutUnit": 10600000,
+          "fragments": [
+            {
+              "advanceLayoutUnit": 6000000,
+              "ascentLayoutUnit": 9600000,
+              "baselineShiftLayoutUnit": 0,
+              "descentLayoutUnit": 2400000,
+              "fontFaceId": "sarabun-regular",
+              "fontFamily": "Sarabun",
+              "fontSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "fontSizeLayoutUnit": 12000000,
+              "fontStyle": "normal",
+              "fontWeight": 400,
+              "fragmentId": "inline-image-flow-v2:line-0:run-shape-0-text-a:0-1",
+              "lineGapLayoutUnit": 1200000,
+              "renderEndOffset": 1,
+              "renderStartOffset": 0,
+              "shapingRunId": "shape-0-text-a",
+              "sourceSegments": [
+                {
+                  "inlineId": "text-a",
+                  "kind": "text",
+                  "renderEndOffset": 1,
+                  "renderStartOffset": 0,
+                  "renderedText": "A",
+                  "sourceEndOffset": 1,
+                  "sourceStartOffset": 0,
+                  "styleKey": "paragraph-body",
+                },
+              ],
+              "styleKey": "sha256:9f3ad18d211df43892ca6132447a45386899b0694e7255c65c753b0ddc771db2",
+              "text": "A",
+              "textColor": "202020",
+              "xLayoutUnit": 0,
+            },
+          ],
+          "heightLayoutUnit": 14000000,
+          "index": 0,
+          "intervalPlacements": [
+            {
+              "intervalIndex": 0,
+              "renderEndOffset": 1,
+              "renderStartOffset": 0,
+              "xEndLayoutUnit": 6000000,
+              "xStartLayoutUnit": 0,
+            },
+          ],
+          "renderEndOffset": 1,
+          "renderStartOffset": 0,
+          "sourceSegments": [
+            {
+              "inlineId": "text-a",
+              "kind": "text",
+              "renderEndOffset": 1,
+              "renderStartOffset": 0,
+              "renderedText": "A",
+              "sourceEndOffset": 1,
+              "sourceStartOffset": 0,
+              "styleKey": "paragraph-body",
+            },
+          ],
+          "yOffsetLayoutUnit": 0,
+        },
+      ]
+    `)
   })
 
   it.each([

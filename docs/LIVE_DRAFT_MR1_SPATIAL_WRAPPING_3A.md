@@ -112,13 +112,13 @@ incremental spatial-line reuse.
 - Historical move/resize path-copy evidence remains documented, and current
   before/after provider/layout composition passes without the retired update
   wrapper.
-- The spatial wrapping V1 implementation is internal-only in current core;
-  retained characterization evidence imports it directly instead of exposing it
-  through the public index.
-- The spatial index V1 implementation is internal-only in current core; its
-  retained source supports later internal wrappers without public export.
-- The flow region provider V1 implementation is internal-only in current core;
-  its retained source supports wrapping characterization without public export.
+- The spatial wrapping V1 wrapper is retired from current core.
+- The spatial index V1 wrapper is retired from current core.
+- The flow region provider V1 wrapper is retired from current core.
+  Current V2 tests and direct shared-kernel tests retain the geometry, interval,
+  ordering, pruning, and rejection obligations. Shared kernels remain internal;
+  the unchanged interval, issue-code, and work types live in
+  `textBlockFlowRegionContractInternalV1.ts`.
 - MR1-Q exact tree/request/index identity gates and non-publishable,
   non-production authority limits remain enforced.
 

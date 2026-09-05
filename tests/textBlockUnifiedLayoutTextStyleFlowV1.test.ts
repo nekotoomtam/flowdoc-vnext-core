@@ -38,7 +38,7 @@ import { setVNextTextBlockPostBindingLimitOverrideForTestInternalV1 } from "../s
 import { transitionVNextTextBlockUnifiedLayoutSourceAndFlowInternalV1 } from "../src/layout/textBlockUnifiedLayoutTransitionV1.js"
 import { VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B2_AUTHORITY_CALIBRATION_TEST_ONLY_INTERNAL_V2 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
 import { unifiedLayoutRootBuildInputFixtureV2 } from "./helpers/textBlockUnifiedLayoutRootV2.js"
-import { repeatedUnifiedLayoutRootSourceFixtureV1 } from "./helpers/textBlockUnifiedLayoutRootV1.js"
+import { repeatedUnifiedLayoutRootSourceFixtureV1 } from "./helpers/textBlockUnifiedLayoutSource.js"
 import {
   admit5B2RootFixture,
 } from "./helpers/textBlockUnifiedIncremental5b2.js"

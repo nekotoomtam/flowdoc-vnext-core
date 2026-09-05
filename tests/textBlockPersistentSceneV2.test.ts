@@ -48,13 +48,8 @@ import {
 import {
   VNEXT_TEXT_BLOCK_UNIFIED_LAYOUT_WORK_POLICY_5B1_V3,
 } from "../src/layout/textBlockUnifiedLayoutWorkPolicyV1.js"
-import {
-  createVNextTextBlockUnifiedLayoutRootV1,
-} from "../src/layout/textBlockUnifiedLayoutRootV1.js"
-import {
-  acceptedUnifiedLayoutRootFixtureV1,
-  repeatedUnifiedLayoutRootSourceFixtureV1,
-} from "./helpers/textBlockUnifiedLayoutRootV1.js"
+import { acceptedUnifiedLayoutGeometryFixtureV2, createUnifiedLayoutGeometryFixtureV2 } from "./helpers/textBlockUnifiedLayoutGeometryV2.js"
+import { repeatedUnifiedLayoutRootSourceFixtureV1 } from "./helpers/textBlockUnifiedLayoutSource.js"
 import {
   acceptedUnifiedLayoutRootFixtureV2,
 } from "./helpers/textBlockUnifiedLayoutRootV2.js"
@@ -68,15 +63,15 @@ import type {
 function completeInputs(
   options: InlineImageFlowFixtureOptions = {},
 ) {
-  const accepted = acceptedUnifiedLayoutRootFixtureV1(options)
+  const accepted = acceptedUnifiedLayoutGeometryFixtureV2(options)
   const source = createVNextTextBlockUnifiedLayoutSourceStateCompleteInternalV1({
-    initialFlow: accepted.root.initialFlow,
-    evidence: accepted.root.evidence,
+    initialFlow: accepted.geometryInput.initialFlow,
+    evidence: accepted.geometryInput.evidence,
   })
   if (source.status !== "prepared") throw new Error("source blocked")
   const flow = createVNextTextBlockIncrementalFlowTreeCompleteInternalV1({
     sourceState: source.sourceState,
-    evidence: accepted.root.evidence,
+    evidence: accepted.geometryInput.evidence,
   })
   if (flow.status !== "prepared") throw new Error("flow blocked")
   const spatial = createVNextTextBlockUnifiedSpatialStateCompleteInternalV1({
@@ -88,8 +83,8 @@ function completeInputs(
     sourceState: source.sourceState,
     flowTree: flow.flowTree,
     spatialState: spatial.spatialState,
-    spatialLayout: accepted.root.spatialLayout,
-    authoredBoxGeometry: accepted.root.authoredBoxGeometry,
+    spatialLayout: accepted.geometryInput.spatialLayout,
+    authoredBoxGeometry: accepted.geometryInput.authoredBoxGeometry,
   })
   if (lines.status !== "prepared") throw new Error("line tree blocked")
   return {
@@ -598,7 +593,7 @@ describe("Phase 5B Persistent Scene V2", () => {
       lineCount: 9,
       includeImages: true,
     })
-    const accepted = createVNextTextBlockUnifiedLayoutRootV1({
+    const accepted = createUnifiedLayoutGeometryFixtureV2({
       inputAuthority: "core-synthetic-qa-only",
       initialFlow: repeated.initialFlow,
       evidence: repeated.evidence,
@@ -606,13 +601,13 @@ describe("Phase 5B Persistent Scene V2", () => {
     })
     if (accepted.status !== "accepted") throw new Error("root blocked")
     const source = createVNextTextBlockUnifiedLayoutSourceStateCompleteInternalV1({
-      initialFlow: accepted.root.initialFlow,
-      evidence: accepted.root.evidence,
+      initialFlow: accepted.geometryInput.initialFlow,
+      evidence: accepted.geometryInput.evidence,
     })
     if (source.status !== "prepared") throw new Error("source blocked")
     const flow = createVNextTextBlockIncrementalFlowTreeCompleteInternalV1({
       sourceState: source.sourceState,
-      evidence: accepted.root.evidence,
+      evidence: accepted.geometryInput.evidence,
     })
     const spatial = createVNextTextBlockUnifiedSpatialStateCompleteInternalV1({
       sourceState: source.sourceState,
@@ -625,8 +620,8 @@ describe("Phase 5B Persistent Scene V2", () => {
       sourceState: source.sourceState,
       flowTree: flow.flowTree,
       spatialState: spatial.spatialState,
-      spatialLayout: accepted.root.spatialLayout,
-      authoredBoxGeometry: accepted.root.authoredBoxGeometry,
+      spatialLayout: accepted.geometryInput.spatialLayout,
+      authoredBoxGeometry: accepted.geometryInput.authoredBoxGeometry,
     })
     if (lines.status !== "prepared") throw new Error("lines blocked")
     const scene = createVNextTextBlockPersistentSceneCompleteInternalV2({

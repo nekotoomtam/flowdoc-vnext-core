@@ -19,8 +19,8 @@ import {
 import {
   createVNextTextBlockInitialFlowParentRegionV1,
 } from "../src/layout/textBlockInitialFlowParentRegionV1.js"
-import { createVNextTextBlockUnifiedLayoutRootV1 } from
-  "../src/layout/textBlockUnifiedLayoutRootV1.js"
+import { createVNextTextBlockUnifiedLayoutRootV2 } from
+  "../src/layout/textBlockUnifiedLayoutRootV2.js"
 import { FLOWDOC_TEXT_ENGINE_MR1_SARABUN_FONT_FACES_V1 } from
   "../packages/text-engine-rust-wasm/src/mr1FontFaces.js"
 import type { FlowDocTextEngineFlowEvidenceInputV2 } from
@@ -354,13 +354,13 @@ describe("Flow Evidence V2 real Node/WASM parity", () => {
       if (nodeEvidence.status !== "accepted" || wasmEvidence.status !== "accepted") {
         throw new Error("real producer evidence did not enter the Core acceptance boundary")
       }
-      const nodeRoot = createVNextTextBlockUnifiedLayoutRootV1({
+      const nodeRoot = createVNextTextBlockUnifiedLayoutRootV2({
         inputAuthority: "core-synthetic-qa-only",
         initialFlow,
         evidence: nodeEvidence.evidence,
         spatialEntries: [],
       })
-      const wasmRoot = createVNextTextBlockUnifiedLayoutRootV1({
+      const wasmRoot = createVNextTextBlockUnifiedLayoutRootV2({
         inputAuthority: "core-synthetic-qa-only",
         initialFlow,
         evidence: wasmEvidence.evidence,
@@ -370,7 +370,7 @@ describe("Flow Evidence V2 real Node/WASM parity", () => {
         throw new Error("real producer evidence did not build the complete root")
       }
       expect(normalizeRoot(nodeRoot.root)).toEqual(normalizeRoot(wasmRoot.root))
-      expect(nodeRoot.root.scene.fingerprint).toBe(wasmRoot.root.scene.fingerprint)
+      expect(nodeRoot.root.persistentScene.fingerprint).toBe(wasmRoot.root.persistentScene.fingerprint)
       expect(nodeRoot.root.fingerprint).toBe(wasmRoot.root.fingerprint)
     }
   }, 30_000)

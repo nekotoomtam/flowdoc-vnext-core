@@ -1,24 +1,19 @@
 import {
-  acceptVNextTextBlockMultiRunLayoutV1,
+  acceptVNextTextBlockFlowEvidenceV2,
   convertVNextPointToLayoutUnitV1,
   createVNextAuthoredBoxPlanV1,
-  createVNextTextBlockPersistentFlowTreeV1,
+  createVNextTextBlockPersistentFlowTreeV2,
   type VNextTextBlockSyntheticPositionedObjectInputV1,
 } from "../../src/index.js"
 import {
   createVNextTextBlockInitialFlowV1,
 } from "../../src/layout/textBlockInitialFlowInputV1.js"
 import {
-  createVNextTextBlockSpatialIndexV1,
-} from "../../src/layout/textBlockSpatialIndexV1.js"
+  createVNextTextBlockSpatialIndexV2,
+} from "../../src/layout/textBlockSpatialIndexV2.js"
 import {
-  emptyGeometryBuildInputFixture,
-  hardBreakOnlyGeometryBuildInputFixture,
-  imageOnlyGeometryBuildInputFixture,
   legacyTextOnlyBuildInputFixture,
   legacyTextOnlyLayoutRequestFixture,
-  listOnlyGeometryBuildInputFixture,
-  renderedEmptyFieldGeometryBuildInputFixture,
 } from "./textBlockInitialFlowV1.js"
 
 export interface AuthoredBoxGeometryFixtureOptions {
@@ -110,43 +105,30 @@ export function acceptedAuthoredBoxGeometryFixture(
   if (width.status !== "accepted") throw new Error("content width fixture blocked")
   request.availableWidthLayoutUnit = width.layoutUnit
 
-  const acceptedLayout = acceptVNextTextBlockMultiRunLayoutV1(request)
-  if (acceptedLayout.status !== "accepted") throw new Error("layout fixture blocked")
-  const persistent = createVNextTextBlockPersistentFlowTreeV1({
-    request,
-    acceptedLayout,
+  const { lines: _lines, bindProductionLayout: _binding, ...facts } = request
+  const acceptedEvidence = acceptVNextTextBlockFlowEvidenceV2({
+    initialFlow: initial.flow,
+    evidenceInput: { ...facts, initialFlowFingerprint: initial.flow.fingerprint },
   })
+  if (acceptedEvidence.status !== "accepted") throw new Error(`evidence fixture blocked: ${JSON.stringify(acceptedEvidence.issues)}`)
+  const evidence = acceptedEvidence.evidence
+  const persistent = createVNextTextBlockPersistentFlowTreeV2({ initialFlow: initial.flow, evidence })
   if (persistent.status !== "accepted") throw new Error("tree fixture blocked")
-  const spatial = createVNextTextBlockSpatialIndexV1({
+  const spatial = createVNextTextBlockSpatialIndexV2({
     inputAuthority: "core-synthetic-qa-only",
     persistentFlowTree: persistent.tree,
-    request,
+    initialFlow: initial.flow,
+    evidence,
     entries: options.entries ?? [],
   })
   if (spatial.status !== "accepted") throw new Error("index fixture blocked")
 
   return {
     initialFlow: initial.flow,
+    evidence,
     request,
-    acceptedLayout,
     tree: persistent.tree,
     spatialIndex: spatial.index,
     authoredBoxPlan: box.plan,
   }
-}
-
-export function unsupportedAuthoredBoxGeometryInitialFlowsFixture() {
-  return [
-    listOnlyGeometryBuildInputFixture(),
-    imageOnlyGeometryBuildInputFixture(),
-    emptyGeometryBuildInputFixture(),
-    renderedEmptyFieldGeometryBuildInputFixture(),
-    hardBreakOnlyGeometryBuildInputFixture(),
-  ].map((buildInput) => {
-    const classified = createVNextTextBlockInitialFlowV1(buildInput)
-    if (classified.status !== "classified") {
-      throw new Error("unsupported Initial Flow fixture blocked")
-    }
-    return classified.flow
-  })
 }

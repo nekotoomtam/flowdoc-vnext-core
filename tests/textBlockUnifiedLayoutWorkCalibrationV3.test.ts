@@ -33,7 +33,7 @@ import {
 } from "./helpers/textBlockUnifiedLayoutRootV2.js"
 import {
   repeatedUnifiedLayoutRootSourceFixtureV1,
-} from "./helpers/textBlockUnifiedLayoutRootV1.js"
+} from "./helpers/textBlockUnifiedLayoutSource.js"
 
 const lockedRows = [
   ["source-flow", "source-items"],

@@ -280,10 +280,8 @@ describe("Phase 5B-1 public foundation gate", () => {
       expect(publicCore).not.toHaveProperty(privateName)
     }
     expect(privatePublicExportNames(Object.keys(publicCore))).toEqual([])
-    expect(publicCore.createVNextTextBlockUnifiedLayoutRootV1)
-      .toBeTypeOf("function")
-    expect(publicCore.inspectVNextTextBlockUnifiedLayoutRootV1)
-      .toBeTypeOf("function")
+    expect(publicCore).not.toHaveProperty("createVNextTextBlockUnifiedLayoutRootV1")
+    expect(publicCore).not.toHaveProperty("inspectVNextTextBlockUnifiedLayoutRootV1")
   })
 
   it("rejects unlisted Internal and ForTest public export mutations", () => {
@@ -440,6 +438,7 @@ describe("Phase 5B-1 public foundation gate", () => {
       editorApply: false,
       backendPersistence: false,
       productionActivation: false,
+      // Historical 5B-1 manifest only; current export absence is checked above.
       rootV1SceneV1Retirement: false,
     })
     expect(manifest.invariants).toMatchObject({

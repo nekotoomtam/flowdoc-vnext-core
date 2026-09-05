@@ -43,7 +43,7 @@ import {
 } from "./helpers/textBlockUnifiedIncremental5b.js"
 import {
   repeatedUnifiedLayoutRootSourceFixtureV1,
-} from "./helpers/textBlockUnifiedLayoutRootV1.js"
+} from "./helpers/textBlockUnifiedLayoutSource.js"
 import {
   unifiedLayoutRootBuildInputFixtureV2,
 } from "./helpers/textBlockUnifiedLayoutRootV2.js"

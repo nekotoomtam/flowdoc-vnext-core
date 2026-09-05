@@ -85,16 +85,6 @@ export {
   layoutVNextTextBlockAuthoredBoxGeometryV2,
   inspectVNextTextBlockAuthoredBoxGeometryV2,
 } from "./layout/textBlockAuthoredBoxGeometryV2.js"
-export * from "./layout/textBlockUnifiedLayoutSceneContractV1.js"
-export {
-  projectVNextTextBlockUnifiedLayoutSceneV1,
-  inspectVNextTextBlockUnifiedLayoutSceneV1,
-} from "./layout/textBlockUnifiedLayoutSceneV1.js"
-export * from "./layout/textBlockUnifiedLayoutRootContractV1.js"
-export {
-  createVNextTextBlockUnifiedLayoutRootV1,
-  inspectVNextTextBlockUnifiedLayoutRootV1,
-} from "./layout/textBlockUnifiedLayoutRootV1.js"
 export type {
   VNextTextBlockUnifiedLayoutRootBuildInputV2,
   VNextTextBlockUnifiedLayoutRootInspectionV2,

@@ -1,4 +1,4 @@
-import type { VNextTextBlockFlowRegionIssueCodeV1, VNextTextBlockFlowRegionWorkV1 } from "./textBlockFlowRegionProviderV1.js"
+import type { VNextTextBlockFlowRegionIssueCodeV1, VNextTextBlockFlowRegionWorkV1 } from "./textBlockFlowRegionContractInternalV1.js"
 import type { VNextTextBlockInitialFlowV1 } from "./textBlockInitialFlowInputV1.js"
 import type { VNextTextBlockPersistentFlowTreeV2 } from "./textBlockPersistentFlowContractV2.js"
 import type {

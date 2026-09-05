@@ -193,7 +193,7 @@ import {
 } from "./helpers/textBlockInitialFlowV1.js"
 import {
   repeatedUnifiedLayoutRootSourceFixtureV1,
-} from "./helpers/textBlockUnifiedLayoutRootV1.js"
+} from "./helpers/textBlockUnifiedLayoutSource.js"
 
 const sourceLimits = {
   sourceItems: Number.MAX_SAFE_INTEGER,

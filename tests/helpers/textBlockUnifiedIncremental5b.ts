@@ -12,7 +12,7 @@ import {
 } from "../../src/layout/textBlockUnifiedLayoutSourceStateV1.js"
 import {
   repeatedUnifiedLayoutRootSourceFixtureV1,
-} from "./textBlockUnifiedLayoutRootV1.js"
+} from "./textBlockUnifiedLayoutSource.js"
 import {
   ROOT_V2_TEST_WORK_POLICY,
 } from "./textBlockUnifiedLayoutRootV2.js"
