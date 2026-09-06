@@ -80,8 +80,8 @@ describe("Creator shaping-cluster-boundary text edit experiment", () => {
     const margin = api.hitTestVNextCreatorTextV1(g, f.binding, { pageIndex: 0, xPt: 1, yPt: 1 })
     expect(margin.outsidePage).toBe(false); expect(margin.outsideContent).toBe(true)
   })
-  it("keeps upstream/downstream affinity at wraps and page crossings", () => {
-    const f = fixture("ภาษาไทย Alice ".repeat(550), "", ""), g = create(f)
+  it.each(["ภาษาไทย Alice ".repeat(550), "AV".repeat(3500)])("keeps upstream/downstream affinity at wraps and page crossings %#", (value) => {
+    const f = fixture(value, "", ""), g = create(f)
     expect(f.layout.pages.length).toBeGreaterThan(1)
     const crossing = g.stops.find((s: any) => s.affinity === "downstream" && s.pageIndex === 1)
     const up = api.getVNextCreatorTextCaretV1(g, f.binding, { ...position(crossing), affinity: "upstream" })

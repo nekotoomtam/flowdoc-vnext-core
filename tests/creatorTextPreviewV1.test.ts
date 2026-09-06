@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs"
 import { createHash } from "node:crypto"
 import * as core from "../src/index.js"
 import { stringifyVNextCanonicalJson } from "../src/fingerprint/canonicalJson.js"
+import { creatorPreviewEngineProviderV1 } from "../src/creatorPreview/engineV1.js"
 
 const draft = () => JSON.parse(readFileSync(new URL("./fixtures/creator-preview/draft.json", import.meta.url), "utf8"))
 const bytes = (path: string) => Uint8Array.from(readFileSync(path)).buffer
@@ -113,6 +114,60 @@ describe("creator product text layout with pinned real WASM", () => {
     const first = wrapped.pages[0].paintCommands[0]
     const isolated = layout(request(first.text, source)).pages[0].paintCommands[0]
     expect(first.glyphs.map((g: any) => [g.glyphId, g.advancePt])).toEqual(isolated.glyphs.map((g: any) => [g.glyphId, g.advancePt]))
+  })
+  it.each([
+    "ก" + "หก".repeat(15) + "แ".repeat(35) + "ป".repeat(25) + "แ".repeat(40) + "ห".repeat(30),
+    "AV".repeat(150),
+    "กิ้".repeat(150),
+    "AV".repeat(100) + "\u200b" + "AV".repeat(50),
+  ])("fills remaining line space before emergency wrapping an overlong run %j", (value) => {
+    const source = draft(); source.content.patterns[0].blocks[0].inlines[0].text = "เรียน "; source.content.patterns[0].blocks[0].inlines[2].text = " ด้วยความเคารพ"
+    const result = layout(request(value, source))
+    expect(result.status).toBe("ready")
+    const first = result.pages[0].paintCommands.filter((c: any) => c.lineIndex === 0)
+    expect(first.reduce((sum: number, c: any) => sum + c.advancePt, 0)).toBeGreaterThan(510)
+    const next = result.pages[0].paintCommands.find((c: any) => c.lineIndex === 1)
+    const provider = creatorPreviewEngineProviderV1(engine)!
+    const nextClusterEnd = [...new Set(provider.shape(next.text).glyphs.map(g => g.clusterUtf16))][1] ?? next.text.length
+    const parts = first.map((c: any) => c.text)
+    parts[parts.length - 1] += next.text.slice(0, nextClusterEnd)
+    const extendedWidth = parts.reduce((sum: number, part: string) => sum + provider.shape(part).glyphs.reduce((n, g) => n + g.xAdvance * 0.012, 0), 0)
+    expect(extendedWidth).toBeGreaterThan(result.pages[0].bodyPt.width)
+    const regions = result.occurrences[0].regions
+    expect(regions[0].valueRange.startUtf16).toBe(0)
+    expect(regions.at(-1).valueRange.endUtf16).toBe(value.length)
+    for (let i = 1; i < regions.length; i++) expect(regions[i].valueRange.startUtf16).toBe(regions[i - 1].valueRange.endUtf16)
+    for (const page of result.pages) for (const command of page.paintCommands)
+      expect(command.xPt + command.advancePt).toBeLessThanOrEqual(page.bodyPt.x + page.bodyPt.width + 1e-7)
+  })
+  it("moves an ordinary next word intact to a fresh line", () => {
+    const source = draft(); source.content.patterns[0].blocks[0].inlines[0].text = "W".repeat(46) + " "; source.content.patterns[0].blocks[0].inlines[2].text = ""
+    const result = layout(request("ordinaryword", source))
+    expect(result.status).toBe("ready")
+    const field = result.pages[0].paintCommands.filter((c: any) => c.inlineId === "inline:customer-name")
+    expect(field).toHaveLength(1)
+    expect(field[0]).toMatchObject({ text: "ordinaryword", lineIndex: 1, xPt: 36 })
+  })
+  it.each([52, 53])("distinguishes the last fitting fresh-line run from one cluster over (%i)", (count) => {
+    const source = draft(); source.content.patterns[0].blocks[0].inlines[0].text = "Hi "; source.content.patterns[0].blocks[0].inlines[2].text = ""
+    const result = layout(request("W".repeat(count), source))
+    expect(result.status).toBe("ready")
+    const width = creatorPreviewEngineProviderV1(engine)!.shape("W".repeat(count)).glyphs.reduce((n, g) => n + g.xAdvance * 0.012, 0)
+    expect(width <= result.pages[0].bodyPt.width).toBe(count === 52)
+    const field = result.pages[0].paintCommands.filter((c: any) => c.inlineId === "inline:customer-name")
+    expect(field[0].lineIndex).toBe(count === 52 ? 1 : 0)
+    const provider = creatorPreviewEngineProviderV1(engine)!
+    const prefixWidth = provider.shape("Hi ").glyphs.reduce((n, g) => n + g.xAdvance * 0.012, 0)
+    const glyphWidth = provider.shape("W").glyphs[0].xAdvance * 0.012
+    expect(field[0].text.length).toBe(count === 52 ? 52 : Math.floor((result.pages[0].bodyPt.width - prefixWidth) / glyphWidth))
+  })
+  it("classifies a legal span across authored and field inline boundaries", () => {
+    const source = draft(); source.content.patterns[0].blocks[0].inlines[0].text = "Hi " + "A".repeat(20); source.content.patterns[0].blocks[0].inlines[2].text = "Z"
+    const result = layout(request("V".repeat(120), source))
+    expect(result.status).toBe("ready")
+    const first = result.pages[0].paintCommands.filter((c: any) => c.lineIndex === 0)
+    expect(first.reduce((sum: number, c: any) => sum + c.advancePt, 0)).toBeGreaterThan(510)
+    expect(first.map((c: any) => c.inlineId)).toEqual(["inline:prefix", "inline:customer-name"])
   })
   it.each(["source", "session", "simulation", "font", "wasm", "profile"])("rejects mismatched %s identity", (kind) => {
     const input = request()

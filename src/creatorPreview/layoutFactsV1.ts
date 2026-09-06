@@ -45,34 +45,48 @@ export function prepareCreatorPreviewLinesV1(source: VNextCreatorTextResolvedV1,
   const breaks = text.length ? provider.segment(text) : [0]
   requireFact(Array.isArray(breaks) && breaks[0] === 0 && breaks.at(-1) === text.length && breaks.every((offset, index) => Number.isSafeInteger(offset) && offset >= 0 && offset <= text.length && (index === 0 || offset > breaks[index - 1])), "invalid-line-breaks", "Paragraph break facts mismatch")
   const allowedBreaks = new Set(breaks), width = profile.pageWidthPt - 2 * profile.marginPt
+  // Measure every candidate with its actual line ends and existing inline isolation.
+  const shapeRange = (start: number, end: number): CreatorPreviewClusterV1[] => {
+    const shaped: CreatorPreviewClusterV1[] = []
+    let groupStart = start
+    while (groupStart < end) {
+      let groupEnd = groupStart + 1
+      while (groupEnd < end && clusters[groupEnd].inlineIndex === clusters[groupStart].inlineIndex) groupEnd++
+      const offset = clusters[groupStart].start, stop = clusters[groupEnd - 1].end
+      shaped.push(...shapeClusters(text.slice(offset, stop), provider, clusters[groupStart].inlineIndex, offset))
+      groupStart = groupEnd
+    }
+    return shaped
+  }
+  const fits = (line: CreatorPreviewClusterV1[]) => line.reduce((sum, cluster) => sum + cluster.advancePt, 0) <= width + 1e-9
   const lines: CreatorPreviewClusterV1[][] = []
   let start = 0
   while (start < clusters.length) {
-    let end = start, lastBreak = start, advance = 0
+    let end = start, advance = 0
     while (end < clusters.length && advance + clusters[end].advancePt <= width + 1e-9) {
       advance += clusters[end].advancePt; end++
-      if (allowedBreaks.has(clusters[end - 1].end)) lastBreak = end
     }
-    requireFact(end > start, "cluster-too-wide", "A shaping cluster exceeds the body width")
-    // ICU4X whole-paragraph opportunities win. An overlong word can break only at a real cluster boundary.
-    if (end < clusters.length && lastBreak > start) end = lastBreak
-    // Re-shape at actual line ends: retaining paragraph-final kerning across a wrap is incorrect.
-    let shapedLine: CreatorPreviewClusterV1[] = []
-    while (end > start) {
-      shapedLine = []
-      let groupStart = start
-      while (groupStart < end) {
-        let groupEnd = groupStart + 1
-        while (groupEnd < end && clusters[groupEnd].inlineIndex === clusters[groupStart].inlineIndex) groupEnd++
-        const offset = clusters[groupStart].start, stop = clusters[groupEnd - 1].end
-        shapedLine.push(...shapeClusters(text.slice(offset, stop), provider, clusters[groupStart].inlineIndex, offset))
-        groupStart = groupEnd
-      }
-      if (shapedLine.reduce((sum, cluster) => sum + cluster.advancePt, 0) <= width + 1e-9) break
-      end--
-      let priorBreak = end - 1
-      while (priorBreak >= start && !allowedBreaks.has(clusters[priorBreak].end)) priorBreak--
-      if (priorBreak >= start) end = priorBreak + 1
+    // Paragraph advances are an estimate: line-final kerning can shrink or grow it.
+    let shapedLine = shapeRange(start, end)
+    while (end > start && !fits(shapedLine)) shapedLine = shapeRange(start, --end)
+    while (end < clusters.length) {
+      const next = shapeRange(start, end + 1)
+      if (!fits(next)) break
+      shapedLine = next; end++
+    }
+    // Prefer an ICU break only when the following legal span fits a fresh line.
+    // An overlong span instead consumes the current line up to a safe cluster edge.
+    while (end > start && end < clusters.length) {
+      let lastBreak = end
+      while (lastBreak > start && !allowedBreaks.has(clusters[lastBreak - 1].end)) lastBreak--
+      if (lastBreak === start || lastBreak === end) break
+      let spanEnd = lastBreak + 1
+      while (spanEnd < clusters.length && !allowedBreaks.has(clusters[spanEnd - 1].end)) spanEnd++
+      if (!fits(shapeRange(lastBreak, spanEnd))) break
+      end = lastBreak; shapedLine = shapeRange(start, end)
+      if (fits(shapedLine)) break
+      // Reapply the same span policy if shaping at the chosen break grows the line.
+      do { shapedLine = shapeRange(start, --end) } while (end > start && !fits(shapedLine))
     }
     requireFact(end > start, "cluster-too-wide", "A line-final shaping cluster exceeds the body width")
     lines.push(shapedLine); start = end
