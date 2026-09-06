@@ -44,9 +44,9 @@ approved release API.
 
 `src/index.ts` currently exposes a broad evidence surface:
 
-- `STAR_EXPORT_LINES=190`
+- `STAR_EXPORT_LINES=191`
 - `NAMED_EXPORT_BLOCKS=30`
-- `TOTAL_EXPORT_DECLARATIONS=220`
+- `TOTAL_EXPORT_DECLARATIONS=221`
 
 Top-level public declarations by source area:
 
@@ -65,7 +65,7 @@ Top-level public declarations by source area:
 | binding | 3 |
 | identity | 3 |
 | lifecycle | 4 |
-| creatorPreview | 5 |
+| creatorPreview | 6 |
 | migration | 3 |
 | resolution | 3 |
 | operations | 2 |
@@ -136,6 +136,45 @@ uses each Core glyph's xPt/yPt with fontSizePt/unitsPerEm and a negative y
 scale; it does not shape Unicode again. `tests/creatorGlyphOutlinesV1.test.ts`
 and the real-engine integration test cover admission and lookup. This slice
 does not establish Editor browser, IME, PDF or general Preview readiness.
+The Creator text-edit geometry experiment adds one public star export under
+Project Control `flowdoc-core-text-edit-geometry-dispatch-2026-09-06.md`, Work
+`flowdoc-product-development-resumption > flowdoc-frontend-expert-roadmap`.
+This is explicitly `shaping-cluster-edges/1`, not complete user-grapheme or
+Thai editing behavior. MR1 line breaks remain line-break opportunities, not
+caret boundaries. For example, the pinned shaper's `กิ้` cluster has only its
+outer stops (UTF-16 offsets 0 and 3); offsets 1 and 2 reject. No proportional
+width interpolation, new segmentation, reshaping, or layout changes occur.
+
+`createVNextCreatorTextEditGeometryV1(readyResult, expectedBinding)` accepts
+only authentic same-runtime Creator results, rejects changed/copied/blocked
+results, and captures immutable geometry. Expected binding contains the exact
+sourceIdentity, requestIdentity, engineIdentity and layoutFingerprint.
+`getVNextCreatorTextCaretV1`, `hitTestVNextCreatorTextV1` and
+`selectVNextCreatorTextV1` require that binding on every query. Editor must
+supply its current binding; Core does not own the application's latest-state
+clock. Wire/cloned geometry cannot mint query authority. Worker integration
+must create/query the capability in the runtime that produced its layout.
+
+Addresses distinguish authored prefix/suffix inline offsets from field-value
+offsets and occurrence/value addresses. They do not map Build field-label
+text, grant editing permission, or modify source. Empty addresses remain
+separate even when their coordinates coincide. At wraps/page crossings,
+upstream uses the preceding line end and downstream the following line start,
+including an empty field between wrapped neighbors. Where only one location
+exists both affinities share it; fully empty text stays at the existing anchor.
+
+Hits use only an existing page and finite coordinates. Outside page/content
+points choose the nearest line then legal x stop on that same page; invalid
+pages/nonfinite points reject. All ties within 1e-9pt remain candidates in
+line, paragraph-offset, inline-order, downstream-first order; the first is
+primary. Coincident source endpoints and affinity aliases remain explicitly
+ambiguous. Selections reject interior-cluster endpoints and return logical
+cluster-advance rectangles, not ink bounds. Reversed ranges retain anchor/focus
+and reverse direction without changing covered rectangles. Zero-advance spans
+remain zero-width selections; empty logical ranges retain endpoints without
+invented fill. `tests/creatorTextEditGeometryV1.test.ts` uses the real pinned
+engine for these boundaries. This does not establish Build/Preview UX, OS IME,
+retained incremental production authority, or broader layout support.
 ## Consumer Evidence
 
 Editor production source keeps the package behind one facade:

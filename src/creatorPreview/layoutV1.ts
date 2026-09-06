@@ -2,6 +2,7 @@ import { z } from "zod"
 import { validateVNextCreatorTextContentV1, fingerprintVNextCreatorPreviewV1, type VNextCreatorPreviewOccurrenceTupleV1, type VNextCreatorPreviewValueAddressV1, type VNextCreatorTextDraftV1, type VNextCreatorPreviewSimulationV1, type VNextCreatorTextPreviewIssueV1, type VNextCreatorTextResolvedV1 } from "./contentV1.js"
 import { creatorPreviewEngineProviderV1, VNEXT_CREATOR_PREVIEW_LAYOUT_PROFILE_V1 as profile, type VNextCreatorPreviewEngineIdentityV1, type VNextCreatorPreviewMeasurementEngineV1 } from "./engineV1.js"
 import { CreatorPreviewLayoutFailureV1, prepareCreatorPreviewLinesV1, type CreatorPreviewClusterV1 } from "./layoutFactsV1.js"
+import { registerCreatorEditLayoutV1 } from "./textEditAdmissionV1.js"
 
 const id = z.string().min(1).max(512), revision = z.number().int().nonnegative()
 const sourceIdentitySchema = z.object({ definitionId: id, draftId: id, backendRevision: revision, sourceFingerprint: z.string().regex(/^sha256:[a-f0-9]{64}$/u) }).strict()
@@ -94,8 +95,8 @@ export function createVNextCreatorTextPreviewLayoutV1(input: unknown, engine: VN
     const provider = creatorPreviewEngineProviderV1(engine)
     if (!provider || fingerprintVNextCreatorPreviewV1(engineIdentity) !== fingerprintVNextCreatorPreviewV1(engine.identity)) return blocked([{ code: "engine-identity-mismatch", path: "engineIdentity", message: "A verified matching product engine is required" }])
     const output = materialize(source, prepareCreatorPreviewLinesV1(source, provider))
-    return { sourceIdentity: structuredClone(sourceIdentity), requestIdentity: structuredClone(requestIdentity), engineIdentity: structuredClone(engine.identity), status: "ready", productionBinding: true, ...output, validationIssues, issues: [],
-      layoutFingerprint: fingerprintVNextCreatorPreviewV1({ sourceIdentity, requestIdentity, engineIdentity, ...output, validationIssues }) }
+    return registerCreatorEditLayoutV1({ sourceIdentity: structuredClone(sourceIdentity), requestIdentity: structuredClone(requestIdentity), engineIdentity: structuredClone(engine.identity), status: "ready", productionBinding: true, ...output, validationIssues, issues: [],
+      layoutFingerprint: fingerprintVNextCreatorPreviewV1({ sourceIdentity, requestIdentity, engineIdentity, ...output, validationIssues }) }, source)
   } catch (error) {
     return blocked([{ code: error instanceof CreatorPreviewLayoutFailureV1 ? error.code : "measurement-failed", path: "layout", message: error instanceof Error ? error.message : "Preview layout failed" }])
   }

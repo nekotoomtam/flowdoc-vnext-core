@@ -359,3 +359,4 @@ export type {
   VNextCreatorPreviewGlyphFactV1,
 } from "./creatorPreview/engineV1.js"
 export * from "./creatorPreview/outlineV1.js"
+export * from "./creatorPreview/textEditGeometryV1.js"
