@@ -1,0 +1,14 @@
+{
+  "source": "flowdoc-creator-glyph-outline-manifest",
+  "contractVersion": 1,
+  "fontSha256": "b8150084e25734e6f31696c57ff009f5564efa09d295848b717d9e2328c0311d",
+  "outlineSha256": "8a5e7be2038f8fe54e5b1163425be14f05bb55c4b74aa88c8821c0914364b75d",
+  "byteLength": 413287,
+  "unitsPerEm": 1000,
+  "glyphCount": 777,
+  "generator": "flowdoc-creator-outlines/1",
+  "rustybuzz": "0.20.1",
+  "ttfParser": "0.25.1",
+  "generatorSourceSha256": "4f4baa7cb7b3329d6212e9d372ef774b3fe011368c2cbfe24539d0c27f12f541",
+  "cargoLockSha256": "b4b6f968fb5736a53c196781db64d4ff3b22735879ff99791806335d2d42aec6"
+}

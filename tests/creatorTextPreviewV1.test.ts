@@ -45,6 +45,30 @@ describe("creator product text layout with pinned real WASM", () => {
     expect(result.occurrences[0].regions[0].rectPt.x).toBe(field.xPt)
     expect(result.occurrences[0].regions[0].rectPt.width).toBe(field.advancePt)
   })
+  it("looks up real mixed/compound/Thai glyph IDs and paints at Core positions without reshaping", async () => {
+    const outlines = await core.createVNextCreatorGlyphOutlineProviderV1({ fontBytes: assets().fontBytes,
+      outlineBytes: bytes("packages/text-engine-rust-wasm/assets/creator-sarabun-outlines.v1.json") })
+    const result = layout(request("AéÅ กิ้น้ำ "))
+    expect(result.status).toBe("ready")
+    const before = JSON.stringify(result)
+    let visible = 0, empty = 0
+    for (const command of result.pages[0].paintCommands) for (const glyph of command.glyphs) {
+      const path = outlines.getGlyph(glyph.glyphId)
+      const scale = command.fontSizePt / outlines.unitsPerEm
+      expect(scale).toBe(0.012)
+      if (!path.length) { empty++; continue }
+      visible++
+      const first = path[0]
+      expect(first[0]).toBe("M")
+      if (first[0] !== "M") throw Error("Expected move")
+      const point = { x: glyph.xPt + first[1] * scale, y: glyph.yPt - first[2] * scale }
+      expect(Number.isFinite(point.x) && Number.isFinite(point.y)).toBe(true)
+      expect((point.x - glyph.xPt) / scale).toBeCloseTo(first[1], 8)
+      expect((glyph.yPt - point.y) / scale).toBeCloseTo(first[2], 8)
+    }
+    expect(visible).toBeGreaterThan(10); expect(empty).toBeGreaterThan(0)
+    expect(JSON.stringify(result)).toBe(before)
+  })
   it("wraps a long field over lines and pages, preserves all ranges and reflows the suffix", () => {
     const value = "ภาษาไทย Alice ".repeat(400)
     const result = layout(request(value)), short = layout(request("x"))

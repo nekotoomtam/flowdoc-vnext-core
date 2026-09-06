@@ -44,9 +44,9 @@ approved release API.
 
 `src/index.ts` currently exposes a broad evidence surface:
 
-- `STAR_EXPORT_LINES=189`
+- `STAR_EXPORT_LINES=190`
 - `NAMED_EXPORT_BLOCKS=30`
-- `TOTAL_EXPORT_DECLARATIONS=219`
+- `TOTAL_EXPORT_DECLARATIONS=220`
 
 Top-level public declarations by source area:
 
@@ -65,7 +65,7 @@ Top-level public declarations by source area:
 | binding | 3 |
 | identity | 3 |
 | lifecycle | 4 |
-| creatorPreview | 4 |
+| creatorPreview | 5 |
 | migration | 3 |
 | resolution | 3 |
 | operations | 2 |
@@ -113,6 +113,29 @@ display-list restrictions remain unchanged. The focused source tests are
 This inventory entry does not accept downstream integration or release readiness.
 The consumer scans and gate results below remain historical to the original review.
 
+The additional outline export is governed by Project Control
+`flowdoc-core-outlines-dispatch-2026-09-06.md`, Work
+`flowdoc-product-development-resumption > flowdoc-frontend-expert-roadmap`.
+`createVNextCreatorGlyphOutlineProviderV1({fontBytes, outlineBytes})` verifies
+both actual byte digests, copies before awaiting, and exposes frozen font-unit
+M/L/Q/C/Z commands through `getGlyph(glyphId)`. Valid no-ink glyphs return an
+empty array; invalid IDs throw. Only the pinned Sarabun corpus is admitted.
+The adapter exports `./creator-glyph-outlines` and
+`./creator-glyph-outlines-manifest` as packaged JSON assets. The manifest is
+provenance, never caller authority to override the compiled digest.
+
+From the Core root, `node packages/text-engine-rust-wasm/scripts/generate-creator-outlines.mjs`
+generates the new asset with the existing locked offline Rust parser;
+append `--check` to verify exact reproducibility. It does not rebuild MR1.
+`python packages/text-engine-rust-wasm/scripts/verify-creator-outlines.py <external-output-dir>`
+uses installed fontTools and Pillow/FreeType for independent full-corpus
+oriented contour comparison and Latin/Thai raster samples. These are offline
+reference tools, not runtime dependencies. The trusted generator boundary is
+limited to this pinned font, not arbitrary font support. Consumer painting
+uses each Core glyph's xPt/yPt with fontSizePt/unitsPerEm and a negative y
+scale; it does not shape Unicode again. `tests/creatorGlyphOutlinesV1.test.ts`
+and the real-engine integration test cover admission and lookup. This slice
+does not establish Editor browser, IME, PDF or general Preview readiness.
 ## Consumer Evidence
 
 Editor production source keeps the package behind one facade:
