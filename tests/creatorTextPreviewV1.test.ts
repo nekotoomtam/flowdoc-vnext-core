@@ -140,26 +140,28 @@ describe("creator product text layout with pinned real WASM", () => {
     for (const page of result.pages) for (const command of page.paintCommands)
       expect(command.xPt + command.advancePt).toBeLessThanOrEqual(page.bodyPt.x + page.bodyPt.width + 1e-7)
   })
-  it("moves an ordinary next word intact to a fresh line", () => {
+  it("fills available width through ordinary-word clusters", () => {
     const source = draft(); source.content.patterns[0].blocks[0].inlines[0].text = "W".repeat(46) + " "; source.content.patterns[0].blocks[0].inlines[2].text = ""
     const result = layout(request("ordinaryword", source))
     expect(result.status).toBe("ready")
     const field = result.pages[0].paintCommands.filter((c: any) => c.inlineId === "inline:customer-name")
-    expect(field).toHaveLength(1)
-    expect(field[0]).toMatchObject({ text: "ordinaryword", lineIndex: 1, xPt: 36 })
+    expect(field).toHaveLength(2)
+    expect(field.map((command: any) => command.text).join("")).toBe("ordinaryword")
+    expect(field.map((command: any) => command.lineIndex)).toEqual([0, 1])
   })
-  it.each([52, 53])("distinguishes the last fitting fresh-line run from one cluster over (%i)", (count) => {
+  it.each([52, 53])("fills the prefix line before continuing an overwide field run (%i)", (count) => {
     const source = draft(); source.content.patterns[0].blocks[0].inlines[0].text = "Hi "; source.content.patterns[0].blocks[0].inlines[2].text = ""
     const result = layout(request("W".repeat(count), source))
     expect(result.status).toBe("ready")
     const width = creatorPreviewEngineProviderV1(engine)!.shape("W".repeat(count)).glyphs.reduce((n, g) => n + g.xAdvance * 0.012, 0)
     expect(width <= result.pages[0].bodyPt.width).toBe(count === 52)
     const field = result.pages[0].paintCommands.filter((c: any) => c.inlineId === "inline:customer-name")
-    expect(field[0].lineIndex).toBe(count === 52 ? 1 : 0)
+    expect(field[0].lineIndex).toBe(0)
     const provider = creatorPreviewEngineProviderV1(engine)!
     const prefixWidth = provider.shape("Hi ").glyphs.reduce((n, g) => n + g.xAdvance * 0.012, 0)
     const glyphWidth = provider.shape("W").glyphs[0].xAdvance * 0.012
-    expect(field[0].text.length).toBe(count === 52 ? 52 : Math.floor((result.pages[0].bodyPt.width - prefixWidth) / glyphWidth))
+    expect(field[0].text.length).toBe(Math.floor((result.pages[0].bodyPt.width - prefixWidth) / glyphWidth))
+    expect(field.map((command: any) => command.text).join("")).toHaveLength(count)
   })
   it("classifies a legal span across authored and field inline boundaries", () => {
     const source = draft(); source.content.patterns[0].blocks[0].inlines[0].text = "Hi " + "A".repeat(20); source.content.patterns[0].blocks[0].inlines[2].text = "Z"

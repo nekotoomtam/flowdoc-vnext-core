@@ -99,15 +99,15 @@ describe("Creator shaping-cluster-boundary text edit experiment", () => {
     }
     expect(api.selectVNextCreatorTextV1(g, f.binding, { anchor: position(last), focus: position(first) }).rectangles).toEqual(selected.rectangles)
   })
-  it("gives an empty field both visual affinities when its neighboring text wraps", () => {
+  it("keeps an empty field on the filled neighboring-text line", () => {
     const f = fixture("", "A ".repeat(50), "WWWWWWWWWWWWWWWW"), g = create(f)
     const prefix = f.layout.pages[0].paintCommands.filter((c: any) => c.inlineId === "inline:prefix").at(-1)
     const suffix = f.layout.pages[0].paintCommands.find((c: any) => c.inlineId === "inline:suffix")
-    expect(suffix.lineIndex).toBeGreaterThan(prefix.lineIndex)
+    expect(suffix.lineIndex).toBe(prefix.lineIndex)
     const field = g.stops.find((s: any) => s.address.kind === "field-value")
     expect(api.getVNextCreatorTextCaretV1(g, f.binding, { ...position(field), affinity: "upstream" }).lineIndex).toBe(prefix.lineIndex)
     const downstream = api.getVNextCreatorTextCaretV1(g, f.binding, { ...position(field), affinity: "downstream" })
-    expect(downstream.lineIndex).toBe(suffix.lineIndex)
+    expect(downstream.lineIndex).toBe(prefix.lineIndex)
     expect(downstream.xPt).toBe(f.layout.occurrences[0].regions[0].anchorPt.x)
   })
   it("clamps finite outside points on an existing page and rejects invalid queries", () => {

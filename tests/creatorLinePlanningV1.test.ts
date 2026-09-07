@@ -13,10 +13,10 @@ function provider(advances: Record<string, number>, breaks: number[]): VNextCrea
   }
 }
 describe("Creator line planning width boundaries with controlled facts", () => {
-  it.each([42606, 42607])("compares a fresh span at the closest representable full-width boundary (%i)", advance => {
+  it.each([42606, 42607])("fills the current line to a shaping-cluster boundary without preferring an ordinary-word break (%i)", advance => {
     const lines = prepareCreatorPreviewLinesV1(source("PAB"), provider({ P: 1000, A: 1000, B: advance }, [0, 1, 3]))
     // 43606 font units = 523.272pt fits; 43607 = 523.284pt exceeds 523.27559pt.
-    expect(lines.map(line => line.map(cluster => cluster.start))).toEqual(advance === 42606 ? [[0], [1, 2]] : [[0, 1], [2]])
+    expect(lines.map(line => line.map(cluster => cluster.start))).toEqual([[0, 1], [2]])
   })
   it("rejects one unsplittable cluster wider than a full line", () => {
     expect(() => prepareCreatorPreviewLinesV1(source("X"), provider({ X: 43607 }, [0, 1]))).toThrow(/cluster exceeds the body width/)

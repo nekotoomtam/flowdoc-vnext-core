@@ -44,7 +44,7 @@ export function prepareCreatorPreviewLinesV1(source: VNextCreatorTextResolvedV1,
   const clusters = [source.prefix, source.value, source.suffix].flatMap((part, index) => shapeClusters(part, provider, index, index === 0 ? 0 : boundaries[index - 1]))
   const breaks = text.length ? provider.segment(text) : [0]
   requireFact(Array.isArray(breaks) && breaks[0] === 0 && breaks.at(-1) === text.length && breaks.every((offset, index) => Number.isSafeInteger(offset) && offset >= 0 && offset <= text.length && (index === 0 || offset > breaks[index - 1])), "invalid-line-breaks", "Paragraph break facts mismatch")
-  const allowedBreaks = new Set(breaks), width = profile.pageWidthPt - 2 * profile.marginPt
+  const width = profile.pageWidthPt - 2 * profile.marginPt
   // Measure every candidate with its actual line ends and existing inline isolation.
   const shapeRange = (start: number, end: number): CreatorPreviewClusterV1[] => {
     const shaped: CreatorPreviewClusterV1[] = []
@@ -74,20 +74,8 @@ export function prepareCreatorPreviewLinesV1(source: VNextCreatorTextResolvedV1,
       if (!fits(next)) break
       shapedLine = next; end++
     }
-    // Prefer an ICU break only when the following legal span fits a fresh line.
-    // An overlong span instead consumes the current line up to a safe cluster edge.
-    while (end > start && end < clusters.length) {
-      let lastBreak = end
-      while (lastBreak > start && !allowedBreaks.has(clusters[lastBreak - 1].end)) lastBreak--
-      if (lastBreak === start || lastBreak === end) break
-      let spanEnd = lastBreak + 1
-      while (spanEnd < clusters.length && !allowedBreaks.has(clusters[spanEnd - 1].end)) spanEnd++
-      if (!fits(shapeRange(lastBreak, spanEnd))) break
-      end = lastBreak; shapedLine = shapeRange(start, end)
-      if (fits(shapedLine)) break
-      // Reapply the same span policy if shaping at the chosen break grows the line.
-      do { shapedLine = shapeRange(start, --end) } while (end > start && !fits(shapedLine))
-    }
+    // B policy: use every measured fit through a shaping-cluster boundary.
+    // ICU facts remain validated above, but do not force an ordinary-word break.
     requireFact(end > start, "cluster-too-wide", "A line-final shaping cluster exceeds the body width")
     lines.push(shapedLine); start = end
     const linesPerPage = Math.floor((profile.pageHeightPt - 2 * profile.marginPt) / profile.lineHeightPt)
