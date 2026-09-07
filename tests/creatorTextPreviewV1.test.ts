@@ -149,6 +149,24 @@ describe("creator product text layout with pinned real WASM", () => {
     expect(field.map((command: any) => command.text).join("")).toBe("ordinaryword")
     expect(field.map((command: any) => command.lineIndex)).toEqual([0, 1])
   })
+  it("converges mixed Thai-mark layout and source ranges from distinct value construction histories", () => {
+    const chunk = "ภาษาไทย กิ้ Alice AV ", final = chunk.repeat(12), middleAt = 45
+    const appendHistory = Array.from({ length: 12 }, () => chunk).reduce<string[]>((history, part) => [...history, history.at(-1)! + part], [""])
+    const deleteHistory = ["x" + final, final]
+    const inserted = final.slice(0, middleAt) + "X" + final.slice(middleAt)
+    const middleHistory = [final.slice(0, middleAt) + final.slice(middleAt), inserted, inserted.slice(0, middleAt) + inserted.slice(middleAt + 1)]
+    const pasteHistory = ["", JSON.parse(JSON.stringify({ clipboard: final })).clipboard]
+    const reopenHistory = [final, JSON.parse(JSON.stringify({ persisted: final })).persisted]
+    const results = [appendHistory, deleteHistory, middleHistory, pasteHistory, reopenHistory].map(history => history.map(value => layout(request(value))).at(-1)!)
+    for (const result of results) {
+      expect(result.status).toBe("ready")
+      const regions = result.occurrences[0].regions
+      expect(regions[0].valueRange.startUtf16).toBe(0)
+      expect(regions.at(-1).valueRange.endUtf16).toBe(final.length)
+      for (let index = 1; index < regions.length; index++) expect(regions[index].valueRange.startUtf16).toBe(regions[index - 1].valueRange.endUtf16)
+    }
+    expect(results.slice(1)).toEqual(results.slice(1).map(() => results[0]))
+  })
   it.each([52, 53])("fills the prefix line before continuing an overwide field run (%i)", (count) => {
     const source = draft(); source.content.patterns[0].blocks[0].inlines[0].text = "Hi "; source.content.patterns[0].blocks[0].inlines[2].text = ""
     const result = layout(request("W".repeat(count), source))

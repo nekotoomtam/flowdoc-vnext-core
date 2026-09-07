@@ -110,6 +110,18 @@ describe("Creator shaping-cluster-boundary text edit experiment", () => {
     expect(downstream.lineIndex).toBe(prefix.lineIndex)
     expect(downstream.xPt).toBe(f.layout.occurrences[0].regions[0].anchorPt.x)
   })
+  it("keeps empty-field affinities distinct when the following cluster cannot fit", () => {
+    const f = fixture("", "W".repeat(52), "W"), g = create(f)
+    const prefix = f.layout.pages[0].paintCommands.find((c: any) => c.inlineId === "inline:prefix")
+    const suffix = f.layout.pages[0].paintCommands.find((c: any) => c.inlineId === "inline:suffix")
+    expect(suffix.lineIndex).toBeGreaterThan(prefix.lineIndex)
+    const field = g.stops.find((s: any) => s.address.kind === "field-value")
+    const upstream = api.getVNextCreatorTextCaretV1(g, f.binding, { ...position(field), affinity: "upstream" })
+    const downstream = api.getVNextCreatorTextCaretV1(g, f.binding, { ...position(field), affinity: "downstream" })
+    expect(upstream.lineIndex).toBe(prefix.lineIndex)
+    expect(downstream.lineIndex).toBe(suffix.lineIndex)
+    expect(downstream.xPt).toBe(f.layout.occurrences[0].regions[0].anchorPt.x)
+  })
   it("clamps finite outside points on an existing page and rejects invalid queries", () => {
     const f = fixture(), g = create(f)
     const hit = api.hitTestVNextCreatorTextV1(g, f.binding, { pageIndex: 0, xPt: -100, yPt: -100 })
