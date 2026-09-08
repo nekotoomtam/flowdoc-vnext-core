@@ -40,4 +40,16 @@ describe("Creator line planning width boundaries with controlled facts", () => {
     expect(shaped.every(text => !text.includes("\n"))).toBe(true)
     expect(segmented).toEqual(["A", "B"])
   })
+  it("stops line planning at the page limit before measuring the over-limit tail", () => {
+    let shapeCalls = 0
+    const facts: VNextCreatorPreviewRawMeasurementProviderV1 = {
+      segment: text => [0, text.length],
+      shape: text => {
+        if (++shapeCalls > 8500) throw new Error("processed over-limit tail")
+        return { text, unitsPerEm: 1000, ascentFontUnit: 1068, descentFontUnit: -232,
+          glyphs: [...text].map((_, clusterUtf16) => ({ glyphId: 1, clusterUtf16, xAdvance: 30000, yAdvance: 0, xOffset: 0, yOffset: 0 })) }
+      },
+    }
+    expect(() => prepareCreatorPreviewLinesV1(source("A".repeat(5000)), facts)).toThrow(/Preview exceeds 100 pages/)
+  })
 })

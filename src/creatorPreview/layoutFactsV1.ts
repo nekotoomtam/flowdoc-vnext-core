@@ -68,6 +68,7 @@ function prepareSoftWrappedLinesV1(parts: { text: string; inlineIndex: number }[
   }
   const fits = (line: CreatorPreviewClusterV1[]) => line.reduce((sum, cluster) => sum + cluster.advancePt, 0) <= width + 1e-9
   const lines: CreatorPreviewClusterV1[][] = []
+  const linesPerPage = Math.floor((profile.pageHeightPt - 2 * profile.marginPt) / profile.lineHeightPt)
   let start = 0
   while (start < clusters.length) {
     let end = start, advance = 0
@@ -86,9 +87,8 @@ function prepareSoftWrappedLinesV1(parts: { text: string; inlineIndex: number }[
     // ICU facts remain validated above, but do not force an ordinary-word break.
     requireFact(end > start, "cluster-too-wide", "A line-final shaping cluster exceeds the body width")
     lines.push(shapedLine); start = end
+    requireFact(lines.length <= linesPerPage * profile.maxPages, "page-limit", "Preview exceeds 100 pages")
   }
-  const linesPerPage = Math.floor((profile.pageHeightPt - 2 * profile.marginPt) / profile.lineHeightPt)
-  requireFact(lines.length <= linesPerPage * profile.maxPages, "page-limit", "Preview exceeds 100 pages")
   return lines.length ? lines : [[]]
 }
 
@@ -98,6 +98,7 @@ export function prepareCreatorPreviewLinesV1(source: VNextCreatorTextResolvedV1,
   ], provider, 0)
 
   const values = source.value.split("\n"), lines: CreatorPreviewClusterV1[][] = []
+  const linesPerPage = Math.floor((profile.pageHeightPt - 2 * profile.marginPt) / profile.lineHeightPt)
   let paragraphOffset = 0
   for (let index = 0; index < values.length; index++) {
     requireFact(!/^\p{M}/u.test(values[index]), "unsupported-field-boundary", "Field boundary cannot safely separate shaping clusters")
@@ -108,13 +109,12 @@ export function prepareCreatorPreviewLinesV1(source: VNextCreatorTextResolvedV1,
     ]
     const segmentLines = prepareSoftWrappedLinesV1(parts, provider, paragraphOffset)
     lines.push(...segmentLines)
+    requireFact(lines.length <= linesPerPage * profile.maxPages, "page-limit", "Preview exceeds 100 pages")
     paragraphOffset += parts.reduce((sum, part) => sum + part.text.length, 0)
     if (index < values.length - 1) {
       lines.at(-1)!.push({ start: paragraphOffset, end: paragraphOffset + 1, inlineIndex: 1, advancePt: 0, glyphs: [], explicitBreak: true })
       paragraphOffset++
     }
   }
-  const linesPerPage = Math.floor((profile.pageHeightPt - 2 * profile.marginPt) / profile.lineHeightPt)
-  requireFact(lines.length <= linesPerPage * profile.maxPages, "page-limit", "Preview exceeds 100 pages")
   return lines
 }

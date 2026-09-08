@@ -54,6 +54,51 @@ describe("Creator shaping-cluster-boundary text edit experiment", () => {
     expect([1, legalOffsets[legalOffsets.indexOf(1) + 1]]).toEqual([1, 2])
     expect(f.input.simulation.entries[0].values[0].value.slice(1, 2)).toBe("\n")
   })
+  it.each([
+    ["\nA", 0, 1],
+    ["A\n", 0, 1],
+    ["A\n\nB", 0, 2],
+  ])("keeps complete geometry and empty authored edges for %j", (value, prefixLine, suffixLine) => {
+    const f = fixture(value, "", ""), g = create(f)
+    const field = g.stops.filter((stop: any) => stop.address.kind === "field-value")
+    const legalOffsets = [...new Set(field.map((stop: any) => stop.offsetUtf16))].sort((a: any, b: any) => a - b)
+    for (let offset = 0, line = 0; offset < value.length; offset++) if (value[offset] === "\n") {
+      for (const [edge, expectedLine] of [[offset, line], [offset + 1, line + 1]] as const) {
+        const stops = field.filter((stop: any) => stop.offsetUtf16 === edge)
+        expect(new Set(stops.map((stop: any) => stop.affinity))).toEqual(new Set(["upstream", "downstream"]))
+        expect(stops.every((stop: any) => stop.lineIndex === expectedLine && stop.pageIndex === 0)).toBe(true)
+        const hit = api.hitTestVNextCreatorTextV1(g, f.binding, { pageIndex: 0, xPt: stops[0].xPt, yPt: stops[0].yPt + 9 })
+        expect(hit.candidates.some((stop: any) => stop.address.kind === "field-value" && stop.offsetUtf16 === edge)).toBe(true)
+      }
+      const before = field.find((stop: any) => stop.offsetUtf16 === offset && stop.affinity === "downstream")
+      const after = field.find((stop: any) => stop.offsetUtf16 === offset + 1 && stop.affinity === "downstream")
+      const selection = api.selectVNextCreatorTextV1(g, f.binding, { anchor: position(before), focus: position(after) })
+      expect(selection.rectangles.flatMap((rectangle: any) => rectangle.sourceRanges)).toContainEqual(expect.objectContaining({ startUtf16: offset, endUtf16: offset + 1 }))
+      expect([legalOffsets[legalOffsets.indexOf(offset + 1) - 1], offset + 1]).toEqual([offset, offset + 1])
+      expect([offset, legalOffsets[legalOffsets.indexOf(offset) + 1]]).toEqual([offset, offset + 1])
+      line++
+    }
+    const prefix = g.stops.filter((stop: any) => stop.address.kind === "authored-inline" && stop.address.inlineId === "inline:prefix")
+    const suffix = g.stops.filter((stop: any) => stop.address.kind === "authored-inline" && stop.address.inlineId === "inline:suffix")
+    expect(prefix.every((stop: any) => stop.lineIndex === prefixLine && stop.pageIndex === 0 && stop.offsetUtf16 === 0)).toBe(true)
+    expect(suffix.every((stop: any) => stop.lineIndex === suffixLine && stop.pageIndex === 0 && stop.offsetUtf16 === 0)).toBe(true)
+  })
+  it("keeps both affinities, hit candidates and empty suffix geometry after a trailing LF crosses pages", () => {
+    const value = "A\n".repeat(42), f = fixture(value, "", ""), g = create(f)
+    const field = g.stops.filter((stop: any) => stop.address.kind === "field-value")
+    const before = field.filter((stop: any) => stop.offsetUtf16 === value.length - 1)
+    const after = field.filter((stop: any) => stop.offsetUtf16 === value.length)
+    expect(new Set(before.map((stop: any) => stop.affinity))).toEqual(new Set(["upstream", "downstream"]))
+    expect(before.every((stop: any) => stop.pageIndex === 0 && stop.lineIndex === 41)).toBe(true)
+    expect(new Set(after.map((stop: any) => stop.affinity))).toEqual(new Set(["upstream", "downstream"]))
+    expect(after.every((stop: any) => stop.pageIndex === 1 && stop.lineIndex === 42 && stop.xPt === 36 && stop.yPt === 36)).toBe(true)
+    const hit = api.hitTestVNextCreatorTextV1(g, f.binding, { pageIndex: 1, xPt: 36, yPt: 45 })
+    expect(hit.candidates.some((stop: any) => stop.address.kind === "field-value" && stop.offsetUtf16 === value.length)).toBe(true)
+    const suffix = g.stops.filter((stop: any) => stop.address.kind === "authored-inline" && stop.address.inlineId === "inline:suffix")
+    expect(suffix.every((stop: any) => stop.pageIndex === 1 && stop.lineIndex === 42 && stop.xPt === 36 && stop.yPt === 36)).toBe(true)
+    const selection = api.selectVNextCreatorTextV1(g, f.binding, { anchor: position(before.find((stop: any) => stop.affinity === "downstream")), focus: position(after.find((stop: any) => stop.affinity === "downstream")) })
+    expect(selection.rectangles.flatMap((rectangle: any) => rectangle.sourceRanges)).toContainEqual(expect.objectContaining({ startUtf16: value.length - 1, endUtf16: value.length }))
+  })
   it("retains authored and value addresses and discloses coincident candidates", () => {
     const f = fixture("", "A", "B"), g = create(f)
     const empty = g.stops.find((s: any) => s.address.kind === "field-value")
