@@ -21,4 +21,23 @@ describe("Creator line planning width boundaries with controlled facts", () => {
   it("rejects one unsplittable cluster wider than a full line", () => {
     expect(() => prepareCreatorPreviewLinesV1(source("X"), provider({ X: 43607 }, [0, 1]))).toThrow(/cluster exceeds the body width/)
   })
+  it("keeps LF as an exact forced-break atom outside every shaping and segmentation call", () => {
+    const shaped: string[] = [], segmented: string[] = []
+    const facts: VNextCreatorPreviewRawMeasurementProviderV1 = {
+      segment: text => { segmented.push(text); return text.length ? [0, text.length] : [0] },
+      shape: text => {
+        shaped.push(text)
+        if (text.includes("\n")) throw new Error("LF reached the shaper")
+        return { text, unitsPerEm: 1000, ascentFontUnit: 1068, descentFontUnit: -232,
+          glyphs: [...text].map((_, clusterUtf16) => ({ glyphId: 1, clusterUtf16, xAdvance: 1000, yAdvance: 0, xOffset: 0, yOffset: 0 })) }
+      },
+    }
+    const lines = prepareCreatorPreviewLinesV1(source("A\nB"), facts)
+    expect(lines.map(line => line.map(cluster => [cluster.start, cluster.end, cluster.explicitBreak === true]))).toEqual([
+      [[0, 1, false], [1, 2, true]], [[2, 3, false]],
+    ])
+    expect(shaped.length).toBeGreaterThan(0)
+    expect(shaped.every(text => !text.includes("\n"))).toBe(true)
+    expect(segmented).toEqual(["A", "B"])
+  })
 })

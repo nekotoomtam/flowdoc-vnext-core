@@ -23,7 +23,7 @@ export interface CreatorTextSpanDataV1 {
   paragraphStartUtf16: number; paragraphEndUtf16: number; pageIndex: number; lineIndex: number; rectPt: VNextCreatorPreviewRectPtV1
 }
 export interface CreatorTextGeometryDataV1 {
-  boundaryPolicy: "shaping-cluster-edges/1"
+  boundaryPolicy: "shaping-cluster-edges/1" | "shaping-cluster-and-explicit-break-edges/1"
   selectionPolicy: "logical-cluster-advances/1"
   hitPolicy: "same-page-nearest-line-then-stop/1"
   tieOrder: "line-paragraph-inline-downstream-first/1"

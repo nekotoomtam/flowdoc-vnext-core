@@ -14,6 +14,12 @@ export function isVNextCreatorPreviewTextV1(value: string): boolean {
   for (const scalar of value) { const point = scalar.codePointAt(0)!; if (point >= 0xd800 && point <= 0xdfff) return false }
   return true
 }
+const fieldText = z.string().refine(isVNextCreatorPreviewFieldTextV1, "Unsupported field Unicode text")
+export function isVNextCreatorPreviewFieldTextV1(value: string): boolean {
+  if (/[\u0000-\u0009\u000b-\u001f\u007f-\u009f\u061c\u200e\u200f\u2028-\u202e\u2066-\u2069]/u.test(value)) return false
+  for (const scalar of value) { const point = scalar.codePointAt(0)!; if (point >= 0xd800 && point <= 0xdfff) return false }
+  return true
+}
 const page = { orientation: z.literal("portrait"), pageWidth: z.literal(210), pageHeight: z.literal(297), pageUnit: z.literal("mm") }
 const staticInline = z.object({ id, kind: z.literal("text"), text }).strict()
 const fieldInline = z.object({ id, kind: z.literal("field"), fieldId: id }).strict()
@@ -36,7 +42,7 @@ export const VNextCreatorTextDraftV1Schema = z.object({
   }).strict(),
 }).strict()
 export const VNextCreatorPreviewSimulationV1Schema = z.object({ source: z.literal("flowdoc-creator-preview-values"), contractVersion: z.literal(1), sessionId: id, simulationRevision: order,
-  entries: one(z.object({ slotId: id, entryId: id, values: z.array(z.object({ fieldId: id, value: text.max(8192) }).strict()).max(1) }).strict()),
+  entries: one(z.object({ slotId: id, entryId: id, values: z.array(z.object({ fieldId: id, value: fieldText.max(8192) }).strict()).max(1) }).strict()),
 }).strict()
 export type VNextCreatorTextDraftV1 = z.infer<typeof VNextCreatorTextDraftV1Schema>
 export type VNextCreatorPreviewSimulationV1 = z.infer<typeof VNextCreatorPreviewSimulationV1Schema>

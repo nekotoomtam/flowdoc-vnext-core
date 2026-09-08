@@ -8,7 +8,7 @@ function requireFact(condition: unknown, code: string, message: string): asserts
   if (!condition) throw new CreatorPreviewLayoutFailureV1(code, message)
 }
 export interface CreatorPreviewClusterV1 {
-  start: number; end: number; inlineIndex: number; advancePt: number; glyphs: VNextCreatorPreviewGlyphFactV1[]
+  start: number; end: number; inlineIndex: number; advancePt: number; glyphs: VNextCreatorPreviewGlyphFactV1[]; explicitBreak?: true
 }
 function shapeClusters(text: string, provider: VNextCreatorPreviewRawMeasurementProviderV1, inlineIndex: number, offset: number): CreatorPreviewClusterV1[] {
   if (!text.length) return []
@@ -34,14 +34,22 @@ function shapeClusters(text: string, provider: VNextCreatorPreviewRawMeasurement
   requireFact(clusters[0].start === offset, "unsupported-shaping", "Shaping did not cover the entire text")
   return clusters
 }
-export function prepareCreatorPreviewLinesV1(source: VNextCreatorTextResolvedV1, provider: VNextCreatorPreviewRawMeasurementProviderV1): CreatorPreviewClusterV1[][] {
-  const text = source.text, boundaries = [source.prefix.length, source.prefix.length + source.value.length]
-  const whole = shapeClusters(text, provider, -1, 0)
-  const wholeBoundaries = new Set([0, text.length, ...whole.map(cluster => cluster.start)])
+function prepareSoftWrappedLinesV1(parts: { text: string; inlineIndex: number }[], provider: VNextCreatorPreviewRawMeasurementProviderV1, paragraphOffset: number): CreatorPreviewClusterV1[][] {
+  const text = parts.map(part => part.text).join("")
+  const boundaries: number[] = []
+  let boundary = paragraphOffset
+  for (const part of parts.slice(0, -1)) { boundary += part.text.length; boundaries.push(boundary) }
+  const whole = shapeClusters(text, provider, -1, paragraphOffset)
+  const wholeBoundaries = new Set([paragraphOffset, paragraphOffset + text.length, ...whole.map(cluster => cluster.start)])
   for (const boundary of boundaries) {
-    requireFact(wholeBoundaries.has(boundary) && !/^\p{M}/u.test(text.slice(boundary)), "unsupported-field-boundary", "Field boundary cannot safely separate shaping clusters")
+    requireFact(wholeBoundaries.has(boundary) && !/^\p{M}/u.test(text.slice(boundary - paragraphOffset)), "unsupported-field-boundary", "Field boundary cannot safely separate shaping clusters")
   }
-  const clusters = [source.prefix, source.value, source.suffix].flatMap((part, index) => shapeClusters(part, provider, index, index === 0 ? 0 : boundaries[index - 1]))
+  let partOffset = paragraphOffset
+  const clusters = parts.flatMap(part => {
+    const shaped = shapeClusters(part.text, provider, part.inlineIndex, partOffset)
+    partOffset += part.text.length
+    return shaped
+  })
   const breaks = text.length ? provider.segment(text) : [0]
   requireFact(Array.isArray(breaks) && breaks[0] === 0 && breaks.at(-1) === text.length && breaks.every((offset, index) => Number.isSafeInteger(offset) && offset >= 0 && offset <= text.length && (index === 0 || offset > breaks[index - 1])), "invalid-line-breaks", "Paragraph break facts mismatch")
   const width = profile.pageWidthPt - 2 * profile.marginPt
@@ -53,7 +61,7 @@ export function prepareCreatorPreviewLinesV1(source: VNextCreatorTextResolvedV1,
       let groupEnd = groupStart + 1
       while (groupEnd < end && clusters[groupEnd].inlineIndex === clusters[groupStart].inlineIndex) groupEnd++
       const offset = clusters[groupStart].start, stop = clusters[groupEnd - 1].end
-      shaped.push(...shapeClusters(text.slice(offset, stop), provider, clusters[groupStart].inlineIndex, offset))
+      shaped.push(...shapeClusters(text.slice(offset - paragraphOffset, stop - paragraphOffset), provider, clusters[groupStart].inlineIndex, offset))
       groupStart = groupEnd
     }
     return shaped
@@ -78,8 +86,35 @@ export function prepareCreatorPreviewLinesV1(source: VNextCreatorTextResolvedV1,
     // ICU facts remain validated above, but do not force an ordinary-word break.
     requireFact(end > start, "cluster-too-wide", "A line-final shaping cluster exceeds the body width")
     lines.push(shapedLine); start = end
-    const linesPerPage = Math.floor((profile.pageHeightPt - 2 * profile.marginPt) / profile.lineHeightPt)
-    requireFact(lines.length <= linesPerPage * profile.maxPages, "page-limit", "Preview exceeds 100 pages")
   }
+  const linesPerPage = Math.floor((profile.pageHeightPt - 2 * profile.marginPt) / profile.lineHeightPt)
+  requireFact(lines.length <= linesPerPage * profile.maxPages, "page-limit", "Preview exceeds 100 pages")
   return lines.length ? lines : [[]]
+}
+
+export function prepareCreatorPreviewLinesV1(source: VNextCreatorTextResolvedV1, provider: VNextCreatorPreviewRawMeasurementProviderV1): CreatorPreviewClusterV1[][] {
+  if (!source.value.includes("\n")) return prepareSoftWrappedLinesV1([
+    { text: source.prefix, inlineIndex: 0 }, { text: source.value, inlineIndex: 1 }, { text: source.suffix, inlineIndex: 2 },
+  ], provider, 0)
+
+  const values = source.value.split("\n"), lines: CreatorPreviewClusterV1[][] = []
+  let paragraphOffset = 0
+  for (let index = 0; index < values.length; index++) {
+    requireFact(!/^\p{M}/u.test(values[index]), "unsupported-field-boundary", "Field boundary cannot safely separate shaping clusters")
+    const parts = [
+      ...(index === 0 ? [{ text: source.prefix, inlineIndex: 0 }] : []),
+      { text: values[index], inlineIndex: 1 },
+      ...(index === values.length - 1 ? [{ text: source.suffix, inlineIndex: 2 }] : []),
+    ]
+    const segmentLines = prepareSoftWrappedLinesV1(parts, provider, paragraphOffset)
+    lines.push(...segmentLines)
+    paragraphOffset += parts.reduce((sum, part) => sum + part.text.length, 0)
+    if (index < values.length - 1) {
+      lines.at(-1)!.push({ start: paragraphOffset, end: paragraphOffset + 1, inlineIndex: 1, advancePt: 0, glyphs: [], explicitBreak: true })
+      paragraphOffset++
+    }
+  }
+  const linesPerPage = Math.floor((profile.pageHeightPt - 2 * profile.marginPt) / profile.lineHeightPt)
+  requireFact(lines.length <= linesPerPage * profile.maxPages, "page-limit", "Preview exceeds 100 pages")
+  return lines
 }

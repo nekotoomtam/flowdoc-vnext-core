@@ -46,6 +46,48 @@ describe("creator product text layout with pinned real WASM", () => {
     expect(result.occurrences[0].regions[0].rectPt.x).toBe(field.xPt)
     expect(result.occurrences[0].regions[0].rectPt.width).toBe(field.advancePt)
   })
+  it("lays out LF as a zero-ink forced break without sending it to the shaper", () => {
+    const source = draft()
+    source.content.patterns[0].blocks[0].inlines[0].text = "P"
+    source.content.patterns[0].blocks[0].inlines[2].text = "S"
+    const result = layout(request("A\nB", source))
+    expect(result.status).toBe("ready")
+    const commands = result.pages.flatMap((page: any) => page.paintCommands)
+    expect(commands.map((command: any) => command.text).join("")).toBe("PABS")
+    expect(commands.every((command: any) => !command.text.includes("\n") && command.glyphs.every((glyph: any) => glyph.glyphId > 0))).toBe(true)
+    expect(commands.map((command: any) => [command.text, command.lineIndex])).toEqual([["P", 0], ["A", 0], ["B", 1], ["S", 1]])
+    expect(result.occurrences[0].regions).toEqual(expect.arrayContaining([
+      expect.objectContaining({ kind: "explicit-break", lineIndex: 0, valueRange: { startUtf16: 1, endUtf16: 2 }, rectPt: expect.objectContaining({ width: 0 }) }),
+    ]))
+  })
+  it.each([
+    ["\nA", "P", "S", [["P", 0], ["A", 1], ["S", 1]]],
+    ["A\n", "P", "S", [["P", 0], ["A", 0], ["S", 1]]],
+    ["A\n\nB", "", "", [["A", 0], ["B", 2]]],
+  ])("preserves leading, trailing and consecutive forced-break lines for %j", (value, prefix, suffix, expected) => {
+    const source = draft()
+    source.content.patterns[0].blocks[0].inlines[0].text = prefix
+    source.content.patterns[0].blocks[0].inlines[2].text = suffix
+    const result = layout(request(value, source))
+    expect(result.status).toBe("ready")
+    const commands = result.pages.flatMap((page: any) => page.paintCommands)
+    expect(commands.map((command: any) => [command.text, command.lineIndex])).toEqual(expected)
+    expect(result.occurrences[0].regions.filter((region: any) => region.kind === "explicit-break")).toHaveLength(value.split("\n").length - 1)
+  })
+  it("flows forced breaks across the 42-line page boundary", () => {
+    const source = draft()
+    source.content.patterns[0].blocks[0].inlines[0].text = ""
+    source.content.patterns[0].blocks[0].inlines[2].text = ""
+    const result = layout(request("A\n".repeat(42) + "B", source))
+    expect(result.status).toBe("ready")
+    expect(result.pages).toHaveLength(2)
+    const last = result.pages[1].paintCommands.at(-1)
+    expect(last).toMatchObject({ text: "B", pageIndex: 1, lineIndex: 42, xPt: 36 })
+  })
+  it("keeps the existing unsupported combining-boundary guard after a forced break", () => {
+    expect(layout(request("A\n\u0301"))).toMatchObject({ status: "blocked", pages: null, occurrences: null,
+      issues: [expect.objectContaining({ code: "unsupported-field-boundary" })] })
+  })
   it("looks up real mixed/compound/Thai glyph IDs and paints at Core positions without reshaping", async () => {
     const outlines = await core.createVNextCreatorGlyphOutlineProviderV1({ fontBytes: assets().fontBytes,
       outlineBytes: bytes("packages/text-engine-rust-wasm/assets/creator-sarabun-outlines.v1.json") })

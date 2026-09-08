@@ -17,7 +17,7 @@ export interface VNextCreatorTextPreviewInputV1 {
 export interface VNextCreatorPreviewRectPtV1 { x: number; y: number; width: number; height: number }
 export interface VNextCreatorPreviewRegionV1 {
   pageIndex: number; fragmentId: string; lineIndex: number; rectPt: VNextCreatorPreviewRectPtV1
-  valueRange: { startUtf16: number; endUtf16: number }; anchorPt: { x: number; y: number; height: number }; kind: "text" | "empty"
+  valueRange: { startUtf16: number; endUtf16: number }; anchorPt: { x: number; y: number; height: number }; kind: "text" | "empty" | "explicit-break"
 }
 export interface VNextCreatorPreviewPaintCommandV1 {
   kind: "positioned-glyphs"; authority: "creator-text-preview/1"; pageIndex: number; lineIndex: number; inlineId: string
@@ -42,8 +42,15 @@ function materialize(source: VNextCreatorTextResolvedV1, lines: CreatorPreviewCl
       bodyPt: { x: 36, y: 36, width: profile.pageWidthPt - 72, height: profile.pageHeightPt - 72 }, paintCommands: [] })
     let x = 36, cursor = 0
     while (cursor < line.length) {
-      const group: CreatorPreviewClusterV1[] = [line[cursor++]]
-      while (cursor < line.length && line[cursor].inlineIndex === group[0].inlineIndex) group.push(line[cursor++])
+      const first = line[cursor++]
+      if (first.explicitBreak) {
+        regions.push({ pageIndex, lineIndex, fragmentId: JSON.stringify([source.occurrenceId, "explicit-break", first.start]),
+          rectPt: { x, y, width: 0, height: 18 }, anchorPt: { x, y, height: 18 }, kind: "explicit-break",
+          valueRange: { startUtf16: first.start - source.prefix.length, endUtf16: first.end - source.prefix.length } })
+        continue
+      }
+      const group: CreatorPreviewClusterV1[] = [first]
+      while (cursor < line.length && !line[cursor].explicitBreak && line[cursor].inlineIndex === group[0].inlineIndex) group.push(line[cursor++])
       const start = group[0].start, end = group.at(-1)!.end, width = group.reduce((total, cluster) => total + cluster.advancePt, 0)
       const baselinePt = y + 14.016 // Sarabun: 12.816pt ascent + 1.2pt half-leading in an 18pt line.
       const command: VNextCreatorPreviewPaintCommandV1 = { kind: "positioned-glyphs", authority: "creator-text-preview/1", pageIndex, lineIndex,

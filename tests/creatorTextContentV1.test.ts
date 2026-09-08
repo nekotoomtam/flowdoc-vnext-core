@@ -33,6 +33,18 @@ describe("creator text content admission", () => {
     expect(result.validationIssues[0].code).toBe("required-empty")
     expect(validate(creatorDraft(), creatorSimulation("   ")).resolved.value).toBe("   ")
   })
+  it("admits LF only in simulation field values and preserves its exact UTF-16 unit", () => {
+    const value = "ไทย\nLatin"
+    const result = validate(creatorDraft(), creatorSimulation(value))
+    expect(result.status).toBe("accepted")
+    expect(result.resolved.value).toBe(value)
+    expect(result.resolved.text).toBe(`Dear ${value}, welcome.`)
+
+    for (const value of ["a\rb", "a\r\nb"]) expect(validate(creatorDraft(), creatorSimulation(value)).status).toBe("blocked")
+    const draft = creatorDraft()
+    draft.content.patterns[0].blocks[0].inlines[0].text = "Dear\n"
+    expect(validate(draft, creatorSimulation("Alice")).status).toBe("blocked")
+  })
   it.each([
     (d: any) => d.content.patterns[0].blocks[0].inlines[1].fieldId = "missing",
     (d: any) => d.content.sections[0].items[0].slotId = "missing",
@@ -51,7 +63,7 @@ describe("creator text content admission", () => {
     const draft = creatorDraft(); mutate(draft)
     expect(validate(draft, creatorSimulation())).toMatchObject({ status: "blocked", resolved: null })
   })
-  it.each([null, 1, "a\nb", "a\tb", "\ud800", "\u202eabc", "x".repeat(8193)])("rejects invalid values", (value) => {
+  it.each([null, 1, "a\tb", "\ud800", "\u202eabc", "x".repeat(8193)])("rejects invalid values", (value) => {
     expect(validate(creatorDraft(), creatorSimulation(value)).status).toBe("blocked")
   })
   it.each([

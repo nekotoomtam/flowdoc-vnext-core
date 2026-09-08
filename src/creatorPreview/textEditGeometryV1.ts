@@ -15,7 +15,7 @@ function requireGeometry(geometry: VNextCreatorTextEditGeometryV1, expected: VNe
   if (!geometry || !admitted.has(geometry)) throw new Error("Creator geometry is not admitted in this runtime")
   requireBinding(geometry.binding, expected)
 }
-/** Experimental shaping-cluster edges, NOT complete Thai/user-grapheme stops.
+/** Experimental shaping-cluster and admitted explicit-break edges, NOT complete Thai/user-grapheme stops.
  * Only authentic same-runtime Creator ready results are admitted; copied/wire
  * results must be recreated by Core. No shaping or mutation occurs in queries.
  * Authored prefix/suffix facts do not map a Build field label or grant edit rights.

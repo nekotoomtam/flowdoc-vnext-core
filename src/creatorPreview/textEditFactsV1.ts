@@ -1,5 +1,6 @@
 import { stringifyVNextCanonicalJson } from "../fingerprint/canonicalJson.js"
 import { requireCreatorEditLayoutV1 } from "./textEditAdmissionV1.js"
+import { VNEXT_CREATOR_PREVIEW_LAYOUT_PROFILE_V1 as profile } from "./engineV1.js"
 import type { CreatorTextCaretDataV1, CreatorTextGeometryDataV1, VNextCreatorTextAddressV1, VNextCreatorTextEditBindingV1 } from "./textEditGeometryContractV1.js"
 
 export function buildCreatorEditFactsV1(record: ReturnType<typeof requireCreatorEditLayoutV1>, binding: VNextCreatorTextEditBindingV1): CreatorTextGeometryDataV1 {
@@ -10,7 +11,7 @@ export function buildCreatorEditFactsV1(record: ReturnType<typeof requireCreator
     : { kind: "authored-inline", sectionId: tuple.sectionId, placementId: tuple.placementId, patternId: tuple.patternId, patternDraftId: tuple.patternDraftId, blockId: tuple.blockId, inlineId })
   const offsets = [0, source.prefix.length, source.prefix.length + source.value.length]
   const texts = [source.prefix, source.value, source.suffix]
-  const data: CreatorTextGeometryDataV1 = { boundaryPolicy: "shaping-cluster-edges/1", selectionPolicy: "logical-cluster-advances/1",
+  const data: CreatorTextGeometryDataV1 = { boundaryPolicy: source.value.includes("\n") ? "shaping-cluster-and-explicit-break-edges/1" : "shaping-cluster-edges/1", selectionPolicy: "logical-cluster-advances/1",
     hitPolicy: "same-page-nearest-line-then-stop/1", tieOrder: "line-paragraph-inline-downstream-first/1", binding, stops: [], spans: [],
     pages: result.pages.map(page => ({ pageIndex: page.index, widthPt: page.widthPt, heightPt: page.heightPt })) }
   function stop(index: number, offset: number, affinity: "upstream" | "downstream", pageIndex: number, lineIndex: number, xPt: number, yPt: number) {
@@ -28,6 +29,17 @@ export function buildCreatorEditFactsV1(record: ReturnType<typeof requireCreator
       data.spans.push({ address: addresses[index], startUtf16: start - offsets[index], endUtf16: end - offsets[index], paragraphStartUtf16: start, paragraphEndUtf16: end,
         pageIndex: page.index, lineIndex: command.lineIndex, rectPt: { x, y, width: pen - x, height: 18 } })
     }
+  }
+  for (const region of result.occurrences[0].regions) if (region.kind === "explicit-break") {
+    const start = offsets[1] + region.valueRange.startUtf16, end = offsets[1] + region.valueRange.endUtf16
+    stop(1, start, "downstream", region.pageIndex, region.lineIndex, region.anchorPt.x, region.anchorPt.y)
+    const nextLine = region.lineIndex + 1
+    const linesPerPage = Math.floor((profile.pageHeightPt - 2 * profile.marginPt) / profile.lineHeightPt)
+    const nextPage = Math.floor(nextLine / linesPerPage), nextY = profile.marginPt + (nextLine % linesPerPage) * profile.lineHeightPt
+    stop(1, end, "upstream", nextPage, nextLine, 36, nextY)
+    data.spans.push({ address: addresses[1], startUtf16: region.valueRange.startUtf16, endUtf16: region.valueRange.endUtf16,
+      paragraphStartUtf16: start, paragraphEndUtf16: end, pageIndex: region.pageIndex, lineIndex: region.lineIndex,
+      rectPt: { x: region.anchorPt.x, y: region.anchorPt.y, width: 0, height: 18 } })
   }
   // Empty source addresses have their own identity even at coincident positions.
   const paintStops = data.stops.slice(), firstPaintStop = paintStops[0], lastPaintStop = paintStops.at(-1)
@@ -58,5 +70,6 @@ export function buildCreatorEditFactsV1(record: ReturnType<typeof requireCreator
   }
   data.stops.sort((a, b) => a.lineIndex - b.lineIndex || a.paragraphOffsetUtf16 - b.paragraphOffsetUtf16
     || source.inlineIds.indexOf(a.address.inlineId) - source.inlineIds.indexOf(b.address.inlineId) || (a.affinity === b.affinity ? 0 : a.affinity === "downstream" ? -1 : 1))
+  data.spans.sort((a, b) => a.paragraphStartUtf16 - b.paragraphStartUtf16 || a.paragraphEndUtf16 - b.paragraphEndUtf16)
   return data
 }
