@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import {
   evaluateRunOwnedSemanticOracleStage2,
+  type RunOwnedAuthoredSpan,
   type RunOwnedParagraphContext,
   type RunOwnedProviderRun,
   type RunOwnedSemanticOracleStage2Input,
@@ -16,17 +17,31 @@ function inputFor(
   text: string,
   providerRuns: readonly RunOwnedProviderRun[],
   caretOffset: number,
+  authoredSpans: readonly RunOwnedAuthoredSpan[] = [{
+    spanId: "span-1",
+    startOffset: 0,
+    endOffset: text.length,
+    text,
+    language: "und",
+    styleKey: "body",
+  }],
 ): RunOwnedSemanticOracleStage2Input {
+  const leftProviderRun = [...providerRuns].reverse().find((run) => (
+    run.startOffset < caretOffset && run.endOffset >= caretOffset
+  ))!
+  const rightProviderRun = providerRuns.find((run) => (
+    run.startOffset <= caretOffset && run.endOffset > caretOffset
+  ))!
+  const propertiesFor = (startOffset: number, endOffset: number) => authoredSpans
+    .filter((span) => span.startOffset < endOffset && span.endOffset > startOffset)
+    .map((span) => ({
+      spanId: span.spanId,
+      language: span.language ?? null,
+      styleKey: span.styleKey ?? null,
+    }))
   return {
     committedText: text,
-    authoredSpans: [{
-      spanId: "span-1",
-      startOffset: 0,
-      endOffset: text.length,
-      text,
-      language: "und",
-      styleKey: "body",
-    }],
+    authoredSpans,
     paragraph,
     caretOffset,
     composition: "committed" as const,
@@ -43,11 +58,22 @@ function inputFor(
         sourceFactUnits: 2,
         propertyFactUnits: 2,
         shapingAndSegmentationUnits: 2,
+        sourceBinding: {
+          committedText: text,
+          authoredSpans: authoredSpans.map(({ spanId, startOffset, endOffset }) => ({ spanId, startOffset, endOffset })),
+        },
+        providerId: "reviewed-provider-fixture",
+        providerRevision: "stage2-fixture-v1",
+        paragraphContext: { ...paragraph },
+        leftProviderRunId: leftProviderRun.runId,
+        rightProviderRunId: rightProviderRun.runId,
+        leftAuthoredProperties: propertiesFor(leftProviderRun.startOffset, caretOffset),
+        rightAuthoredProperties: propertiesFor(caretOffset, rightProviderRun.endOffset),
         edgeFacts: {
-          glyphFacts: ["glyph-boundary"],
-          clusterFacts: ["cluster-boundary"],
-          breakFacts: ["break-boundary"],
-          unsafeBoundaryFacts: ["no-unsafe-boundary"],
+          glyphFacts: [{ factId: "glyph-boundary", startOffset: Math.max(0, caretOffset - 1), endOffset: Math.min(text.length, caretOffset + 1) }],
+          clusterFacts: [{ factId: "cluster-boundary", startOffset: Math.max(0, caretOffset - 1), endOffset: Math.min(text.length, caretOffset + 1) }],
+          breakFacts: [{ factId: "break-boundary", startOffset: Math.max(0, caretOffset - 1), endOffset: Math.min(text.length, caretOffset + 1) }],
+          unsafeBoundaryEvidence: { status: "safe", caretOffset },
         },
       }],
     },
@@ -56,6 +82,7 @@ function inputFor(
 
 function latinRun(startOffset: number, endOffset: number): RunOwnedProviderRun {
   return {
+    runId: `latin-${startOffset}-${endOffset}`,
     startOffset,
     endOffset,
     script: "Latin",
@@ -84,10 +111,10 @@ describe("run-owned semantic oracle stage 2", () => {
           leftAnalysisKey: expect.objectContaining({ script: "Latin", direction: "ltr" }),
           rightAnalysisKey: expect.objectContaining({ script: "Latin", direction: "ltr" }),
           edgeFacts: expect.objectContaining({
-            glyphFacts: ["glyph-boundary"],
-            clusterFacts: ["cluster-boundary"],
-            breakFacts: ["break-boundary"],
-            unsafeBoundaryFacts: ["no-unsafe-boundary"],
+            glyphFacts: [expect.objectContaining({ factId: "glyph-boundary" })],
+            clusterFacts: [expect.objectContaining({ factId: "cluster-boundary" })],
+            breakFacts: [expect.objectContaining({ factId: "break-boundary" })],
+            unsafeBoundaryEvidence: { status: "safe", caretOffset: 1 },
           }),
         }),
       }),
@@ -142,6 +169,7 @@ describe("run-owned semantic oracle stage 2", () => {
       latinRun(1, 2),
     ], 1)
     input.paragraph = { ...paragraph, baseDirection: "rtl" }
+    input.provider.seamCertificates[0]!.paragraphContext = { ...input.paragraph }
     const result = evaluateRunOwnedSemanticOracleStage2(input)
 
     expect(input.paragraph.baseDirection).toBe("rtl")
@@ -160,5 +188,66 @@ describe("run-owned semantic oracle stage 2", () => {
 
     expect(evaluateRunOwnedSemanticOracleStage2(missing).decision).toEqual({ status: "not-admissible", reason: "uncertified-seam" })
     expect(evaluateRunOwnedSemanticOracleStage2(overBudget).decision).toEqual({ status: "not-admissible", reason: "uncertified-seam" })
+  })
+
+  it("rejects unsafe, malformed, and provenance-mismatched seam certificates", () => {
+    const unsafe = inputFor("AB", [latinRun(0, 2)], 1)
+    unsafe.provider.seamCertificates[0]!.edgeFacts.unsafeBoundaryEvidence = { status: "unsafe", reason: "provider-unsafe" }
+    const malformed = inputFor("AB", [latinRun(0, 2)], 1)
+    malformed.provider.seamCertificates[0]!.edgeFacts.glyphFacts = [{ factId: "bad-range", startOffset: 2, endOffset: 1 }]
+    const sourceMismatch = inputFor("AB", [latinRun(0, 2)], 1)
+    sourceMismatch.provider.seamCertificates[0]!.sourceBinding.committedText = "other"
+    const providerMismatch = inputFor("AB", [latinRun(0, 2)], 1)
+    providerMismatch.provider.seamCertificates[0]!.providerRevision = "other-provider-revision"
+
+    expect(evaluateRunOwnedSemanticOracleStage2(unsafe).decision).toEqual({ status: "not-admissible", reason: "uncertified-seam" })
+    expect(evaluateRunOwnedSemanticOracleStage2(malformed).decision).toEqual({ status: "not-admissible", reason: "uncertified-seam" })
+    expect(evaluateRunOwnedSemanticOracleStage2(sourceMismatch).decision).toEqual({ status: "not-admissible", reason: "uncertified-seam" })
+    expect(evaluateRunOwnedSemanticOracleStage2(providerMismatch).decision).toEqual({ status: "not-admissible", reason: "uncertified-seam" })
+  })
+
+  it("binds Thai-left and Latin-right authored language/style properties into each certified run", () => {
+    const authoredSpans: RunOwnedAuthoredSpan[] = [
+      { spanId: "thai-authored", startOffset: 0, endOffset: 1, text: "ก", language: "th", styleKey: "thai-body" },
+      { spanId: "latin-authored", startOffset: 1, endOffset: 2, text: "A", language: "en", styleKey: "latin-emphasis" },
+    ]
+    const input = inputFor("กA", [
+      { ...latinRun(0, 1), runId: "thai-provider", script: "Thai", language: "th", fontId: "Sarabun-Thai" },
+      { ...latinRun(1, 2), runId: "latin-provider" },
+    ], 1, authoredSpans)
+    const result = evaluateRunOwnedSemanticOracleStage2(input)
+
+    expect(result).toMatchObject({ decision: { status: "certified" } })
+    expect(result.runs.map((run) => run.authoredProperties)).toEqual([
+      [{ spanId: "thai-authored", language: "th", styleKey: "thai-body" }],
+      [{ spanId: "latin-authored", language: "en", styleKey: "latin-emphasis" }],
+    ])
+    input.authoredSpans[1]!.styleKey = "latin-revised"
+    expect(evaluateRunOwnedSemanticOracleStage2(input).decision).toEqual({ status: "not-admissible", reason: "uncertified-seam" })
+  })
+
+  it("keeps fixed RTL paragraph context while paired first-strong orders derive different run direction facts", () => {
+    const fixedContext: RunOwnedParagraphContext = { ...paragraph, baseDirection: "rtl" }
+    const hebrewFirst = inputFor("אA", [
+      { ...latinRun(0, 1), runId: "hebrew-left", script: "Hebrew", direction: "rtl", language: "he", fontId: "Sarabun-Hebrew" },
+      { ...latinRun(1, 2), runId: "latin-right" },
+    ], 1)
+    hebrewFirst.paragraph = fixedContext
+    hebrewFirst.provider.seamCertificates[0]!.paragraphContext = { ...fixedContext }
+    const latinFirst = inputFor("Aא", [
+      { ...latinRun(0, 1), runId: "latin-left" },
+      { ...latinRun(1, 2), runId: "hebrew-right", script: "Hebrew", direction: "rtl", language: "he", fontId: "Sarabun-Hebrew" },
+    ], 1)
+    latinFirst.paragraph = fixedContext
+    latinFirst.provider.seamCertificates[0]!.paragraphContext = { ...fixedContext }
+
+    expect(evaluateRunOwnedSemanticOracleStage2(hebrewFirst).runs.map((run) => [run.analysisKey.script, run.analysisKey.direction, run.analysisKey.paragraphBaseDirection])).toEqual([
+      ["Hebrew", "rtl", "rtl"],
+      ["Latin", "ltr", "rtl"],
+    ])
+    expect(evaluateRunOwnedSemanticOracleStage2(latinFirst).runs.map((run) => [run.analysisKey.script, run.analysisKey.direction, run.analysisKey.paragraphBaseDirection])).toEqual([
+      ["Latin", "ltr", "rtl"],
+      ["Hebrew", "rtl", "rtl"],
+    ])
   })
 })

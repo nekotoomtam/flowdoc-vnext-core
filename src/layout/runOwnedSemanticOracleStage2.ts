@@ -20,6 +20,7 @@ export interface RunOwnedAuthoredSpan {
 }
 
 export interface RunOwnedProviderRun {
+  runId: string
   startOffset: number
   endOffset: number
   script: string
@@ -29,6 +30,27 @@ export interface RunOwnedProviderRun {
   features: readonly string[]
 }
 
+export interface RunOwnedAuthoredProperty {
+  spanId: string
+  language: string | null
+  styleKey: string | null
+}
+
+export interface RunOwnedSeamSourceBinding {
+  committedText: string
+  authoredSpans: readonly { spanId: string; startOffset: number; endOffset: number }[]
+}
+
+export interface RunOwnedSeamRangeFact {
+  factId: string
+  startOffset: number
+  endOffset: number
+}
+
+export type RunOwnedUnsafeBoundaryEvidence =
+  | { status: "safe"; caretOffset: number }
+  | { status: "unsafe"; reason: string }
+
 export interface RunOwnedSeamCertificate {
   certificateId: string
   caretOffset: number
@@ -37,11 +59,19 @@ export interface RunOwnedSeamCertificate {
   sourceFactUnits: number
   propertyFactUnits: number
   shapingAndSegmentationUnits: number
+  sourceBinding: RunOwnedSeamSourceBinding
+  providerId: string
+  providerRevision: string
+  paragraphContext: RunOwnedParagraphContext
+  leftProviderRunId: string
+  rightProviderRunId: string
+  leftAuthoredProperties: readonly RunOwnedAuthoredProperty[]
+  rightAuthoredProperties: readonly RunOwnedAuthoredProperty[]
   edgeFacts: {
-    glyphFacts: readonly string[]
-    clusterFacts: readonly string[]
-    breakFacts: readonly string[]
-    unsafeBoundaryFacts: readonly string[]
+    glyphFacts: readonly RunOwnedSeamRangeFact[]
+    clusterFacts: readonly RunOwnedSeamRangeFact[]
+    breakFacts: readonly RunOwnedSeamRangeFact[]
+    unsafeBoundaryEvidence: RunOwnedUnsafeBoundaryEvidence
   }
 }
 
@@ -65,6 +95,7 @@ export interface RunOwnedSemanticOracleStage2Input {
 export interface RunOwnedAnalysisKey {
   script: string
   direction: RunOwnedDirection
+  providerRunId: string
   paragraphBaseDirection: RunOwnedDirection
   writingMode: RunOwnedParagraphContext["writingMode"]
   language: string
@@ -80,6 +111,7 @@ export interface RunOwnedAnalysisRunDescriptor {
   endOffset: number
   text: string
   authoredSpanIds: readonly string[]
+  authoredProperties: readonly RunOwnedAuthoredProperty[]
   analysisKey: RunOwnedAnalysisKey
 }
 
@@ -99,6 +131,9 @@ export type RunOwnedBoundaryDecision =
     seamFacts: {
       leftSourceRange: { startOffset: number; endOffset: number }
       rightSourceRange: { startOffset: number; endOffset: number }
+      sourceBinding: RunOwnedSeamSourceBinding
+      providerId: string
+      providerRevision: string
       paragraphContext: RunOwnedParagraphContext
       leftAnalysisKey: RunOwnedAnalysisKey
       rightAnalysisKey: RunOwnedAnalysisKey
@@ -150,15 +185,19 @@ function hasValidAuthoredSpans(input: RunOwnedSemanticOracleStage2Input): boolea
 
 function hasValidProviderRuns(input: RunOwnedSemanticOracleStage2Input): boolean {
   let expectedStart = 0
+  const runIds = new Set<string>()
   for (const run of input.provider.runs) {
     if (!isValidRange(run, input.committedText.length)
       || run.startOffset === run.endOffset
       || run.startOffset !== expectedStart
+      || !run.runId
+      || runIds.has(run.runId)
       || !run.script
       || !run.language
       || !run.fontId) {
       return false
     }
+    runIds.add(run.runId)
     expectedStart = run.endOffset
   }
   return expectedStart === input.committedText.length
@@ -174,6 +213,16 @@ function authoredSpanIds(
     .map((span) => span.spanId)
 }
 
+function authoredProperties(
+  spans: readonly RunOwnedAuthoredSpan[],
+  startOffset: number,
+  endOffset: number,
+): readonly RunOwnedAuthoredProperty[] {
+  return spans
+    .filter((span) => span.startOffset < endOffset && span.endOffset > startOffset)
+    .map((span) => ({ spanId: span.spanId, language: span.language ?? null, styleKey: span.styleKey ?? null }))
+}
+
 function descriptor(
   input: RunOwnedSemanticOracleStage2Input,
   providerRun: RunOwnedProviderRun,
@@ -187,9 +236,11 @@ function descriptor(
     endOffset,
     text: input.committedText.slice(startOffset, endOffset),
     authoredSpanIds: authoredSpanIds(input.authoredSpans, startOffset, endOffset),
+    authoredProperties: authoredProperties(input.authoredSpans, startOffset, endOffset),
     analysisKey: {
       script: providerRun.script,
       direction: providerRun.direction,
+      providerRunId: providerRun.runId,
       paragraphBaseDirection: input.paragraph.baseDirection,
       writingMode: input.paragraph.writingMode,
       language: providerRun.language,
@@ -213,7 +264,33 @@ function deriveRuns(input: RunOwnedSemanticOracleStage2Input, splitAt?: number):
   })
 }
 
-function isCertifiedSeam(certificate: RunOwnedSeamCertificate, caretOffset: number, textLength: number): boolean {
+function sameJson(left: unknown, right: unknown): boolean {
+  return JSON.stringify(left) === JSON.stringify(right)
+}
+
+function hasValidRangeFacts(
+  facts: readonly RunOwnedSeamRangeFact[],
+  certificate: RunOwnedSeamCertificate,
+  textLength: number,
+): boolean {
+  const startOffset = certificate.leftSourceRange.startOffset
+  const endOffset = certificate.rightSourceRange.endOffset
+  return facts.length > 0 && facts.every((fact) => (
+    !!fact.factId
+    && isValidRange(fact, textLength)
+    && fact.startOffset >= startOffset
+    && fact.endOffset <= endOffset
+  ))
+}
+
+function isCertifiedSeam(
+  certificate: RunOwnedSeamCertificate,
+  input: RunOwnedSemanticOracleStage2Input,
+  leftRun: RunOwnedAnalysisRunDescriptor,
+  rightRun: RunOwnedAnalysisRunDescriptor,
+): boolean {
+  const { caretOffset, committedText, provider, paragraph, authoredSpans } = input
+  const textLength = committedText.length
   return certificate.caretOffset === caretOffset
     && isValidRange(certificate.leftSourceRange, textLength)
     && isValidRange(certificate.rightSourceRange, textLength)
@@ -225,10 +302,22 @@ function isCertifiedSeam(certificate: RunOwnedSeamCertificate, caretOffset: numb
     && certificate.propertyFactUnits <= 512
     && certificate.shapingAndSegmentationUnits >= 0
     && certificate.shapingAndSegmentationUnits <= 1024
-    && certificate.edgeFacts.glyphFacts.length > 0
-    && certificate.edgeFacts.clusterFacts.length > 0
-    && certificate.edgeFacts.breakFacts.length > 0
-    && certificate.edgeFacts.unsafeBoundaryFacts.length > 0
+    && sameJson(certificate.sourceBinding, {
+      committedText,
+      authoredSpans: authoredSpans.map(({ spanId, startOffset, endOffset }) => ({ spanId, startOffset, endOffset })),
+    })
+    && certificate.providerId === provider.providerId
+    && certificate.providerRevision === provider.providerRevision
+    && sameJson(certificate.paragraphContext, paragraph)
+    && certificate.leftProviderRunId === leftRun.analysisKey.providerRunId
+    && certificate.rightProviderRunId === rightRun.analysisKey.providerRunId
+    && sameJson(certificate.leftAuthoredProperties, leftRun.authoredProperties)
+    && sameJson(certificate.rightAuthoredProperties, rightRun.authoredProperties)
+    && hasValidRangeFacts(certificate.edgeFacts.glyphFacts, certificate, textLength)
+    && hasValidRangeFacts(certificate.edgeFacts.clusterFacts, certificate, textLength)
+    && hasValidRangeFacts(certificate.edgeFacts.breakFacts, certificate, textLength)
+    && certificate.edgeFacts.unsafeBoundaryEvidence.status === "safe"
+    && certificate.edgeFacts.unsafeBoundaryEvidence.caretOffset === caretOffset
 }
 
 function cloneAnalysisKey(key: RunOwnedAnalysisKey): RunOwnedAnalysisKey {
@@ -256,17 +345,16 @@ export function evaluateRunOwnedSemanticOracleStage2(
     return notAdmissible(input, derivedRuns, "uncertified-boundary")
   }
 
-  const certificate = input.provider.seamCertificates.find((candidate) => (
-    isCertifiedSeam(candidate, input.caretOffset, input.committedText.length)
-  ))
-  if (!certificate) {
-    return notAdmissible(input, derivedRuns, "uncertified-seam")
-  }
-
   const certifiedRuns = deriveRuns(input, input.caretOffset)
   const leftRun = [...certifiedRuns].reverse().find((run) => run.endOffset === input.caretOffset)
   const rightRun = certifiedRuns.find((run) => run.startOffset === input.caretOffset)
   if (!leftRun || !rightRun) {
+    return notAdmissible(input, derivedRuns, "uncertified-seam")
+  }
+  const certificate = input.provider.seamCertificates.find((candidate) => (
+    isCertifiedSeam(candidate, input, leftRun, rightRun)
+  ))
+  if (!certificate) {
     return notAdmissible(input, derivedRuns, "uncertified-seam")
   }
 
@@ -279,14 +367,20 @@ export function evaluateRunOwnedSemanticOracleStage2(
       seamFacts: {
         leftSourceRange: { ...certificate.leftSourceRange },
         rightSourceRange: { ...certificate.rightSourceRange },
+        sourceBinding: {
+          committedText: certificate.sourceBinding.committedText,
+          authoredSpans: certificate.sourceBinding.authoredSpans.map((span) => ({ ...span })),
+        },
+        providerId: certificate.providerId,
+        providerRevision: certificate.providerRevision,
         paragraphContext: { ...input.paragraph },
         leftAnalysisKey: cloneAnalysisKey(leftRun.analysisKey),
         rightAnalysisKey: cloneAnalysisKey(rightRun.analysisKey),
         edgeFacts: {
-          glyphFacts: [...certificate.edgeFacts.glyphFacts],
-          clusterFacts: [...certificate.edgeFacts.clusterFacts],
-          breakFacts: [...certificate.edgeFacts.breakFacts],
-          unsafeBoundaryFacts: [...certificate.edgeFacts.unsafeBoundaryFacts],
+          glyphFacts: certificate.edgeFacts.glyphFacts.map((fact) => ({ ...fact })),
+          clusterFacts: certificate.edgeFacts.clusterFacts.map((fact) => ({ ...fact })),
+          breakFacts: certificate.edgeFacts.breakFacts.map((fact) => ({ ...fact })),
+          unsafeBoundaryEvidence: { ...certificate.edgeFacts.unsafeBoundaryEvidence },
         },
       },
     },
