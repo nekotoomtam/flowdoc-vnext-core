@@ -5,6 +5,9 @@ import {
   type RunOwnedParagraphContext,
   type RunOwnedProviderRun,
   type RunOwnedSemanticOracleStage2Input,
+  type RunOwnedSeamCertificate,
+  type RunOwnedProofBinding,
+  type RunOwnedProofWork,
 } from "../src/layout/runOwnedSemanticOracleStage2.js"
 
 const paragraph: RunOwnedParagraphContext = {
@@ -39,6 +42,24 @@ function inputFor(
       language: span.language ?? null,
       styleKey: span.styleKey ?? null,
     }))
+  const binding: RunOwnedProofBinding = structuredClone({
+    committedText: text, authoredSpans, paragraph, providerId: "reviewed-provider-fixture",
+    providerRevision: "stage2-fixture-v1", runs: providerRuns,
+    graphemeSafeOffsets: [0, caretOffset, text.length], caretOffset,
+  })
+  const range = { startOffset: Math.max(0, caretOffset - 1), endOffset: Math.min(text.length, caretOffset + 1) }
+  const edgeFacts: RunOwnedSeamCertificate["edgeFacts"] = {
+    glyphFacts: [{ factId: "glyph-boundary", ...range }],
+    clusterFacts: [{ factId: "cluster-boundary", ...range }],
+    breakFacts: [{ factId: "break-boundary", ...range }],
+    unsafeBoundaryEvidence: { status: "safe", caretOffset },
+  }
+  const edge = { glyphFactIds: ["glyph-boundary"], clusterFactIds: ["cluster-boundary"], breakFactIds: ["break-boundary"], safety: "safe" as const }
+  const work: RunOwnedProofWork[] = (["before", "after"] as const).flatMap((phase) => (
+    (["source", "property", "shaping", "segmentation"] as const).map((kind) => ({
+      operationId: `${phase}-${kind}`, phase, kind, timing: "immediate", ranges: [{ ...range }],
+    }))
+  ))
   return {
     committedText: text,
     authoredSpans,
@@ -55,9 +76,19 @@ function inputFor(
         caretOffset,
         leftSourceRange: { startOffset: Math.max(0, caretOffset - 1), endOffset: caretOffset },
         rightSourceRange: { startOffset: caretOffset, endOffset: Math.min(text.length, caretOffset + 1) },
-        sourceFactUnits: 2,
-        propertyFactUnits: 2,
-        shapingAndSegmentationUnits: 2,
+        work,
+        beforeFacts: structuredClone(edgeFacts),
+        edgeSummaries: {
+          binding: structuredClone(binding),
+          before: { left: structuredClone(edge), right: structuredClone(edge) },
+          after: { left: structuredClone(edge), right: structuredClone(edge) },
+        },
+        outsideRangeValidity: {
+          binding: structuredClone(binding), status: "preserved",
+          ranges: [{ startOffset: 0, endOffset: range.startOffset }, { startOffset: range.endOffset, endOffset: text.length }]
+            .filter((outside) => outside.endOffset > outside.startOffset)
+            .map((outside) => ({ ...outside, beforeDigest: `sha256:${"a".repeat(64)}`, afterDigest: `sha256:${"a".repeat(64)}`, validity: "unchanged" })),
+        },
         sourceBinding: {
           committedText: text,
           authoredSpans: authoredSpans.map(({ spanId, startOffset, endOffset }) => ({ spanId, startOffset, endOffset })),
@@ -69,12 +100,7 @@ function inputFor(
         rightProviderRunId: rightProviderRun.runId,
         leftAuthoredProperties: propertiesFor(leftProviderRun.startOffset, caretOffset),
         rightAuthoredProperties: propertiesFor(caretOffset, rightProviderRun.endOffset),
-        edgeFacts: {
-          glyphFacts: [{ factId: "glyph-boundary", startOffset: Math.max(0, caretOffset - 1), endOffset: Math.min(text.length, caretOffset + 1) }],
-          clusterFacts: [{ factId: "cluster-boundary", startOffset: Math.max(0, caretOffset - 1), endOffset: Math.min(text.length, caretOffset + 1) }],
-          breakFacts: [{ factId: "break-boundary", startOffset: Math.max(0, caretOffset - 1), endOffset: Math.min(text.length, caretOffset + 1) }],
-          unsafeBoundaryEvidence: { status: "safe", caretOffset },
-        },
+        edgeFacts,
       }],
     },
   }
@@ -170,6 +196,8 @@ describe("run-owned semantic oracle stage 2", () => {
     ], 1)
     input.paragraph = { ...paragraph, baseDirection: "rtl" }
     input.provider.seamCertificates[0]!.paragraphContext = { ...input.paragraph }
+    input.provider.seamCertificates[0]!.edgeSummaries.binding.paragraph = { ...input.paragraph }
+    input.provider.seamCertificates[0]!.outsideRangeValidity.binding.paragraph = { ...input.paragraph }
     const result = evaluateRunOwnedSemanticOracleStage2(input)
 
     expect(input.paragraph.baseDirection).toBe("rtl")
@@ -184,7 +212,12 @@ describe("run-owned semantic oracle stage 2", () => {
     const missing = inputFor("office", [latinRun(0, 6)], 3)
     missing.provider.seamCertificates = []
     const overBudget = inputFor("office", [latinRun(0, 6)], 3)
-    overBudget.provider.seamCertificates[0]!.shapingAndSegmentationUnits = 1_025
+    overBudget.provider.seamCertificates[0]!.work = [
+      ...overBudget.provider.seamCertificates[0]!.work,
+      ...Array.from({ length: 509 }, (_, i): RunOwnedProofWork => ({
+        operationId: `extra-${i}`, kind: "shaping", phase: "after", timing: "deferred", ranges: [{ startOffset: 2, endOffset: 4 }],
+      })),
+    ]
 
     expect(evaluateRunOwnedSemanticOracleStage2(missing).decision).toEqual({ status: "not-admissible", reason: "uncertified-seam" })
     expect(evaluateRunOwnedSemanticOracleStage2(overBudget).decision).toEqual({ status: "not-admissible", reason: "uncertified-seam" })
@@ -234,12 +267,19 @@ describe("run-owned semantic oracle stage 2", () => {
     ], 1)
     hebrewFirst.paragraph = fixedContext
     hebrewFirst.provider.seamCertificates[0]!.paragraphContext = { ...fixedContext }
+    hebrewFirst.provider.seamCertificates[0]!.edgeSummaries.binding.paragraph = { ...fixedContext }
+    hebrewFirst.provider.seamCertificates[0]!.outsideRangeValidity.binding.paragraph = { ...fixedContext }
     const latinFirst = inputFor("Aא", [
       { ...latinRun(0, 1), runId: "latin-left" },
       { ...latinRun(1, 2), runId: "hebrew-right", script: "Hebrew", direction: "rtl", language: "he", fontId: "Sarabun-Hebrew" },
     ], 1)
     latinFirst.paragraph = fixedContext
     latinFirst.provider.seamCertificates[0]!.paragraphContext = { ...fixedContext }
+    latinFirst.provider.seamCertificates[0]!.edgeSummaries.binding.paragraph = { ...fixedContext }
+    latinFirst.provider.seamCertificates[0]!.outsideRangeValidity.binding.paragraph = { ...fixedContext }
+
+    expect(evaluateRunOwnedSemanticOracleStage2(hebrewFirst).decision.status).toBe("certified")
+    expect(evaluateRunOwnedSemanticOracleStage2(latinFirst).decision.status).toBe("certified")
 
     expect(evaluateRunOwnedSemanticOracleStage2(hebrewFirst).runs.map((run) => [run.analysisKey.script, run.analysisKey.direction, run.analysisKey.paragraphBaseDirection])).toEqual([
       ["Hebrew", "rtl", "rtl"],
@@ -249,5 +289,218 @@ describe("run-owned semantic oracle stage 2", () => {
       ["Latin", "ltr", "rtl"],
       ["Hebrew", "rtl", "rtl"],
     ])
+  })
+
+  it.each(["glyphFacts", "clusterFacts", "breakFacts"] as const)("rejects zero-length and far-edge-only %s", (kind) => {
+    for (const range of [{ startOffset: 3, endOffset: 3 }, { startOffset: 2, endOffset: 3 }]) {
+      const input = inputFor("office", [latinRun(0, 6)], 3)
+      input.provider.seamCertificates[0]!.edgeFacts[kind] = [{ factId: "incomplete", ...range }]
+      expect(evaluateRunOwnedSemanticOracleStage2(input).decision).toEqual({ status: "not-admissible", reason: "uncertified-seam" })
+    }
+  })
+
+  it("rejects caller counters even when a fractional or zero value is below the budget", () => {
+    for (const counter of [0, 0.5]) {
+      const input = inputFor("AB", [latinRun(0, 2)], 1)
+      Object.assign(input.provider.seamCertificates[0]!, { sourceFactUnits: counter })
+      expect(evaluateRunOwnedSemanticOracleStage2(input).decision.status).toBe("not-admissible")
+    }
+  })
+
+  it("requires edge summaries and outside-range validity proof", () => {
+    const input = inputFor("AB", [latinRun(0, 2)], 1)
+    // Runtime absence must be typed rejection, never a throw or accepted default.
+    Reflect.deleteProperty(input.provider.seamCertificates[0]!, "edgeSummaries")
+    Reflect.deleteProperty(input.provider.seamCertificates[0]!, "outsideRangeValidity")
+    expect(evaluateRunOwnedSemanticOracleStage2(input).decision.status).toBe("not-admissible")
+  })
+
+  it.each([
+    ["direction", "sideways"], ["features", ["liga", "liga"]],
+    ["features", [""]], ["features", [123]], ["features", ["not-a-feature"]],
+  ])("rejects malformed runtime run field %s = %j", (field, value) => {
+    const input = inputFor("AB", [latinRun(0, 2)], 1)
+    Object.assign(input.provider.runs[0]!, { [field as string]: value })
+    expect(evaluateRunOwnedSemanticOracleStage2(input).decision).toEqual({ status: "not-admissible", reason: "invalid-provider-facts" })
+  })
+
+  it("rejects empty provider and authored identities and duplicate span IDs", () => {
+    for (const field of ["providerId", "providerRevision"]) {
+      const input = inputFor("AB", [latinRun(0, 2)], 1)
+      Object.assign(input.provider, { [field]: "" })
+      expect(evaluateRunOwnedSemanticOracleStage2(input).decision).toEqual({ status: "not-admissible", reason: "invalid-provider-facts" })
+    }
+    for (const ids of [["", "b"], ["same", "same"]]) {
+      const input = inputFor("AB", [latinRun(0, 2)], 1)
+      input.authoredSpans = [
+        { spanId: ids[0]!, startOffset: 0, endOffset: 1, text: "A" },
+        { spanId: ids[1]!, startOffset: 1, endOffset: 2, text: "B" },
+      ]
+      expect(evaluateRunOwnedSemanticOracleStage2(input).decision).toEqual({ status: "not-admissible", reason: "invalid-provider-facts" })
+    }
+  })
+
+  it.each(["source", "property", "shaping", "segmentation"] as const)("charges repeated and deferred %s work at the exact ceiling", (kind) => {
+    const input = inputFor("office", [latinRun(0, 6)], 3)
+    const certificate = input.provider.seamCertificates[0]!
+    const count = kind === "source" || kind === "property" ? 254 : 508
+    const extra = (i: number): RunOwnedProofWork => ({
+      operationId: `deferred-${i}`, kind, phase: "after", timing: "deferred", ranges: [{ startOffset: 2, endOffset: 4 }],
+    })
+    certificate.work = [...certificate.work, ...Array.from({ length: count }, (_, i) => extra(i))]
+    const result = evaluateRunOwnedSemanticOracleStage2(input)
+    expect(result.decision.status).toBe("certified")
+    if (result.decision.status !== "certified") throw new Error("expected boundary certificate")
+    expect(result.decision.seamFacts.workAccounting[kind]).toBe(count * 2 + 4)
+    expect(result.decision.seamFacts.workAccounting.deferred[kind]).toBe(count * 2)
+    certificate.work = [...certificate.work, extra(count)]
+    expect(evaluateRunOwnedSemanticOracleStage2(input).decision.status).toBe("not-admissible")
+  })
+
+  it("reports separate source/property/shaping/segmentation work without caller totals", () => {
+    const result = evaluateRunOwnedSemanticOracleStage2(inputFor("office", [latinRun(0, 6)], 3))
+    expect(result.decision).toMatchObject({ status: "certified", seamFacts: { workAccounting: {
+      source: 4, property: 4, shaping: 4, segmentation: 4,
+      deferred: { source: 0, property: 0, shaping: 0, segmentation: 0 },
+    } } })
+  })
+
+  it.each([
+    ["zero", [{ startOffset: 3, endOffset: 3 }]],
+    ["fractional", [{ startOffset: 2.5, endOffset: 4 }]],
+    ["gap", [{ startOffset: 2, endOffset: 3 }]],
+    ["overlap", [{ startOffset: 2, endOffset: 4 }, { startOffset: 3, endOffset: 4 }]],
+    ["outside", [{ startOffset: 1, endOffset: 4 }]],
+  ])("rejects %s work declarations and evidence partitions", (_name, ranges) => {
+    const input = inputFor("office", [latinRun(0, 6)], 3)
+    input.provider.seamCertificates[0]!.work[0]!.ranges = ranges as { startOffset: number; endOffset: number }[]
+    expect(evaluateRunOwnedSemanticOracleStage2(input).decision.status).toBe("not-admissible")
+    for (const kind of ["glyphFacts", "clusterFacts", "breakFacts"] as const) {
+      const evidenceInput = inputFor("office", [latinRun(0, 6)], 3)
+      evidenceInput.provider.seamCertificates[0]!.edgeFacts[kind] = (ranges as { startOffset: number; endOffset: number }[])
+        .map((range, i) => ({ factId: `fact-${i}`, ...range }))
+      expect(evaluateRunOwnedSemanticOracleStage2(evidenceInput).decision.status).toBe("not-admissible")
+    }
+  })
+
+  it("rejects missing work, duplicate operation IDs, and deferred work used as completed proof", () => {
+    for (const alter of [
+      (c: RunOwnedSeamCertificate) => { c.work = c.work.slice(1) },
+      (c: RunOwnedSeamCertificate) => { c.work = [...c.work, c.work[0]!] },
+      (c: RunOwnedSeamCertificate) => { c.work[0]!.timing = "deferred" },
+    ]) {
+      const input = inputFor("office", [latinRun(0, 6)], 3)
+      alter(input.provider.seamCertificates[0]!)
+      expect(evaluateRunOwnedSemanticOracleStage2(input).decision.status).toBe("not-admissible")
+    }
+  })
+
+  it("rejects missing or mismatched before/after edges independently", () => {
+    for (const phase of ["before", "after"] as const) {
+      for (const side of ["left", "right"] as const) {
+        const input = inputFor("office", [latinRun(0, 6)], 3)
+        input.provider.seamCertificates[0]!.edgeSummaries[phase][side].glyphFactIds = ["unrelated-glyph"]
+        expect(evaluateRunOwnedSemanticOracleStage2(input).decision.status).toBe("not-admissible")
+      }
+      const input = inputFor("office", [latinRun(0, 6)], 3)
+      Reflect.deleteProperty(input.provider.seamCertificates[0]!.edgeSummaries, phase)
+      expect(evaluateRunOwnedSemanticOracleStage2(input).decision.status).toBe("not-admissible")
+    }
+  })
+
+  it("rejects missing, unsafe, changed or incomplete outside-range validity", () => {
+    const mutations: ((c: RunOwnedSeamCertificate) => void)[] = [
+      (c) => { Reflect.deleteProperty(c, "outsideRangeValidity") },
+      (c) => { Object.assign(c.outsideRangeValidity, { status: "unsafe" }) },
+      (c) => { c.outsideRangeValidity.ranges[0]!.afterDigest = `sha256:${"b".repeat(64)}` },
+      (c) => { c.outsideRangeValidity.ranges = c.outsideRangeValidity.ranges.slice(1) },
+      (c) => { c.outsideRangeValidity.ranges[0]!.endOffset = 1 },
+      (c) => { c.outsideRangeValidity.binding.providerRevision = "stale" },
+      (c) => { c.outsideRangeValidity.binding.runs[0]!.fontId = "different-font" },
+    ]
+    for (const mutate of mutations) {
+      const input = inputFor("office", [latinRun(0, 6)], 3)
+      mutate(input.provider.seamCertificates[0]!)
+      expect(evaluateRunOwnedSemanticOracleStage2(input).decision.status).toBe("not-admissible")
+    }
+  })
+
+  it("binds values as well as IDs and fails closed on malformed runtime proof objects", () => {
+    for (const field of ["direction", "fontId", "features"] as const) {
+      const input = inputFor("AB", [latinRun(0, 2)], 1)
+      Object.assign(input.provider.runs[0]!, { [field]: field === "direction" ? "rtl" : field === "fontId" ? "another-font" : ["kern"] })
+      expect(evaluateRunOwnedSemanticOracleStage2(input).decision.status).toBe("not-admissible")
+    }
+    for (const invalid of [null, {}, "certificate", { edgeFacts: null }]) {
+      const input = inputFor("AB", [latinRun(0, 2)], 1)
+      Object.assign(input.provider, { seamCertificates: [invalid] })
+      expect(evaluateRunOwnedSemanticOracleStage2(input).decision).toEqual({ status: "not-admissible", reason: "uncertified-seam" })
+    }
+  })
+
+  it("keeps source immutable and returns detached proof and run descriptors", () => {
+    const input = inputFor("office", [latinRun(0, 6)], 3)
+    const before = structuredClone(input)
+    const result = evaluateRunOwnedSemanticOracleStage2(input)
+    expect(input).toEqual(before)
+    expect(result.decision.status).toBe("certified")
+    input.provider.runs[0]!.fontId = "changed-after-evaluation"
+    input.provider.seamCertificates[0]!.edgeFacts.glyphFacts[0]!.factId = "mutated"
+    expect(result.runs[0]!.analysisKey.fontId).toBe("Sarabun-Regular")
+    if (result.decision.status === "certified") {
+      expect(result.decision.seamFacts.edgeFacts.glyphFacts[0]!.factId).toBe("glyph-boundary")
+      expect(result.decision.seamFacts.edgeSummaries.binding.runs[0]!.fontId).toBe("Sarabun-Regular")
+    }
+  })
+
+  it("accepts exact partitions on both seam sides and binds summaries to their actual evidence", () => {
+    const input = inputFor("office", [latinRun(0, 6)], 3)
+    const c = input.provider.seamCertificates[0]!
+    for (const phase of ["before", "after"] as const) {
+      const facts = phase === "before" ? c.beforeFacts : c.edgeFacts
+      for (const [kind, ids] of [["glyphFacts", "glyphFactIds"], ["clusterFacts", "clusterFactIds"], ["breakFacts", "breakFactIds"]] as const) {
+        facts[kind] = [
+          { factId: `${phase}-${kind}-left`, startOffset: 2, endOffset: 3 },
+          { factId: `${phase}-${kind}-right`, startOffset: 3, endOffset: 4 },
+        ]
+        c.edgeSummaries[phase].left[ids] = [`${phase}-${kind}-left`]
+        c.edgeSummaries[phase].right[ids] = [`${phase}-${kind}-right`]
+      }
+    }
+    for (const work of c.work) work.ranges = [{ startOffset: 2, endOffset: 3 }, { startOffset: 3, endOffset: 4 }]
+    expect(evaluateRunOwnedSemanticOracleStage2(input).decision).toMatchObject({ status: "certified", seamFacts: {
+      workAccounting: { source: 4, property: 4, shaping: 4, segmentation: 4 },
+    } })
+    c.edgeSummaries.after.right.clusterFactIds = ["before-clusterFacts-right"]
+    expect(evaluateRunOwnedSemanticOracleStage2(input).decision.status).toBe("not-admissible")
+  })
+
+  it("rejects nonlocal inspected windows even when caller counters claim zero work", () => {
+    const text = "A".repeat(1026)
+    const input = inputFor(text, [latinRun(0, 1026)], 513)
+    const c = input.provider.seamCertificates[0]!
+    c.leftSourceRange = { startOffset: 0, endOffset: 513 }
+    c.rightSourceRange = { startOffset: 513, endOffset: 1026 }
+    for (const work of c.work) work.ranges = [{ startOffset: 0, endOffset: 1026 }]
+    for (const facts of [c.beforeFacts, c.edgeFacts]) {
+      for (const kind of ["glyphFacts", "clusterFacts", "breakFacts"] as const) {
+        facts[kind][0]!.startOffset = 0
+        facts[kind][0]!.endOffset = 1026
+      }
+    }
+    c.outsideRangeValidity.ranges = []
+    expect(evaluateRunOwnedSemanticOracleStage2(input).decision.status).toBe("not-admissible")
+    Object.assign(c, { sourceFactUnits: 0, propertyFactUnits: 0, shapingAndSegmentationUnits: 0 })
+    expect(evaluateRunOwnedSemanticOracleStage2(input).decision.status).toBe("not-admissible")
+  })
+
+  it("rejects unaccounted alternative certificates and unsafe before evidence", () => {
+    const input = inputFor("office", [latinRun(0, 6)], 3)
+    const c = input.provider.seamCertificates[0]!
+    input.provider.seamCertificates = [c, structuredClone(c)]
+    expect(evaluateRunOwnedSemanticOracleStage2(input).decision.status).toBe("not-admissible")
+    input.provider.seamCertificates = [c]
+    c.beforeFacts.unsafeBoundaryEvidence = { status: "unsafe", reason: "unsafe-before" }
+    expect(evaluateRunOwnedSemanticOracleStage2(input).decision.status).toBe("not-admissible")
   })
 })

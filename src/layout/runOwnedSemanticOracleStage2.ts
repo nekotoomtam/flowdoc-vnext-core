@@ -1,3 +1,5 @@
+import { z } from "zod"
+
 /**
  * Temporary Stage 2 proof helper. It is intentionally not exported from the
  * package entrypoint and never owns mutable document or layout state.
@@ -56,9 +58,22 @@ export interface RunOwnedSeamCertificate {
   caretOffset: number
   leftSourceRange: { startOffset: number; endOffset: number }
   rightSourceRange: { startOffset: number; endOffset: number }
-  sourceFactUnits: number
-  propertyFactUnits: number
-  shapingAndSegmentationUnits: number
+  work: readonly RunOwnedProofWork[]
+  beforeFacts: RunOwnedSeamCertificate["edgeFacts"]
+  edgeSummaries: {
+    binding: RunOwnedProofBinding
+    before: RunOwnedEdgeSummary
+    after: RunOwnedEdgeSummary
+  }
+  outsideRangeValidity: {
+    binding: RunOwnedProofBinding
+    status: "preserved"
+    ranges: readonly {
+      startOffset: number; endOffset: number
+      beforeDigest: string; afterDigest: string
+      validity: "unchanged"
+    }[]
+  }
   sourceBinding: RunOwnedSeamSourceBinding
   providerId: string
   providerRevision: string
@@ -73,6 +88,38 @@ export interface RunOwnedSeamCertificate {
     breakFacts: readonly RunOwnedSeamRangeFact[]
     unsafeBoundaryEvidence: RunOwnedUnsafeBoundaryEvidence
   }
+}
+
+export interface RunOwnedProofBinding {
+  committedText: string
+  authoredSpans: readonly RunOwnedAuthoredSpan[]
+  paragraph: RunOwnedParagraphContext
+  providerId: string
+  providerRevision: string
+  runs: readonly RunOwnedProviderRun[]
+  graphemeSafeOffsets: readonly number[]
+  caretOffset: number
+}
+
+export interface RunOwnedEdgeSummary {
+  left: { glyphFactIds: readonly string[]; clusterFactIds: readonly string[]; breakFactIds: readonly string[]; safety: "safe" }
+  right: RunOwnedEdgeSummary["left"]
+}
+
+export interface RunOwnedProofWork {
+  operationId: string
+  kind: "source" | "property" | "shaping" | "segmentation"
+  phase: "before" | "after"
+  timing: "immediate" | "deferred"
+  ranges: readonly { startOffset: number; endOffset: number }[]
+}
+
+export interface RunOwnedWorkTotals {
+  source: number; property: number; shaping: number; segmentation: number
+}
+
+export interface RunOwnedWorkAccounting extends RunOwnedWorkTotals {
+  deferred: RunOwnedWorkTotals
 }
 
 export interface RunOwnedProviderFacts {
@@ -138,6 +185,10 @@ export type RunOwnedBoundaryDecision =
       leftAnalysisKey: RunOwnedAnalysisKey
       rightAnalysisKey: RunOwnedAnalysisKey
       edgeFacts: RunOwnedSeamCertificate["edgeFacts"]
+      beforeFacts: RunOwnedSeamCertificate["edgeFacts"]
+      edgeSummaries: RunOwnedSeamCertificate["edgeSummaries"]
+      outsideRangeValidity: RunOwnedSeamCertificate["outsideRangeValidity"]
+      workAccounting: RunOwnedWorkAccounting
     }
   }
   | { status: "not-admissible"; reason: RunOwnedNotAdmissibleReason }
@@ -146,6 +197,75 @@ export interface RunOwnedSemanticOracleStage2Result {
   runs: readonly RunOwnedAnalysisRunDescriptor[]
   decision: RunOwnedBoundaryDecision
 }
+
+// Validate external runtime values before any derivation. Strict certificate
+// objects also make legacy/ad-hoc budget counters inadmissible.
+const identity = z.string().min(1).refine((value) => value.trim().length > 0)
+const offset = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER)
+const rangeFields = { startOffset: offset, endOffset: offset }
+const rangeSchema = z.object(rangeFields).strict()
+const paragraphSchema = z.object({
+  paragraphId: identity, baseDirection: z.enum(["ltr", "rtl"]),
+  writingMode: z.enum(["horizontal-tb", "vertical-rl", "vertical-lr"]),
+}).strict()
+const authoredSchema = z.object({
+  spanId: identity, ...rangeFields, text: z.string(), language: identity.optional(), styleKey: identity.optional(),
+}).strict()
+const runSchema = z.object({
+  runId: identity, ...rangeFields, script: identity, direction: z.enum(["ltr", "rtl"]),
+  language: identity, fontId: identity,
+  features: z.array(z.string().regex(/^[A-Za-z0-9]{4}$/u)).refine((values) => new Set(values).size === values.length),
+}).strict()
+const bindingSchema = z.object({
+  committedText: z.string(), authoredSpans: z.array(authoredSchema), paragraph: paragraphSchema,
+  providerId: identity, providerRevision: identity, runs: z.array(runSchema),
+  graphemeSafeOffsets: z.array(offset), caretOffset: offset,
+}).strict()
+const factSchema = z.object({ factId: identity, ...rangeFields }).strict()
+const factsSchema = z.object({
+  glyphFacts: z.array(factSchema), clusterFacts: z.array(factSchema), breakFacts: z.array(factSchema),
+  unsafeBoundaryEvidence: z.discriminatedUnion("status", [
+    z.object({ status: z.literal("safe"), caretOffset: offset }).strict(),
+    z.object({ status: z.literal("unsafe"), reason: identity }).strict(),
+  ]),
+}).strict()
+const edgeSchema = z.object({
+  glyphFactIds: z.array(identity).min(1), clusterFactIds: z.array(identity).min(1),
+  breakFactIds: z.array(identity).min(1), safety: z.literal("safe"),
+}).strict()
+const summarySchema = z.object({ left: edgeSchema, right: edgeSchema }).strict()
+const propertySchema = z.object({ spanId: identity, language: identity.nullable(), styleKey: identity.nullable() }).strict()
+const certificateSchema = z.object({
+  certificateId: identity, caretOffset: offset, leftSourceRange: rangeSchema, rightSourceRange: rangeSchema,
+  work: z.array(z.object({
+    operationId: identity, kind: z.enum(["source", "property", "shaping", "segmentation"]),
+    phase: z.enum(["before", "after"]), timing: z.enum(["immediate", "deferred"]),
+    ranges: z.array(rangeSchema).min(1),
+  }).strict()),
+  sourceBinding: z.object({
+    committedText: z.string(), authoredSpans: z.array(z.object({ spanId: identity, ...rangeFields }).strict()),
+  }).strict(),
+  providerId: identity, providerRevision: identity, paragraphContext: paragraphSchema,
+  leftProviderRunId: identity, rightProviderRunId: identity,
+  leftAuthoredProperties: z.array(propertySchema), rightAuthoredProperties: z.array(propertySchema),
+  edgeFacts: factsSchema, beforeFacts: factsSchema,
+  edgeSummaries: z.object({ binding: bindingSchema, before: summarySchema, after: summarySchema }).strict(),
+  outsideRangeValidity: z.object({
+    binding: bindingSchema, status: z.literal("preserved"),
+    ranges: z.array(z.object({
+      ...rangeFields, beforeDigest: z.string().regex(/^sha256:[a-f0-9]{64}$/u),
+      afterDigest: z.string().regex(/^sha256:[a-f0-9]{64}$/u), validity: z.literal("unchanged"),
+    }).strict()),
+  }).strict(),
+}).strict()
+const inputSchema = z.object({
+  committedText: z.string(), authoredSpans: z.array(authoredSchema), paragraph: paragraphSchema,
+  caretOffset: z.number(), composition: z.enum(["committed", "active"]),
+  provider: z.object({
+    providerId: identity, providerRevision: identity, runs: z.array(runSchema),
+    graphemeSafeOffsets: z.array(offset), seamCertificates: z.array(z.unknown()),
+  }).strict(),
+}).strict()
 
 function notAdmissible(
   input: RunOwnedSemanticOracleStage2Input,
@@ -172,12 +292,16 @@ function isScalarSafe(text: string, caretOffset: number): boolean {
 
 function hasValidAuthoredSpans(input: RunOwnedSemanticOracleStage2Input): boolean {
   let expectedStart = 0
+  const ids = new Set<string>()
   for (const span of input.authoredSpans) {
     if (!isValidRange(span, input.committedText.length)
+      || ids.has(span.spanId)
+      || span.startOffset === span.endOffset
       || span.startOffset !== expectedStart
       || input.committedText.slice(span.startOffset, span.endOffset) !== span.text) {
       return false
     }
+    ids.add(span.spanId)
     expectedStart = span.endOffset
   }
   return expectedStart === input.committedText.length
@@ -268,19 +392,86 @@ function sameJson(left: unknown, right: unknown): boolean {
   return JSON.stringify(left) === JSON.stringify(right)
 }
 
+function exactPartition(
+  ranges: readonly { startOffset: number; endOffset: number }[],
+  startOffset: number, endOffset: number, text: string,
+): boolean {
+  let cursor = startOffset
+  for (const range of ranges) {
+    if (!isValidRange(range, text.length) || range.startOffset !== cursor
+      || range.endOffset <= cursor || range.endOffset > endOffset
+      || !isScalarSafe(text, range.startOffset) || !isScalarSafe(text, range.endOffset)) return false
+    cursor = range.endOffset
+  }
+  return cursor === endOffset
+}
+
+function accountWork(certificate: RunOwnedSeamCertificate, input: RunOwnedSemanticOracleStage2Input): RunOwnedWorkAccounting | null {
+  const totals: RunOwnedWorkAccounting = {
+    source: 0, property: 0, shaping: 0, segmentation: 0,
+    deferred: { source: 0, property: 0, shaping: 0, segmentation: 0 },
+  }
+  const ids = new Set<string>()
+  const completed = new Set<string>()
+  for (const work of certificate.work) {
+    if (ids.has(work.operationId) || !exactPartition(work.ranges,
+      certificate.leftSourceRange.startOffset, certificate.rightSourceRange.endOffset, input.committedText)) return null
+    ids.add(work.operationId)
+    const units = work.ranges.reduce((sum, range) => sum + range.endOffset - range.startOffset, 0)
+    totals[work.kind] += units
+    if (work.timing === "deferred") totals.deferred[work.kind] += units
+    else completed.add(`${work.phase}:${work.kind}`)
+  }
+  // Both reference states need complete analysis. Deferred work is charged in
+  // addition and cannot stand in for proof that has not yet been performed.
+  for (const phase of ["before", "after"]) {
+    for (const kind of ["source", "property", "shaping", "segmentation"]) {
+      if (!completed.has(`${phase}:${kind}`)) return null
+    }
+  }
+  return totals.source <= 512 && totals.property <= 512 && totals.shaping + totals.segmentation <= 1024
+    ? totals : null
+}
+
+function proofBinding(input: RunOwnedSemanticOracleStage2Input): RunOwnedProofBinding {
+  return {
+    committedText: input.committedText, authoredSpans: input.authoredSpans, paragraph: input.paragraph,
+    providerId: input.provider.providerId, providerRevision: input.provider.providerRevision,
+    runs: input.provider.runs, graphemeSafeOffsets: input.provider.graphemeSafeOffsets, caretOffset: input.caretOffset,
+  }
+}
+
+function summarizeEdges(facts: RunOwnedSeamCertificate["edgeFacts"], caret: number): RunOwnedEdgeSummary {
+  const side = (left: boolean): RunOwnedEdgeSummary["left"] => {
+    const ids = (items: readonly RunOwnedSeamRangeFact[]) => items
+      .filter((fact) => left ? fact.startOffset < caret : fact.endOffset > caret).map((fact) => fact.factId)
+    return { glyphFactIds: ids(facts.glyphFacts), clusterFactIds: ids(facts.clusterFacts), breakFactIds: ids(facts.breakFacts), safety: "safe" }
+  }
+  return { left: side(true), right: side(false) }
+}
+
+function validOutsideProof(certificate: RunOwnedSeamCertificate, input: RunOwnedSemanticOracleStage2Input): boolean {
+  const proof = certificate.outsideRangeValidity
+  if (!sameJson(proof.binding, proofBinding(input))) return false
+  const expected = [
+    { startOffset: 0, endOffset: certificate.leftSourceRange.startOffset },
+    { startOffset: certificate.rightSourceRange.endOffset, endOffset: input.committedText.length },
+  ].filter((range) => range.endOffset > range.startOffset)
+  return proof.ranges.length === expected.length && proof.ranges.every((range, i) => (
+    range.startOffset === expected[i]!.startOffset && range.endOffset === expected[i]!.endOffset
+    && range.beforeDigest === range.afterDigest
+  ))
+}
+
 function hasValidRangeFacts(
   facts: readonly RunOwnedSeamRangeFact[],
   certificate: RunOwnedSeamCertificate,
-  textLength: number,
+  text: string,
 ): boolean {
   const startOffset = certificate.leftSourceRange.startOffset
   const endOffset = certificate.rightSourceRange.endOffset
-  return facts.length > 0 && facts.every((fact) => (
-    !!fact.factId
-    && isValidRange(fact, textLength)
-    && fact.startOffset >= startOffset
-    && fact.endOffset <= endOffset
-  ))
+  return facts.length > 0 && new Set(facts.map((fact) => fact.factId)).size === facts.length
+    && exactPartition(facts, startOffset, endOffset, text)
 }
 
 function isCertifiedSeam(
@@ -296,12 +487,9 @@ function isCertifiedSeam(
     && isValidRange(certificate.rightSourceRange, textLength)
     && certificate.leftSourceRange.endOffset === caretOffset
     && certificate.rightSourceRange.startOffset === caretOffset
-    && certificate.sourceFactUnits >= 0
-    && certificate.sourceFactUnits <= 512
-    && certificate.propertyFactUnits >= 0
-    && certificate.propertyFactUnits <= 512
-    && certificate.shapingAndSegmentationUnits >= 0
-    && certificate.shapingAndSegmentationUnits <= 1024
+    && certificate.leftSourceRange.startOffset < caretOffset
+    && certificate.rightSourceRange.endOffset > caretOffset
+    && accountWork(certificate, input) !== null
     && sameJson(certificate.sourceBinding, {
       committedText,
       authoredSpans: authoredSpans.map(({ spanId, startOffset, endOffset }) => ({ spanId, startOffset, endOffset })),
@@ -313,11 +501,17 @@ function isCertifiedSeam(
     && certificate.rightProviderRunId === rightRun.analysisKey.providerRunId
     && sameJson(certificate.leftAuthoredProperties, leftRun.authoredProperties)
     && sameJson(certificate.rightAuthoredProperties, rightRun.authoredProperties)
-    && hasValidRangeFacts(certificate.edgeFacts.glyphFacts, certificate, textLength)
-    && hasValidRangeFacts(certificate.edgeFacts.clusterFacts, certificate, textLength)
-    && hasValidRangeFacts(certificate.edgeFacts.breakFacts, certificate, textLength)
-    && certificate.edgeFacts.unsafeBoundaryEvidence.status === "safe"
-    && certificate.edgeFacts.unsafeBoundaryEvidence.caretOffset === caretOffset
+    && [certificate.beforeFacts, certificate.edgeFacts].every((facts) => (
+      hasValidRangeFacts(facts.glyphFacts, certificate, committedText)
+      && hasValidRangeFacts(facts.clusterFacts, certificate, committedText)
+      && hasValidRangeFacts(facts.breakFacts, certificate, committedText)
+      && facts.unsafeBoundaryEvidence.status === "safe"
+      && facts.unsafeBoundaryEvidence.caretOffset === caretOffset
+    ))
+    && sameJson(certificate.edgeSummaries.binding, proofBinding(input))
+    && sameJson(certificate.edgeSummaries.before, summarizeEdges(certificate.beforeFacts, caretOffset))
+    && sameJson(certificate.edgeSummaries.after, summarizeEdges(certificate.edgeFacts, caretOffset))
+    && validOutsideProof(certificate, input)
 }
 
 function cloneAnalysisKey(key: RunOwnedAnalysisKey): RunOwnedAnalysisKey {
@@ -327,6 +521,11 @@ function cloneAnalysisKey(key: RunOwnedAnalysisKey): RunOwnedAnalysisKey {
 export function evaluateRunOwnedSemanticOracleStage2(
   input: RunOwnedSemanticOracleStage2Input,
 ): RunOwnedSemanticOracleStage2Result {
+  const parsed = inputSchema.safeParse(input)
+  if (!parsed.success) return notAdmissible(input, [], "invalid-provider-facts")
+  // Parse certificates separately so malformed proofs become uncertified-seam.
+  // Parsing also detaches all returned proof data from mutable caller objects.
+  input = { ...parsed.data, provider: { ...parsed.data.provider, seamCertificates: [] } }
   if (!hasValidAuthoredSpans(input) || !hasValidProviderRuns(input)) {
     return notAdmissible(input, [], "invalid-provider-facts")
   }
@@ -351,9 +550,11 @@ export function evaluateRunOwnedSemanticOracleStage2(
   if (!leftRun || !rightRun) {
     return notAdmissible(input, derivedRuns, "uncertified-seam")
   }
-  const certificate = input.provider.seamCertificates.find((candidate) => (
-    isCertifiedSeam(candidate, input, leftRun, rightRun)
-  ))
+  // Do not hide unaccounted work in alternative certificates or silently skip a
+  // malformed one. This reference request evaluates exactly one seam proof.
+  if (parsed.data.provider.seamCertificates.length !== 1) return notAdmissible(input, derivedRuns, "uncertified-seam")
+  const candidate = certificateSchema.safeParse(parsed.data.provider.seamCertificates[0])
+  const certificate = candidate.success && isCertifiedSeam(candidate.data, input, leftRun, rightRun) ? candidate.data : null
   if (!certificate) {
     return notAdmissible(input, derivedRuns, "uncertified-seam")
   }
@@ -365,6 +566,10 @@ export function evaluateRunOwnedSemanticOracleStage2(
       certificateId: certificate.certificateId,
       caretOffset: input.caretOffset,
       seamFacts: {
+        beforeFacts: certificate.beforeFacts,
+        edgeSummaries: certificate.edgeSummaries,
+        outsideRangeValidity: certificate.outsideRangeValidity,
+        workAccounting: accountWork(certificate, input)!,
         leftSourceRange: { ...certificate.leftSourceRange },
         rightSourceRange: { ...certificate.rightSourceRange },
         sourceBinding: {
