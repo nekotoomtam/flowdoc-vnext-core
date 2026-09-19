@@ -21,3 +21,12 @@ path = "src/bin/flowdoc-live-draft-icu4x.rs"
 icu_segmenter = "=2.2.0"
 rustybuzz = "=0.20.1"
 wasm-bindgen = "0.2"
+serde = { version = "1", features = ["derive"], optional = true }
+serde_json = { version = "1", optional = true }
+sha2 = { version = "0.10", optional = true }
+getrandom = { version = "0.2", features = ["js"], optional = true }
+unicode-script = { version = "=0.5.8", optional = true }
+
+[features]
+default = []
+cold-session-qa = ["dep:serde", "dep:serde_json", "dep:sha2", "dep:getrandom", "dep:unicode-script"]

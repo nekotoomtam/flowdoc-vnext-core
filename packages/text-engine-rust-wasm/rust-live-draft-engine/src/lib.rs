@@ -1,4 +1,7 @@
 use icu_segmenter::LineSegmenter;
+// Private Stage 3 QA ABI; absent from all default/product builds.
+#[cfg(feature = "cold-session-qa")]
+mod cold_session;
 use wasm_bindgen::prelude::{wasm_bindgen, JsValue};
 
 pub const FLOWDOC_TEXT_ENGINE_WASM_BOUNDARY_VERSION: &str =
