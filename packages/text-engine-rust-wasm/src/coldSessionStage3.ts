@@ -9,6 +9,7 @@ export interface ColdQaWasm {
   stage3_begin_transfer(): void
   stage3_end_transfer(): void
   stage3_allocation_count(field: number): bigint
+  stage4_apply?(input: string): string
 }
 declare const receiptBrand: unique symbol
 export type ColdReceipt = Readonly<{ [receiptBrand]: true }>
@@ -24,6 +25,18 @@ export interface ColdSummary {
 export type ColdCreated = { status: "Created"; receipt: ColdReceipt; revision: 0; coldSummary: ColdSummary }
 export type ColdNotCreated = { status: "NotCreated"; reason: string; coldSummary: ColdSummary }
 export type ColdDisposal = { status: "Disposed"; disposalSummary: Readonly<Record<string, number>> } | { status: "UnknownReceipt" }
+export interface ColdCommand {
+  expectedRevision: number; startOffset: number; endOffset: number
+  replacementText: string; composition: "committed" | "active"; anchorSpanId: string
+}
+interface CommandSummary {
+  work: Readonly<Record<string, number>>
+  allocationLifecycle: Pick<ColdSummary, "allocationCalls" | "allocatedBytes" | "deallocationCalls" | "deallocatedBytes" | "allocationScope" | "hostJsonEncodePasses" | "hostJsonDecodePasses" | "abiEntrypointCalls">
+}
+export type ColdCommandResult =
+  | { status: "Accepted"; nextReceipt: ColdReceipt; nextRevision: number; affectedSummary: CommandSummary }
+  | { status: "NotAdmissible"; reason: string; unchangedReceipt: ColdReceipt; unchangedRevision: number; affectedSummary: CommandSummary }
+  | { status: "UnknownReceipt" | "Unavailable" }
 
 export function createColdSessionQaAdapter(wasm: ColdQaWasm) {
   const capabilities = new WeakMap<ColdReceipt, string>()
@@ -52,6 +65,24 @@ export function createColdSessionQaAdapter(wasm: ColdQaWasm) {
       const result = JSON.parse(wasm.stage3_dispose(capability)) as ColdDisposal
       capabilities.delete(receipt)
       return result
+    },
+    apply(receipt: ColdReceipt, command: ColdCommand): ColdCommandResult {
+      const capability = capabilities.get(receipt)
+      if (!capability) return { status: "UnknownReceipt" }
+      if (!wasm.stage4_apply) return { status: "Unavailable" }
+      const { wire, ...allocations } = measuredTransfer(JSON.stringify({ ...command, receipt: capability }), (input) => wasm.stage4_apply!(input))
+      const result = JSON.parse(wire)
+      result.affectedSummary.allocationLifecycle = {
+        ...allocations, allocationScope: "complete-rust-abi-lifecycle",
+        hostJsonEncodePasses: 1, hostJsonDecodePasses: 1, abiEntrypointCalls: 7,
+      }
+      if (result.status !== "Accepted") {
+        return { ...result, unchangedReceipt: receipt }
+      }
+      const nextReceipt = Object.freeze(Object.create(null)) as ColdReceipt
+      capabilities.set(nextReceipt, result.nextReceipt)
+      capabilities.delete(receipt)
+      return { ...result, nextReceipt }
     },
   })
 }

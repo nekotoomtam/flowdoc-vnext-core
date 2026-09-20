@@ -1,14 +1,14 @@
 use serde::{Deserialize, Serialize};
 
 // All configuration schemas reject extensions, including fact-shaped fields.
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub(super) struct Input {
     pub provider_context: Provider,
     pub paragraph_context: Paragraph,
     pub authored_spans: Vec<SpanInput>,
 }
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub(super) struct Provider {
     pub provider_id: String,
@@ -17,14 +17,14 @@ pub(super) struct Provider {
     pub policy: Policy,
     pub fonts: Vec<Font>,
 }
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub(super) struct Font {
     pub resource_id: String,
     pub digest: String,
     pub bytes: Vec<u8>,
 }
-#[derive(Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub(super) struct Policy {
     pub schema_version: u32,
@@ -39,14 +39,14 @@ pub(super) struct Policy {
     pub font_route_rules: Vec<FontRule>,
     pub feature_rules: Vec<FeatureRule>,
 }
-#[derive(Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub(super) struct LanguageRule {
     pub authored_language: String,
     pub script: String,
     pub language: String,
 }
-#[derive(Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub(super) struct FontRule {
     pub style_key: String,
@@ -58,7 +58,7 @@ pub(super) struct FontRule {
     pub resources: Vec<String>,
     pub coverage: String,
 }
-#[derive(Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub(super) struct FeatureRule {
     pub style_key: String,
@@ -68,14 +68,14 @@ pub(super) struct FeatureRule {
     pub writing_mode: String,
     pub features: Vec<String>,
 }
-#[derive(Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub(super) struct Paragraph {
     pub paragraph_id: String,
     pub base_direction: String,
     pub writing_mode: String,
 }
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub(super) struct SpanInput {
     pub span_id: String,
@@ -92,7 +92,7 @@ fn present_string<'de, D: serde::Deserializer<'de>>(
 ) -> Result<Option<String>, D::Error> {
     String::deserialize(deserializer).map(Some)
 }
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct Span {
     pub span_id: String,
@@ -116,6 +116,7 @@ pub(super) struct Key {
     pub provider_revision: String,
 }
 // The only retained source is Session.source; every span/run/shard uses ranges.
+#[derive(Clone)]
 pub(super) struct Run {
     pub start: usize,
     pub end: usize,
@@ -125,7 +126,7 @@ pub(super) struct Run {
     pub span_indexes: Vec<usize>,
     pub resource_index: usize,
 }
-#[derive(Serialize, Debug, PartialEq)]
+#[derive(Clone, Serialize, Debug, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct Glyph {
     pub glyph_id: u32,
@@ -136,7 +137,7 @@ pub(super) struct Glyph {
     pub y_offset: i32,
     pub unsafe_to_break: bool,
 }
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct Shard {
     pub run_index: usize,
@@ -147,4 +148,6 @@ pub(super) struct Shard {
     pub grapheme_boundaries: Vec<usize>,
     pub start_safe: bool,
     pub end_safe: bool,
+    #[serde(skip)]
+    pub concat_unsafe: Vec<bool>,
 }

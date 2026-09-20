@@ -1,8 +1,11 @@
+mod commands;
 mod derive;
 mod ledger;
 mod model;
 mod policy;
+mod position;
 mod runtime;
+mod source;
 mod tree;
 use runtime::Runtime;
 use std::cell::RefCell;
@@ -19,6 +22,10 @@ pub fn stage3_create(input: &str) -> String {
 #[wasm_bindgen]
 pub fn stage3_dispose(receipt: &str) -> String {
     SESSIONS.with(|s| s.borrow_mut().dispose(receipt).to_string())
+}
+#[wasm_bindgen]
+pub fn stage4_apply(input: &str) -> String {
+    SESSIONS.with(|s| s.borrow_mut().apply(input))
 }
 #[wasm_bindgen]
 pub fn stage3_live_count() -> u32 {

@@ -252,6 +252,7 @@ pub(super) fn build(
         let face = rustybuzz::Face::from_slice(&font.bytes, 0).ok_or("invalid-font-resource")?;
         let text = &source[run.start_byte..run.end_byte];
         let mut buffer = rustybuzz::UnicodeBuffer::new();
+        buffer.set_flags(rustybuzz::BufferFlags::PRODUCE_UNSAFE_TO_CONCAT);
         buffer.push_str(text);
         buffer.set_direction(rustybuzz::Direction::LeftToRight);
         buffer.set_script(if run.key.script == "Thai" {
@@ -277,6 +278,8 @@ pub(super) fn build(
         work.shaping_calls += 1;
         work.shaping_input_utf16 += (run.end - run.start) as u64;
         let shaped = rustybuzz::shape(&face, &features, buffer);
+        let (concat_flags, flag_bytes) = super::commands::concat_flags(&shaped, &face);
+        work.provider_flag_bytes += flag_bytes as u64;
         let mut glyphs = Vec::new();
         for (info, position) in shaped.glyph_infos().iter().zip(shaped.glyph_positions()) {
             work.glyph_visits += 1;
@@ -331,14 +334,15 @@ pub(super) fn build(
             }
         }
         let mut start = run.start;
+        let mut flag_cursor = 0;
         let mut iter = glyphs.into_iter().peekable();
         while start < run.end {
-            let end = if run.end - start <= 512 {
+            let end = if run.end - start <= 128 {
                 run.end
             } else {
                 let index = safe.partition_point(|&p| {
                     work.boundary_lookup_comparisons += 1;
-                    p <= start + 512
+                    p <= start + 128
                 });
                 safe.get(index.wrapping_sub(1))
                     .copied()
@@ -364,6 +368,7 @@ pub(super) fn build(
                 boundary_index(&graphemes, end, work).map_err(|_| "invalid-provider-boundary")?;
             work.shard_fact_visits +=
                 (line_end - line_start + grapheme_end - grapheme_start + 1) as u64;
+            let part_len = part.len();
             shards.push(Shard {
                 run_index,
                 start_offset: start,
@@ -373,7 +378,9 @@ pub(super) fn build(
                 grapheme_boundaries: graphemes[grapheme_start..=grapheme_end].to_vec(),
                 start_safe: true,
                 end_safe: true,
+                concat_unsafe: concat_flags[flag_cursor..flag_cursor + part_len].to_vec(),
             });
+            flag_cursor += shards.last().unwrap().glyphs.len();
             start = end;
         }
     }

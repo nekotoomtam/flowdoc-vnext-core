@@ -8,9 +8,12 @@ use super::{
 use serde::Serialize;
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
+use std::sync::Arc;
 
+use super::source::Source;
 pub(super) struct Session {
-    pub source: String,
+    pub source: Arc<Source>,
+    pub source_binding: String,
     pub spans: Tree<Span>,
     pub runs: Tree<Run>,
     pub shards: Tree<Shard>,
@@ -20,7 +23,7 @@ pub(super) struct Session {
 }
 #[derive(Default)]
 pub(super) struct Runtime {
-    sessions: BTreeMap<String, Session>,
+    pub(super) sessions: BTreeMap<String, Session>,
 }
 
 #[derive(Default, Serialize)]
@@ -166,6 +169,7 @@ impl Runtime {
         if self.sessions.contains_key(&receipt) {
             return Err("receipt-collision");
         }
+        let source = Source::cold(source, &shards, work);
         let spans = Tree::build(spans, work);
         let runs = Tree::build(runs, work);
         let shards = Tree::build(shards, work);
@@ -175,6 +179,7 @@ impl Runtime {
             receipt.clone(),
             Session {
                 source,
+                source_binding: summary.source_digest.clone(),
                 spans,
                 runs,
                 shards,
@@ -197,13 +202,17 @@ impl Runtime {
                     .map(|f| f.bytes.len())
                     .sum::<usize>();
                 let result = json!({"status":"Disposed", "disposalSummary":{
-                    "releasedSourceBytes":session.source.len(), "releasedSpans":session.spans.len,
+                    "releasedSourceBytes":session.source.bytes(), "releasedSpans":session.spans.len,
                     "releasedRuns":session.runs.len, "releasedShards":session.shards.len,
                     "releasedFontBytes":resources, "liveSessions":self.live_count()}});
                 drop(session);
                 result
             }
         }
+    }
+
+    pub fn apply(&mut self, input: &str) -> String {
+        super::commands::apply(self, input)
     }
 
     #[cfg(test)]

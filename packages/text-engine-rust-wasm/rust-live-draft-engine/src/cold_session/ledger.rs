@@ -124,6 +124,8 @@ impl Serialize for Hex {
 #[derive(Default, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct Work {
+    pub provider_flag_bytes: u64,
+    pub source_index_utf16: u64,
     pub policy_hash_bytes: u64,
     pub font_hash_bytes: u64,
     pub resource_visits: u64,

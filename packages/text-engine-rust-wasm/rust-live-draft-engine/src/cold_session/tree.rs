@@ -1,46 +1,254 @@
-use super::ledger::Work;
-
-// Balanced immutable ownership tree, built once from an ordered iterator.
-// No parallel retained Vec or materialized snapshot.
+use super::{
+    ledger::Work,
+    position::{Delta, Positioned},
+};
+use std::sync::Arc;
 pub(super) struct Tree<T> {
-    root: Option<Box<Node<T>>>,
+    root: Option<Arc<Node<T>>>,
     pub len: usize,
     pub height: usize,
 }
 struct Node<T> {
-    value: T,
-    left: Option<Box<Node<T>>>,
-    right: Option<Box<Node<T>>>,
+    value: Arc<T>,
+    left: Option<Arc<Node<T>>>,
+    right: Option<Arc<Node<T>>>,
+    count: usize,
+    shift: Delta,
+    value_shift: Delta,
 }
-impl<T> Tree<T> {
+impl<T> Clone for Tree<T> {
+    fn clone(&self) -> Self {
+        Self {
+            root: self.root.clone(),
+            len: self.len,
+            height: self.height,
+        }
+    }
+}
+impl<T> Clone for Node<T> {
+    fn clone(&self) -> Self {
+        Self {
+            value: self.value.clone(),
+            left: self.left.clone(),
+            right: self.right.clone(),
+            count: self.count,
+            shift: self.shift,
+            value_shift: self.value_shift,
+        }
+    }
+}
+#[derive(Default, Debug)]
+pub(super) struct TreeWork {
+    pub visits: u64,
+    pub copies: u64,
+    pub shared_subtrees: u64,
+    pub shifted_subtrees: u64,
+}
+pub(super) struct Located<T> {
+    pub value: Arc<T>,
+    pub delta: Delta,
+    pub index: usize,
+}
+impl<T: Positioned> Located<T> {
+    pub fn materialize(&self) -> T {
+        self.value.shifted(self.delta)
+    }
+}
+impl<T: Positioned> Tree<T> {
     pub fn build(values: Vec<T>, work: &mut Work) -> Self {
-        let len = values.len();
-        fn node<T>(
-            iter: &mut std::vec::IntoIter<T>,
+        fn build<T>(
+            it: &mut std::vec::IntoIter<T>,
             n: usize,
-            work: &mut Work,
-        ) -> (Option<Box<Node<T>>>, usize) {
+            w: &mut Work,
+        ) -> (Option<Arc<Node<T>>>, usize) {
             if n == 0 {
                 return (None, 0);
             }
-            let (left, lh) = node(iter, n / 2, work);
-            let value = iter.next().unwrap();
-            let (right, rh) = node(iter, n - n / 2 - 1, work);
-            work.tree_nodes += 1;
-            work.tree_construction_visits += 1;
-            (Some(Box::new(Node { value, left, right })), 1 + lh.max(rh))
+            let (left, lh) = build(it, n / 2, w);
+            let value = Arc::new(it.next().unwrap());
+            let (right, rh) = build(it, n - n / 2 - 1, w);
+            w.tree_nodes += 1;
+            w.tree_construction_visits += 1;
+            (
+                Some(Arc::new(Node {
+                    value,
+                    left,
+                    right,
+                    count: n,
+                    shift: Delta::default(),
+                    value_shift: Delta::default(),
+                })),
+                1 + lh.max(rh),
+            )
         }
-        let (root, height) = node(&mut values.into_iter(), len, work);
+        let len = values.len();
+        let (root, height) = build(&mut values.into_iter(), len, work);
         Self { root, len, height }
     }
-    pub fn visit(&self, mut f: impl FnMut(&T)) {
-        fn visit<T>(node: &Option<Box<Node<T>>>, f: &mut impl FnMut(&T)) {
-            if let Some(n) = node {
-                visit(&n.left, f);
-                f(&n.value);
-                visit(&n.right, f);
+    pub fn at(&self, index: usize, w: &mut TreeWork) -> Option<Located<T>> {
+        let mut node = self.root.as_ref()?;
+        let mut base = Delta::default();
+        let mut rank = index;
+        let mut prefix = 0;
+        loop {
+            w.visits += 1;
+            base = base.plus(node.shift);
+            let left = node.left.as_ref().map_or(0, |n| n.count);
+            if rank == left {
+                return Some(Located {
+                    value: node.value.clone(),
+                    delta: base.plus(node.value_shift),
+                    index: prefix + left,
+                });
+            }
+            if rank < left {
+                node = node.left.as_ref()?
+            } else {
+                rank -= left + 1;
+                prefix += left + 1;
+                node = node.right.as_ref()?
             }
         }
-        visit(&self.root, &mut f);
+    }
+    pub fn containing(&self, offset: usize, w: &mut TreeWork) -> Option<Located<T>> {
+        let mut node = self.root.as_ref()?;
+        let mut base = Delta::default();
+        let mut prefix = 0;
+        loop {
+            w.visits += 1;
+            base = base.plus(node.shift);
+            let d = base.plus(node.value_shift);
+            let left = node.left.as_ref().map_or(0, |n| n.count);
+            if offset < d.unit(node.value.start()) {
+                node = node.left.as_ref()?
+            } else if offset >= d.unit(node.value.end()) {
+                prefix += left + 1;
+                node = node.right.as_ref()?
+            } else {
+                return Some(Located {
+                    value: node.value.clone(),
+                    delta: d,
+                    index: prefix + left,
+                });
+            }
+        }
+    }
+    pub fn replace_and_shift(
+        &self,
+        index: usize,
+        value: T,
+        delta: Delta,
+        w: &mut TreeWork,
+    ) -> Self {
+        fn shift<T>(
+            node: &Option<Arc<Node<T>>>,
+            d: Delta,
+            w: &mut TreeWork,
+        ) -> Option<Arc<Node<T>>> {
+            node.as_ref().map(|n| {
+                let mut copy = (**n).clone();
+                copy.shift = copy.shift.plus(d);
+                w.copies += 1;
+                w.shifted_subtrees += 1;
+                w.shared_subtrees += 1;
+                Arc::new(copy)
+            })
+        }
+        fn update<T: Positioned>(
+            node: &Arc<Node<T>>,
+            rank: usize,
+            value: &T,
+            d: Delta,
+            base: Delta,
+            w: &mut TreeWork,
+        ) -> Arc<Node<T>> {
+            w.visits += 1;
+            w.copies += 1;
+            let mut copy = (**node).clone();
+            let base = base.plus(node.shift);
+            let left = node.left.as_ref().map_or(0, |n| n.count);
+            if rank < left {
+                copy.left = Some(update(node.left.as_ref().unwrap(), rank, value, d, base, w));
+                copy.value_shift = copy.value_shift.plus(d);
+                copy.right = shift(&node.right, d, w);
+            } else if rank == left {
+                copy.value = Arc::new(value.shifted(base.inverse()));
+                copy.value_shift = Delta::default();
+                copy.right = shift(&node.right, d, w);
+                if copy.left.is_some() {
+                    w.shared_subtrees += 1;
+                }
+            } else {
+                copy.right = Some(update(
+                    node.right.as_ref().unwrap(),
+                    rank - left - 1,
+                    value,
+                    d,
+                    base,
+                    w,
+                ));
+                if copy.left.is_some() {
+                    w.shared_subtrees += 1;
+                }
+            }
+            Arc::new(copy)
+        }
+        Self {
+            root: Some(update(
+                self.root.as_ref().unwrap(),
+                index,
+                &value,
+                delta,
+                Delta::default(),
+                w,
+            )),
+            len: self.len,
+            height: self.height,
+        }
+    }
+    #[cfg(test)]
+    pub fn last(&self) -> Option<T> {
+        self.at(self.len.checked_sub(1)?, &mut TreeWork::default())
+            .map(|v| v.materialize())
+    }
+    pub fn without_last(&self, w: &mut TreeWork) -> Self {
+        fn remove<T>(n: &Arc<Node<T>>, w: &mut TreeWork) -> Option<Arc<Node<T>>> {
+            w.visits += 1;
+            if let Some(right) = &n.right {
+                let mut c = (**n).clone();
+                c.right = remove(right, w);
+                c.count -= 1;
+                w.copies += 1;
+                Some(Arc::new(c))
+            } else {
+                n.left.as_ref().map(|left| {
+                    let mut c = (**left).clone();
+                    c.shift = c.shift.plus(n.shift);
+                    w.copies += 1;
+                    Arc::new(c)
+                })
+            }
+        }
+        Self {
+            root: self.root.as_ref().and_then(|n| remove(n, w)),
+            len: self.len.saturating_sub(1),
+            height: self.height,
+        }
+    }
+    #[allow(dead_code)]
+    pub fn visit(&self, mut f: impl FnMut(&T)) {
+        fn visit<T: Positioned>(node: &Option<Arc<Node<T>>>, d: Delta, f: &mut impl FnMut(&T)) {
+            if let Some(n) = node {
+                let d = d.plus(n.shift);
+                visit(&n.left, d, f);
+                f(&n.value.shifted(d.plus(n.value_shift)));
+                visit(&n.right, d, f)
+            }
+        }
+        visit(&self.root, Delta::default(), &mut f)
+    }
+    #[cfg(test)]
+    pub fn payload(&self, index: usize) -> Arc<T> {
+        self.at(index, &mut TreeWork::default()).unwrap().value
     }
 }

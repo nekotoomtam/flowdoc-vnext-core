@@ -1,17 +1,13 @@
 import { beforeAll, describe, expect, it } from "vitest"
-import { execFileSync } from "node:child_process"
-import { createRequire } from "node:module"
-import { resolve } from "node:path"
+import { buildColdQaWasm } from "./coldQaWasmBuild.js"
 import { evaluateRunOwnedSemanticOracleStage2 } from "../src/layout/runOwnedSemanticOracleStage2.js"
 import { createColdSessionQaAdapter, type ColdQaWasm } from "../packages/text-engine-rust-wasm/src/coldSessionStage3.js"
 import { canonical, fixture, hash, oracleInput } from "./coldStage3Fixtures.js"
 
 let wasm: ColdQaWasm
-beforeAll(() => {
-  const crate = resolve("packages/text-engine-rust-wasm/rust-live-draft-engine")
-  execFileSync("wasm-pack", ["build", crate, "--dev", "--target", "nodejs", "--out-dir", "target/cold-session-qa", "--out-name", "cold_session", "--", "--features", "cold-session-qa"], { encoding: "utf8", timeout: 180_000, maxBuffer: 8 * 1024 * 1024 })
-  wasm = createRequire(import.meta.url)(resolve(crate, "target/cold-session-qa/cold_session.js")) as ColdQaWasm
-}, 180_000)
+beforeAll(async () => {
+  wasm = await buildColdQaWasm() as ColdQaWasm
+}, 360_000)
 
 describe("private Stage 3 cold Rust-owned session", () => {
   it.each([
