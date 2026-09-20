@@ -53,7 +53,8 @@ impl Positioned for Span {
 }
 impl Positioned for Run {
     fn copy_elements(&self) -> usize {
-        1 + self.span_indexes.len() + self.key.features.len()
+        // Membership is immutable and shared; cloning copies one Arc, not its entries.
+        2 + self.key.features.len()
     }
     fn start(&self) -> usize {
         self.start

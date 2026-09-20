@@ -239,7 +239,7 @@ pub(super) fn build(
                 provider_id: provider.provider_id.clone(),
                 provider_revision: provider.provider_revision.clone(),
             },
-            span_indexes,
+            span_indexes: span_indexes.into(),
             resource_index,
         });
         cursor = end;

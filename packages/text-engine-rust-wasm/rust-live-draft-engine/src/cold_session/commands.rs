@@ -1,6 +1,7 @@
 use super::{
     ledger::{Scope, Work},
     model::*,
+    ownership,
     policy::{canonical, hash},
     position::Delta,
     runtime::Runtime,
@@ -22,11 +23,17 @@ struct Command {
     end_offset: usize,
     replacement_text: String,
     composition: String,
+    #[serde(default)]
     anchor_span_id: String,
 }
 #[derive(Default, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct Meter {
+    ownership_span_visits: u64,
+    anchor_comparison_bytes: u64,
+    bounded_ownership: bool,
+    context_run_visits: u64,
+    context_key_comparison_bytes: u64,
     source_copy_bytes: u64,
     source_scan_utf16: u64,
     source_index_utf16: u64,
@@ -261,10 +268,7 @@ fn plan(
     if !insert && !range_edit {
         return Err("unsupported-command-shape");
     }
-    if range_edit
-        && (s.spans.len != 1
-            || (c.start_offset == 0 && c.end_offset == n && c.replacement_text.is_empty()))
-    {
+    if range_edit && c.start_offset == 0 && c.end_offset == n && c.replacement_text.is_empty() {
         return Err("unsupported-command-shape");
     }
     let middle = insert && c.start_offset < n;
@@ -273,19 +277,45 @@ fn plan(
     } else {
         c.start_offset
     };
-    let span_at = s.spans.containing(locate, tw).ok_or("missing-anchor")?;
-    let span = span_at.materialize(tw);
-    if span.span_id != c.anchor_span_id {
-        return Err("ambiguous-anchor");
-    }
-    if c.end_offset > span.end_offset {
-        return Err("unsupported-command-shape");
-    }
-    if middle && (s.spans.len != 1 || c.start_offset == span.start_offset) {
+    let ownership = ownership::select(
+        &s.spans,
+        c.start_offset,
+        c.end_offset,
+        n,
+        c.replacement_text.is_empty(),
+        &c.anchor_span_id,
+        tw,
+    )?;
+    let edge = ownership.edge;
+    m.bounded_ownership = edge;
+    if middle && !edge && c.start_offset == ownership.span.start_offset {
         return Err("unsupported-command-shape");
     }
     let run_at = s.runs.containing(locate, tw).ok_or("missing-anchor")?;
     let run = run_at.materialize(tw);
+    if edge {
+        // A style/font key boundary is not an ICU dictionary-context boundary.
+        // Adjacent-context certification is outside this admitted profile.
+        for index in [
+            run_at.index.checked_sub(1),
+            run_at.index.checked_add(1).filter(|i| *i < s.runs.len),
+        ]
+        .into_iter()
+        .flatten()
+        {
+            let neighbor = s.runs.at(index, tw).unwrap();
+            m.context_run_visits += 1;
+            let other = &neighbor.value.key.script;
+            let same = other.len() == run.key.script.len()
+                && other.bytes().zip(run.key.script.bytes()).all(|(a, b)| {
+                    m.context_key_comparison_bytes += 1;
+                    a == b
+                });
+            if same {
+                return Err("uncertified-seam");
+            }
+        }
+    }
     let shard_at = s.shards.containing(locate, tw).ok_or("missing-anchor")?;
     let shard = shard_at.materialize(tw);
     if c.end_offset > shard.end_offset {
@@ -293,7 +323,7 @@ fn plan(
     }
     let old = s.source.window(shard.start_offset, shard.end_offset, tw)?;
     let old_units = shard.end_offset - shard.start_offset;
-    let range_sizes = if range_edit {
+    let range_sizes = if range_edit || edge {
         let mut replacement_units = 0;
         for ch in c.replacement_text.chars() {
             let units = ch.len_utf16();
@@ -320,9 +350,12 @@ fn plan(
     } else {
         None
     };
-    if range_edit && (shard.start_offset != run.start || shard.end_offset != run.end) {
+    if (range_edit || edge) && (shard.start_offset != run.start || shard.end_offset != run.end) {
         // Shaping concat flags alone do not certify adjacent Thai line facts.
         return Err("uncertified-seam");
+    }
+    if edge && (c.start_offset <= run.start || c.end_offset >= run.end) {
+        return Err("uncertified-boundary");
     }
     let a = byte(&old, c.start_offset - shard.start_offset, m).ok_or("scalar-unsafe")?;
     let b = byte(&old, c.end_offset - shard.start_offset, m).ok_or("scalar-unsafe")?;
@@ -333,6 +366,7 @@ fn plan(
     }
     // The first middle profile preserves the existing Latin AL line class.
     if insert
+        && !edge
         && (run.key.script != "Latin"
             || !c.replacement_text.chars().all(|x| {
                 m.property_scalar_visits += 1;
@@ -343,6 +377,7 @@ fn plan(
         return Err("uncertified-seam");
     }
     if middle
+        && !edge
         && !old.chars().all(|x| {
             m.property_scalar_visits += 1;
             m.property_scan_utf16 += x.len_utf16() as u64;
@@ -353,7 +388,7 @@ fn plan(
     }
     let new = format!("{}{}{}", &old[..a], c.replacement_text, &old[b..]);
     m.source_copy_bytes += new.len() as u64;
-    if range_edit {
+    if range_edit || edge {
         // Old grapheme boundaries do not certify newly authored run edges.
         // Keep neighbor context unchanged until an adjacent-window proof exists.
         if !new.is_empty()
@@ -410,6 +445,16 @@ fn plan(
         return Err("uncertified-seam");
     }
     let mut after = facts(&new, shard.start_offset, &run, &s.provider, m)?;
+    if edge {
+        let cut = if insert && ownership.span.end_offset == c.start_offset {
+            c.start_offset + range_sizes.unwrap().0
+        } else {
+            c.start_offset
+        };
+        if !contains(&after.grapheme_boundaries, cut, m) {
+            return Err("uncertified-boundary");
+        }
+    }
     let d = Delta {
         units: new_units as isize - old_units as isize,
         bytes: new.len() as isize - old.len() as isize,
@@ -474,8 +519,6 @@ fn plan(
         (*p != after.start_offset || contains(&shard.line_breaks, shard.start_offset, m))
             && (*p != after.end_offset || shard.end_offset == n)
     });
-    let mut next_span = span;
-    next_span.end_offset = d.unit(next_span.end_offset);
     let mut next_run = run;
     next_run.end = d.unit(next_run.end);
     next_run.end_byte = d.byte(next_run.end_byte);
@@ -488,7 +531,7 @@ fn plan(
     let source = s
         .source
         .replace(c.start_offset, c.end_offset, &c.replacement_text, tw)?;
-    let spans = s.spans.replace_and_shift(span_at.index, next_span, d, tw);
+    let spans = ownership.publish(&s.spans, c.start_offset, c.end_offset, d, tw);
     let runs = if next_run.start == next_run.end {
         s.runs.without_last(tw)
     } else {
@@ -614,13 +657,16 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
     meter.shared_subtrees = tw.shared_subtrees;
     meter.lazy_shifted_subtrees = tw.shifted_subtrees;
     meter.payload_copy_calls = tw.payload_copy_calls;
+    meter.ownership_span_visits = tw.ownership_span_visits;
+    meter.anchor_comparison_bytes = tw.anchor_comparison_bytes;
     meter.payload_elements_copied = tw.payload_elements_copied;
     meter.source_copy_bytes += tw.source_copy_bytes;
     meter.source_index_utf16 = tw.source_index_utf16;
     meter.source_offset_lookups = tw.source_offset_lookups;
-    if command
-        .as_ref()
-        .is_ok_and(|c| c.start_offset < c.end_offset)
+    if meter.bounded_ownership
+        || command
+            .as_ref()
+            .is_ok_and(|c| c.start_offset < c.end_offset)
     {
         meter.source_facts_utf16 =
             meter.source_scan_utf16 + tw.source_index_utf16 + meter.property_scan_utf16;

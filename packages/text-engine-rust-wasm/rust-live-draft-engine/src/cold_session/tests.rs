@@ -44,6 +44,336 @@ fn create(runtime: &mut Runtime, input: &Value) -> Value {
     serde_json::from_str(&runtime.create(&input.to_string())).unwrap()
 }
 
+fn span_fixture(texts: &[&str]) -> Value {
+    let mut input = fixture(&texts.concat());
+    let mut offset = 0;
+    input["authoredSpans"] = Value::Array(
+        texts
+            .iter()
+            .enumerate()
+            .map(|(i, text)| {
+                let start = offset;
+                offset += text.encode_utf16().count();
+                json!({"spanId":format!("span-{i}"),"startOffset":start,"endOffset":offset,
+            "text":text,"language":"und","styleKey":"body"})
+            })
+            .collect(),
+    );
+    input
+}
+
+#[test]
+fn command_admission_does_not_copy_unbounded_same_key_span_membership() {
+    let mut counts = Vec::new();
+    for count in [600, 6000] {
+        let mut rt = Runtime::default();
+        let c = create(&mut rt, &span_fixture(&vec!["A"; count]));
+        assert_eq!(c["status"], "Created", "{c}");
+        let receipt = c["receipt"].as_str().unwrap();
+        let before = retained_observable(rt.session(receipt));
+        let r: Value = serde_json::from_str(
+            &rt.apply(
+                &json!({"receipt":receipt,"expectedRevision":0,
+            "startOffset":count,"endOffset":count,"replacementText":"B","composition":"committed",
+            "anchorSpanId":format!("span-{}",count-1)})
+                .to_string(),
+            ),
+        )
+        .unwrap();
+        assert_eq!(r["status"], "NotAdmissible", "{r}");
+        assert_eq!(before, retained_observable(rt.session(receipt)));
+        counts.push(
+            r["affectedSummary"]["work"]["payloadElementsCopied"]
+                .as_u64()
+                .unwrap(),
+        );
+    }
+    assert!(
+        counts[1] <= counts[0] + 1024,
+        "run membership copied before bounded admission: {counts:?}"
+    );
+    assert!(
+        counts.iter().all(|c| *c < 1024),
+        "unbounded payload copies: {counts:?}"
+    );
+    eprintln!("shared same-key membership payload copy counts: {counts:?}");
+}
+
+#[test]
+fn authored_edge_commands_match_exact_cold_oracle_and_preserve_membership() {
+    for (texts, start, end, replacement, anchor, expected) in [
+        (["AB", "CD"], 2, 2, "X", "span-0", ["ABX", "CD"]),
+        (["AB", "CD"], 2, 2, "X", "span-1", ["AB", "XCD"]),
+        (["กข", "คง"], 2, 2, "จ", "span-0", ["กขจ", "คง"]),
+        (["กข", "คง"], 2, 2, "จ", "span-1", ["กข", "จคง"]),
+        (["AB", "CD"], 1, 3, "", "span-0", ["A", "D"]),
+        (["กข", "คง"], 1, 3, "", "span-0", ["ก", "ง"]),
+    ] {
+        let mut rt = Runtime::default();
+        let c = create(&mut rt, &span_fixture(&texts));
+        assert_eq!(c["status"], "Created", "{c}");
+        let receipt = c["receipt"].as_str().unwrap();
+        let membership = rt.session(receipt).runs.payload(0).span_indexes.clone();
+        let r: Value = serde_json::from_str(&rt.apply(&json!({"receipt":receipt,"expectedRevision":0,
+            "startOffset":start,"endOffset":end,"replacementText":replacement,"composition":"committed",
+            "anchorSpanId":anchor}).to_string())).unwrap();
+        assert_eq!(r["status"], "Accepted", "{texts:?}/{anchor}: {r}");
+        let next = rt.session(r["nextReceipt"].as_str().unwrap());
+        let mut oracle = Runtime::default();
+        let cold = create(&mut oracle, &span_fixture(&expected));
+        assert_eq!(cold["status"], "Created", "{cold}");
+        assert_eq!(
+            retained_observable(next),
+            retained_observable(oracle.session(cold["receipt"].as_str().unwrap()))
+        );
+        assert!(std::sync::Arc::ptr_eq(
+            &membership,
+            &next.runs.payload(0).span_indexes
+        ));
+        let w = &r["affectedSummary"]["work"];
+        assert!(w["sourceFactsUtf16"].as_u64().unwrap() <= 512);
+        assert!(w["propertyFactsUtf16"].as_u64().unwrap() <= 512);
+        assert!(w["shapingSegmentationInputUtf16"].as_u64().unwrap() <= 1024);
+    }
+}
+
+#[test]
+fn authored_edge_rejections_preserve_exact_state_and_authentic_receipt() {
+    for (texts, start, end, replacement, anchor, reason) in [
+        (vec!["AB", "CD"], 2, 2, "X", "", "missing-anchor"),
+        (
+            vec!["AB", "CD", "EF"],
+            2,
+            2,
+            "X",
+            "span-2",
+            "ambiguous-anchor",
+        ),
+        (vec!["AB", "CD"], 2, 2, "X", "forged-id", "ambiguous-anchor"),
+        (vec!["ก่ข", "คง"], 1, 4, "", "span-0", "uncertified-boundary"),
+        (vec!["กข", "คง"], 2, 2, "่", "span-1", "uncertified-boundary"),
+        (
+            vec!["AB", "กข"],
+            2,
+            2,
+            "X",
+            "span-0",
+            "uncertified-boundary",
+        ),
+        (vec!["AB", "CD"], 2, 2, "ก", "span-0", "uncertified-seam"),
+        (
+            vec!["AB", "CD"],
+            1,
+            3,
+            "X",
+            "span-0",
+            "unsupported-command-shape",
+        ),
+        (
+            vec!["AB", "CD"],
+            0,
+            3,
+            "",
+            "span-0",
+            "unsupported-command-shape",
+        ),
+        (
+            vec!["AB", "CD"],
+            1,
+            4,
+            "",
+            "span-0",
+            "unsupported-command-shape",
+        ),
+        (
+            vec!["AB", "CD", "EF"],
+            1,
+            5,
+            "",
+            "span-0",
+            "unsupported-command-shape",
+        ),
+        (
+            vec![
+                "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+            ],
+            40,
+            40,
+            "C",
+            "span-0",
+            "budget-exhaustion",
+        ),
+    ] {
+        let mut rt = Runtime::default();
+        let c = create(&mut rt, &span_fixture(&texts));
+        assert_eq!(c["status"], "Created", "{c}");
+        let receipt = c["receipt"].as_str().unwrap();
+        let before = retained_observable(rt.session(receipt));
+        let source = rt.session(receipt).source.clone();
+        let shard = rt.session(receipt).shards.payload(0);
+        let binding = rt.session(receipt).source_binding.clone();
+        let r: Value = serde_json::from_str(&rt.apply(&json!({"receipt":receipt,"expectedRevision":0,
+            "startOffset":start,"endOffset":end,"replacementText":replacement,"composition":"committed",
+            "anchorSpanId":anchor}).to_string())).unwrap();
+        assert_eq!(r["reason"], reason, "{texts:?}: {r}");
+        assert_eq!(r["unchangedReceipt"], receipt);
+        assert_eq!(r["unchangedRevision"], 0);
+        let same = rt.session(receipt);
+        assert_eq!(before, retained_observable(same));
+        assert_eq!(same.source_binding, binding);
+        assert!(std::sync::Arc::ptr_eq(&source, &same.source));
+        assert!(std::sync::Arc::ptr_eq(&shard, &same.shards.payload(0)));
+        assert_eq!(rt.live_count(), 1);
+    }
+}
+
+#[test]
+fn authored_edge_authentication_failure_retains_exact_state() {
+    for forged in [false, true] {
+        let mut rt = Runtime::default();
+        let c = create(&mut rt, &span_fixture(&["AB", "CD"]));
+        let receipt = c["receipt"].as_str().unwrap();
+        let before = retained_observable(rt.session(receipt));
+        let binding = rt.session(receipt).source_binding.clone();
+        let result: Value = serde_json::from_str(
+            &rt.apply(
+                &json!({"receipt":if forged {"forged"} else {receipt},
+            "expectedRevision":if forged {0} else {1}, "startOffset":2,"endOffset":2,
+            "replacementText":"X","composition":"committed","anchorSpanId":"span-0"})
+                .to_string(),
+            ),
+        )
+        .unwrap();
+        assert_eq!(
+            result["reason"],
+            if forged {
+                "unknown-receipt"
+            } else {
+                "stale-revision"
+            }
+        );
+        assert_eq!(before, retained_observable(rt.session(receipt)));
+        assert_eq!(binding, rt.session(receipt).source_binding);
+        assert_eq!(rt.session(receipt).revision, 0);
+        assert_eq!(rt.live_count(), 1);
+    }
+}
+
+#[test]
+fn authored_edge_does_not_certify_thai_context_across_a_style_run_edge() {
+    for (style_index, offset, anchor, expected_texts, expected_lines) in [
+        (2, 1, "span-0", ["ภข", "า", "ษาไทย"], vec![0, 1, 5, 8]),
+        (0, 2, "span-1", ["ภ", "าข", "ษาไทย"], vec![0, 5, 8]),
+    ] {
+        let mut input = span_fixture(&["ภ", "า", "ษาไทย"]);
+        input["authoredSpans"][style_index]["styleKey"] = json!("zbody");
+        let policy = &mut input["providerContext"]["policy"];
+        for field in ["fontRouteRules", "featureRules"] {
+            let rows = policy[field].as_array_mut().unwrap();
+            let mut extras = rows.clone();
+            for row in &mut extras {
+                row["styleKey"] = json!("zbody");
+            }
+            rows.extend(extras);
+        }
+        input["providerContext"]["policyDigest"] =
+            json!(digest(&input["providerContext"]["policy"]));
+        let mut rt = Runtime::default();
+        let created = create(&mut rt, &input);
+        assert_eq!(created["status"], "Created", "{created}");
+        let receipt = created["receipt"].as_str().unwrap();
+        let before = retained_observable(rt.session(receipt));
+        assert_eq!(before["lines"], json!([0, 4, 7]));
+        let mut expected = input.clone();
+        expected["authoredSpans"] = span_fixture(&expected_texts)["authoredSpans"].clone();
+        expected["authoredSpans"][style_index]["styleKey"] = json!("zbody");
+        let mut oracle = Runtime::default();
+        let cold = create(&mut oracle, &expected);
+        assert_eq!(cold["status"], "Created", "{cold}");
+        assert_eq!(
+            retained_observable(oracle.session(cold["receipt"].as_str().unwrap()))["lines"],
+            json!(expected_lines)
+        );
+        let result: Value = serde_json::from_str(&rt.apply(&json!({"receipt":receipt,"expectedRevision":0,
+        "startOffset":offset,"endOffset":offset,"replacementText":"ข","composition":"committed","anchorSpanId":anchor}).to_string())).unwrap();
+        assert_eq!(result["reason"], "uncertified-seam", "{result}");
+        assert_eq!(result["affectedSummary"]["work"]["shapingCalls"], 0);
+        assert_eq!(result["unchangedReceipt"], receipt);
+        assert_eq!(result["unchangedRevision"], 0);
+        assert_eq!(before, retained_observable(rt.session(receipt)));
+    }
+}
+
+#[test]
+fn authored_edge_long_context_preserves_properties_and_shares_unrelated_payloads() {
+    for suffix_count in [300, 3000] {
+        for (start, end, replacement, expected_pair) in
+            [(302, 302, "X", ["ABX", "CD"]), (301, 303, "", ["A", "D"])]
+        {
+            let prefix = "ก".repeat(300);
+            let mut texts = vec![prefix.as_str(), "AB", "CD"];
+            texts.extend(vec!["ข"; suffix_count]);
+            let mut input = span_fixture(&texts);
+            input["authoredSpans"][2]
+                .as_object_mut()
+                .unwrap()
+                .remove("language");
+            let mut rt = Runtime::default();
+            let c = create(&mut rt, &input);
+            assert_eq!(c["status"], "Created", "{c}");
+            let receipt = c["receipt"].as_str().unwrap();
+            let old = rt.session(receipt);
+            let count = old.shards.len;
+            let prefix_payload = old.shards.payload(0);
+            let suffix_payload = old.shards.payload(count - 1);
+            let suffix_span = old.spans.payload(old.spans.len - 1);
+            let membership = old.runs.payload(1).span_indexes.clone();
+            let r: Value = serde_json::from_str(&rt.apply(&json!({"receipt":receipt,"expectedRevision":0,
+                "startOffset":start,"endOffset":end,"replacementText":replacement,"composition":"committed",
+                "anchorSpanId":"span-1"}).to_string())).unwrap();
+            assert_eq!(r["status"], "Accepted", "{r}");
+            let next = rt.session(r["nextReceipt"].as_str().unwrap());
+            texts[1] = expected_pair[0];
+            texts[2] = expected_pair[1];
+            let mut expected = span_fixture(&texts);
+            expected["authoredSpans"][2]
+                .as_object_mut()
+                .unwrap()
+                .remove("language");
+            let mut oracle = Runtime::default();
+            let cold = create(&mut oracle, &expected);
+            assert_eq!(cold["status"], "Created", "{cold}");
+            assert_eq!(
+                retained_observable(next),
+                retained_observable(oracle.session(cold["receipt"].as_str().unwrap()))
+            );
+            assert!(std::sync::Arc::ptr_eq(
+                &prefix_payload,
+                &next.shards.payload(0)
+            ));
+            assert!(std::sync::Arc::ptr_eq(
+                &suffix_payload,
+                &next.shards.payload(count - 1)
+            ));
+            assert!(std::sync::Arc::ptr_eq(
+                &suffix_span,
+                &next.spans.payload(next.spans.len - 1)
+            ));
+            assert!(std::sync::Arc::ptr_eq(
+                &membership,
+                &next.runs.payload(1).span_indexes
+            ));
+            let w = &r["affectedSummary"]["work"];
+            assert_eq!(w["ownershipSpanVisits"], 2);
+            assert!(w["treeNodeVisits"].as_u64().unwrap() < 160);
+            assert!(w["treePathCopies"].as_u64().unwrap() < 80);
+            assert!(w["payloadElementsCopied"].as_u64().unwrap() < 120);
+            eprintln!("edge suffix={suffix_count} replacement={replacement:?}: {w}");
+        }
+    }
+}
+
 #[test]
 fn append_retains_exact_rust_owned_source_descriptors_and_facts() {
     let mut runtime = Runtime::default();
@@ -180,7 +510,7 @@ fn retained_observable(session: &runtime::Session) -> Value {
         .spans
         .visit(|s| spans.push(serde_json::to_value(s).unwrap()));
     let mut runs = Vec::new();
-    session.runs.visit(|r|runs.push(json!({"start":r.start,"end":r.end,"startByte":r.start_byte,"endByte":r.end_byte,"key":r.key,"spanIndexes":r.span_indexes})));
+    session.runs.visit(|r|runs.push(json!({"start":r.start,"end":r.end,"startByte":r.start_byte,"endByte":r.end_byte,"key":r.key,"spanIndexes":r.span_indexes.as_ref()})));
     let mut glyphs = Vec::new();
     let mut lines: Vec<usize> = Vec::new();
     let mut graphemes: Vec<usize> = Vec::new();

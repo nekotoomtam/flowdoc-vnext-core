@@ -123,7 +123,7 @@ pub(super) struct Run {
     pub start_byte: usize,
     pub end_byte: usize,
     pub key: Key,
-    pub span_indexes: Vec<usize>,
+    pub span_indexes: std::sync::Arc<[usize]>,
     pub resource_index: usize,
 }
 #[derive(Clone, Serialize, Debug, PartialEq)]

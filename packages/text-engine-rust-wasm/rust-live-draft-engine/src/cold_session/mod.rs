@@ -2,6 +2,7 @@ mod commands;
 mod derive;
 mod ledger;
 mod model;
+mod ownership;
 mod policy;
 mod position;
 mod runtime;

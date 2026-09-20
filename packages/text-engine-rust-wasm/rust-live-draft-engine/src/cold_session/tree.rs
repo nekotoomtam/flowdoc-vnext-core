@@ -39,6 +39,8 @@ impl<T> Clone for Node<T> {
 }
 #[derive(Default, Debug)]
 pub(super) struct TreeWork {
+    pub ownership_span_visits: u64,
+    pub anchor_comparison_bytes: u64,
     pub visits: u64,
     pub copies: u64,
     pub shared_subtrees: u64,

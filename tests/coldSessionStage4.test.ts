@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest"
 import { buildColdQaWasm } from "./coldQaWasmBuild.js"
-import { fixture } from "./coldStage3Fixtures.js"
+import { fixture, canonical, hash } from "./coldStage3Fixtures.js"
 import { createColdSessionQaAdapter, type ColdQaWasm } from "../packages/text-engine-rust-wasm/src/coldSessionStage3.js"
 
 type Stage4Wasm = {
@@ -9,11 +9,125 @@ type Stage4Wasm = {
 }
 
 let wasm: Stage4Wasm
+function spanFixture(texts: string[]) {
+  const input = fixture(texts.join(""))
+  let offset = 0
+  input.authoredSpans = texts.map((text, index) => {
+    const startOffset = offset
+    offset += text.length
+    return { spanId: `span-${index}`, startOffset, endOffset: offset, text, language: "und", styleKey: "body" }
+  })
+  return input
+}
 beforeAll(async () => {
   wasm = await buildColdQaWasm() as Stage4Wasm
 }, 360_000)
 
 describe("private Stage 4 ordinary atomic commands", () => {
+  it.each(["left", "right"])("rejects uncertified Thai dictionary context across a %s style-run neighbor", (side) => {
+    const input = spanFixture(["ภ", "า", "ษาไทย"])
+    input.authoredSpans[side === "right" ? 2 : 0]!.styleKey = "zbody"
+    const policy = input.providerContext.policy
+    policy.fontRouteRules.push(...policy.fontRouteRules.map((row) => ({ ...row, styleKey: "zbody" })))
+    policy.featureRules.push(...policy.featureRules.map((row) => ({ ...row, styleKey: "zbody" })))
+    input.providerContext.policyDigest = hash(canonical(policy))
+    const created = JSON.parse(wasm.stage3_create(JSON.stringify(input)))
+    expect(created.status).toBe("Created")
+    const offset = side === "right" ? 1 : 2
+    const result = JSON.parse(wasm.stage4_apply(JSON.stringify({receipt: created.receipt, expectedRevision: 0,
+      startOffset: offset, endOffset: offset, replacementText: "ข", composition: "committed", anchorSpanId: side === "right" ? "span-0" : "span-1"})))
+    expect(result).toMatchObject({status: "NotAdmissible", reason: "uncertified-seam", unchangedReceipt: created.receipt, unchangedRevision: 0})
+    expect(result.affectedSummary.work.shapingCalls).toBe(0)
+    expect(result.affectedSummary.work.contextRunVisits).toBe(1)
+  })
+  it.each([
+    [["AB", "CD"], 2, 2, "X", "span-0"],
+    [["AB", "CD"], 2, 2, "X", "span-1"],
+    [["กข", "คง"], 2, 2, "จ", "span-0"],
+    [["กข", "คง"], 2, 2, "จ", "span-1"],
+    [["AB", "CD"], 1, 3, "", "span-0"],
+    [["กข", "คง"], 1, 3, "", "span-1"],
+  ] as const)("publishes the exact anchored authored-edge profile: %j", (texts, startOffset, endOffset, replacementText, anchorSpanId) => {
+    const created = JSON.parse(wasm.stage3_create(JSON.stringify(spanFixture([...texts]))))
+    expect(created.status).toBe("Created")
+    const request = JSON.stringify({ receipt: created.receipt, expectedRevision: 0, startOffset, endOffset, replacementText, anchorSpanId, composition: "committed" })
+    const wire = wasm.stage4_apply(request)
+    const result = JSON.parse(wire)
+    expect(result, wire).toMatchObject({ status: "Accepted", nextRevision: 1 })
+    const w = result.affectedSummary.work
+    expect(w).toMatchObject({ ownershipSpanVisits: 2, boundedOwnership: true, wholeParagraphScans: 0, unboundedSuffixWork: 0, absoluteOffsetReindexing: 0 })
+    expect(w.sourceFactsUtf16).toBeLessThanOrEqual(512)
+    expect(w.propertyFactsUtf16).toBeLessThanOrEqual(512)
+    expect(w.shapingSegmentationInputUtf16).toBeLessThanOrEqual(1024)
+    expect(w.abiInputBytes).toBe(Buffer.byteLength(request))
+    expect(w.abiOutputBytes).toBe(Buffer.byteLength(wire))
+  })
+
+  it.each([
+    [["AB", "CD"], 2, 2, "X", undefined, "missing-anchor"],
+    [["AB", "CD", "EF"], 2, 2, "X", "span-2", "ambiguous-anchor"],
+    [["AB", "CD"], 2, 2, "X", "wrong", "ambiguous-anchor"],
+    [["ก่ข", "คง"], 1, 4, "", "span-0", "uncertified-boundary"],
+    [["กข", "คง"], 2, 2, "่", "span-1", "uncertified-boundary"],
+    [["AB", "กข"], 2, 2, "X", "span-0", "uncertified-boundary"],
+    [["AB", "CD"], 2, 2, "ก", "span-0", "uncertified-seam"],
+    [["AB", "CD"], 1, 3, "X", "span-0", "unsupported-command-shape"],
+    [["AB", "CD"], 0, 3, "", "span-0", "unsupported-command-shape"],
+    [["AB", "CD"], 1, 4, "", "span-0", "unsupported-command-shape"],
+    [["AB", "CD", "EF"], 1, 5, "", "span-0", "unsupported-command-shape"],
+    [["A".repeat(40), "B".repeat(40)], 40, 40, "C", "span-0", "budget-exhaustion"],
+  ] as const)("rejects unsupported authored-edge ownership unchanged: %j", (texts, startOffset, endOffset, replacementText, anchorSpanId, reason) => {
+    const created = JSON.parse(wasm.stage3_create(JSON.stringify(spanFixture([...texts]))))
+    expect(created.status).toBe("Created")
+    const result = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt: created.receipt, expectedRevision: 0, startOffset, endOffset, replacementText, anchorSpanId, composition: "committed" })))
+    expect(result).toMatchObject({ status: "NotAdmissible", reason, unchangedReceipt: created.receipt, unchangedRevision: 0 })
+  })
+
+  it.each([300, 3000])("keeps authored-edge work bounded with %i unrelated suffix spans", (count) => {
+    for (const replacementText of ["X", ""]) {
+      const created = JSON.parse(wasm.stage3_create(JSON.stringify(spanFixture(["ก".repeat(300), "AB", "CD", ...Array<string>(count).fill("ข")]))))
+      const startOffset = replacementText ? 302 : 301, endOffset = replacementText ? 302 : 303
+      const result = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt: created.receipt, expectedRevision: 0, startOffset, endOffset, replacementText, anchorSpanId: "span-1", composition: "committed" })))
+      expect(result.status).toBe("Accepted")
+      const w = result.affectedSummary.work
+      expect(w.ownershipSpanVisits).toBe(2)
+      expect(w.payloadElementsCopied).toBeLessThan(120)
+      expect(w.treePathCopies).toBeLessThan(80)
+      expect(w.treeNodeVisits).toBeLessThan(160)
+      expect(w.sourceFactsUtf16).toBeLessThanOrEqual(512)
+      expect(w.propertyFactsUtf16).toBeLessThanOrEqual(512)
+      expect(w.shapingSegmentationInputUtf16).toBeLessThanOrEqual(1024)
+    }
+  }, 30_000) // Two cold constructions are outside the measured command envelope.
+
+  it.each(["forged", "stale"])("keeps authored-edge authentication failure atomic: %s", (kind) => {
+    const created = JSON.parse(wasm.stage3_create(JSON.stringify(spanFixture(["AB", "CD"]))))
+    const command = { receipt: created.receipt, expectedRevision: 0, startOffset: 2, endOffset: 2, replacementText: "X", anchorSpanId: "span-0", composition: "committed" }
+    const rejected = JSON.parse(wasm.stage4_apply(JSON.stringify({ ...command, receipt: kind === "forged" ? "forged" : created.receipt, expectedRevision: kind === "stale" ? 1 : 0 })))
+    expect(rejected).toMatchObject({ status: "NotAdmissible", reason: kind === "forged" ? "unknown-receipt" : "stale-revision" })
+    expect(JSON.parse(wasm.stage4_apply(JSON.stringify(command)))).toMatchObject({ status: "Accepted", nextRevision: 1 })
+    expect(JSON.parse(wasm.stage4_apply(JSON.stringify(command)))).toMatchObject({ status: "NotAdmissible", reason: "unknown-receipt" })
+  })
+
+  it("does not create an ambiguous duplicate stable-ID boundary", () => {
+    const input = spanFixture(["AB", "CD"])
+    input.authoredSpans[1]!.spanId = input.authoredSpans[0]!.spanId
+    expect(JSON.parse(wasm.stage3_create(JSON.stringify(input)))).toMatchObject({ status: "NotCreated", reason: "invalid-authored-spans" })
+  })
+
+  it("charges the complete authored-edge ABI allocation lifecycle", () => {
+    const adapter = createColdSessionQaAdapter(wasm as Stage4Wasm & ColdQaWasm)
+    const input = spanFixture(["AB", "CD"])
+    const created = adapter.create(input.providerContext, input.paragraphContext, input.authoredSpans)
+    if (created.status !== "Created") throw new Error("cold construction failed")
+    const result = adapter.apply(created.receipt, { expectedRevision: 0, startOffset: 2, endOffset: 2, replacementText: "X", anchorSpanId: "span-0", composition: "committed" })
+    if (result.status !== "Accepted") throw new Error("edge command failed")
+    expect(result.affectedSummary.allocationLifecycle).toMatchObject({ allocationScope: "complete-rust-abi-lifecycle", hostJsonEncodePasses: 1, hostJsonDecodePasses: 1, abiEntrypointCalls: 7 })
+    expect(Number.parseInt(result.affectedSummary.allocationLifecycle.allocatedBytes, 16)).toBeGreaterThan(result.affectedSummary.work.allocatedBytes)
+    expect(Number.parseInt(result.affectedSummary.allocationLifecycle.deallocatedBytes, 16)).toBeGreaterThan(result.affectedSummary.work.deallocatedBytes)
+    expect(adapter.dispose(created.receipt)).toEqual({ status: "UnknownReceipt" })
+    expect(adapter.dispose(result.nextReceipt).status).toBe("Disposed")
+  })
   it("rejects a partial analysis-run range before provider work without an adjacent line certificate", () => {
     const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("ก".repeat(150)))))
     const result = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt: created.receipt, expectedRevision: 0, startOffset: 148, endOffset: 149, replacementText: "ข", composition: "committed", anchorSpanId: "span-1" })))
