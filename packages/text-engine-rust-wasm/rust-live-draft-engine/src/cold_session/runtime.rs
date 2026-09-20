@@ -24,6 +24,7 @@ pub(super) struct Session {
 #[derive(Default)]
 pub(super) struct Runtime {
     pub(super) sessions: BTreeMap<String, Session>,
+    pub(super) faults: super::faults::Controls,
 }
 
 #[derive(Default, Serialize)]
@@ -195,6 +196,8 @@ impl Runtime {
         match self.sessions.remove(receipt) {
             None => json!({"status":"UnknownReceipt"}),
             Some(session) => {
+                let mut fault_work = super::faults::FaultWork::default();
+                self.faults.clear_for(receipt, &mut fault_work);
                 let resources = session
                     .provider
                     .fonts
@@ -204,7 +207,7 @@ impl Runtime {
                 let result = json!({"status":"Disposed", "disposalSummary":{
                     "releasedSourceBytes":session.source.bytes(), "releasedSpans":session.spans.len,
                     "releasedRuns":session.runs.len, "releasedShards":session.shards.len,
-                    "releasedFontBytes":resources, "liveSessions":self.live_count()}});
+                    "releasedFontBytes":resources, "liveSessions":self.live_count(), "faultWork":fault_work}});
                 drop(session);
                 result
             }

@@ -1,5 +1,6 @@
 mod commands;
 mod derive;
+mod faults;
 mod ledger;
 mod model;
 mod ownership;
@@ -29,6 +30,10 @@ pub fn stage4_apply(input: &str) -> String {
     SESSIONS.with(|s| s.borrow_mut().apply(input))
 }
 #[wasm_bindgen]
+pub fn stage4_arm_fault(input: &str) -> String {
+    SESSIONS.with(|s| faults::arm(&mut s.borrow_mut(), input))
+}
+#[wasm_bindgen]
 pub fn stage3_live_count() -> u32 {
     SESSIONS.with(|s| s.borrow().live_count() as u32)
 }
@@ -47,5 +52,7 @@ pub fn stage3_allocation_count(field: u32) -> u64 {
     ledger::allocation_count(field)
 }
 
+#[cfg(test)]
+mod fault_tests;
 #[cfg(test)]
 mod tests;

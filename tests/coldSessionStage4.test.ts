@@ -6,6 +6,12 @@ import { createColdSessionQaAdapter, type ColdQaWasm } from "../packages/text-en
 type Stage4Wasm = {
   stage3_create(input: string): string
   stage4_apply(input: string): string
+  stage4_arm_fault(input: string): string
+  stage3_dispose(receipt: string): string
+  stage3_live_count(): number
+  stage3_begin_transfer(): void
+  stage3_end_transfer(): void
+  stage3_allocation_count(field: number): bigint
 }
 
 let wasm: Stage4Wasm
@@ -24,6 +30,85 @@ beforeAll(async () => {
 }, 360_000)
 
 describe("private Stage 4 ordinary atomic commands", () => {
+  it.each([
+    ["cancel-before-provider", "cancelled", 0, 1],
+    ["provider-failure", "provider-failure", 1, 2],
+    ["cancel-after-provider", "cancelled", 2, 3],
+    ["publication-refusal", "publication-refused", 2, 4],
+  ] as const)("keeps %s atomic through the raw one-shot QA channel and charges its full ABI lifecycle", (point, reason, shapes, checkpoints) => {
+    const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("ABCDE"))))
+    const live = wasm.stage3_live_count()
+    expect(typeof wasm.stage4_arm_fault).toBe("function")
+    const control = JSON.stringify({ receipt: created.receipt, expectedRevision: 0, point })
+    wasm.stage3_begin_transfer()
+    const armWire = wasm.stage4_arm_fault(control)
+    wasm.stage3_end_transfer()
+    const armed = JSON.parse(armWire)
+    expect(armed).toMatchObject({ status: "Armed", work: { controlParses: 1, sessionLookups: 1, revisionChecks: 1, faultsArmed: 1, bindingBytesRetained: created.receipt.length } })
+    expect(BigInt(`0x${armed.work.abiInputBytes}`)).toBe(BigInt(Buffer.byteLength(control)))
+    expect(BigInt(`0x${armed.work.abiOutputBytes}`)).toBe(BigInt(Buffer.byteLength(armWire)))
+    expect(BigInt(`0x${armed.work.responseEncodingPasses}`)).toBe(2n)
+    expect(BigInt(`0x${armed.work.responseEncodedBytes}`)).toBe(BigInt(2 * Buffer.byteLength(armWire)))
+    expect(wasm.stage3_allocation_count(0)).toBeGreaterThan(BigInt(`0x${armed.work.allocationCalls}`))
+    expect(wasm.stage3_allocation_count(1)).toBeGreaterThan(BigInt(`0x${armed.work.allocatedBytes}`))
+    expect(wasm.stage3_allocation_count(3)).toBeGreaterThan(BigInt(`0x${armed.work.deallocatedBytes}`))
+    const command = JSON.stringify({ receipt: created.receipt, expectedRevision: 0, startOffset: 1, endOffset: 3, replacementText: "XY", anchorSpanId: "span-1", composition: "committed" })
+    wasm.stage3_begin_transfer()
+    const rejectedWire = wasm.stage4_apply(command)
+    wasm.stage3_end_transfer()
+    const cancelled = JSON.parse(rejectedWire)
+    expect(cancelled).toMatchObject({ status: "NotAdmissible", reason, unchangedReceipt: created.receipt, unchangedRevision: 0 })
+    const w = cancelled.affectedSummary.work
+    expect(w).toMatchObject({ shapingCalls: shapes, segmentationCalls: 2 * shapes, faultCheckpoints: checkpoints, faultsConsumed: 1,
+      faultSlotProbes: checkpoints, faultBindingChecks: checkpoints, faultRevisionChecks: checkpoints, faultPointChecks: checkpoints,
+      faultReceiptComparisonBytes: checkpoints * created.receipt.length, abiInputBytes: Buffer.byteLength(command), abiOutputBytes: Buffer.byteLength(rejectedWire),
+      wholeParagraphScans: 0, unboundedSuffixWork: 0, absoluteOffsetReindexing: 0,
+      publicationPreparationPasses: point === "publication-refusal" ? 1 : 0 })
+    expect(w.responseEncodedBytes).toBeGreaterThan(w.abiOutputBytes)
+    expect(w.sourceFactsUtf16).toBeLessThanOrEqual(512)
+    expect(w.propertyFactsUtf16).toBeLessThanOrEqual(512)
+    expect(w.shapingSegmentationInputUtf16).toBeLessThanOrEqual(1024)
+    if (point === "publication-refusal") expect(w.publicationPreparationBytes).toBeGreaterThan(0)
+    expect(wasm.stage3_allocation_count(1)).toBeGreaterThan(BigInt(w.allocatedBytes))
+    expect(wasm.stage3_allocation_count(3)).toBeGreaterThan(BigInt(w.deallocatedBytes))
+    expect(wasm.stage3_live_count()).toBe(live)
+    const retry = JSON.parse(wasm.stage4_apply(command))
+    expect(retry).toMatchObject({ status: "Accepted", nextRevision: 1 })
+    expect(JSON.parse(wasm.stage4_apply(command))).toMatchObject({ status: "NotAdmissible", reason: "unknown-receipt" })
+    expect(wasm.stage3_live_count()).toBe(live)
+    expect(JSON.parse(wasm.stage3_dispose(retry.nextReceipt)).status).toBe("Disposed")
+  })
+  it("keeps invalid controls and ordinary rejection outside the fault channel, isolates receipts, and clears only a disposed binding", () => {
+    const a = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("ก".repeat(300) + "ABCDE" + "ข".repeat(300)))))
+    const b = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("ABCDE"))))
+    const control = { receipt: a.receipt, expectedRevision: 0, point: "publication-refusal" }
+    for (const invalid of [{ ...control, point: "unknown" }, { ...control, authoredSpans: [] }, { ...control, expectedRevision: -1 }]) {
+      expect(JSON.parse(wasm.stage4_arm_fault(JSON.stringify(invalid)))).toMatchObject({ status: "NotArmed", reason: "invalid-fault-control" })
+    }
+    expect(JSON.parse(wasm.stage4_arm_fault(" ".repeat(1025)))).toMatchObject({ status: "NotArmed", reason: "control-input-limit", work: { controlParses: 0 } })
+    expect(JSON.parse(wasm.stage4_arm_fault(JSON.stringify(control))).status).toBe("Armed")
+    expect(JSON.parse(wasm.stage4_arm_fault(JSON.stringify({ ...control, receipt: "forged" }))).reason).toBe("unknown-receipt")
+    expect(JSON.parse(wasm.stage4_arm_fault(JSON.stringify({ ...control, expectedRevision: 1 }))).reason).toBe("stale-revision")
+    expect(JSON.parse(wasm.stage4_arm_fault(JSON.stringify({ ...control, receipt: b.receipt }))).reason).toBe("fault-already-armed")
+    const command = { receipt: a.receipt, expectedRevision: 0, startOffset: 301, endOffset: 303, replacementText: "XY", anchorSpanId: "span-1", composition: "committed" }
+    for (const [change, reason] of [
+      [{ composition: "active" }, "composition-active"], [{ receipt: "forged" }, "unknown-receipt"],
+      [{ expectedRevision: 1 }, "stale-revision"], [{ startOffset: 0, endOffset: 1 }, "budget-exhaustion"],
+      [{ point: "cancel-before-provider" }, "invalid-command"],
+    ] as const) {
+      const rejected = JSON.parse(wasm.stage4_apply(JSON.stringify({ ...command, ...change })))
+      expect(rejected).toMatchObject({ status: "NotAdmissible", reason, affectedSummary: { work: { faultsConsumed: 0, faultCheckpoints: 0 } } })
+    }
+    const other = JSON.parse(wasm.stage4_apply(JSON.stringify({ ...command, receipt: b.receipt, startOffset: 1, endOffset: 3 })))
+    expect(other).toMatchObject({ status: "Accepted", affectedSummary: { work: { faultsConsumed: 0 } } })
+    expect(JSON.parse(wasm.stage3_dispose(other.nextReceipt))).toMatchObject({ status: "Disposed", disposalSummary: { faultWork: { faultsCleared: 0 } } })
+    expect(JSON.parse(wasm.stage4_apply(JSON.stringify(command)))).toMatchObject({ status: "NotAdmissible", reason: "publication-refused" })
+    expect(JSON.parse(wasm.stage4_arm_fault(JSON.stringify(control))).status).toBe("Armed")
+    expect(JSON.parse(wasm.stage3_dispose(a.receipt))).toMatchObject({ status: "Disposed", disposalSummary: { faultWork: { faultsCleared: 1 } } })
+    const c = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("ABCDE"))))
+    expect(JSON.parse(wasm.stage4_arm_fault(JSON.stringify({ ...control, receipt: c.receipt }))).status).toBe("Armed")
+    wasm.stage3_dispose(c.receipt)
+  })
   it.each(["left", "right"])("rejects uncertified Thai dictionary context across a %s style-run neighbor", (side) => {
     const input = spanFixture(["ภ", "า", "ษาไทย"])
     input.authoredSpans[side === "right" ? 2 : 0]!.styleKey = "zbody"

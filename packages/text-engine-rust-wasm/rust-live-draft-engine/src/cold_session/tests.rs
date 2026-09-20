@@ -9,7 +9,7 @@ fn digest(value: &Value) -> String {
     )
 }
 
-fn fixture(text: &str) -> Value {
+pub(super) fn fixture(text: &str) -> Value {
     let font = include_bytes!("../../../../../assets/fonts/Sarabun/Sarabun-Regular.ttf");
     let policy = json!({
         "schemaVersion": 1, "unicodeVersion": "17.0.0",
@@ -40,7 +40,7 @@ fn fixture(text: &str) -> Value {
     })
 }
 
-fn create(runtime: &mut Runtime, input: &Value) -> Value {
+pub(super) fn create(runtime: &mut Runtime, input: &Value) -> Value {
     serde_json::from_str(&runtime.create(&input.to_string())).unwrap()
 }
 
@@ -504,7 +504,7 @@ fn mixed_run_middle_matches_full_oracle_and_shares_untouched_suffix() {
     );
 }
 
-fn retained_observable(session: &runtime::Session) -> Value {
+pub(super) fn retained_observable(session: &runtime::Session) -> Value {
     let mut spans = Vec::new();
     session
         .spans

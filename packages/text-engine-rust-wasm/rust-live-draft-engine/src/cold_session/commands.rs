@@ -1,4 +1,5 @@
 use super::{
+    faults::{FaultWork, Point},
     ledger::{Scope, Work},
     model::*,
     ownership,
@@ -29,6 +30,10 @@ struct Command {
 #[derive(Default, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct Meter {
+    #[serde(flatten)]
+    fault_work: FaultWork,
+    publication_preparation_passes: u64,
+    publication_preparation_bytes: u64,
     ownership_span_visits: u64,
     anchor_comparison_bytes: u64,
     bounded_ownership: bool,
@@ -247,7 +252,7 @@ struct Candidate {
     digest: String,
 }
 fn plan(
-    rt: &Runtime,
+    rt: &mut Runtime,
     c: &Command,
     m: &mut Meter,
     tw: &mut TreeWork,
@@ -432,6 +437,12 @@ fn plan(
     {
         return Err("budget-exhaustion");
     }
+    rt.faults.checkpoint(
+        &c.receipt,
+        c.expected_revision,
+        Point::CancelBeforeProvider,
+        &mut m.fault_work,
+    )?;
     let mut before = facts(&old, shard.start_offset, &run, &s.provider, m)?;
     // ICU reports artificial text edges. Keep only retained paragraph/window ownership.
     before.line_breaks.retain(|p| {
@@ -444,6 +455,12 @@ fn plan(
     {
         return Err("uncertified-seam");
     }
+    rt.faults.checkpoint(
+        &c.receipt,
+        c.expected_revision,
+        Point::ProviderFailure,
+        &mut m.fault_work,
+    )?;
     let mut after = facts(&new, shard.start_offset, &run, &s.provider, m)?;
     if edge {
         let cut = if insert && ownership.span.end_offset == c.start_offset {
@@ -519,6 +536,12 @@ fn plan(
         (*p != after.start_offset || contains(&shard.line_breaks, shard.start_offset, m))
             && (*p != after.end_offset || shard.end_offset == n)
     });
+    rt.faults.checkpoint(
+        &c.receipt,
+        c.expected_revision,
+        Point::CancelAfterProvider,
+        &mut m.fault_work,
+    )?;
     let mut next_run = run;
     next_run.end = d.unit(next_run.end);
     next_run.end_byte = d.byte(next_run.end_byte);
@@ -640,6 +663,11 @@ fn plan(
         digest,
     })
 }
+fn rejection(rt: &Runtime, command: Option<&Command>, reason: &str) -> serde_json::Value {
+    let session = command.and_then(|c| rt.sessions.get(&c.receipt));
+    json!({"status":"NotAdmissible","reason":reason,"unchangedReceipt":command.map(|c|&c.receipt),
+        "unchangedRevision":session.map(|s|s.revision),"affectedSummary":{"work":{}}})
+}
 pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
     let scope = Scope::begin();
     let mut meter = Meter {
@@ -648,7 +676,7 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
     };
     let command = serde_json::from_str::<Command>(input);
     let mut tw = TreeWork::default();
-    let result = command
+    let mut result = command
         .as_ref()
         .map_err(|_| "invalid-command")
         .and_then(|c| plan(rt, c, &mut meter, &mut tw));
@@ -676,11 +704,7 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
         Ok(p) => {
             json!({"status":"Accepted","nextReceipt":p.receipt,"nextRevision":p.revision,"affectedSummary":{"sourceBindingDigest":p.binding,"revisionDigest":p.digest,"work":{}}})
         }
-        Err(reason) => {
-            let c = command.as_ref().ok();
-            let session = c.and_then(|c| rt.sessions.get(&c.receipt));
-            json!({"status":"NotAdmissible","reason":reason,"unchangedReceipt":c.map(|c|&c.receipt),"unchangedRevision":session.map(|s|s.revision),"affectedSummary":{"work":{}}})
-        }
+        Err(reason) => rejection(rt, command.as_ref().ok(), reason),
     };
     response["affectedSummary"]["work"] = serde_json::to_value(&meter).unwrap();
     let mut bytes = Vec::with_capacity(8192);
@@ -689,7 +713,31 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
     serde_json::to_writer(&mut bytes, &response).unwrap();
     let mut passes = 1u64;
     let mut encoded_bytes = bytes.len() as u64;
+    if result.is_ok() {
+        meter.publication_preparation_passes += 1;
+        meter.publication_preparation_bytes += bytes.len() as u64;
+        let c = command.as_ref().unwrap();
+        // LAST recoverable gate: the complete candidate and accepted reply have
+        // been prepared, but the authentic session has not been changed.
+        if let Err(reason) = rt.faults.checkpoint(
+            &c.receipt,
+            c.expected_revision,
+            Point::PublicationRefusal,
+            &mut meter.fault_work,
+        ) {
+            result = Err(reason); // Drops all candidate-only resources before reporting allocation counts.
+            response = rejection(rt, Some(c), reason);
+        }
+        response["affectedSummary"]["work"] = serde_json::to_value(&meter).unwrap();
+        bytes.clear();
+        serde_json::to_writer(&mut bytes, &response).unwrap();
+        passes += 1;
+        encoded_bytes += bytes.len() as u64;
+    }
     let mut estimate = bytes.len();
+    // SINGLE publication block. No QA checkpoint or recoverable semantic Result
+    // is permitted below this point. The capability was validated by plan and
+    // cannot change through reentry while this runtime is exclusively borrowed.
     if let Ok(p) = result {
         let c = command.as_ref().unwrap();
         let mut s = rt.sessions.remove(&c.receipt).unwrap();
@@ -701,6 +749,10 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
         s.revision = p.revision;
         rt.sessions.insert(p.receipt, s);
     }
+    // Invariant-only post-publication work: existing JSON numbers, serialization
+    // of an owned JSON Value into an in-memory Vec, and serde-produced UTF-8.
+    // These operations have no recoverable semantic failure. Allocator aborts,
+    // process failure and WASM traps are explicitly NOT covered by atomic retry.
     loop {
         passes += 1;
         let counts = scope.snapshot();
