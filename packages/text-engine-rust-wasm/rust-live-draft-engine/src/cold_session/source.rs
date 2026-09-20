@@ -14,13 +14,16 @@ pub(super) struct Piece {
     offsets: Arc<Vec<usize>>,
 }
 impl Positioned for Piece {
+    fn position_rewrites(&self) -> usize {
+        3
+    }
     fn start(&self) -> usize {
         self.start
     }
     fn end(&self) -> usize {
         self.end
     }
-    fn shifted(&self, d: Delta) -> Self {
+    fn shifted(&self, d: Delta, _work: &mut TreeWork) -> Self {
         let mut p = self.clone();
         p.start = d.unit(p.start);
         p.end = d.unit(p.end);
@@ -45,6 +48,8 @@ fn piece(start: usize, byte_start: usize, text: String, work: &mut TreeWork) -> 
     }
     offsets.push(text.len());
     work.source_copy_bytes += text.len() as u64;
+    work.source_copied_utf16 += (offsets.len() - 1) as u64;
+    work.source_copy_calls += 1;
     Piece {
         start,
         end: start + offsets.len() - 1,
@@ -113,6 +118,8 @@ impl Source {
             return Err("scalar-unsafe");
         }
         w.source_copy_bytes += (b - a) as u64;
+        w.source_copied_utf16 += (end - start) as u64;
+        w.source_copy_calls += 1;
         Ok(p.text[a..b].to_string())
     }
     pub fn replace(
@@ -120,6 +127,7 @@ impl Source {
         start: usize,
         end: usize,
         replacement: &str,
+        replacement_units: usize,
         w: &mut TreeWork,
     ) -> Result<Arc<Self>, &'static str> {
         let located = if start == self.units {
@@ -141,6 +149,8 @@ impl Source {
         }
         let text = format!("{}{}{}", &p.text[..a], replacement, &p.text[b..]);
         w.source_copy_bytes += text.len() as u64;
+        w.source_copied_utf16 += (p.end - p.start - (end - start) + replacement_units) as u64;
+        w.source_copy_calls += 1;
         let next = piece(p.start, p.byte_start, text, w);
         let delta = Delta {
             units: next.end as isize - p.end as isize,

@@ -53,6 +53,8 @@ pub fn stage3_allocation_count(field: u32) -> u64 {
 }
 
 #[cfg(test)]
+mod accounting_tests;
+#[cfg(test)]
 mod fault_tests;
 #[cfg(test)]
 mod tests;

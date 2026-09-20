@@ -13,13 +13,19 @@ pub(super) enum Point {
     CancelAfterProvider,
     ProviderFailure,
     PublicationRefusal,
+    TailRepairProviderFailure,
+    CancelAfterTailRepair,
+    ReceiptEntropyFailure,
 }
 impl Point {
     fn reason(self) -> &'static str {
         match self {
-            Self::CancelBeforeProvider | Self::CancelAfterProvider => "cancelled",
-            Self::ProviderFailure => "provider-failure",
+            Self::CancelBeforeProvider
+            | Self::CancelAfterProvider
+            | Self::CancelAfterTailRepair => "cancelled",
+            Self::ProviderFailure | Self::TailRepairProviderFailure => "provider-failure",
             Self::PublicationRefusal => "publication-refused",
+            Self::ReceiptEntropyFailure => "entropy-unavailable",
         }
     }
 }
@@ -47,7 +53,7 @@ pub(super) struct FaultWork {
     pub faults_cleared: u64,
 }
 impl Controls {
-    pub fn clear_for(&mut self, receipt: &str, work: &mut FaultWork) {
+    pub fn clear_for(&mut self, receipt: &str, revision: u64, work: &mut FaultWork) {
         work.fault_slot_probes += 1;
         let Some(armed) = &self.armed else {
             return;
@@ -59,6 +65,10 @@ impl Controls {
                 a == b
             });
         if same {
+            work.fault_revision_checks += 1;
+            if armed.expected_revision != revision {
+                return;
+            }
             self.armed.take();
             work.faults_cleared += 1;
         }

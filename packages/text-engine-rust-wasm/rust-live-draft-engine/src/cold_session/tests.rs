@@ -366,6 +366,26 @@ fn authored_edge_long_context_preserves_properties_and_shares_unrelated_payloads
             ));
             let w = &r["affectedSummary"]["work"];
             assert_eq!(w["ownershipSpanVisits"], 2);
+            assert_eq!(
+                w["sourceFactsUtf16"],
+                if replacement.is_empty() { 30 } else { 43 }
+            );
+            assert_eq!(
+                w["propertyFactsUtf16"],
+                if replacement.is_empty() { 6 } else { 9 }
+            );
+            assert_eq!(
+                w["sourceCopiedUtf16"],
+                if replacement.is_empty() { 10 } else { 19 }
+            );
+            assert_eq!(
+                w["sourceCopyBytes"],
+                if replacement.is_empty() { 10 } else { 19 }
+            );
+            assert_eq!(
+                w["oldNewProviderInputUtf16"],
+                if replacement.is_empty() { 18 } else { 27 }
+            );
             assert!(w["treeNodeVisits"].as_u64().unwrap() < 160);
             assert!(w["treePathCopies"].as_u64().unwrap() < 80);
             assert!(w["payloadElementsCopied"].as_u64().unwrap() < 120);
@@ -727,7 +747,7 @@ fn middle_source_and_position_tree_share_suffix_payloads() {
     let s = rt.session(c["receipt"].as_str().unwrap());
     let old_suffix = s.shards.payload(4);
     let mut work = TreeWork::default();
-    let source = s.source.replace(300, 300, "B", &mut work).unwrap();
+    let source = s.source.replace(300, 300, "B", 1, &mut work).unwrap();
     assert_eq!(
         source.tail_from(0),
         format!("{}B{}", "A".repeat(300), "A".repeat(300))
@@ -748,13 +768,14 @@ fn middle_source_and_position_tree_share_suffix_payloads() {
     assert!(work.copies > 0 && work.copies < 20);
 }
 #[test]
-fn middle_missing_concat_certificate_preserves_exact_state() {
+fn oversized_middle_rejects_before_concat_work_and_preserves_exact_state() {
     let mut rt = Runtime::default();
     let c = create(&mut rt, &fixture(&"A".repeat(600)));
     let receipt = c["receipt"].as_str().unwrap();
     let before = retained_observable(rt.session(receipt));
     let reply:Value=serde_json::from_str(&rt.apply(&json!({"receipt":receipt,"expectedRevision":0,"startOffset":300,"endOffset":300,"replacementText":"B","composition":"committed","anchorSpanId":"span-1"}).to_string())).unwrap();
-    assert_eq!(reply["reason"], "uncertified-seam", "{reply}");
+    assert_eq!(reply["reason"], "budget-exhaustion", "{reply}");
+    assert_eq!(reply["affectedSummary"]["work"]["shapingCalls"], 0);
     assert_eq!(before, retained_observable(rt.session(receipt)));
     assert_eq!(rt.session(receipt).revision, 0);
     assert_eq!(rt.live_count(), 1);

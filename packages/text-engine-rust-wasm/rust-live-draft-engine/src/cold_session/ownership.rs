@@ -128,11 +128,13 @@ impl Selection {
             first.end_offset = start;
             second.start_offset = start;
             second.end_offset = delta.unit(second.end_offset);
+            work.position_rewrites += 3;
             spans
                 .replace_and_shift(self.index, first, first_delta, work)
                 .replace_and_shift(self.index + 1, second, second_delta, work)
         } else {
             first.end_offset = delta.unit(first.end_offset);
+            work.position_rewrites += 1;
             spans.replace_and_shift(self.index, first, delta, work)
         }
     }

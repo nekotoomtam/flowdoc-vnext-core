@@ -197,7 +197,8 @@ impl Runtime {
             None => json!({"status":"UnknownReceipt"}),
             Some(session) => {
                 let mut fault_work = super::faults::FaultWork::default();
-                self.faults.clear_for(receipt, &mut fault_work);
+                self.faults
+                    .clear_for(receipt, session.revision, &mut fault_work);
                 let resources = session
                     .provider
                     .fonts

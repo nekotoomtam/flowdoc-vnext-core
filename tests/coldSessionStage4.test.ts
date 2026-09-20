@@ -31,10 +31,83 @@ beforeAll(async () => {
 
 describe("private Stage 4 ordinary atomic commands", () => {
   it.each([
+    ["tail-repair-provider-failure", "provider-failure", 2, 11, 0],
+    ["cancel-after-tail-repair", "cancelled", 3, 15, 6],
+    ["receipt-entropy-failure", "entropy-unavailable", 3, 15, 6],
+  ] as const)("keeps the %s tail checkpoint atomic with exact phase accounting", (point, reason, shapes, sourceFacts, tailInput) => {
+    const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("ข".repeat(300) + "ABก"))))
+    const live = wasm.stage3_live_count()
+    expect(JSON.parse(wasm.stage4_arm_fault(JSON.stringify({ receipt: created.receipt, expectedRevision: 0, point }))).status).toBe("Armed")
+    const command = { receipt: created.receipt, expectedRevision: 0, startOffset: 302, endOffset: 303, replacementText: "", anchorSpanId: "span-1", composition: "committed" }
+    for (const [change, rejection] of [[{ composition: "active" }, "composition-active"], [{ expectedRevision: 1 }, "stale-revision"], [{ receipt: "forged" }, "unknown-receipt"], [{ startOffset: 0, endOffset: 1 }, "budget-exhaustion"]] as const) {
+      expect(JSON.parse(wasm.stage4_apply(JSON.stringify({ ...command, ...change })))).toMatchObject({ status: "NotAdmissible", reason: rejection, affectedSummary: { work: { faultsConsumed: 0, faultsCleared: 0 } } })
+    }
+    const request = JSON.stringify(command)
+    wasm.stage3_begin_transfer()
+    const wire = wasm.stage4_apply(request)
+    wasm.stage3_end_transfer()
+    const rejected = JSON.parse(wire)
+    expect(rejected).toMatchObject({ status: "NotAdmissible", reason, unchangedReceipt: created.receipt, unchangedRevision: 0 })
+    const w = rejected.affectedSummary.work
+    expect(w).toMatchObject({ sourceFactsUtf16: sourceFacts, propertyFactsUtf16: 1, sourceCopiedUtf16: 3, sourceCopyBytes: 5, sourceCopyCalls: 5, sourceIndexUtf16: 0,
+      oldNewShapingCalls: 2, oldNewProviderInputUtf16: 3, tailRepairShapingCalls: shapes - 2, tailRepairProviderInputUtf16: tailInput,
+      shapingCalls: shapes, segmentationCalls: shapes * 2, fontParseCalls: shapes, shapingSegmentationInputUtf16: 3 + tailInput,
+      faultsConsumed: 1, faultsCleared: 0, receiptRandomBytes: 0, publicationPreparationPasses: 0,
+      canonicalValuePasses: point === "receipt-entropy-failure" ? 1 : 0, hashCalls: point === "receipt-entropy-failure" ? 1 : 0,
+      abiInputBytes: Buffer.byteLength(request), abiOutputBytes: Buffer.byteLength(wire) })
+    expect(wasm.stage3_allocation_count(1)).toBeGreaterThan(BigInt(w.allocatedBytes))
+    expect(wasm.stage3_allocation_count(3)).toBeGreaterThan(BigInt(w.deallocatedBytes))
+    expect(wasm.stage3_live_count()).toBe(live)
+    const retry = JSON.parse(wasm.stage4_apply(request))
+    expect(retry).toMatchObject({ status: "Accepted", nextRevision: 1, affectedSummary: { work: { sourceFactsUtf16: 15, tailRepairProviderInputUtf16: 6, hashCalls: 3 } } })
+    expect(JSON.parse(wasm.stage4_apply(request)).reason).toBe("unknown-receipt")
+    wasm.stage3_dispose(retry.nextReceipt)
+  })
+  it.each([
+    ["AB", 2, 2, "C", 23, 1, 11, 15],
+    ["ABCDE", 4, 5, "", 45, 9, 17, 27],
+    ["ABCDE", 2, 2, "X", 45, 6, 23, 33],
+    ["ABCDE", 1, 3, "XY", 47, 10, 20, 30],
+    ["ABCDE", 1, 3, "", 37, 8, 14, 24],
+  ] as const)("reports actual per-path inspection and separate copying for %s %i..%i", (text, startOffset, endOffset, replacementText, sourceFacts, propertyFacts, copied, provider) => {
+    const c = JSON.parse(wasm.stage3_create(JSON.stringify(fixture(text))))
+    const r = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt: c.receipt, expectedRevision: 0, startOffset, endOffset, replacementText, anchorSpanId: "span-1", composition: "committed" })))
+    expect(r).toMatchObject({ status: "Accepted", affectedSummary: { work: { sourceFactsUtf16: sourceFacts, propertyFactsUtf16: propertyFacts, sourceCopiedUtf16: copied, sourceCopyBytes: copied, sourceCopyCalls: 4,
+      oldNewProviderInputUtf16: provider, tailRepairProviderInputUtf16: 0, fontParseCalls: 2, featureParseCalls: 4, segmentationSetupCalls: 4, lineFilterVisits: 4, hashCalls: 3, providerRunIdEncodingPasses: 3 } } })
+    wasm.stage3_dispose(r.nextReceipt)
+  })
+  it.each([["X".repeat(10000), 509, 511], ["X".repeat(509) + "😀" + "Y".repeat(10000), 509, 511], ["X".repeat(508) + "😀" + "Y".repeat(10000), 510, 512]] as const)("bounds a long replacement scan without splitting UTF-16 scalars at %i inspected units", (replacementText, scan, facts) => {
+    const c = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("AB"))))
+    const r = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt: c.receipt, expectedRevision: 0, startOffset: 2, endOffset: 2, replacementText, anchorSpanId: "span-1", composition: "committed" })))
+    expect(r).toMatchObject({ status: "NotAdmissible", reason: "budget-exhaustion", unchangedReceipt: c.receipt, unchangedRevision: 0, affectedSummary: { work: {
+      sourceFactsUtf16: facts, sourceScanUtf16: scan, replacementScalarsDecoded: 509, sourceOffsetLookups: 2, propertyFactsUtf16: 0, sourceCopiedUtf16: 2, sourceCopyBytes: 2, sourceCopyCalls: 1,
+      shapingCalls: 0, shapingSegmentationInputUtf16: 0, canonicalValuePasses: 0, canonicalJsonPasses: 0, hashCalls: 0, hashInputBytes: 0 } } })
+    wasm.stage3_dispose(c.receipt)
+  })
+  it("rejects previous partial-run repair without an adjacent dictionary certificate", () => {
+    const text = "ภาษาไทย".repeat(30) + "A"
+    const c = JSON.parse(wasm.stage3_create(JSON.stringify(fixture(text))))
+    const r = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt: c.receipt, expectedRevision: 0, startOffset: text.length - 1, endOffset: text.length, replacementText: "", anchorSpanId: "span-1", composition: "committed" })))
+    expect(r).toMatchObject({ status: "NotAdmissible", reason: "uncertified-seam", unchangedReceipt: c.receipt, unchangedRevision: 0, affectedSummary: { work: { tailRepairShapingCalls: 0 } } })
+    wasm.stage3_dispose(c.receipt)
+  })
+  it("retires only the old capability's unreached tail control on successful publication", () => {
+    const c = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("ABCDE"))))
+    expect(JSON.parse(wasm.stage4_arm_fault(JSON.stringify({ receipt: c.receipt, expectedRevision: 0, point: "cancel-after-tail-repair" }))).status).toBe("Armed")
+    const command = { receipt: c.receipt, expectedRevision: 0, startOffset: 1, endOffset: 3, replacementText: "XY", anchorSpanId: "span-1", composition: "committed" }
+    const r = JSON.parse(wasm.stage4_apply(JSON.stringify(command)))
+    expect(r).toMatchObject({ status: "Accepted", affectedSummary: { work: { faultsConsumed: 0, faultsCleared: 1 } } })
+    expect(JSON.parse(wasm.stage4_arm_fault(JSON.stringify({ receipt: r.nextReceipt, expectedRevision: 1, point: "cancel-before-provider" }))).status).toBe("Armed")
+    expect(JSON.parse(wasm.stage3_dispose(c.receipt)).status).toBe("UnknownReceipt")
+    expect(JSON.parse(wasm.stage3_dispose("forged")).status).toBe("UnknownReceipt")
+    expect(JSON.parse(wasm.stage4_apply(JSON.stringify({ ...command, receipt: r.nextReceipt, expectedRevision: 1 })))).toMatchObject({ status: "NotAdmissible", reason: "cancelled", affectedSummary: { work: { faultsConsumed: 1 } } })
+    wasm.stage3_dispose(r.nextReceipt)
+  })
+  it.each([
     ["cancel-before-provider", "cancelled", 0, 1],
     ["provider-failure", "provider-failure", 1, 2],
     ["cancel-after-provider", "cancelled", 2, 3],
-    ["publication-refusal", "publication-refused", 2, 4],
+    ["publication-refusal", "publication-refused", 2, 5],
   ] as const)("keeps %s atomic through the raw one-shot QA channel and charges its full ABI lifecycle", (point, reason, shapes, checkpoints) => {
     const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("ABCDE"))))
     const live = wasm.stage3_live_count()
@@ -223,13 +296,13 @@ describe("private Stage 4 ordinary atomic commands", () => {
     const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("ก".repeat(300) + "ABCDE" + "ข".repeat(suffixLength)))))
     const result = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt: created.receipt, expectedRevision: 0, startOffset: 301, endOffset: 303, replacementText: "XY", composition: "committed", anchorSpanId: "span-1" })))
     expect(result.status).toBe("Accepted")
-    expect(result.affectedSummary.work).toMatchObject({ sourceFactsUtf16: 43, propertyFactsUtf16: 10, shapingSegmentationInputUtf16: 30, sourceCopyBytes: 20, sourceIndexUtf16: 5, wholeParagraphScans: 0, unboundedSuffixWork: 0, absoluteOffsetReindexing: 0 })
+    expect(result.affectedSummary.work).toMatchObject({ sourceFactsUtf16: 47, propertyFactsUtf16: 10, shapingSegmentationInputUtf16: 30, sourceCopyBytes: 20, sourceCopiedUtf16: 20, sourceIndexUtf16: 5, wholeParagraphScans: 0, unboundedSuffixWork: 0, absoluteOffsetReindexing: 0 })
   })
   it("charges auxiliary source, index, canonical encoding and payload-copy work", () => {
     const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("ABCDE"))))
     const result = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt: created.receipt, expectedRevision: 0, startOffset: 1, endOffset: 3, replacementText: "XY", composition: "committed", anchorSpanId: "span-1" })))
     expect(result.status).toBe("Accepted")
-    expect(result.affectedSummary.work).toMatchObject({ sourceCopyBytes: 20, sourceIndexUtf16: 5, sourceOffsetLookups: 4, propertyScalarVisits: 10, payloadCopyCalls: 9, canonicalValuePasses: 3, canonicalJsonPasses: 3, sourceScanUtf16: 28, sourceFactsUtf16: 43, propertyFactsUtf16: 10 })
+    expect(result.affectedSummary.work).toMatchObject({ sourceCopyBytes: 20, sourceCopiedUtf16: 20, sourceIndexUtf16: 5, sourceOffsetLookups: 4, propertyScalarVisits: 10, payloadCopyCalls: 9, canonicalValuePasses: 3, canonicalJsonPasses: 3, sourceScanUtf16: 28, sourceFactsUtf16: 47, propertyFactsUtf16: 10 })
     expect(result.affectedSummary.work.sourceScanUtf16).toBeGreaterThan(0)
     expect(result.affectedSummary.work.payloadElementsCopied).toBeGreaterThan(9)
   })
@@ -278,7 +351,7 @@ describe("private Stage 4 ordinary atomic commands", () => {
     expect(work.abiInputBytes).toBe(Buffer.byteLength(request))
     expect(work.abiOutputBytes).toBe(Buffer.byteLength(wire))
   })
-  it.each([[600, 600, "B", "uncertified-seam"], [599, 600, "", "budget-exhaustion"]])("rejects an uncertified long Latin tail at %i..%i", (startOffset, endOffset, replacementText, reason) => {
+  it.each([[600, 600, "B", "budget-exhaustion"], [599, 600, "", "budget-exhaustion"]])("rejects an oversized long Latin tail at %i..%i", (startOffset, endOffset, replacementText, reason) => {
     const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("A".repeat(600)))))
     const result = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt: created.receipt, expectedRevision: 0, startOffset, endOffset, replacementText, composition: "committed", anchorSpanId: "span-1" })))
     expect(result).toMatchObject({ status: "NotAdmissible", reason, unchangedReceipt: created.receipt, unchangedRevision: 0 })
@@ -406,14 +479,14 @@ describe("private Stage 4 ordinary atomic commands", () => {
     expect(JSON.parse(wasm.stage3_create(JSON.stringify(fixture(text))))).toMatchObject({ status: "NotCreated", reason: "unsupported-font-script" })
   })
 
-  it("retains the original middle fixture as unchanged when provider concat proof is absent", () => {
+  it("retains the oversized original middle fixture unchanged before provider concat work", () => {
     const text = "A".repeat(600)
     const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture(text))))
     const result = JSON.parse(wasm.stage4_apply(JSON.stringify({
       receipt: created.receipt, expectedRevision: 0, startOffset: 300, endOffset: 300,
       replacementText: "B", composition: "committed", anchorSpanId: "span-1",
     })))
-    expect(result, JSON.stringify(result)).toMatchObject({ status: "NotAdmissible", reason: "uncertified-seam", unchangedReceipt: created.receipt, unchangedRevision: 0 })
+    expect(result, JSON.stringify(result)).toMatchObject({ status: "NotAdmissible", reason: "budget-exhaustion", unchangedReceipt: created.receipt, unchangedRevision: 0 })
     expect(result.affectedSummary.work).toMatchObject({
       wholeParagraphScans: 0, fullSerializations: 0, unboundedSuffixWork: 0,
       absoluteOffsetReindexing: 0,

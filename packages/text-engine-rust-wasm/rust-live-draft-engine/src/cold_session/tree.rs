@@ -47,7 +47,14 @@ pub(super) struct TreeWork {
     pub shifted_subtrees: u64,
     pub payload_copy_calls: u64,
     pub payload_elements_copied: u64,
+    pub payload_string_bytes_copied: u64,
+    pub payload_vector_bytes_copied: u64,
+    pub position_rewrites: u64,
+    pub provider_run_id_encoding_passes: u64,
+    pub provider_run_id_encoded_bytes: u64,
     pub source_copy_bytes: u64,
+    pub source_copied_utf16: u64,
+    pub source_copy_calls: u64,
     pub source_index_utf16: u64,
     pub source_offset_lookups: u64,
 }
@@ -60,7 +67,10 @@ impl<T: Positioned> Located<T> {
     pub fn materialize(&self, work: &mut TreeWork) -> T {
         work.payload_copy_calls += 1;
         work.payload_elements_copied += self.value.copy_elements() as u64;
-        self.value.shifted(self.delta)
+        work.payload_string_bytes_copied += self.value.copy_string_bytes() as u64;
+        work.payload_vector_bytes_copied += self.value.copy_vector_bytes() as u64;
+        work.position_rewrites += self.value.position_rewrites() as u64;
+        self.value.shifted(self.delta, work)
     }
 }
 impl<T: Positioned> Tree<T> {
@@ -183,7 +193,10 @@ impl<T: Positioned> Tree<T> {
             } else if rank == left {
                 w.payload_copy_calls += 1;
                 w.payload_elements_copied += value.copy_elements() as u64;
-                copy.value = Arc::new(value.shifted(base.inverse()));
+                w.payload_string_bytes_copied += value.copy_string_bytes() as u64;
+                w.payload_vector_bytes_copied += value.copy_vector_bytes() as u64;
+                w.position_rewrites += value.position_rewrites() as u64;
+                copy.value = Arc::new(value.shifted(base.inverse(), w));
                 copy.value_shift = Delta::default();
                 copy.right = shift(&node.right, d, w);
                 if copy.left.is_some() {
@@ -230,12 +243,17 @@ impl<T: Positioned> Tree<T> {
                 c.right = remove(right, w);
                 c.count -= 1;
                 w.copies += 1;
+                if c.left.is_some() {
+                    w.shared_subtrees += 1;
+                }
                 Some(Arc::new(c))
             } else {
                 n.left.as_ref().map(|left| {
                     let mut c = (**left).clone();
                     c.shift = c.shift.plus(n.shift);
                     w.copies += 1;
+                    w.shifted_subtrees += 1;
+                    w.shared_subtrees += 1;
                     Arc::new(c)
                 })
             }
@@ -252,7 +270,8 @@ impl<T: Positioned> Tree<T> {
             if let Some(n) = node {
                 let d = d.plus(n.shift);
                 visit(&n.left, d, f);
-                f(&n.value.shifted(d.plus(n.value_shift)));
+                f(&n.value
+                    .shifted(d.plus(n.value_shift), &mut TreeWork::default()));
                 visit(&n.right, d, f)
             }
         }
