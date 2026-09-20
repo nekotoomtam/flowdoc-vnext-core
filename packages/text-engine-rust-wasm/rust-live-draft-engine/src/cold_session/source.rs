@@ -34,15 +34,17 @@ pub(super) struct Source {
     units: usize,
     bytes: usize,
 }
-fn piece(start: usize, byte_start: usize, text: String) -> Piece {
+fn piece(start: usize, byte_start: usize, text: String, work: &mut TreeWork) -> Piece {
     let mut offsets = Vec::new();
     for (b, c) in text.char_indices() {
+        work.source_index_utf16 += c.len_utf16() as u64;
         offsets.push(b);
         if c.len_utf16() == 2 {
             offsets.push(usize::MAX)
         }
     }
     offsets.push(text.len());
+    work.source_copy_bytes += text.len() as u64;
     Piece {
         start,
         end: start + offsets.len() - 1,
@@ -69,8 +71,10 @@ impl Source {
             .map(|s| {
                 let a = byte_offsets[s.start_offset];
                 let b = byte_offsets[s.end_offset];
-                work.source_copy_bytes += (b - a) as u64;
-                piece(s.start_offset, a, text[a..b].to_string())
+                let mut piece_work = TreeWork::default();
+                let result = piece(s.start_offset, a, text[a..b].to_string(), &mut piece_work);
+                work.source_copy_bytes += (b - a) as u64 + piece_work.source_copy_bytes;
+                result
             })
             .collect();
         Arc::new(Self {
@@ -98,15 +102,17 @@ impl Source {
             return Ok(String::new());
         }
         let found = self.pieces.containing(start, w).ok_or("missing-anchor")?;
-        let p = found.materialize();
+        let p = found.materialize(w);
         if end > p.end {
             return Err("budget-exhaustion");
         }
         let a = p.offsets[start - p.start];
         let b = p.offsets[end - p.start];
+        w.source_offset_lookups += 2;
         if a == usize::MAX || b == usize::MAX {
             return Err("scalar-unsafe");
         }
+        w.source_copy_bytes += (b - a) as u64;
         Ok(p.text[a..b].to_string())
     }
     pub fn replace(
@@ -123,17 +129,19 @@ impl Source {
             self.pieces.containing(start, w)
         }
         .ok_or("missing-anchor")?;
-        let p = located.materialize();
+        let p = located.materialize(w);
         if end > p.end {
             return Err("budget-exhaustion");
         }
         let a = p.offsets[start - p.start];
         let b = p.offsets[end - p.start];
+        w.source_offset_lookups += 2;
         if a == usize::MAX || b == usize::MAX {
             return Err("scalar-unsafe");
         }
         let text = format!("{}{}{}", &p.text[..a], replacement, &p.text[b..]);
-        let next = piece(p.start, p.byte_start, text);
+        w.source_copy_bytes += text.len() as u64;
+        let next = piece(p.start, p.byte_start, text, w);
         let delta = Delta {
             units: next.end as isize - p.end as isize,
             bytes: next.text.len() as isize - p.text.len() as isize,

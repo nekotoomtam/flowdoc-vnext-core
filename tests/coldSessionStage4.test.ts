@@ -14,10 +14,75 @@ beforeAll(async () => {
 }, 360_000)
 
 describe("private Stage 4 ordinary atomic commands", () => {
-  it.each([[600, 600, "B"], [599, 600, ""]])("rejects an uncertified long Latin tail at %i..%i", (startOffset, endOffset, replacementText) => {
+  it("rejects a partial analysis-run range before provider work without an adjacent line certificate", () => {
+    const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("ก".repeat(150)))))
+    const result = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt: created.receipt, expectedRevision: 0, startOffset: 148, endOffset: 149, replacementText: "ข", composition: "committed", anchorSpanId: "span-1" })))
+    expect(result).toMatchObject({ status: "NotAdmissible", reason: "uncertified-seam", unchangedReceipt: created.receipt, unchangedRevision: 0 })
+    expect(result.affectedSummary.work.shapingCalls).toBe(0)
+  })
+  it.each([300, 3000])("keeps replacement work independent of a %i-unit suffix", (suffixLength) => {
+    const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("ก".repeat(300) + "ABCDE" + "ข".repeat(suffixLength)))))
+    const result = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt: created.receipt, expectedRevision: 0, startOffset: 301, endOffset: 303, replacementText: "XY", composition: "committed", anchorSpanId: "span-1" })))
+    expect(result.status).toBe("Accepted")
+    expect(result.affectedSummary.work).toMatchObject({ sourceFactsUtf16: 43, propertyFactsUtf16: 10, shapingSegmentationInputUtf16: 30, sourceCopyBytes: 20, sourceIndexUtf16: 5, wholeParagraphScans: 0, unboundedSuffixWork: 0, absoluteOffsetReindexing: 0 })
+  })
+  it("charges auxiliary source, index, canonical encoding and payload-copy work", () => {
+    const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("ABCDE"))))
+    const result = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt: created.receipt, expectedRevision: 0, startOffset: 1, endOffset: 3, replacementText: "XY", composition: "committed", anchorSpanId: "span-1" })))
+    expect(result.status).toBe("Accepted")
+    expect(result.affectedSummary.work).toMatchObject({ sourceCopyBytes: 20, sourceIndexUtf16: 5, sourceOffsetLookups: 4, propertyScalarVisits: 10, payloadCopyCalls: 9, canonicalValuePasses: 3, canonicalJsonPasses: 3, sourceScanUtf16: 28, sourceFactsUtf16: 43, propertyFactsUtf16: 10 })
+    expect(result.affectedSummary.work.sourceScanUtf16).toBeGreaterThan(0)
+    expect(result.affectedSummary.work.payloadElementsCopied).toBeGreaterThan(9)
+  })
+
+  it.each([
+    ["ก่ข", 1, 2, "ค", "uncertified-boundary"],
+    ["AกขB", 1, 2, "่", "uncertified-boundary"],
+    ["ABC", 1, 2, "ก", "uncertified-seam"],
+    ["AกB", 1, 2, "", "uncertified-seam"],
+    ["ABC", 0, 3, "", "unsupported-command-shape"],
+    ["A".repeat(600), 300, 301, "B", "budget-exhaustion"],
+    ["A".repeat(80), 39, 40, "B", "budget-exhaustion"],
+  ])("does not publish an uncertified replacement/deletion in %s", (text, startOffset, endOffset, replacementText, reason) => {
+    const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture(text))))
+    const result = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt: created.receipt, expectedRevision: 0, startOffset, endOffset, replacementText, composition: "committed", anchorSpanId: "span-1" })))
+    expect(result).toMatchObject({ status: "NotAdmissible", reason, unchangedReceipt: created.receipt, unchangedRevision: 0 })
+  })
+
+  it.each([[1, "span-1", false, "stale-revision"], [0, "wrong", false, "ambiguous-anchor"], [0, "span-1", true, "unknown-receipt"]])("preserves the authentic session after replacement authentication failure %s", (expectedRevision, anchorSpanId, forged, reason) => {
+    const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("ABC"))))
+    const base = { receipt: created.receipt, expectedRevision: 0, startOffset: 1, endOffset: 2, replacementText: "X", composition: "committed", anchorSpanId: "span-1" }
+    const rejected = JSON.parse(wasm.stage4_apply(JSON.stringify({ ...base, receipt: forged ? "forged" : created.receipt, expectedRevision, anchorSpanId })))
+    expect(rejected).toMatchObject({ status: "NotAdmissible", reason })
+    expect(JSON.parse(wasm.stage4_apply(JSON.stringify(base)))).toMatchObject({ status: "Accepted", nextRevision: 1 })
+  })
+
+  it("rejects a lone UTF-16 surrogate in replacement and leaves the authentic receipt usable", () => {
+    const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("ABC"))))
+    const base = { receipt: created.receipt, expectedRevision: 0, startOffset: 1, endOffset: 2, replacementText: "\uD800", composition: "committed", anchorSpanId: "span-1" }
+    expect(JSON.parse(wasm.stage4_apply(JSON.stringify(base)))).toMatchObject({ status: "NotAdmissible", reason: "invalid-command" })
+    expect(JSON.parse(wasm.stage4_apply(JSON.stringify({ ...base, replacementText: "X" })))).toMatchObject({ status: "Accepted", nextRevision: 1 })
+  })
+  it.each([
+    ["ABCDE", 1, 3, "XY"], ["กขคง", 1, 2, "จ"], ["AกขคB", 2, 3, "ง"],
+    ["ABCDE", 1, 2, ""], ["ABCDE", 2, 3, ""], ["กขคง", 1, 2, ""], ["AกขคB", 2, 3, ""],
+  ])("publishes a bounded replacement/deletion in %s", (text, startOffset, endOffset, replacementText) => {
+    const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture(text))))
+    const request = JSON.stringify({ receipt: created.receipt, expectedRevision: 0, startOffset, endOffset, replacementText, composition: "committed", anchorSpanId: "span-1" })
+    const wire = wasm.stage4_apply(request)
+    const result = JSON.parse(wire)
+    expect(result, wire).toMatchObject({ status: "Accepted", nextRevision: 1 })
+    const work = result.affectedSummary.work
+    expect(work.sourceFactsUtf16).toBeLessThanOrEqual(512)
+    expect(work.propertyFactsUtf16).toBeLessThanOrEqual(512)
+    expect(work.shapingSegmentationInputUtf16).toBeLessThanOrEqual(1024)
+    expect(work.abiInputBytes).toBe(Buffer.byteLength(request))
+    expect(work.abiOutputBytes).toBe(Buffer.byteLength(wire))
+  })
+  it.each([[600, 600, "B", "uncertified-seam"], [599, 600, "", "budget-exhaustion"]])("rejects an uncertified long Latin tail at %i..%i", (startOffset, endOffset, replacementText, reason) => {
     const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("A".repeat(600)))))
     const result = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt: created.receipt, expectedRevision: 0, startOffset, endOffset, replacementText, composition: "committed", anchorSpanId: "span-1" })))
-    expect(result).toMatchObject({ status: "NotAdmissible", reason: "uncertified-seam", unchangedReceipt: created.receipt, unchangedRevision: 0 })
+    expect(result).toMatchObject({ status: "NotAdmissible", reason, unchangedReceipt: created.receipt, unchangedRevision: 0 })
   })
 
   it("measures the complete command ABI lifecycle and keeps receipts opaque", () => {

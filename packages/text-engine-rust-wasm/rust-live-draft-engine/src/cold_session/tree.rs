@@ -43,6 +43,11 @@ pub(super) struct TreeWork {
     pub copies: u64,
     pub shared_subtrees: u64,
     pub shifted_subtrees: u64,
+    pub payload_copy_calls: u64,
+    pub payload_elements_copied: u64,
+    pub source_copy_bytes: u64,
+    pub source_index_utf16: u64,
+    pub source_offset_lookups: u64,
 }
 pub(super) struct Located<T> {
     pub value: Arc<T>,
@@ -50,7 +55,9 @@ pub(super) struct Located<T> {
     pub index: usize,
 }
 impl<T: Positioned> Located<T> {
-    pub fn materialize(&self) -> T {
+    pub fn materialize(&self, work: &mut TreeWork) -> T {
+        work.payload_copy_calls += 1;
+        work.payload_elements_copied += self.value.copy_elements() as u64;
         self.value.shifted(self.delta)
     }
 }
@@ -172,6 +179,8 @@ impl<T: Positioned> Tree<T> {
                 copy.value_shift = copy.value_shift.plus(d);
                 copy.right = shift(&node.right, d, w);
             } else if rank == left {
+                w.payload_copy_calls += 1;
+                w.payload_elements_copied += value.copy_elements() as u64;
                 copy.value = Arc::new(value.shifted(base.inverse()));
                 copy.value_shift = Delta::default();
                 copy.right = shift(&node.right, d, w);
@@ -209,7 +218,7 @@ impl<T: Positioned> Tree<T> {
     #[cfg(test)]
     pub fn last(&self) -> Option<T> {
         self.at(self.len.checked_sub(1)?, &mut TreeWork::default())
-            .map(|v| v.materialize())
+            .map(|v| v.materialize(&mut TreeWork::default()))
     }
     pub fn without_last(&self, w: &mut TreeWork) -> Self {
         fn remove<T>(n: &Arc<Node<T>>, w: &mut TreeWork) -> Option<Arc<Node<T>>> {

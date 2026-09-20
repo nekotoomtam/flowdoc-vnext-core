@@ -11,6 +11,7 @@ use icu_segmenter::{GraphemeClusterSegmenter, LineSegmenter};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::sync::Arc;
+use unicode_script::{Script, UnicodeScript};
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -26,6 +27,20 @@ struct Command {
 #[derive(Default, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct Meter {
+    source_copy_bytes: u64,
+    source_scan_utf16: u64,
+    source_index_utf16: u64,
+    source_offset_lookups: u64,
+    property_scalar_visits: u64,
+    property_scan_utf16: u64,
+    payload_copy_calls: u64,
+    payload_elements_copied: u64,
+    canonical_value_passes: u64,
+    canonical_json_passes: u64,
+    canonical_encoded_bytes: u64,
+    boundary_comparisons: u64,
+    fact_comparisons: u64,
+    provider_offset_lookups: u64,
     source_facts_utf16: u64,
     property_facts_utf16: u64,
     shaping_segmentation_input_utf16: u64,
@@ -82,15 +97,29 @@ pub(super) fn concat_flags(
         wire.len(),
     )
 }
-fn byte(text: &str, unit: usize) -> Option<usize> {
+fn byte(text: &str, unit: usize, meter: &mut Meter) -> Option<usize> {
     let mut u = 0;
     for (b, c) in text.char_indices() {
+        meter.source_scan_utf16 += c.len_utf16() as u64;
         if u == unit {
             return Some(b);
         }
         u += c.len_utf16()
     }
     (u == unit).then_some(text.len())
+}
+fn contains(values: &[usize], value: usize, meter: &mut Meter) -> bool {
+    values.iter().any(|v| {
+        meter.boundary_comparisons += 1;
+        *v == value
+    })
+}
+fn equal_facts<T: PartialEq>(a: &[T], b: &[T], meter: &mut Meter) -> bool {
+    a.len() == b.len()
+        && a.iter().zip(b).all(|(x, y)| {
+            meter.fact_comparisons += 1;
+            x == y
+        })
 }
 fn facts(
     text: &str,
@@ -100,6 +129,7 @@ fn facts(
     m: &mut Meter,
 ) -> Result<Shard, &'static str> {
     let n = text.encode_utf16().count();
+    m.source_scan_utf16 += n as u64;
     m.shaping_segmentation_input_utf16 += 3 * n as u64;
     if m.shaping_segmentation_input_utf16 > 1024 {
         return Err("budget-exhaustion");
@@ -150,6 +180,7 @@ fn facts(
     let mut offsets = vec![usize::MAX; text.len() + 1];
     let mut u = base;
     for (b, c) in text.char_indices() {
+        m.source_scan_utf16 += c.len_utf16() as u64;
         offsets[b] = u;
         u += c.len_utf16()
     }
@@ -157,6 +188,7 @@ fn facts(
     let mut glyphs = Vec::new();
     for (info, pos) in shaped.glyph_infos().iter().zip(shaped.glyph_positions()) {
         m.glyph_visits += 1;
+        m.provider_offset_lookups += 1;
         if info.glyph_id == 0 {
             return Err("unsupported-font-script");
         }
@@ -173,11 +205,17 @@ fn facts(
     m.segmentation_calls += 2;
     let grapheme_boundaries = GraphemeClusterSegmenter::new()
         .segment_str(text)
-        .map(|b| offsets[b])
+        .map(|b| {
+            m.provider_offset_lookups += 1;
+            offsets[b]
+        })
         .collect();
     let line_breaks = LineSegmenter::new_auto(Default::default())
         .segment_str(text)
-        .map(|b| offsets[b])
+        .map(|b| {
+            m.provider_offset_lookups += 1;
+            offsets[b]
+        })
         .collect();
     Ok(Shard {
         run_index: 0,
@@ -219,9 +257,14 @@ fn plan(
         return Err("invalid-range");
     }
     let insert = c.start_offset == c.end_offset && !c.replacement_text.is_empty();
-    let delete =
-        c.end_offset == n && c.start_offset < c.end_offset && c.replacement_text.is_empty();
-    if !insert && !delete {
+    let range_edit = c.start_offset < c.end_offset;
+    if !insert && !range_edit {
+        return Err("unsupported-command-shape");
+    }
+    if range_edit
+        && (s.spans.len != 1
+            || (c.start_offset == 0 && c.end_offset == n && c.replacement_text.is_empty()))
+    {
         return Err("unsupported-command-shape");
     }
     let middle = insert && c.start_offset < n;
@@ -231,7 +274,7 @@ fn plan(
         c.start_offset
     };
     let span_at = s.spans.containing(locate, tw).ok_or("missing-anchor")?;
-    let span = span_at.materialize();
+    let span = span_at.materialize(tw);
     if span.span_id != c.anchor_span_id {
         return Err("ambiguous-anchor");
     }
@@ -242,35 +285,112 @@ fn plan(
         return Err("unsupported-command-shape");
     }
     let run_at = s.runs.containing(locate, tw).ok_or("missing-anchor")?;
-    let run = run_at.materialize();
+    let run = run_at.materialize(tw);
     let shard_at = s.shards.containing(locate, tw).ok_or("missing-anchor")?;
-    let shard = shard_at.materialize();
+    let shard = shard_at.materialize(tw);
     if c.end_offset > shard.end_offset {
         return Err("budget-exhaustion");
     }
     let old = s.source.window(shard.start_offset, shard.end_offset, tw)?;
-    let a = byte(&old, c.start_offset - shard.start_offset).ok_or("scalar-unsafe")?;
-    let b = byte(&old, c.end_offset - shard.start_offset).ok_or("scalar-unsafe")?;
-    if !shard.grapheme_boundaries.contains(&c.start_offset)
-        || !shard.grapheme_boundaries.contains(&c.end_offset)
+    let old_units = shard.end_offset - shard.start_offset;
+    let range_sizes = if range_edit {
+        let mut replacement_units = 0;
+        for ch in c.replacement_text.chars() {
+            let units = ch.len_utf16();
+            if m.source_scan_utf16 + units as u64 > 512 {
+                return Err("budget-exhaustion");
+            }
+            m.source_scan_utf16 += units as u64;
+            replacement_units += units;
+        }
+        let new_units = old_units - (c.end_offset - c.start_offset) + replacement_units;
+        // Upper bound before performing either byte search, classification,
+        // provider offset mapping or source-index construction. It includes
+        // repeated reads; observed counters below report actual work, not this bound.
+        let tail_repair_units = if new_units == 0 && shard.end_offset == n && s.shards.len > 1 {
+            let previous = s.shards.at(s.shards.len - 2, tw).unwrap();
+            2 * (previous.value.end_offset - previous.value.start_offset)
+        } else {
+            0
+        };
+        if 5 * old_units + 4 * new_units + replacement_units + tail_repair_units > 512 {
+            return Err("budget-exhaustion");
+        }
+        Some((replacement_units, new_units))
+    } else {
+        None
+    };
+    if range_edit && (shard.start_offset != run.start || shard.end_offset != run.end) {
+        // Shaping concat flags alone do not certify adjacent Thai line facts.
+        return Err("uncertified-seam");
+    }
+    let a = byte(&old, c.start_offset - shard.start_offset, m).ok_or("scalar-unsafe")?;
+    let b = byte(&old, c.end_offset - shard.start_offset, m).ok_or("scalar-unsafe")?;
+    if !contains(&shard.grapheme_boundaries, c.start_offset, m)
+        || !contains(&shard.grapheme_boundaries, c.end_offset, m)
     {
         return Err("uncertified-boundary");
     }
     // The first middle profile preserves the existing Latin AL line class.
     if insert
         && (run.key.script != "Latin"
-            || !c.replacement_text.chars().all(|x| x.is_ascii_alphabetic()))
+            || !c.replacement_text.chars().all(|x| {
+                m.property_scalar_visits += 1;
+                m.property_scan_utf16 += x.len_utf16() as u64;
+                x.is_ascii_alphabetic()
+            }))
     {
         return Err("uncertified-seam");
     }
-    if middle && !old.chars().all(|x| x.is_ascii_alphabetic()) {
+    if middle
+        && !old.chars().all(|x| {
+            m.property_scalar_visits += 1;
+            m.property_scan_utf16 += x.len_utf16() as u64;
+            x.is_ascii_alphabetic()
+        })
+    {
         return Err("uncertified-seam");
     }
     let new = format!("{}{}{}", &old[..a], c.replacement_text, &old[b..]);
-    let old_units = shard.end_offset - shard.start_offset;
-    let new_units = new.encode_utf16().count();
+    m.source_copy_bytes += new.len() as u64;
+    if range_edit {
+        // Old grapheme boundaries do not certify newly authored run edges.
+        // Keep neighbor context unchanged until an adjacent-window proof exists.
+        if !new.is_empty()
+            && ((c.start_offset == run.start && run.start > 0)
+                || (c.end_offset == run.end && run.end < n))
+        {
+            return Err("uncertified-boundary");
+        }
+        // Preserve the existing analysis key. A script transition or removal
+        // of an interior run requires a separate multi-run seam proof.
+        if (new.is_empty() && shard.end_offset != n)
+            || !old.chars().chain(new.chars()).all(|ch| {
+                m.property_scalar_visits += 1;
+                m.property_scan_utf16 += ch.len_utf16() as u64;
+                match run.key.script.as_str() {
+                    "Latin" => ch.is_ascii_alphabetic(),
+                    "Thai" => ch.script() == Script::Thai,
+                    _ => false,
+                }
+            })
+        {
+            return Err("uncertified-seam");
+        }
+    }
+    let new_units = if let Some((_, units)) = range_sizes {
+        units
+    } else {
+        let units = new.encode_utf16().count();
+        m.source_scan_utf16 += units as u64;
+        units
+    };
     m.source_facts_utf16 = (old_units + new_units) as u64;
-    m.property_facts_utf16 = old_units as u64;
+    m.property_facts_utf16 = if range_edit {
+        (old_units + new_units) as u64
+    } else {
+        old_units as u64
+    };
     if m.source_facts_utf16 > 512
         || m.property_facts_utf16 > 512
         || 3 * (old_units + new_units) > 1024
@@ -280,12 +400,12 @@ fn plan(
     let mut before = facts(&old, shard.start_offset, &run, &s.provider, m)?;
     // ICU reports artificial text edges. Keep only retained paragraph/window ownership.
     before.line_breaks.retain(|p| {
-        (*p != shard.start_offset || shard.line_breaks.contains(p))
-            && (*p != shard.end_offset || shard.line_breaks.contains(p))
+        (*p != shard.start_offset || contains(&shard.line_breaks, *p, m))
+            && (*p != shard.end_offset || contains(&shard.line_breaks, *p, m))
     });
-    if before.glyphs != shard.glyphs
-        || before.grapheme_boundaries != shard.grapheme_boundaries
-        || before.line_breaks != shard.line_breaks
+    if !equal_facts(&before.glyphs, &shard.glyphs, m)
+        || !equal_facts(&before.grapheme_boundaries, &shard.grapheme_boundaries, m)
+        || !equal_facts(&before.line_breaks, &shard.line_breaks, m)
     {
         return Err("uncertified-seam");
     }
@@ -301,6 +421,9 @@ fn plan(
             && (shard.concat_unsafe.first() != Some(&false)
                 || after.concat_unsafe.first() != Some(&false))
         {
+            if range_edit {
+                return Err("uncertified-seam");
+            }
             // Inspect retained provider flags outward, without re-shaping or
             // copying sibling facts. Every inspected glyph is charged. A new
             // provider attempt is forbidden when the cumulative budget is gone.
@@ -348,7 +471,7 @@ fn plan(
     }
     after.run_index = shard.run_index;
     after.line_breaks.retain(|p| {
-        (*p != after.start_offset || shard.line_breaks.contains(&shard.start_offset))
+        (*p != after.start_offset || contains(&shard.line_breaks, shard.start_offset, m))
             && (*p != after.end_offset || shard.end_offset == n)
     });
     let mut next_span = span;
@@ -374,8 +497,8 @@ fn plan(
     let shards = if new.is_empty() {
         let mut pruned = s.shards.without_last(tw);
         if pruned.len > 0 {
-            let previous = pruned.at(pruned.len - 1, tw).unwrap().materialize();
-            let previous_run = s.runs.at(previous.run_index, tw).unwrap().materialize();
+            let previous = pruned.at(pruned.len - 1, tw).unwrap().materialize(tw);
+            let previous_run = s.runs.at(previous.run_index, tw).unwrap().materialize(tw);
             let previous_text = s
                 .source
                 .window(previous.start_offset, previous.end_offset, tw)?;
@@ -391,15 +514,19 @@ fn plan(
                 &s.provider,
                 m,
             )?;
-            if repaired.glyphs != previous.glyphs
-                || repaired.grapheme_boundaries != previous.grapheme_boundaries
+            if !equal_facts(&repaired.glyphs, &previous.glyphs, m)
+                || !equal_facts(
+                    &repaired.grapheme_boundaries,
+                    &previous.grapheme_boundaries,
+                    m,
+                )
             {
                 return Err("uncertified-seam");
             }
             repaired.run_index = previous.run_index;
             repaired
                 .line_breaks
-                .retain(|p| *p != previous.start_offset || previous.line_breaks.contains(p));
+                .retain(|p| *p != previous.start_offset || contains(&previous.line_breaks, *p, m));
             pruned = pruned.replace_and_shift(pruned.len - 1, repaired, Delta::default(), tw);
         }
         pruned
@@ -419,7 +546,13 @@ fn plan(
         &mut hw,
     );
     m.hash_input_bytes += binding_bytes.len() as u64;
-    m.hash_input_utf16 = c.replacement_text.encode_utf16().count() as u64;
+    m.hash_input_utf16 = if let Some((units, _)) = range_sizes {
+        units as u64
+    } else {
+        let units = c.replacement_text.encode_utf16().count() as u64;
+        m.source_scan_utf16 += units;
+        units
+    };
     let binding = hash(&binding_bytes);
     let mut entropy = [0u8; 32];
     getrandom::getrandom(&mut entropy).map_err(|_| "entropy-unavailable")?;
@@ -450,6 +583,9 @@ fn plan(
     let state_bytes = canonical(&(&binding, revision, &new), &mut hw);
     m.hash_input_bytes += state_bytes.len() as u64;
     let digest = hash(&state_bytes);
+    m.canonical_value_passes = hw.canonical_value_passes;
+    m.canonical_json_passes = hw.canonical_json_passes;
+    m.canonical_encoded_bytes = hw.canonical_encoded_bytes;
     Ok(Candidate {
         source,
         spans,
@@ -477,6 +613,19 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
     meter.tree_path_copies = tw.copies;
     meter.shared_subtrees = tw.shared_subtrees;
     meter.lazy_shifted_subtrees = tw.shifted_subtrees;
+    meter.payload_copy_calls = tw.payload_copy_calls;
+    meter.payload_elements_copied = tw.payload_elements_copied;
+    meter.source_copy_bytes += tw.source_copy_bytes;
+    meter.source_index_utf16 = tw.source_index_utf16;
+    meter.source_offset_lookups = tw.source_offset_lookups;
+    if command
+        .as_ref()
+        .is_ok_and(|c| c.start_offset < c.end_offset)
+    {
+        meter.source_facts_utf16 =
+            meter.source_scan_utf16 + tw.source_index_utf16 + meter.property_scan_utf16;
+        meter.property_facts_utf16 = meter.property_scan_utf16;
+    }
     let mut response = match &result {
         Ok(p) => {
             json!({"status":"Accepted","nextReceipt":p.receipt,"nextRevision":p.revision,"affectedSummary":{"sourceBindingDigest":p.binding,"revisionDigest":p.digest,"work":{}}})

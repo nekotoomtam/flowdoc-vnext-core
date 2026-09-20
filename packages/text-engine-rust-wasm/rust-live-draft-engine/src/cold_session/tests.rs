@@ -195,6 +195,158 @@ fn retained_observable(session: &runtime::Session) -> Value {
     graphemes.dedup();
     json!({"source":session.source.tail_from(0),"spans":spans,"runs":runs,"glyphs":glyphs,"lines":lines,"graphemes":graphemes})
 }
+
+#[test]
+fn bounded_replacements_and_deletions_match_full_provider_oracle() {
+    for (text, start, end, replacement, expected) in [
+        ("ABCDE", 1, 3, "XY", "AXYDE"),
+        ("กขคง", 1, 2, "จ", "กจคง"),
+        ("AกขคB", 2, 3, "ง", "AกงคB"),
+        ("office", 1, 3, "xx", "oxxice"),
+        ("ABCDE", 1, 2, "", "ACDE"),
+        ("ABCDE", 2, 3, "", "ABDE"),
+        ("กขคง", 1, 2, "", "กคง"),
+        ("AกขคB", 2, 3, "", "AกคB"),
+    ] {
+        let mut rt = Runtime::default();
+        let created = create(&mut rt, &fixture(text));
+        let reply: Value = serde_json::from_str(
+            &rt.apply(
+                &json!({
+                    "receipt": created["receipt"], "expectedRevision": 0,
+                    "startOffset": start, "endOffset": end, "replacementText": replacement,
+                    "composition": "committed", "anchorSpanId": "span-1"
+                })
+                .to_string(),
+            ),
+        )
+        .unwrap();
+        assert_eq!(reply["status"], "Accepted", "{text}: {reply}");
+        let mut oracle = Runtime::default();
+        let expected_session = create(&mut oracle, &fixture(expected));
+        assert_eq!(
+            retained_observable(rt.session(reply["nextReceipt"].as_str().unwrap())),
+            retained_observable(oracle.session(expected_session["receipt"].as_str().unwrap())),
+            "{text}"
+        );
+        assert_eq!(rt.live_count(), 1);
+        assert_eq!(reply["nextRevision"], 1);
+    }
+}
+
+#[test]
+fn replacement_rejections_preserve_exact_retained_state() {
+    for (text, start, end, replacement, revision, anchor, forged, reason) in [
+        ("ก่ข", 1, 2, "ค", 0, "span-1", false, "uncertified-boundary"),
+        ("AกขB", 1, 2, "่", 0, "span-1", false, "uncertified-boundary"),
+        ("ABC", 1, 2, "ก", 0, "span-1", false, "uncertified-seam"),
+        ("AกB", 1, 2, "", 0, "span-1", false, "uncertified-seam"),
+        (
+            "ABC",
+            0,
+            3,
+            "",
+            0,
+            "span-1",
+            false,
+            "unsupported-command-shape",
+        ),
+        ("ABC", 1, 2, "X", 1, "span-1", false, "stale-revision"),
+        ("ABC", 1, 2, "X", 0, "wrong", false, "ambiguous-anchor"),
+        ("ABC", 1, 2, "X", 0, "span-1", true, "unknown-receipt"),
+    ] {
+        let mut rt = Runtime::default();
+        let c = create(&mut rt, &fixture(text));
+        let receipt = c["receipt"].as_str().unwrap();
+        let before = retained_observable(rt.session(receipt));
+        let binding = rt.session(receipt).source_binding.clone();
+        let reply: Value = serde_json::from_str(&rt.apply(&json!({ "receipt": if forged {"forged"} else {receipt}, "expectedRevision": revision,
+            "startOffset": start, "endOffset": end, "replacementText": replacement, "composition": "committed", "anchorSpanId": anchor }).to_string())).unwrap();
+        assert_eq!(reply["reason"], reason, "{reply}");
+        assert_eq!(before, retained_observable(rt.session(receipt)));
+        assert_eq!(rt.session(receipt).source_binding, binding);
+        assert_eq!(rt.session(receipt).revision, 0);
+        assert_eq!(rt.live_count(), 1);
+    }
+}
+
+#[test]
+fn range_edit_long_suffix_matches_oracle_and_retains_payload_identity() {
+    use std::sync::Arc;
+    for (replacement, expected_middle) in [("XY", "AXYDE"), ("", "ADE")] {
+        let text = format!("{}ABCDE{}", "ก".repeat(300), "ข".repeat(300));
+        let mut rt = Runtime::default();
+        let c = create(&mut rt, &fixture(&text));
+        let receipt = c["receipt"].as_str().unwrap();
+        let count = rt.session(receipt).shards.len;
+        let suffix = rt.session(receipt).shards.payload(count - 1);
+        let result: Value = serde_json::from_str(&rt.apply(&json!({"receipt": receipt, "expectedRevision":0,
+            "startOffset":301,"endOffset":303,"replacementText":replacement,"composition":"committed","anchorSpanId":"span-1"}).to_string())).unwrap();
+        assert_eq!(result["status"], "Accepted", "{result}");
+        let next = rt.session(result["nextReceipt"].as_str().unwrap());
+        let mut oracle = Runtime::default();
+        let expected = create(
+            &mut oracle,
+            &fixture(&format!(
+                "{}{}{}",
+                "ก".repeat(300),
+                expected_middle,
+                "ข".repeat(300)
+            )),
+        );
+        assert_eq!(
+            retained_observable(next),
+            retained_observable(oracle.session(expected["receipt"].as_str().unwrap()))
+        );
+        assert!(Arc::ptr_eq(&suffix, &next.shards.payload(count - 1)));
+    }
+}
+
+#[test]
+fn budget_and_malformed_scalar_rejections_preserve_exact_state() {
+    for (text, malformed) in [("A".repeat(80), false), ("ABC".to_owned(), true)] {
+        let mut rt = Runtime::default();
+        let c = create(&mut rt, &fixture(&text));
+        let receipt = c["receipt"].as_str().unwrap();
+        let before = retained_observable(rt.session(receipt));
+        let command = json!({"receipt":receipt,"expectedRevision":0,"startOffset":1,"endOffset":2,
+            "replacementText":"X","composition":"committed","anchorSpanId":"span-1"})
+        .to_string();
+        let wire = if malformed {
+            command.replace(r#""X""#, r#""\ud800""#)
+        } else {
+            command
+        };
+        let result: Value = serde_json::from_str(&rt.apply(&wire)).unwrap();
+        assert_eq!(
+            result["reason"],
+            if malformed {
+                "invalid-command"
+            } else {
+                "budget-exhaustion"
+            }
+        );
+        assert_eq!(before, retained_observable(rt.session(receipt)));
+        assert_eq!(rt.session(receipt).revision, 0);
+        assert_eq!(rt.live_count(), 1);
+    }
+}
+
+#[test]
+fn partial_run_range_preserves_exact_state_without_adjacent_line_certificate() {
+    let mut rt = Runtime::default();
+    let c = create(&mut rt, &fixture(&"ก".repeat(150)));
+    let receipt = c["receipt"].as_str().unwrap();
+    let before = retained_observable(rt.session(receipt));
+    let result: Value = serde_json::from_str(&rt.apply(&json!({"receipt":receipt,"expectedRevision":0,
+        "startOffset":148,"endOffset":149,"replacementText":"ข","composition":"committed","anchorSpanId":"span-1"}).to_string())).unwrap();
+    assert_eq!(result["reason"], "uncertified-seam");
+    assert_eq!(result["unchangedReceipt"], receipt);
+    assert_eq!(result["unchangedRevision"], 0);
+    assert_eq!(result["affectedSummary"]["work"]["shapingCalls"], 0);
+    assert_eq!(before, retained_observable(rt.session(receipt)));
+    assert_eq!(rt.live_count(), 1);
+}
 #[test]
 fn repeated_middle_publications_preserve_exact_offsets_and_suffix_identity() {
     use std::sync::Arc;
@@ -252,7 +404,7 @@ fn middle_source_and_position_tree_share_suffix_payloads() {
     );
     assert_eq!(s.source.tail_from(0), "A".repeat(600));
     let located = s.shards.containing(300, &mut work).unwrap();
-    let mut changed = located.materialize();
+    let mut changed = located.materialize(&mut work);
     changed.end_offset += 1;
     let candidate = s.shards.replace_and_shift(
         located.index,

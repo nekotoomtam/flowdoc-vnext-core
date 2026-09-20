@@ -32,6 +32,10 @@ pub(super) trait Positioned: Clone {
     fn start(&self) -> usize;
     fn end(&self) -> usize;
     fn shifted(&self, delta: Delta) -> Self;
+    // One payload object plus the entries cloned in its owned vectors.
+    fn copy_elements(&self) -> usize {
+        1
+    }
 }
 impl Positioned for Span {
     fn start(&self) -> usize {
@@ -48,6 +52,9 @@ impl Positioned for Span {
     }
 }
 impl Positioned for Run {
+    fn copy_elements(&self) -> usize {
+        1 + self.span_indexes.len() + self.key.features.len()
+    }
     fn start(&self) -> usize {
         self.start
     }
@@ -70,6 +77,12 @@ impl Positioned for Run {
     }
 }
 impl Positioned for Shard {
+    fn copy_elements(&self) -> usize {
+        1 + self.glyphs.len()
+            + self.line_breaks.len()
+            + self.grapheme_boundaries.len()
+            + self.concat_unsafe.len()
+    }
     fn start(&self) -> usize {
         self.start_offset
     }
