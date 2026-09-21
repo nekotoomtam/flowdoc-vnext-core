@@ -94,6 +94,17 @@ impl Source {
     pub fn bytes(&self) -> usize {
         self.bytes
     }
+    pub fn stats(&self) -> super::structure::TreeStats {
+        self.pieces.stats()
+    }
+    #[cfg(test)]
+    pub fn recursive_stats(&self) -> super::structure::TreeStats {
+        self.pieces.recursive_stats()
+    }
+    #[cfg(test)]
+    pub fn payload(&self, index: usize) -> Arc<Piece> {
+        self.pieces.payload(index)
+    }
     pub fn window(
         &self,
         start: usize,

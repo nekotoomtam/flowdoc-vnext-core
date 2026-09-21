@@ -13,6 +13,7 @@ struct Node<T> {
     left: Option<Arc<Node<T>>>,
     right: Option<Arc<Node<T>>>,
     count: usize,
+    height: usize,
     shift: Delta,
     value_shift: Delta,
 }
@@ -32,6 +33,7 @@ impl<T> Clone for Node<T> {
             left: self.left.clone(),
             right: self.right.clone(),
             count: self.count,
+            height: self.height,
             shift: self.shift,
             value_shift: self.value_shift,
         }
@@ -94,6 +96,7 @@ impl<T: Positioned> Tree<T> {
                     left,
                     right,
                     count: n,
+                    height: 1 + lh.max(rh),
                     shift: Delta::default(),
                     value_shift: Delta::default(),
                 })),
@@ -242,6 +245,11 @@ impl<T: Positioned> Tree<T> {
                 let mut c = (**n).clone();
                 c.right = remove(right, w);
                 c.count -= 1;
+                c.height = 1 + c
+                    .left
+                    .as_ref()
+                    .map_or(0, |n| n.height)
+                    .max(c.right.as_ref().map_or(0, |n| n.height));
                 w.copies += 1;
                 if c.left.is_some() {
                     w.shared_subtrees += 1;
@@ -258,11 +266,36 @@ impl<T: Positioned> Tree<T> {
                 })
             }
         }
+        let root = self.root.as_ref().and_then(|n| remove(n, w));
         Self {
-            root: self.root.as_ref().and_then(|n| remove(n, w)),
-            len: self.len.saturating_sub(1),
-            height: self.height,
+            len: root.as_ref().map_or(0, |n| n.count),
+            height: root.as_ref().map_or(0, |n| n.height),
+            root,
         }
+    }
+    pub fn stats(&self) -> super::structure::TreeStats {
+        super::structure::TreeStats {
+            node_count: self.root.as_ref().map_or(0, |n| n.count),
+            height: self.root.as_ref().map_or(0, |n| n.height),
+        }
+    }
+    #[cfg(test)]
+    pub fn recursive_stats(&self) -> super::structure::TreeStats {
+        fn walk<T>(node: &Option<Arc<Node<T>>>) -> super::structure::TreeStats {
+            let Some(node) = node else {
+                return super::structure::TreeStats::default();
+            };
+            let l = walk(&node.left);
+            let r = walk(&node.right);
+            let result = super::structure::TreeStats {
+                node_count: 1 + l.node_count + r.node_count,
+                height: 1 + l.height.max(r.height),
+            };
+            assert_eq!(node.count, result.node_count);
+            assert_eq!(node.height, result.height);
+            result
+        }
+        walk(&self.root)
     }
     #[allow(dead_code)]
     pub fn visit(&self, mut f: impl FnMut(&T)) {

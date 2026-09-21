@@ -8,7 +8,7 @@ use super::{
 use serde_json::{json, Value};
 use std::sync::Arc;
 
-struct Snapshot {
+pub(super) struct Snapshot {
     value: Value,
     binding: String,
     revision: u64,
@@ -17,9 +17,11 @@ struct Snapshot {
     spans: Vec<Arc<Span>>,
     runs: Vec<Arc<Run>>,
     shards: Vec<Arc<Shard>>,
+    accepted_work: super::command_work::AcceptedWork,
+    structures: super::structure::StructuralHistory,
 }
 impl Snapshot {
-    fn take(rt: &Runtime, receipt: &str) -> Self {
+    pub(super) fn take(rt: &Runtime, receipt: &str) -> Self {
         let s = rt.session(receipt);
         Self {
             value: retained_observable(s),
@@ -30,14 +32,18 @@ impl Snapshot {
             spans: (0..s.spans.len).map(|i| s.spans.payload(i)).collect(),
             runs: (0..s.runs.len).map(|i| s.runs.payload(i)).collect(),
             shards: (0..s.shards.len).map(|i| s.shards.payload(i)).collect(),
+            accepted_work: s.accepted_work,
+            structures: s.structures,
         }
     }
-    fn assert_unchanged(&self, rt: &Runtime, receipt: &str) {
+    pub(super) fn assert_unchanged(&self, rt: &Runtime, receipt: &str) {
         let s = rt.session(receipt);
         assert_eq!(self.value, retained_observable(s));
         assert_eq!(self.binding, s.source_binding);
         assert_eq!(self.revision, s.revision);
         assert_eq!(self.live, rt.live_count());
+        assert_eq!(self.accepted_work, s.accepted_work);
+        assert_eq!(self.structures, s.structures);
         assert!(Arc::ptr_eq(&self.source, &s.source));
         assert_eq!(self.spans.len(), s.spans.len);
         assert_eq!(self.runs.len(), s.runs.len);

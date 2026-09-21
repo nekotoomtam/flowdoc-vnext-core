@@ -95,7 +95,13 @@ pub(super) fn select(
     if !matches(&span.span_id, anchor, work) {
         return Err("ambiguous-anchor");
     }
-    if spans.len != 1 && (start < total || start < end) {
+    // The ordinary path owns this exact anchored range, not the session's
+    // cardinality. Cross-span edits have only the bounded edge path above.
+    // Removing an authored identity is still outside the ordinary contract.
+    if start < span.start_offset
+        || end > span.end_offset
+        || (replacement_empty && start == span.start_offset && end == span.end_offset)
+    {
         return Err("unsupported-command-shape");
     }
     Ok(Selection {

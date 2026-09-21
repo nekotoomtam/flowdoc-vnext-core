@@ -1,4 +1,5 @@
 mod commands;
+mod command_work;
 mod derive;
 mod faults;
 mod ledger;
@@ -8,6 +9,7 @@ mod policy;
 mod position;
 mod runtime;
 mod source;
+mod structure;
 mod tree;
 use runtime::Runtime;
 use std::cell::RefCell;
@@ -55,6 +57,10 @@ pub fn stage3_allocation_count(field: u32) -> u64 {
 #[cfg(test)]
 mod accounting_tests;
 #[cfg(test)]
+mod sustained_tests;
+#[cfg(test)]
 mod fault_tests;
+#[cfg(test)]
+mod footprint_tests;
 #[cfg(test)]
 mod tests;

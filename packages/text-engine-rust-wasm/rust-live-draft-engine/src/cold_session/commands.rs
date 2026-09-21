@@ -1,5 +1,5 @@
 use super::{
-    faults::{FaultWork, Point},
+    faults::Point,
     ledger::{Scope, Work},
     model::*,
     ownership,
@@ -7,6 +7,7 @@ use super::{
     position::Delta,
     runtime::Runtime,
     source::Source,
+    structure::{StructuralHistory, Structures},
     tree::{Tree, TreeWork},
 };
 use icu_segmenter::{GraphemeClusterSegmenter, LineSegmenter};
@@ -27,97 +28,7 @@ struct Command {
     #[serde(default)]
     anchor_span_id: String,
 }
-#[derive(Default, Serialize)]
-#[serde(rename_all = "camelCase")]
-struct Meter {
-    #[serde(flatten)]
-    fault_work: FaultWork,
-    publication_preparation_passes: u64,
-    publication_preparation_bytes: u64,
-    ownership_span_visits: u64,
-    anchor_comparison_bytes: u64,
-    bounded_ownership: bool,
-    context_run_visits: u64,
-    context_key_comparison_bytes: u64,
-    source_copy_bytes: u64,
-    source_copied_utf16: u64,
-    source_copy_calls: u64,
-    source_scan_utf16: u64,
-    replacement_scalars_decoded: u64,
-    source_index_utf16: u64,
-    source_offset_lookups: u64,
-    property_scalar_visits: u64,
-    property_scan_utf16: u64,
-    payload_copy_calls: u64,
-    payload_elements_copied: u64,
-    payload_string_bytes_copied: u64,
-    payload_vector_bytes_copied: u64,
-    position_rewrites: u64,
-    provider_run_id_encoding_passes: u64,
-    provider_run_id_encoded_bytes: u64,
-    canonical_value_passes: u64,
-    canonical_json_passes: u64,
-    canonical_encoded_bytes: u64,
-    boundary_comparisons: u64,
-    fact_comparisons: u64,
-    line_filter_visits: u64,
-    concat_edge_checks: u64,
-    provider_offset_lookups: u64,
-    source_facts_utf16: u64,
-    property_facts_utf16: u64,
-    shaping_segmentation_input_utf16: u64,
-    shaping_calls: u64,
-    shaping_input_utf16: u64,
-    segmentation_input_utf16: u64,
-    old_new_shaping_calls: u64,
-    tail_repair_shaping_calls: u64,
-    old_new_provider_input_utf16: u64,
-    tail_repair_provider_input_utf16: u64,
-    segmentation_calls: u64,
-    segmentation_setup_calls: u64,
-    font_parse_calls: u64,
-    language_parse_calls: u64,
-    language_parse_bytes: u64,
-    feature_parse_calls: u64,
-    feature_parse_bytes: u64,
-    provider_offset_slots_initialized: u64,
-    provider_buffer_calls: u64,
-    provider_buffer_input_utf16: u64,
-    provider_buffer_input_bytes: u64,
-    provider_flag_parse_bytes: u64,
-    provider_flag_entries: u64,
-    provider_flag_bytes: u64,
-    font_parse_input_bytes: u64,
-    glyph_visits: u64,
-    whole_paragraph_scans: u64,
-    full_serializations: u64,
-    unbounded_suffix_work: u64,
-    absolute_offset_reindexing: u64,
-    tree_path_copies: u64,
-    tree_node_visits: u64,
-    shared_subtrees: u64,
-    lazy_shifted_subtrees: u64,
-    hash_input_bytes: u64,
-    hash_calls: u64,
-    hash_input_utf16: u64,
-    receipt_binding_bytes: u64,
-    receipt_random_bytes: u64,
-    allocation_calls: u64,
-    allocated_bytes: u64,
-    deallocation_calls: u64,
-    deallocated_bytes: u64,
-    abi_input_bytes: u64,
-    abi_output_bytes: u64,
-    response_encoding_passes: u64,
-    response_value_passes: u64,
-    command_parse_calls: u64,
-    response_encoded_bytes: u64,
-    seam_certified: bool,
-    line_certified: bool,
-    unsafe_edges_certified: bool,
-    seam_search_glyphs: u64,
-    seam_search_windows: u64,
-}
+use super::command_work::{Meter, PreparedReply};
 pub(super) fn concat_flags(
     buffer: &rustybuzz::GlyphBuffer,
     face: &rustybuzz::Face,
@@ -349,6 +260,7 @@ struct Candidate {
     receipt: String,
     revision: u64,
     digest: String,
+    structures: StructuralHistory,
 }
 fn plan(
     rt: &mut Runtime,
@@ -750,6 +662,12 @@ fn plan(
     m.unsafe_edges_certified = true;
     let state_bytes = measured_canonical(&(&binding, revision, &new), m);
     let digest = measured_hash(&state_bytes, m);
+    let structures = s.structures.next(Structures {
+        source: source.stats(),
+        spans: spans.stats(),
+        runs: runs.stats(),
+        shards: shards.stats(),
+    })?;
     Ok(Candidate {
         source,
         spans,
@@ -759,15 +677,19 @@ fn plan(
         receipt,
         revision,
         digest,
+        structures,
     })
 }
 fn rejection(rt: &Runtime, command: Option<&Command>, reason: &str) -> serde_json::Value {
     let session = command.and_then(|c| rt.sessions.get(&c.receipt));
     json!({"status":"NotAdmissible","reason":reason,"unchangedReceipt":command.map(|c|&c.receipt),
-        "unchangedRevision":session.map(|s|s.revision),"affectedSummary":{"work":{}}})
+        "unchangedRevision":session.map(|s|s.revision),"affectedSummary":{"work":{},
+        "acceptedCumulativeWork":session.map(|s|s.accepted_work),"structuralSnapshot":session.map(|s|s.structures)}})
 }
 pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
     let scope = Scope::begin();
+    #[cfg(test)]
+    super::accounting_tests::PUBLICATION_PROBE.with(|p| p.set(Default::default()));
     let mut meter = Meter {
         abi_input_bytes: input.len() as u64,
         ..Meter::default()
@@ -802,53 +724,85 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
         + tw.source_offset_lookups
         + meter.property_scan_utf16;
     meter.property_facts_utf16 = meter.property_scan_utf16;
+    let prior = command
+        .as_ref()
+        .ok()
+        .and_then(|c| rt.sessions.get(&c.receipt))
+        .map(|s| s.accepted_work);
     let mut response = match &result {
-        Ok(p) => {
-            json!({"status":"Accepted","nextReceipt":p.receipt,"nextRevision":p.revision,"affectedSummary":{"sourceBindingDigest":p.binding,"revisionDigest":p.digest,"work":{}}})
-        }
+        Ok(p) => json!({"status":"Accepted","nextReceipt":p.receipt,"nextRevision":p.revision,
+            "affectedSummary":{"sourceBindingDigest":p.binding,"revisionDigest":p.digest,"work":{},
+            "acceptedCumulativeWork":prior,"structuralSnapshot":p.structures}}),
         Err(reason) => rejection(rt, command.as_ref().ok(), reason),
     };
     meter.response_value_passes += 1;
     response["affectedSummary"]["work"] = serde_json::to_value(&meter).unwrap();
     let mut bytes = Vec::with_capacity(8192);
-    // The compact reply is encoded before publication to reserve its complete
-    // capacity. Subsequent passes only update existing numeric fields.
     serde_json::to_writer(&mut bytes, &response).unwrap();
-    let mut passes = 1u64;
-    let mut encoded_bytes = bytes.len() as u64;
+    meter.response_encoding_passes = 1;
+    meter.response_encoded_bytes = bytes.len() as u64;
+    #[cfg(test)]
+    super::accounting_tests::record_response_serialization(bytes.len());
+    let mut retire_control = false;
     if result.is_ok() {
         meter.publication_preparation_passes += 1;
         meter.publication_preparation_bytes += bytes.len() as u64;
         let c = command.as_ref().unwrap();
-        // LAST recoverable gate: the complete candidate and accepted reply have
-        // been prepared, but the authentic session has not been changed.
         if let Err(reason) = rt.faults.checkpoint(
             &c.receipt,
             c.expected_revision,
             Point::PublicationRefusal,
             &mut meter.fault_work,
         ) {
-            result = Err(reason); // Drops all candidate-only resources before reporting allocation counts.
+            result = Err(reason);
             response = rejection(rt, Some(c), reason);
         }
         if result.is_ok() {
-            // All recoverable gates passed. Publication retires this capability;
-            // an unreached tail-only control must not outlive its receipt.
-            rt.faults
-                .clear_for(&c.receipt, c.expected_revision, &mut meter.fault_work);
+            retire_control = rt.faults.prepare_retirement(
+                &c.receipt,
+                c.expected_revision,
+                &mut meter.fault_work,
+            );
+            // Reserve the known retirement event; it is committed only after
+            // preflight succeeds, and removed from rejected attempt counts.
+            meter.fault_work.faults_cleared += u64::from(retire_control);
         }
-        meter.response_value_passes += 1;
-        response["affectedSummary"]["work"] = serde_json::to_value(&meter).unwrap();
-        bytes.clear();
-        serde_json::to_writer(&mut bytes, &response).unwrap();
-        passes += 1;
-        encoded_bytes += bytes.len() as u64;
     }
-    let mut estimate = bytes.len();
-    // SINGLE publication block. No QA checkpoint or recoverable semantic Result
-    // is permitted below this point. The capability was validated by plan and
-    // cannot change through reentry while this runtime is exclusively borrowed.
-    if let Ok(p) = result {
+    meter.response_value_passes += 1;
+    response["affectedSummary"]["work"] = serde_json::to_value(&meter).unwrap();
+    let mut prepared = PreparedReply::new(response, bytes, &mut meter);
+    // Real serialization lengths, output length and exact final slot work are
+    // now known. Only the four allocator counters require u64 headroom.
+    if result.is_ok() {
+        if let Err(reason) = prior.unwrap().preflight(&meter) {
+            result = Err(reason);
+            meter.fault_work.faults_cleared -= u64::from(retire_control);
+            retire_control = false;
+            let mut rejected = rejection(rt, command.as_ref().ok(), reason);
+            meter.response_value_passes += 1;
+            rejected["affectedSummary"]["work"] = serde_json::to_value(&meter).unwrap();
+            // Overflow after success preparation needs an actual third encoding
+            // of the rejection. Keep and report the work of all three outputs.
+            prepared = PreparedReply::new(rejected, prepared.into_buffer(), &mut meter);
+        }
+    }
+    let next_receipt = result.as_ref().ok().map(|p| p.receipt.clone());
+    let final_structures = result.as_ref().ok().map(|p| p.structures);
+    #[cfg(test)]
+    let mut probe = {
+        let mut p = super::accounting_tests::PUBLICATION_PROBE.with(std::cell::Cell::get);
+        p.before_publication = scope.snapshot().array();
+        p
+    };
+
+    // SOLE LOGICAL PUBLICATION-FINALIZATION CRITICAL SECTION.
+    // Exclusive &mut Runtime prevents callbacks/reentry/observation until its
+    // ledger is finalized. No typed rejection or recoverable Result below here.
+    // OOM/process failure/WASM traps remain excluded from atomic retry.
+    if retire_control {
+        rt.faults.commit_retirement();
+    }
+    let mut published = if let Ok(p) = result {
         let c = command.as_ref().unwrap();
         let mut s = rt.sessions.remove(&c.receipt).unwrap();
         s.source = p.source;
@@ -857,31 +811,37 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
         s.shards = p.shards;
         s.source_binding = p.binding;
         s.revision = p.revision;
+        s.structures.current = p.structures.current;
         rt.sessions.insert(p.receipt, s);
+        drop(p.digest);
+        Some(
+            rt.sessions
+                .get_mut(next_receipt.as_deref().unwrap())
+                .unwrap(),
+        )
+    } else {
+        None
+    };
+    // All temporary owners are retired while actual allocator accounting is
+    // still active, before final response slots are filled.
+    drop(command);
+    drop(next_receipt);
+    #[cfg(test)]
+    {
+        probe.after_publication = scope.snapshot().array();
+        super::accounting_tests::PUBLICATION_PROBE.with(|p| p.set(probe));
     }
-    // Invariant-only post-publication work: existing JSON numbers, serialization
-    // of an owned JSON Value into an in-memory Vec, and serde-produced UTF-8.
-    // These operations have no recoverable semantic failure. Allocator aborts,
-    // process failure and WASM traps are explicitly NOT covered by atomic retry.
-    loop {
-        passes += 1;
-        let counts = scope.snapshot();
-        let work = &mut response["affectedSummary"]["work"];
-        work["allocationCalls"] = json!(counts.alloc_calls);
-        work["allocatedBytes"] = json!(counts.alloc_bytes);
-        work["deallocationCalls"] = json!(counts.free_calls);
-        work["deallocatedBytes"] = json!(counts.free_bytes);
-        work["abiOutputBytes"] = json!(estimate);
-        work["responseEncodingPasses"] = json!(passes);
-        work["responseEncodedBytes"] = json!(encoded_bytes + estimate as u64);
-        bytes.clear();
-        serde_json::to_writer(&mut bytes, &response).unwrap();
-        let actual = bytes.len();
-        encoded_bytes += actual as u64;
-        if actual == estimate {
-            break;
-        }
-        estimate = actual;
+    let total = prepared.finish(&mut meter, prior, published.is_some(), &scope);
+    if let Some(session) = &mut published {
+        session.accepted_work = total.unwrap(); // fixed-size scalar assignment
+        session.structures = final_structures.unwrap(); // fixed-size accepted maxima
     }
-    String::from_utf8(bytes).unwrap()
+    #[cfg(test)]
+    super::accounting_tests::PUBLICATION_PROBE.with(|p| {
+        let mut probe = p.get();
+        probe.observed = published.is_some();
+        probe.after_assignment = scope.snapshot().array();
+        p.set(probe);
+    });
+    prepared.into_string()
 }

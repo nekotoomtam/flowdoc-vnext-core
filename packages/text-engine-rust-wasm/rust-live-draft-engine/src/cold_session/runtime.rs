@@ -11,6 +11,10 @@ use std::collections::BTreeMap;
 use std::sync::Arc;
 
 use super::source::Source;
+use super::{
+    command_work::AcceptedWork,
+    structure::{StructuralHistory, Structures},
+};
 pub(super) struct Session {
     pub source: Arc<Source>,
     pub source_binding: String,
@@ -20,6 +24,8 @@ pub(super) struct Session {
     pub provider: Provider,
     pub paragraph: Paragraph,
     pub revision: u64,
+    pub accepted_work: AcceptedWork,
+    pub structures: StructuralHistory,
 }
 #[derive(Default)]
 pub(super) struct Runtime {
@@ -63,6 +69,8 @@ struct Reply {
     #[serde(skip_serializing_if = "Option::is_none")]
     revision: Option<u64>,
     cold_summary: Summary,
+    accepted_cumulative_work: Option<AcceptedWork>,
+    structural_snapshot: Option<StructuralHistory>,
 }
 
 pub(super) fn descriptors(
@@ -100,6 +108,8 @@ impl Runtime {
         };
         summary.live_sessions = self.live_count();
         let mut reply = Reply {
+            accepted_cumulative_work: receipt.as_ref().map(|r| self.sessions[r].accepted_work),
+            structural_snapshot: receipt.as_ref().map(|r| self.sessions[r].structures),
             status,
             reason,
             receipt,
@@ -175,6 +185,12 @@ impl Runtime {
         let runs = Tree::build(runs, work);
         let shards = Tree::build(shards, work);
         summary.tree_height = spans.height.max(runs.height).max(shards.height);
+        let structures = StructuralHistory::initial(Structures {
+            source: source.stats(),
+            spans: spans.stats(),
+            runs: runs.stats(),
+            shards: shards.stats(),
+        });
         // Single publication point, after all validation/provider/tree work.
         self.sessions.insert(
             receipt.clone(),
@@ -187,6 +203,8 @@ impl Runtime {
                 provider: input.provider_context,
                 paragraph: input.paragraph_context,
                 revision: 0,
+                accepted_work: AcceptedWork::default(),
+                structures,
             },
         );
         Ok(receipt)

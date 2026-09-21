@@ -11,6 +11,16 @@ pub(super) struct Allocations {
     pub free_calls: u64,
     pub free_bytes: u64,
 }
+impl Allocations {
+    pub fn array(self) -> [u64; 4] {
+        [
+            self.alloc_calls,
+            self.alloc_bytes,
+            self.free_calls,
+            self.free_bytes,
+        ]
+    }
+}
 thread_local! {
     static ACTIVE: Cell<bool> = const { Cell::new(false) };
     static COUNTS: Cell<Allocations> = const { Cell::new(Allocations { alloc_calls: 0, alloc_bytes: 0, free_calls: 0, free_bytes: 0 }) };

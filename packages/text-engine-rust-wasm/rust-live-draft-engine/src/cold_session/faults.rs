@@ -54,9 +54,15 @@ pub(super) struct FaultWork {
 }
 impl Controls {
     pub fn clear_for(&mut self, receipt: &str, revision: u64, work: &mut FaultWork) {
+        if self.prepare_retirement(receipt, revision, work) {
+            self.commit_retirement();
+            work.faults_cleared += 1;
+        }
+    }
+    pub fn prepare_retirement(&self, receipt: &str, revision: u64, work: &mut FaultWork) -> bool {
         work.fault_slot_probes += 1;
         let Some(armed) = &self.armed else {
-            return;
+            return false;
         };
         work.fault_binding_checks += 1;
         let same = armed.receipt.len() == receipt.len()
@@ -67,11 +73,18 @@ impl Controls {
         if same {
             work.fault_revision_checks += 1;
             if armed.expected_revision != revision {
-                return;
+                return false;
             }
-            self.armed.take();
-            work.faults_cleared += 1;
+            return true;
         }
+        false
+    }
+    pub fn commit_retirement(&mut self) {
+        drop(
+            self.armed
+                .take()
+                .expect("retirement was authenticated before publication"),
+        );
     }
     pub fn checkpoint(
         &mut self,

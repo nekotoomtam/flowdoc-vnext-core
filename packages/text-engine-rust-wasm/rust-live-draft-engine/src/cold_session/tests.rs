@@ -44,7 +44,7 @@ pub(super) fn create(runtime: &mut Runtime, input: &Value) -> Value {
     serde_json::from_str(&runtime.create(&input.to_string())).unwrap()
 }
 
-fn span_fixture(texts: &[&str]) -> Value {
+pub(super) fn span_fixture(texts: &[&str]) -> Value {
     let mut input = fixture(&texts.concat());
     let mut offset = 0;
     input["authoredSpans"] = Value::Array(

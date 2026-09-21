@@ -30,6 +30,55 @@ beforeAll(async () => {
 }, 360_000)
 
 describe("private Stage 4 ordinary atomic commands", () => {
+  it("retains exact fixed-width cumulative work across receipts and a rejected attempt", () => {
+    const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("AB"))))
+    let receipt = created.receipt
+    const totals = new Map<string, bigint>()
+    for (const [name, value] of Object.entries(created.acceptedCumulativeWork)) {
+      expect(value).toBe("0".repeat(32))
+      totals.set(name, 0n)
+    }
+    expect(totals.size).toBe(91)
+    for (let revision = 0; revision < 2; revision++) {
+      const wire = wasm.stage4_apply(JSON.stringify({ receipt, expectedRevision: revision,
+        startOffset: 2 + revision, endOffset: 2 + revision, replacementText: "C",
+        anchorSpanId: "span-1", composition: "committed" }))
+      const result = JSON.parse(wire)
+      expect(result.status).toBe("Accepted")
+      expect(result.affectedSummary.attemptWork).toBeUndefined()
+      expect(result.affectedSummary.work.abiOutputBytes).toBe(Buffer.byteLength(wire))
+      expect(result.affectedSummary.work).toMatchObject({ responseEncodingPasses: 2,
+        responseScalarSlotWrites: 182, responseScalarSlotBytes: 4732 })
+      for (const [name, prior] of totals) {
+        const actual = prior + BigInt(result.affectedSummary.work[name])
+        totals.set(name, actual)
+        expect(result.affectedSummary.acceptedCumulativeWork[name]).toMatch(/^[0-9a-f]{32}$/)
+        expect(BigInt(`0x${result.affectedSummary.acceptedCumulativeWork[name]}`)).toBe(actual)
+      }
+      receipt = result.nextReceipt
+    }
+    const rejected = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt, expectedRevision: 2,
+      startOffset: 4, endOffset: 4, replacementText: "X".repeat(10000),
+      anchorSpanId: "span-1", composition: "committed" })))
+    expect(rejected).toMatchObject({ status: "NotAdmissible", reason: "budget-exhaustion", unchangedRevision: 2 })
+    expect(rejected.affectedSummary.work.sourceFactsUtf16).toBe(511)
+    expect(rejected.affectedSummary.work).toMatchObject({ responseEncodingPasses: 2,
+      responseScalarSlotWrites: 182, responseScalarSlotBytes: 4732 })
+    for (const [name, total] of totals) {
+      expect(BigInt(`0x${rejected.affectedSummary.acceptedCumulativeWork[name]}`)).toBe(total)
+    }
+    expect(JSON.parse(wasm.stage3_dispose(receipt)).status).toBe("Disposed")
+  })
+  it("charges only work slots when no authentic cumulative baseline exists", () => {
+    for (const input of ["{}", "{"]) {
+      const wire = wasm.stage4_apply(input)
+      const rejected = JSON.parse(wire)
+      expect(rejected).toMatchObject({ status: "NotAdmissible", affectedSummary: {
+        acceptedCumulativeWork: null, work: { responseEncodingPasses: 2,
+          responseScalarSlotWrites: 91, responseScalarSlotBytes: 1820,
+          abiOutputBytes: Buffer.byteLength(wire) } } })
+    }
+  })
   it.each([
     ["tail-repair-provider-failure", "provider-failure", 2, 11, 0],
     ["cancel-after-tail-repair", "cancelled", 3, 15, 6],
@@ -401,7 +450,8 @@ describe("private Stage 4 ordinary atomic commands", () => {
       composition: "committed",
       anchorSpanId: "span-1",
     })
-    const result = JSON.parse(wasm.stage4_apply(request))
+    const wire = wasm.stage4_apply(request)
+    const result = JSON.parse(wire)
     expect(result).toMatchObject({ status: "Accepted", nextRevision: 1 })
     expect(result.affectedSummary.work).toMatchObject({
       sourceFactsUtf16: expect.any(Number),
@@ -424,7 +474,7 @@ describe("private Stage 4 ordinary atomic commands", () => {
     expect(result.affectedSummary.work.propertyFactsUtf16).toBeLessThanOrEqual(512)
     expect(result.affectedSummary.work.shapingSegmentationInputUtf16).toBeLessThanOrEqual(1024)
     expect(result.affectedSummary.work.abiInputBytes).toBe(Buffer.byteLength(request))
-    expect(result.affectedSummary.work.abiOutputBytes).toBe(Buffer.byteLength(JSON.stringify(result)))
+    expect(result.affectedSummary.work.abiOutputBytes).toBe(Buffer.byteLength(wire))
     expect(result.affectedSummary.sourceBindingDigest).toMatch(/^sha256:/)
   })
 
