@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "incremental-boundary-gate2a-corpus/2",
+  "languages": {
+    "thai": "ภาษาไทย กิ้ ",
+    "latin": "office AV ",
+    "mixed": "ภาษาไทย office AV กิ้ "
+  },
+  "sizes": [256, 1024, 2048, 4096, 8192],
+  "operations": ["append", "backspace", "mid-insert", "replacement", "composition-update", "composition-commit"],
+  "warmup": 5,
+  "repetitions": 50,
+  "burstRevisions": 180,
+  "coldWarmup": 1,
+  "coldRepetitions": 3,
+  "adversarial": [
+    "unsafe-scalar-boundary",
+    "paragraph-properties-rebuild-required",
+    "stale-revision",
+    "identity-mismatch",
+    "cannot-certify-both-anchors",
+    "shape-plan-cache-eviction"
+  ],
+  "construction": "Gate 2 text seeds and edit names. Preparation, prepared first edit, sustained edit, authentic burst, adversarial, and true-cold worker cohorts remain separate."
+}
