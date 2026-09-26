@@ -504,3 +504,63 @@ describe("run-owned semantic oracle stage 2", () => {
     expect(evaluateRunOwnedSemanticOracleStage2(input).decision.status).toBe("not-admissible")
   })
 })
+
+describe("Stage 5 endpoint reference certificates", () => {
+  function endpoint(text: string, caret: number): RunOwnedSemanticOracleStage2Input {
+    const input = inputFor("AB", [latinRun(0, 2)], 1)
+    input.committedText = text
+    input.caretOffset = caret
+    input.authoredSpans = text ? [{ spanId: "span-1", startOffset: 0, endOffset: text.length, text, styleKey: "body" }] : []
+    input.provider.runs = text ? [latinRun(0, text.length)] : []
+    input.provider.graphemeSafeOffsets = [0, text.length]
+    const cert = input.provider.seamCertificates[0] as any
+    const binding = { committedText: text, authoredSpans: input.authoredSpans, paragraph: input.paragraph,
+      providerId: input.provider.providerId, providerRevision: input.provider.providerRevision,
+      runs: input.provider.runs, graphemeSafeOffsets: input.provider.graphemeSafeOffsets, caretOffset: caret }
+    Object.assign(cert, { variant: "endpoint", caretOffset: caret,
+      leftSourceRange: { startOffset: 0, endOffset: caret }, rightSourceRange: { startOffset: caret, endOffset: text.length },
+      leftProviderRunId: caret === 0 ? null : input.provider.runs[0]!.runId,
+      rightProviderRunId: caret === text.length ? null : input.provider.runs[0]!.runId,
+      leftAuthoredProperties: caret === 0 ? [] : [{ spanId: "span-1", language: null, styleKey: "body" }],
+      rightAuthoredProperties: caret === text.length ? [] : [{ spanId: "span-1", language: null, styleKey: "body" }],
+      sourceBinding: { committedText: text, authoredSpans: input.authoredSpans.map(({spanId,startOffset,endOffset}) => ({spanId,startOffset,endOffset})) },
+      sides: { left: caret === 0 ? "empty" : "nonempty", right: caret === text.length ? "empty" : "nonempty" },
+      emptyOrigins: Object.fromEntries((["left","right"] as const).map(side=>[side,(side==="left"?caret===0:caret===text.length)?{parentParagraphId:paragraph.paragraphId,parentRevision:0,caretOffset:caret,side,authoredEdge:text?{spanId:"span-1",language:null,styleKey:"body"}:null}:null])),
+    })
+    for (const facts of [cert.beforeFacts, cert.edgeFacts]) {
+      for (const kind of ["glyphFacts", "clusterFacts", "breakFacts"]) facts[kind] = text ? [{ factId: kind, startOffset: 0, endOffset: text.length }] : []
+      facts.unsafeBoundaryEvidence = { status: "safe", caretOffset: caret }
+    }
+    const edge = (empty: boolean) => ({ glyphFactIds: empty ? [] : ["glyphFacts"], clusterFactIds: empty ? [] : ["clusterFacts"], breakFactIds: empty ? [] : ["breakFacts"], safety: "safe" })
+    cert.edgeSummaries = { binding: structuredClone(binding), before: {left: edge(caret === 0),right: edge(caret === text.length)}, after: {left: edge(caret === 0),right: edge(caret === text.length)} }
+    cert.outsideRangeValidity = { binding: structuredClone(binding), status: "preserved", ranges: [] }
+    cert.work.forEach((w: any) => { w.ranges = text ? [{ startOffset: 0, endOffset: text.length }] : [] })
+    return input
+  }
+  it.each([["AB",0],["AB",2],["",0]] as const)("certifies real endpoint %s:%s without sentinel runs", (text, caret) => {
+    const result = evaluateRunOwnedSemanticOracleStage2(endpoint(text,caret))
+    expect(result.decision.status).toBe("certified")
+    expect(result.runs.length).toBe(text ? 1 : 0)
+  })
+  it.each(["empty", "source", "context", "provider", "origin", "defaults"])("rejects forged %s binding", (field) => {
+    const input = endpoint("AB",0)
+    const cert = input.provider.seamCertificates[0] as any
+    if(field === "empty") cert.sides.right = "empty"
+    if(field === "source") cert.sourceBinding.committedText = "AC"
+    if(field === "context") cert.paragraphContext.paragraphId = "wrong"
+    if(field === "provider") cert.providerRevision = "wrong"
+    if(field === "origin") cert.emptyOrigins.left.parentRevision = 99
+    if(field === "defaults") cert.paragraphContext.defaults = {version:"v1",digest:"different",styleKey:"body"}
+    expect(evaluateRunOwnedSemanticOracleStage2(input).decision).toEqual({status:"not-admissible",reason:"uncertified-seam"})
+  })
+  it("returns explicit empty/nonempty side tags and bound empty origin",()=>{
+    const result=evaluateRunOwnedSemanticOracleStage2(endpoint("AB",0))
+    expect(result.decision).toMatchObject({status:"certified",seamFacts:{sides:{left:"empty",right:"nonempty"},emptyOrigins:{left:{parentParagraphId:paragraph.paragraphId,caretOffset:0,side:"left"}}}})
+  })
+  it("never uses an endpoint tag to skip an interior side",()=>{
+    const input=inputFor("AB",[latinRun(0,2)],1)
+    Object.assign(input.provider.seamCertificates[0]!,{variant:"endpoint",sides:{left:"empty",right:"nonempty"}})
+    expect(evaluateRunOwnedSemanticOracleStage2(input).decision).toEqual({status:"not-admissible",reason:"uncertified-seam"})
+  })
+
+})

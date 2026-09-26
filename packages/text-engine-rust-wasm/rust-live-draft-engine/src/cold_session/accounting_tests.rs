@@ -413,6 +413,7 @@ fn cumulative_red_tail_pruning_reports_current_height_not_cold_height() {
     let tree = Tree::build(
         (0..3)
             .map(|i| Span {
+                origin: None,
                 span_id: format!("s{i}"),
                 start_offset: i,
                 end_offset: i + 1,
@@ -673,6 +674,7 @@ fn cumulative_cached_height_matches_independent_oracle_after_every_small_tree_pr
         let mut tree = Tree::build(
             (0..n)
                 .map(|i| Span {
+                origin: None,
                     span_id: format!("s{i}"),
                     start_offset: i,
                     end_offset: i + 1,
@@ -1025,6 +1027,7 @@ fn tail_pruning_charges_promoted_lazy_shift_and_preserves_payload_identity() {
     };
     let spans: Vec<_> = (0..5)
         .map(|i| Span {
+                origin: None,
             span_id: format!("s{i}"),
             start_offset: i,
             end_offset: i + 1,

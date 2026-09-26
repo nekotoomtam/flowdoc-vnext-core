@@ -348,10 +348,11 @@ describe("private Stage 4 ordinary atomic commands", () => {
     expect(result.affectedSummary.work).toMatchObject({ sourceFactsUtf16: 47, propertyFactsUtf16: 10, shapingSegmentationInputUtf16: 30, sourceCopyBytes: 20, sourceCopiedUtf16: 20, sourceIndexUtf16: 5, wholeParagraphScans: 0, unboundedSuffixWork: 0, absoluteOffsetReindexing: 0 })
   })
   it("charges auxiliary source, index, canonical encoding and payload-copy work", () => {
+    // Stage5 lineage retains one copied event identity in addition to nine tree/payload copies.
     const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("ABCDE"))))
     const result = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt: created.receipt, expectedRevision: 0, startOffset: 1, endOffset: 3, replacementText: "XY", composition: "committed", anchorSpanId: "span-1" })))
     expect(result.status).toBe("Accepted")
-    expect(result.affectedSummary.work).toMatchObject({ sourceCopyBytes: 20, sourceCopiedUtf16: 20, sourceIndexUtf16: 5, sourceOffsetLookups: 4, propertyScalarVisits: 10, payloadCopyCalls: 9, canonicalValuePasses: 3, canonicalJsonPasses: 3, sourceScanUtf16: 28, sourceFactsUtf16: 47, propertyFactsUtf16: 10 })
+    expect(result.affectedSummary.work).toMatchObject({ sourceCopyBytes: 20, sourceCopiedUtf16: 20, sourceIndexUtf16: 5, sourceOffsetLookups: 4, propertyScalarVisits: 10, payloadCopyCalls: 10, canonicalValuePasses: 3, canonicalJsonPasses: 3, sourceScanUtf16: 28, sourceFactsUtf16: 47, propertyFactsUtf16: 10 })
     expect(result.affectedSummary.work.sourceScanUtf16).toBeGreaterThan(0)
     expect(result.affectedSummary.work.payloadElementsCopied).toBeGreaterThan(9)
   })

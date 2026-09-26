@@ -7,6 +7,7 @@ import { z } from "zod"
 export type RunOwnedDirection = "ltr" | "rtl"
 
 export interface RunOwnedParagraphContext {
+  defaults?: { version: string; digest: string; language?: string; styleKey?: string }
   paragraphId: string
   baseDirection: RunOwnedDirection
   writingMode: "horizontal-tb" | "vertical-rl" | "vertical-lr"
@@ -53,7 +54,19 @@ export type RunOwnedUnsafeBoundaryEvidence =
   | { status: "safe"; caretOffset: number }
   | { status: "unsafe"; reason: string }
 
+export interface RunOwnedEmptyOrigin {
+  parentParagraphId: string
+  parentRevision: number
+  caretOffset: number
+  side: "left" | "right"
+  authoredEdge: RunOwnedAuthoredProperty | null
+}
+
 export interface RunOwnedSeamCertificate {
+  /** Only true endpoints may use empty sides; interior proofs retain two runs. */
+  variant?: "endpoint"
+  sides?: { left: "empty" | "nonempty"; right: "empty" | "nonempty" }
+  emptyOrigins?: {left:RunOwnedEmptyOrigin|null;right:RunOwnedEmptyOrigin|null}
   certificateId: string
   caretOffset: number
   leftSourceRange: { startOffset: number; endOffset: number }
@@ -78,8 +91,8 @@ export interface RunOwnedSeamCertificate {
   providerId: string
   providerRevision: string
   paragraphContext: RunOwnedParagraphContext
-  leftProviderRunId: string
-  rightProviderRunId: string
+  leftProviderRunId: string | null
+  rightProviderRunId: string | null
   leftAuthoredProperties: readonly RunOwnedAuthoredProperty[]
   rightAuthoredProperties: readonly RunOwnedAuthoredProperty[]
   edgeFacts: {
@@ -131,6 +144,7 @@ export interface RunOwnedProviderFacts {
 }
 
 export interface RunOwnedSemanticOracleStage2Input {
+  sourceRevision?: number
   committedText: string
   authoredSpans: readonly RunOwnedAuthoredSpan[]
   paragraph: RunOwnedParagraphContext
@@ -176,14 +190,17 @@ export type RunOwnedBoundaryDecision =
     certificateId: string
     caretOffset: number
     seamFacts: {
+      variant?: "endpoint"
+      sides?: RunOwnedSeamCertificate["sides"]
+      emptyOrigins?: RunOwnedSeamCertificate["emptyOrigins"]
       leftSourceRange: { startOffset: number; endOffset: number }
       rightSourceRange: { startOffset: number; endOffset: number }
       sourceBinding: RunOwnedSeamSourceBinding
       providerId: string
       providerRevision: string
       paragraphContext: RunOwnedParagraphContext
-      leftAnalysisKey: RunOwnedAnalysisKey
-      rightAnalysisKey: RunOwnedAnalysisKey
+      leftAnalysisKey: RunOwnedAnalysisKey | null
+      rightAnalysisKey: RunOwnedAnalysisKey | null
       edgeFacts: RunOwnedSeamCertificate["edgeFacts"]
       beforeFacts: RunOwnedSeamCertificate["edgeFacts"]
       edgeSummaries: RunOwnedSeamCertificate["edgeSummaries"]
@@ -205,6 +222,7 @@ const offset = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER)
 const rangeFields = { startOffset: offset, endOffset: offset }
 const rangeSchema = z.object(rangeFields).strict()
 const paragraphSchema = z.object({
+  defaults: z.object({version:identity,digest:identity,language:identity.optional(),styleKey:identity.optional()}).strict().optional(),
   paragraphId: identity, baseDirection: z.enum(["ltr", "rtl"]),
   writingMode: z.enum(["horizontal-tb", "vertical-rl", "vertical-lr"]),
 }).strict()
@@ -258,7 +276,22 @@ const certificateSchema = z.object({
     }).strict()),
   }).strict(),
 }).strict()
+// Empty collections are admitted only by this separately tagged endpoint schema.
+const endpointEdgeSchema = edgeSchema.extend({
+  glyphFactIds: z.array(identity), clusterFactIds: z.array(identity), breakFactIds: z.array(identity),
+})
+const endpointSummarySchema = z.object({ left: endpointEdgeSchema, right: endpointEdgeSchema }).strict()
+const originSchema=z.object({parentParagraphId:identity,parentRevision:offset,caretOffset:offset,side:z.enum(["left","right"]),authoredEdge:propertySchema.nullable()}).strict()
+const endpointCertificateSchema = certificateSchema.extend({
+  variant: z.literal("endpoint"),
+  emptyOrigins:z.object({left:originSchema.nullable(),right:originSchema.nullable()}).strict(),
+  sides: z.object({left: z.enum(["empty", "nonempty"]), right: z.enum(["empty", "nonempty"])}).strict(),
+  leftProviderRunId: identity.nullable(), rightProviderRunId: identity.nullable(),
+  work: z.array(certificateSchema.shape.work.element.extend({ ranges: z.array(rangeSchema) })),
+  edgeSummaries: z.object({binding: bindingSchema, before: endpointSummarySchema, after: endpointSummarySchema}).strict(),
+})
 const inputSchema = z.object({
+  sourceRevision: offset.optional(),
   committedText: z.string(), authoredSpans: z.array(authoredSchema), paragraph: paragraphSchema,
   caretOffset: z.number(), composition: z.enum(["committed", "active"]),
   provider: z.object({
@@ -470,25 +503,39 @@ function hasValidRangeFacts(
 ): boolean {
   const startOffset = certificate.leftSourceRange.startOffset
   const endOffset = certificate.rightSourceRange.endOffset
-  return facts.length > 0 && new Set(facts.map((fact) => fact.factId)).size === facts.length
+  return (facts.length > 0 || certificate.variant === "endpoint" && text.length === 0) && new Set(facts.map((fact) => fact.factId)).size === facts.length
     && exactPartition(facts, startOffset, endOffset, text)
 }
 
 function isCertifiedSeam(
   certificate: RunOwnedSeamCertificate,
   input: RunOwnedSemanticOracleStage2Input,
-  leftRun: RunOwnedAnalysisRunDescriptor,
-  rightRun: RunOwnedAnalysisRunDescriptor,
+  leftRun: RunOwnedAnalysisRunDescriptor | undefined,
+  rightRun: RunOwnedAnalysisRunDescriptor | undefined,
 ): boolean {
   const { caretOffset, committedText, provider, paragraph, authoredSpans } = input
   const textLength = committedText.length
+  const endpoint = certificate.variant === "endpoint"
+  const leftEmpty = caretOffset === 0
+  const rightEmpty = caretOffset === textLength
+  if (endpoint) {
+    if (!(leftEmpty || rightEmpty) || certificate.sides?.left !== (leftEmpty ? "empty" : "nonempty")
+      || certificate.sides?.right !== (rightEmpty ? "empty" : "nonempty")) return false
+    for (const side of ["left","right"] as const) {
+      const empty=side==="left"?leftEmpty:rightEmpty
+      const edge=authoredSpans[side==="left"?0:authoredSpans.length-1]
+      const expected=empty?{parentParagraphId:paragraph.paragraphId,parentRevision:input.sourceRevision??0,caretOffset,side,
+        authoredEdge:edge?{spanId:edge.spanId,language:edge.language??null,styleKey:edge.styleKey??null}:null}:null
+      if(!sameJson(certificate.emptyOrigins?.[side],expected))return false
+    }
+  } else if (!leftRun || !rightRun) return false
   return certificate.caretOffset === caretOffset
     && isValidRange(certificate.leftSourceRange, textLength)
     && isValidRange(certificate.rightSourceRange, textLength)
     && certificate.leftSourceRange.endOffset === caretOffset
     && certificate.rightSourceRange.startOffset === caretOffset
-    && certificate.leftSourceRange.startOffset < caretOffset
-    && certificate.rightSourceRange.endOffset > caretOffset
+    && (certificate.leftSourceRange.startOffset < caretOffset || endpoint && leftEmpty && certificate.leftSourceRange.startOffset === 0)
+    && (certificate.rightSourceRange.endOffset > caretOffset || endpoint && rightEmpty && certificate.rightSourceRange.endOffset === textLength)
     && accountWork(certificate, input) !== null
     && sameJson(certificate.sourceBinding, {
       committedText,
@@ -497,10 +544,10 @@ function isCertifiedSeam(
     && certificate.providerId === provider.providerId
     && certificate.providerRevision === provider.providerRevision
     && sameJson(certificate.paragraphContext, paragraph)
-    && certificate.leftProviderRunId === leftRun.analysisKey.providerRunId
-    && certificate.rightProviderRunId === rightRun.analysisKey.providerRunId
-    && sameJson(certificate.leftAuthoredProperties, leftRun.authoredProperties)
-    && sameJson(certificate.rightAuthoredProperties, rightRun.authoredProperties)
+    && certificate.leftProviderRunId === (leftRun?.analysisKey.providerRunId ?? null)
+    && certificate.rightProviderRunId === (rightRun?.analysisKey.providerRunId ?? null)
+    && sameJson(certificate.leftAuthoredProperties, leftRun?.authoredProperties ?? [])
+    && sameJson(certificate.rightAuthoredProperties, rightRun?.authoredProperties ?? [])
     && [certificate.beforeFacts, certificate.edgeFacts].every((facts) => (
       hasValidRangeFacts(facts.glyphFacts, certificate, committedText)
       && hasValidRangeFacts(facts.clusterFacts, certificate, committedText)
@@ -547,13 +594,10 @@ export function evaluateRunOwnedSemanticOracleStage2(
   const certifiedRuns = deriveRuns(input, input.caretOffset)
   const leftRun = [...certifiedRuns].reverse().find((run) => run.endOffset === input.caretOffset)
   const rightRun = certifiedRuns.find((run) => run.startOffset === input.caretOffset)
-  if (!leftRun || !rightRun) {
-    return notAdmissible(input, derivedRuns, "uncertified-seam")
-  }
   // Do not hide unaccounted work in alternative certificates or silently skip a
   // malformed one. This reference request evaluates exactly one seam proof.
   if (parsed.data.provider.seamCertificates.length !== 1) return notAdmissible(input, derivedRuns, "uncertified-seam")
-  const candidate = certificateSchema.safeParse(parsed.data.provider.seamCertificates[0])
+  const candidate = z.union([certificateSchema, endpointCertificateSchema]).safeParse(parsed.data.provider.seamCertificates[0])
   const certificate = candidate.success && isCertifiedSeam(candidate.data, input, leftRun, rightRun) ? candidate.data : null
   if (!certificate) {
     return notAdmissible(input, derivedRuns, "uncertified-seam")
@@ -566,6 +610,7 @@ export function evaluateRunOwnedSemanticOracleStage2(
       certificateId: certificate.certificateId,
       caretOffset: input.caretOffset,
       seamFacts: {
+        ...("variant" in certificate && certificate.variant === "endpoint" ? {variant:certificate.variant,sides:certificate.sides,emptyOrigins:certificate.emptyOrigins}:{}),
         beforeFacts: certificate.beforeFacts,
         edgeSummaries: certificate.edgeSummaries,
         outsideRangeValidity: certificate.outsideRangeValidity,
@@ -579,8 +624,8 @@ export function evaluateRunOwnedSemanticOracleStage2(
         providerId: certificate.providerId,
         providerRevision: certificate.providerRevision,
         paragraphContext: { ...input.paragraph },
-        leftAnalysisKey: cloneAnalysisKey(leftRun.analysisKey),
-        rightAnalysisKey: cloneAnalysisKey(rightRun.analysisKey),
+        leftAnalysisKey: leftRun ? cloneAnalysisKey(leftRun.analysisKey) : null,
+        rightAnalysisKey: rightRun ? cloneAnalysisKey(rightRun.analysisKey) : null,
         edgeFacts: {
           glyphFacts: certificate.edgeFacts.glyphFacts.map((fact) => ({ ...fact })),
           clusterFacts: certificate.edgeFacts.clusterFacts.map((fact) => ({ ...fact })),

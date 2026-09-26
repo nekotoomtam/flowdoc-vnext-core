@@ -1049,3 +1049,17 @@ fn unknown_fields_at_every_configuration_level_fail_closed() {
         assert_eq!(runtime.live_count(), 0);
     }
 }
+
+#[test]
+fn stage5_empty_enter_requires_two_real_capabilities() {
+    let mut rt = Runtime::default();
+    let mut input = fixture("");
+    input["authoredSpans"] = json!([]);
+    let created = create(&mut rt, &input);
+    let output: Value = serde_json::from_str(&super::structural::apply(&mut rt, &json!({
+        "operation":"enter", "receipt":created["receipt"], "expectedRevision":0,
+        "caretOffset":0,"composition":"committed"
+    }).to_string())).unwrap();
+    assert_eq!(output["status"], "Accepted");
+    assert_eq!(rt.live_count(), 2);
+}

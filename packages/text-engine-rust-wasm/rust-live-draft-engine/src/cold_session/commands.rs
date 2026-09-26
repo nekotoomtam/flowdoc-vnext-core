@@ -115,7 +115,7 @@ fn provider_rejection_charges_only_executed_calls_and_offset_reads() {
     assert_eq!(m.old_new_provider_input_utf16, 2);
     assert_eq!(m.source_scan_utf16, 4);
 }
-fn facts(
+pub(super) fn facts(
     text: &str,
     base: usize,
     run: &Run,
@@ -252,6 +252,7 @@ fn facts(
     })
 }
 struct Candidate {
+    event: String,
     source: Arc<Source>,
     spans: Tree<Span>,
     runs: Tree<Run>,
@@ -565,7 +566,7 @@ fn plan(
         let mut pruned = s.shards.without_last(tw);
         if pruned.len > 0 {
             let previous = pruned.at(pruned.len - 1, tw).unwrap().materialize(tw);
-            let previous_run = s.runs.at(previous.run_index, tw).unwrap().materialize(tw);
+            let previous_run = s.runs.at(previous.run_index - s.run_index_base, tw).unwrap().materialize(tw);
             // Re-deriving a partial Thai run cannot certify dictionary line
             // context outside this shard. Adjacent-context admission stays closed.
             if previous.start_offset != previous_run.start
@@ -668,7 +669,10 @@ fn plan(
         runs: runs.stats(),
         shards: shards.stats(),
     })?;
+    m.payload_copy_calls += 1;
+    m.payload_string_bytes_copied += receipt.len() as u64;
     Ok(Candidate {
+        event: receipt.clone(),
         source,
         spans,
         runs,
@@ -696,20 +700,23 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
     };
     meter.command_parse_calls += 1;
     let command = serde_json::from_str::<Command>(input);
+    let lifecycle = command.as_ref().ok().and_then(|c|rt.sessions.get(&c.receipt)).map(|s|s.lifecycle.clone());
+    let structural_prior=command.as_ref().ok().and_then(|c|rt.sessions.get(&c.receipt)).map_or(Default::default(),|s|s.structural_accepted);
+    let lifecycle_overflow=lifecycle.as_ref().is_some_and(|l|l.borrow().can_record().is_err());
     let mut tw = TreeWork::default();
     let mut result = command
         .as_ref()
         .map_err(|_| "invalid-command")
-        .and_then(|c| plan(rt, c, &mut meter, &mut tw));
+        .and_then(|c| if lifecycle_overflow {Err("lifecycle-overflow")}else{plan(rt, c, &mut meter, &mut tw)});
     meter.tree_node_visits = tw.visits;
     meter.tree_path_copies = tw.copies;
     meter.shared_subtrees = tw.shared_subtrees;
     meter.lazy_shifted_subtrees = tw.shifted_subtrees;
-    meter.payload_copy_calls = tw.payload_copy_calls;
+    meter.payload_copy_calls += tw.payload_copy_calls;
     meter.ownership_span_visits = tw.ownership_span_visits;
     meter.anchor_comparison_bytes = tw.anchor_comparison_bytes;
     meter.payload_elements_copied = tw.payload_elements_copied;
-    meter.payload_string_bytes_copied = tw.payload_string_bytes_copied;
+    meter.payload_string_bytes_copied += tw.payload_string_bytes_copied;
     meter.payload_vector_bytes_copied = tw.payload_vector_bytes_copied;
     meter.position_rewrites = tw.position_rewrites;
     meter.provider_run_id_encoding_passes = tw.provider_run_id_encoding_passes;
@@ -729,12 +736,15 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
         .ok()
         .and_then(|c| rt.sessions.get(&c.receipt))
         .map(|s| s.accepted_work);
+    meter.structural.lineage_scalar_writes=if lifecycle.is_some() && !lifecycle_overflow {100+if result.is_ok(){8}else{0}}else{0};
     let mut response = match &result {
         Ok(p) => json!({"status":"Accepted","nextReceipt":p.receipt,"nextRevision":p.revision,
             "affectedSummary":{"sourceBindingDigest":p.binding,"revisionDigest":p.digest,"work":{},
             "acceptedCumulativeWork":prior,"structuralSnapshot":p.structures}}),
         Err(reason) => rejection(rt, command.as_ref().ok(), reason),
     };
+    response["affectedSummary"]["structuralWork"]=json!(meter.structural);
+    if lifecycle_overflow {response["affectedSummary"]["attemptAccounting"]=json!("reported-not-accumulated-overflow");}
     meter.response_value_passes += 1;
     response["affectedSummary"]["work"] = serde_json::to_value(&meter).unwrap();
     let mut bytes = Vec::with_capacity(8192);
@@ -768,17 +778,21 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
             meter.fault_work.faults_cleared += u64::from(retire_control);
         }
     }
+    meter.structural.lineage_scalar_writes=if lifecycle.is_some() && !lifecycle_overflow {100+if result.is_ok(){8}else{0}}else{0};
+    response["affectedSummary"]["structuralWork"]=json!(meter.structural);
     meter.response_value_passes += 1;
     response["affectedSummary"]["work"] = serde_json::to_value(&meter).unwrap();
     let mut prepared = PreparedReply::new(response, bytes, &mut meter);
     // Real serialization lengths, output length and exact final slot work are
     // now known. Only the four allocator counters require u64 headroom.
     if result.is_ok() {
-        if let Err(reason) = prior.unwrap().preflight(&meter) {
+        if let Err(reason) = prior.unwrap().preflight(&meter).and_then(|_|structural_prior.preflight()).and_then(|_|lifecycle.as_ref().unwrap().borrow().preflight(&meter)) {
             result = Err(reason);
             meter.fault_work.faults_cleared -= u64::from(retire_control);
             retire_control = false;
+            meter.structural.lineage_scalar_writes=100;
             let mut rejected = rejection(rt, command.as_ref().ok(), reason);
+            rejected["affectedSummary"]["structuralWork"]=json!(meter.structural);
             meter.response_value_passes += 1;
             rejected["affectedSummary"]["work"] = serde_json::to_value(&meter).unwrap();
             // Overflow after success preparation needs an actual third encoding
@@ -805,6 +819,8 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
     let mut published = if let Ok(p) = result {
         let c = command.as_ref().unwrap();
         let mut s = rt.sessions.remove(&c.receipt).unwrap();
+        s.last_event = p.event;
+        s.sibling = None; // An accepted child edit irrevocably invalidates the inverse pair.
         s.source = p.source;
         s.spans = p.spans;
         s.runs = p.runs;
@@ -833,6 +849,7 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
     }
     let total = prepared.finish(&mut meter, prior, published.is_some(), &scope);
     if let Some(session) = &mut published {
+        session.structural_accepted=structural_prior.total(&meter.structural);
         session.accepted_work = total.unwrap(); // fixed-size scalar assignment
         session.structures = final_structures.unwrap(); // fixed-size accepted maxima
     }
@@ -843,5 +860,6 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
         probe.after_assignment = scope.snapshot().array();
         p.set(probe);
     });
+    if !lifecycle_overflow {if let Some(lifecycle) = lifecycle {lifecycle.borrow_mut().finish(&meter,published.is_some());}}
     prepared.into_string()
 }

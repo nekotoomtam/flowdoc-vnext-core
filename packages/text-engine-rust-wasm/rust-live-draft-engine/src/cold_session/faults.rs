@@ -16,6 +16,11 @@ pub(super) enum Point {
     TailRepairProviderFailure,
     CancelAfterTailRepair,
     ReceiptEntropyFailure,
+    Stage5AfterLeft,
+    Stage5AfterRight,
+    Stage5AfterReceipts,
+    Stage5AfterOutput,
+    Stage5AfterLedger,
 }
 impl Point {
     fn reason(self) -> &'static str {
@@ -26,6 +31,7 @@ impl Point {
             Self::ProviderFailure | Self::TailRepairProviderFailure => "provider-failure",
             Self::PublicationRefusal => "publication-refused",
             Self::ReceiptEntropyFailure => "entropy-unavailable",
+            Self::Stage5AfterLeft | Self::Stage5AfterRight | Self::Stage5AfterReceipts | Self::Stage5AfterOutput | Self::Stage5AfterLedger => "cancelled",
         }
     }
 }
@@ -53,6 +59,7 @@ pub(super) struct FaultWork {
     pub faults_cleared: u64,
 }
 impl Controls {
+    #[cfg(test)]
     pub fn clear_for(&mut self, receipt: &str, revision: u64, work: &mut FaultWork) {
         if self.prepare_retirement(receipt, revision, work) {
             self.commit_retirement();

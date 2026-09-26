@@ -72,8 +72,33 @@ pub(super) struct FeatureRule {
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub(super) struct Paragraph {
     pub paragraph_id: String,
+    // Private document metadata, preserved verbatim. It is NOT a new cascade:
+    // executable shaping still consumes authored styleKey + Provider.policy.
+    #[serde(default, deserialize_with = "present_defaults", skip_serializing_if = "Option::is_none")]
+    pub defaults: Option<Defaults>,
     pub base_direction: String,
     pub writing_mode: String,
+}
+#[derive(Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub(super) struct Defaults {
+    pub version: String,
+    pub digest: String,
+    #[serde(default, deserialize_with = "present_string", skip_serializing_if = "Option::is_none")]
+    pub language: Option<String>,
+    #[serde(default, deserialize_with = "present_string", skip_serializing_if = "Option::is_none")]
+    pub style_key: Option<String>,
+}
+fn present_defaults<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<Defaults>, D::Error> {
+    Defaults::deserialize(d).map(Some)
+}
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct SpanOrigin {
+    pub span_id: String,
+    pub source_binding: String,
+    pub start_offset: usize,
+    pub end_offset: usize,
 }
 #[derive(Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -95,6 +120,8 @@ fn present_string<'de, D: serde::Deserializer<'de>>(
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct Span {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub origin: Option<SpanOrigin>,
     pub span_id: String,
     pub start_offset: usize,
     pub end_offset: usize,

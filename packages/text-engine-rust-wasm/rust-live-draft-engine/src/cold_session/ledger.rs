@@ -131,7 +131,7 @@ impl Serialize for Hex {
         serializer.serialize_str(std::str::from_utf8(&bytes).unwrap())
     }
 }
-#[derive(Default, Serialize)]
+#[derive(Clone, Default, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct Work {
     pub provider_flag_bytes: u64,

@@ -133,6 +133,33 @@ impl Source {
         w.source_copy_calls += 1;
         Ok(p.text[a..b].to_string())
     }
+    pub fn split(&self, caret: usize, w: &mut TreeWork) -> Result<(Arc<Self>, Arc<Self>, usize), &'static str> {
+        if caret > self.units { return Err("invalid-range"); }
+        if caret == 0 || caret == self.units {
+            let empty = Arc::new(Self {pieces:self.pieces.slice(0,0,Delta::default(),w), units:0, bytes:0});
+            return Ok(if caret == 0 {(empty, Arc::new(self.clone()), 0)} else {(Arc::new(self.clone()), empty, self.bytes)});
+        }
+        let found = self.pieces.containing(caret, w).ok_or("missing-anchor")?;
+        let p = found.materialize(w);
+        let offset = p.offsets[caret-p.start];
+        w.source_offset_lookups += 1;
+        if offset == usize::MAX {return Err("unsafe-surrogate-pair");}
+        let byte = p.byte_start + offset;
+        let delta = Delta {units:-(caret as isize), bytes:-(byte as isize)};
+        let (left,right) = if caret == p.start {
+            (self.pieces.slice(0,found.index,Delta::default(),w),self.pieces.slice(found.index,self.pieces.len,delta,w))
+        } else {
+            // Only the seam piece is copied. The UTF-16 index is local and metered.
+            w.source_copy_calls += 2;
+            w.source_copy_bytes += p.text.len() as u64;
+            w.source_copied_utf16 += (p.end-p.start) as u64;
+            let a = piece(p.start,p.byte_start,p.text[..offset].to_string(),w);
+            let b = piece(caret,byte,p.text[offset..].to_string(),w);
+            (self.pieces.replace_and_shift(found.index,a,Delta::default(),w).slice(0,found.index+1,Delta::default(),w),
+             self.pieces.replace_and_shift(found.index,b,Delta::default(),w).slice(found.index,self.pieces.len,delta,w))
+        };
+        Ok((Arc::new(Self {pieces:left,units:caret,bytes:byte}),Arc::new(Self {pieces:right,units:self.units-caret,bytes:self.bytes-byte}),byte))
+    }
     pub fn replace(
         &self,
         start: usize,

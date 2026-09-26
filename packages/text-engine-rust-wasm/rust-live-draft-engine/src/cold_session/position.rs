@@ -52,6 +52,7 @@ impl Positioned for Span {
         self.span_id.len()
             + self.language.as_ref().map_or(0, String::len)
             + self.style_key.as_ref().map_or(0, String::len)
+            + self.origin.as_ref().map_or(0,|o|o.span_id.len()+o.source_binding.len())
     }
     fn position_rewrites(&self) -> usize {
         2

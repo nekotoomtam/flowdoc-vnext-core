@@ -1,3 +1,6 @@
+mod structural_work;
+mod lifecycle;
+mod structural;
 mod commands;
 mod command_work;
 mod derive;
@@ -25,7 +28,7 @@ pub fn stage3_create(input: &str) -> String {
 }
 #[wasm_bindgen]
 pub fn stage3_dispose(receipt: &str) -> String {
-    SESSIONS.with(|s| s.borrow_mut().dispose(receipt).to_string())
+    SESSIONS.with(|s| structural::dispose(&mut s.borrow_mut(),receipt))
 }
 #[wasm_bindgen]
 pub fn stage4_apply(input: &str) -> String {
@@ -64,3 +67,17 @@ mod fault_tests;
 mod footprint_tests;
 #[cfg(test)]
 mod tests;
+
+#[wasm_bindgen]
+pub fn stage5_apply(input: &str) -> String {
+    SESSIONS.with(|s| structural::apply(&mut s.borrow_mut(),input))
+}
+
+#[cfg(test)]
+mod structural_tests;
+
+mod qa_compare;
+#[wasm_bindgen]
+pub fn stage5_verify(receipt: &str, expected_input: &str) -> String {
+    SESSIONS.with(|s|qa_compare::verify(&s.borrow(),receipt,expected_input))
+}

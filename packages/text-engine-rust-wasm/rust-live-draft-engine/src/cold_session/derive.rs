@@ -51,6 +51,14 @@ pub(super) fn build(
     if paragraph.writing_mode != "horizontal-tb" {
         return Err("unsupported-writing-mode");
     }
+    if let Some(defaults) = &paragraph.defaults {
+        if !policy::id(&defaults.version) || defaults.language.as_deref().is_some_and(|v| !policy::id(v))
+            || defaults.style_key.as_deref().is_some_and(|v| !policy::id(v)) { return Err("invalid-paragraph-defaults"); }
+        let value = serde_json::json!({"version":defaults.version,"language":defaults.language,"styleKey":defaults.style_key});
+        let encoded = policy::canonical(&value, work);
+        work.receipt_hash_bytes += encoded.len() as u64;
+        if policy::hash(&encoded) != defaults.digest { return Err("invalid-paragraph-defaults"); }
+    }
     let mut source = String::new();
     let mut spans: Vec<Span> = Vec::new();
     let mut offset = 0;
@@ -75,6 +83,7 @@ pub(super) fn build(
         source.push_str(&span.text);
         offset += units;
         spans.push(Span {
+                origin: None,
             span_id: span.span_id,
             start_offset: span.start_offset,
             end_offset: span.end_offset,

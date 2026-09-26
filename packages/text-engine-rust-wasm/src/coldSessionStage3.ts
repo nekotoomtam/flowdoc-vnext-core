@@ -10,6 +10,7 @@ export interface ColdQaWasm {
   stage3_end_transfer(): void
   stage3_allocation_count(field: number): bigint
   stage4_apply?(input: string): string
+  stage5_apply?(input: string): string
 }
 declare const receiptBrand: unique symbol
 export type ColdReceipt = Readonly<{ [receiptBrand]: true }>
@@ -24,7 +25,7 @@ export interface ColdSummary {
 }
 export type ColdCreated = { status: "Created"; receipt: ColdReceipt; revision: 0; coldSummary: ColdSummary }
 export type ColdNotCreated = { status: "NotCreated"; reason: string; coldSummary: ColdSummary }
-export type ColdDisposal = { status: "Disposed"; disposalSummary: Readonly<Record<string, number>> } | { status: "UnknownReceipt" }
+export type ColdDisposal = {status:"NotDisposed";reason:string} | { status: "Disposed"; disposalSummary: Readonly<Record<string, number>> } | { status: "UnknownReceipt" }
 export interface ColdCommand {
   expectedRevision: number; startOffset: number; endOffset: number
   replacementText: string; composition: "committed" | "active"; anchorSpanId: string
@@ -38,6 +39,11 @@ export type ColdCommandResult =
   | { status: "NotAdmissible"; reason: string; unchangedReceipt: ColdReceipt; unchangedRevision: number; affectedSummary: CommandSummary }
   | { status: "UnknownReceipt" | "Unavailable" }
 
+export type ColdStructuralResult =
+ | {status:"Accepted";receipts:readonly ColdReceipt[];revision:0;affectedSummary:CommandSummary}
+ | {status:"NotAdmissible";reason:string;affectedSummary:CommandSummary}
+ | {status:"UnknownReceipt" | "Unavailable"}
+
 export function createColdSessionQaAdapter(wasm: ColdQaWasm) {
   const capabilities = new WeakMap<ColdReceipt, string>()
   function measuredTransfer(input: string, invoke: (input: string) => string) {
@@ -46,6 +52,18 @@ export function createColdSessionQaAdapter(wasm: ColdQaWasm) {
     try { wire = invoke(input) } finally { wasm.stage3_end_transfer() }
     const counts = [0, 1, 2, 3].map((field) => wasm.stage3_allocation_count(field).toString(16).padStart(16, "0"))
     return { wire, allocationCalls: counts[0], allocatedBytes: counts[1], deallocationCalls: counts[2], deallocatedBytes: counts[3] }
+  }
+  function structural(handles: readonly ColdReceipt[], command: Record<string, unknown>): ColdStructuralResult {
+    const tokens = handles.map(handle => capabilities.get(handle))
+    if (tokens.some(token => !token)) return {status:"UnknownReceipt"}
+    if (!wasm.stage5_apply) return {status:"Unavailable"}
+    const {wire,...allocations} = measuredTransfer(JSON.stringify({...command,receipt:tokens[0],...(tokens.length===2?{rightReceipt:tokens[1]}:{})}), input=>wasm.stage5_apply!(input))
+    const result=JSON.parse(wire)
+    result.affectedSummary.allocationLifecycle={...allocations,allocationScope:"complete-rust-abi-lifecycle",hostJsonEncodePasses:1,hostJsonDecodePasses:1,abiEntrypointCalls:7}
+    if(result.status!=="Accepted")return result
+    const receipts=result.receipts.map((token:string)=>{const handle=Object.freeze(Object.create(null)) as ColdReceipt;capabilities.set(handle,token);return handle})
+    handles.forEach(handle=>capabilities.delete(handle))
+    return {...result,receipts}
   }
   return Object.freeze({
     create(providerContext: unknown, paragraphContext: unknown, authoredSpans: unknown): ColdCreated | ColdNotCreated {
@@ -62,9 +80,17 @@ export function createColdSessionQaAdapter(wasm: ColdQaWasm) {
     dispose(receipt: ColdReceipt): ColdDisposal {
       const capability = capabilities.get(receipt)
       if (!capability) return { status: "UnknownReceipt" }
-      const result = JSON.parse(wasm.stage3_dispose(capability)) as ColdDisposal
-      capabilities.delete(receipt)
+      const {wire,...allocations}=measuredTransfer(capability,input=>wasm.stage3_dispose(input))
+      const result = JSON.parse(wire) as ColdDisposal
+      if(result.status==="Disposed" || result.status==="UnknownReceipt")capabilities.delete(receipt)
+      Object.assign(result,{allocationLifecycle:{...allocations,allocationScope:"complete-rust-abi-lifecycle",hostJsonEncodePasses:0,hostJsonDecodePasses:1,abiEntrypointCalls:7}})
       return result
+    },
+    enter(receipt:ColdReceipt, expectedRevision:number, caretOffset:number, composition:"committed"|"active"="committed"):ColdStructuralResult {
+      return structural([receipt],{operation:"enter",expectedRevision,caretOffset,composition})
+    },
+    join(left:ColdReceipt,right:ColdReceipt,leftRevision=0,rightRevision=0,composition:"committed"|"active"="committed"):ColdStructuralResult {
+      return structural([left,right],{operation:"join",expectedRevision:leftRevision,rightRevision,composition})
     },
     apply(receipt: ColdReceipt, command: ColdCommand): ColdCommandResult {
       const capability = capabilities.get(receipt)

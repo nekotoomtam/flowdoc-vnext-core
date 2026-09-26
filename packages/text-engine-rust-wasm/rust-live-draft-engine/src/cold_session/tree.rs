@@ -155,6 +155,38 @@ impl<T: Positioned> Tree<T> {
             }
         }
     }
+    // Rank slicing visits only the two boundary paths. Retained subtrees keep
+    // their lazy coordinates; no suffix payload is materialized or relabelled.
+    pub fn slice(&self, start: usize, end: usize, delta: Delta, w: &mut TreeWork) -> Self {
+        fn walk<T>(n: &Option<Arc<Node<T>>>, a: usize, b: usize, inherited: Delta, w: &mut TreeWork) -> Option<Arc<Node<T>>> {
+            if a == b { return None; }
+            let node = n.as_ref().unwrap();
+            w.visits += 1;
+            let shift = inherited.plus(node.shift);
+            if a == 0 && b == node.count {
+                let mut copy = (**node).clone();
+                copy.shift = shift;
+                w.copies += 1;
+                w.shared_subtrees += 1;
+                w.shifted_subtrees += 1;
+                return Some(Arc::new(copy));
+            }
+            let left = node.left.as_ref().map_or(0, |v| v.count);
+            if b <= left { return walk(&node.left, a, b, shift, w); }
+            if a > left { return walk(&node.right, a-left-1, b-left-1, shift, w); }
+            let mut copy = (**node).clone();
+            copy.shift = shift;
+            copy.left = walk(&node.left, a.min(left), b.min(left), Delta::default(), w);
+            copy.right = walk(&node.right, a.saturating_sub(left+1), b.saturating_sub(left+1), Delta::default(), w);
+            copy.count = b-a;
+            copy.height = 1 + copy.left.as_ref().map_or(0, |v|v.height).max(copy.right.as_ref().map_or(0, |v|v.height));
+            w.copies += 1;
+            Some(Arc::new(copy))
+        }
+        assert!(start <= end && end <= self.len);
+        let root = walk(&self.root, start, end, delta, w);
+        Self { len: end-start, height: root.as_ref().map_or(0, |v|v.height), root }
+    }
     pub fn replace_and_shift(
         &self,
         index: usize,

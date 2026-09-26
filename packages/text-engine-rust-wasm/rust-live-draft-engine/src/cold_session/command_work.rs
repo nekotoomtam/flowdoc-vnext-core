@@ -7,6 +7,8 @@ use serde_json::Value;
 #[derive(Default, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct Meter {
+    #[serde(skip)]
+    pub structural: super::structural_work::StructuralWork,
     #[serde(flatten)]
     pub fault_work: FaultWork,
     pub publication_preparation_passes: u64,
@@ -369,6 +371,8 @@ pub(super) struct PreparedReply {
     bytes: Vec<u8>,
     work_slots: [usize; FIELD_COUNT],
     cumulative_slots: Option<[usize; FIELD_COUNT]>,
+    lifecycle_slots: Option<[usize; FIELD_COUNT]>,
+    lifecycle_prior: Option<AcceptedWork>,
 }
 impl PreparedReply {
     // All Value construction, key searching, allocations and destruction happen
@@ -406,19 +410,24 @@ impl PreparedReply {
         } else {
             None
         };
+        let lifecycle_slots = if response["affectedSummary"]["lifecycleCumulativeWork"].is_object() {
+            let start = offset(&bytes, b"\"lifecycleCumulativeWork\":{") + b"\"lifecycleCumulativeWork\":{".len();
+            Some(slots(start,true))
+        } else {None};
         // The slot arrays are immutable below preflight. This forecasts exactly
         // one allocation-free write per slot, including these two counters.
         meter.response_scalar_slot_writes =
-            (FIELD_COUNT * (1 + usize::from(cumulative_slots.is_some()))) as u64;
+            (FIELD_COUNT * (1 + usize::from(cumulative_slots.is_some()) + usize::from(lifecycle_slots.is_some()))) as u64;
         meter.response_scalar_slot_bytes =
-            (FIELD_COUNT * (20 + 32 * usize::from(cumulative_slots.is_some()))) as u64;
+            (FIELD_COUNT * (20 + 32 * (usize::from(cumulative_slots.is_some()) + usize::from(lifecycle_slots.is_some())))) as u64;
         drop(response);
         Self {
             bytes,
             work_slots,
-            cumulative_slots,
+            cumulative_slots, lifecycle_slots, lifecycle_prior: None,
         }
     }
+    pub fn bind_lifecycle(&mut self, prior: AcceptedWork) {self.lifecycle_prior=Some(prior);}
     pub fn into_buffer(self) -> Vec<u8> {
         self.bytes
     }
@@ -459,6 +468,13 @@ impl PreparedReply {
                 slot_bytes += slot.len() as u64;
                 #[cfg(test)]
                 super::accounting_tests::record_scalar_slot(slot.len());
+            }
+        }
+        if let (Some(slots),Some(prior)) = (&self.lifecycle_slots,self.lifecycle_prior) {
+            for (start,value) in slots.iter().zip(prior.total(meter).0) {
+                let slot=&mut self.bytes[*start..*start+32];write_hex(slot,value);
+                writes+=1;slot_bytes+=slot.len() as u64;
+                #[cfg(test)] super::accounting_tests::record_scalar_slot(slot.len());
             }
         }
         // All lengths and work were preflighted. This is one scalar-slot patch,

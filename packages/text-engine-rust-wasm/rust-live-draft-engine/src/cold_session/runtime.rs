@@ -15,13 +15,20 @@ use super::{
     command_work::AcceptedWork,
     structure::{StructuralHistory, Structures},
 };
+#[derive(Clone)]
 pub(super) struct Session {
+    pub lifecycle: super::lifecycle::Shared,
+    pub structural_accepted: super::structural_work::Totals,
+    pub last_event: String,
     pub source: Arc<Source>,
     pub source_binding: String,
     pub spans: Tree<Span>,
     pub runs: Tree<Run>,
     pub shards: Tree<Shard>,
-    pub provider: Provider,
+    pub provider: Arc<Provider>,
+    pub sibling: Option<(Arc<super::structural::Split>, bool)>,
+    pub run_index_base: usize,
+    pub span_index_base: usize,
     pub paragraph: Paragraph,
     pub revision: u64,
     pub accepted_work: AcceptedWork,
@@ -119,7 +126,18 @@ impl Runtime {
         let mut bytes = Vec::with_capacity(8192);
         serde_json::to_writer(&mut bytes, &reply).unwrap();
         let length = bytes.len();
+        // The immutable cold charge is stored once for the whole descendant
+        // family. Copying scalar meters does not copy text or provider facts.
+        if let Some(receipt) = &reply.receipt {
+            let mut life = self.sessions[receipt].lifecycle.borrow_mut();
+            life.cold = reply.cold_summary.work.clone();
+            life.cold_input_bytes = input.len() as u64;
+            life.cold_output_bytes = length as u64;
+        }
         let allocations = scope.snapshot();
+        if let Some(receipt) = &reply.receipt {
+            self.sessions[receipt].lifecycle.borrow_mut().cold_allocations = allocations.array();
+        }
         let s = &mut reply.cold_summary;
         s.abi_output_bytes = Hex(length as u64);
         s.response_encoding_passes = Hex(2);
@@ -191,16 +209,22 @@ impl Runtime {
             runs: runs.stats(),
             shards: shards.stats(),
         });
+        let lifecycle: super::lifecycle::Shared = Default::default();
+        lifecycle.borrow_mut().cold_id = receipt.clone();
         // Single publication point, after all validation/provider/tree work.
         self.sessions.insert(
             receipt.clone(),
             Session {
+                lifecycle,
+                structural_accepted: Default::default(),
+                last_event: receipt.clone(),
                 source,
                 source_binding: summary.source_digest.clone(),
                 spans,
                 runs,
                 shards,
-                provider: input.provider_context,
+                provider: Arc::new(input.provider_context),
+                sibling: None, run_index_base: 0, span_index_base: 0,
                 paragraph: input.paragraph_context,
                 revision: 0,
                 accepted_work: AcceptedWork::default(),
@@ -210,6 +234,7 @@ impl Runtime {
         Ok(receipt)
     }
 
+    #[cfg(test)]
     pub fn dispose(&mut self, receipt: &str) -> Value {
         match self.sessions.remove(receipt) {
             None => json!({"status":"UnknownReceipt"}),
@@ -237,6 +262,7 @@ impl Runtime {
         super::commands::apply(self, input)
     }
 
+    pub fn session_internal(&self, receipt: &str) -> &Session {&self.sessions[receipt]}
     #[cfg(test)]
     pub fn session(&self, receipt: &str) -> &Session {
         &self.sessions[receipt]
