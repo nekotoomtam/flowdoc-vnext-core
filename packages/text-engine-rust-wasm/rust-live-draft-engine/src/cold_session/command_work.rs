@@ -16,6 +16,7 @@ pub(super) struct Meter {
     pub ownership_span_visits: u64,
     pub anchor_comparison_bytes: u64,
     pub bounded_ownership: bool,
+    pub policy_rule_visits: u64,
     pub context_run_visits: u64,
     pub context_key_comparison_bytes: u64,
     pub source_copy_bytes: u64,
@@ -99,12 +100,13 @@ pub(super) struct Meter {
     pub seam_search_glyphs: u64,
     pub seam_search_windows: u64,
 }
-pub(super) const FIELD_COUNT: usize = 91;
+pub(super) const FIELD_COUNT: usize = 92;
 pub(super) const FIELD_NAMES: [&str; FIELD_COUNT] = [
     "publicationPreparationPasses",
     "publicationPreparationBytes",
     "ownershipSpanVisits",
     "anchorComparisonBytes",
+    "policyRuleVisits",
     "contextRunVisits",
     "contextKeyComparisonBytes",
     "sourceCopyBytes",
@@ -206,6 +208,7 @@ impl Meter {
             self.publication_preparation_bytes,
             self.ownership_span_visits,
             self.anchor_comparison_bytes,
+            self.policy_rule_visits,
             self.context_run_visits,
             self.context_key_comparison_bytes,
             self.source_copy_bytes,

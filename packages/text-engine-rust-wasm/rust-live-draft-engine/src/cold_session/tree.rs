@@ -76,6 +76,35 @@ impl<T: Positioned> Located<T> {
     }
 }
 impl<T: Positioned> Tree<T> {
+    // Persistent AVL tail insertion. Push lazy coordinates into descriptor
+    // offsets/child roots only; retained payloads are never materialized.
+    pub fn append(&self, value: T, w: &mut TreeWork) -> Self {
+        fn size<T>(n: &Option<Arc<Node<T>>>) -> usize { n.as_ref().map_or(0, |v| v.count) }
+        fn height<T>(n: &Option<Arc<Node<T>>>) -> usize { n.as_ref().map_or(0, |v| v.height) }
+        fn refresh<T>(n: &mut Node<T>) { n.count=1+size(&n.left)+size(&n.right); n.height=1+height(&n.left).max(height(&n.right)); }
+        fn push<T>(n: &Arc<Node<T>>, w: &mut TreeWork) -> Node<T> {
+            w.visits+=1; w.copies+=1;
+            let mut c=(**n).clone(); let d=c.shift;
+            c.value_shift=c.value_shift.plus(d); c.shift=Delta::default();
+            for child in [&mut c.left,&mut c.right] {
+                if let Some(old)=child { w.shared_subtrees+=1;
+                    if d.units!=0 || d.bytes!=0 {let mut v=(**old).clone();v.shift=v.shift.plus(d);w.copies+=1;w.shifted_subtrees+=1;*old=Arc::new(v);}
+                }
+            }
+            c
+        }
+        fn insert<T>(node: &Option<Arc<Node<T>>>, value: Arc<T>, w: &mut TreeWork) -> Arc<Node<T>> {
+            let Some(node)=node else {w.copies+=1;return Arc::new(Node{value,left:None,right:None,count:1,height:1,shift:Delta::default(),value_shift:Delta::default()});};
+            let mut c=push(node,w); c.right=Some(insert(&c.right,value,w)); refresh(&mut c);
+            if height(&c.right)>height(&c.left)+1 {
+                // Tail insertion only grows the right spine; one left rotation.
+                let mut r=push(c.right.as_ref().unwrap(),w);c.right=r.left.take();refresh(&mut c);
+                r.left=Some(Arc::new(c));refresh(&mut r);Arc::new(r)
+            } else {Arc::new(c)}
+        }
+        let root=Some(insert(&self.root,Arc::new(value),w));
+        Self{len:self.len+1,height:root.as_ref().unwrap().height,root}
+    }
     pub fn build(values: Vec<T>, work: &mut Work) -> Self {
         fn build<T>(
             it: &mut std::vec::IntoIter<T>,

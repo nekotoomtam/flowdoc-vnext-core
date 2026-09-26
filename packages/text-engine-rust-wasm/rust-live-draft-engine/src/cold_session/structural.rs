@@ -87,7 +87,7 @@ fn binding<T: serde::Serialize>(value: &T, m: &mut Meter) -> String {
 fn clone_session(s: &Session, m: &mut Meter) -> Session {
     m.structural.session_record_clones += 1;
     m.payload_copy_calls += 1;
-    m.payload_elements_copied += 1 + 91 + 8;
+    m.payload_elements_copied += 1 + 92 + 8;
     m.payload_string_bytes_copied += (s.source_binding.len()
         + s.last_event.len()
         + s.paragraph.paragraph_id.len()
@@ -774,7 +774,7 @@ fn response(
 ) -> Value {
     m.response_value_passes += 1;
     m.structural.lineage_scalar_writes = (result.as_ref().map_or(0, |p| p.insert.len()) * 99
-        + if lifetime.is_some() { 100 } else { 0 }) as u64;
+        + if lifetime.is_some() { 101 } else { 0 }) as u64;
     match result {
         Ok(p) => {
             json!({"status":"Accepted","receipts":p.insert.iter().map(|(r,_)|r).collect::<Vec<_>>(),"revision":0,"coldConstructionId":p.insert[0].1.lifecycle.borrow().cold_id,
@@ -975,7 +975,7 @@ pub(super) fn dispose(rt: &mut Runtime, receipt: &str) -> String {
                 .as_ref()
                 .is_some_and(|(pair, _)| Arc::strong_count(pair) == 1),
         );
-    m.structural.lineage_scalar_writes = if last_family { 1 } else { 100 };
+    m.structural.lineage_scalar_writes = if last_family { 1 } else { 101 };
     let mut output = json!({"status":"Disposed","disposalSummary":{"releasedSourceBytes":session.source.bytes(),"releasedSpans":session.spans.len,
         "releasedRuns":session.runs.len,"releasedShards":session.shards.len,"releasedFontBytes":session.provider.fonts.iter().map(|f|f.bytes.len()).sum::<usize>(),"liveSessions":rt.live_count()-1},
         "affectedSummary":{"work":m,"acceptedCumulativeWork":prior,"lifecycleCumulativeWork":lifetime,"structuralWork":m.structural,"acceptedStructuralWork":structural_prior}});

@@ -377,3 +377,17 @@ fn entropy_failure_preserves_executed_identity_work_and_retry() {
     );
     assert_eq!(apply(&mut rt, &cmd)["reason"], "unknown-receipt");
 }
+
+#[test]
+fn cross_script_faults_keep_every_payload_and_charge_actual_attempts() {
+    for point in ["cancel-before-provider","provider-failure","cancel-after-provider","receipt-entropy-failure","publication-refusal"] {
+        let mut rt=Runtime::default();let c=create(&mut rt,&fixture("กA"));let receipt=c["receipt"].as_str().unwrap();
+        let snapshot=Snapshot::take(&rt,receipt);arm(&mut rt,receipt,0,point);
+        let cmd=json!({"receipt":receipt,"expectedRevision":0,"startOffset":2,"endOffset":2,"replacementText":"ก","composition":"committed","anchorSpanId":"span-1"});
+        let rejected=apply(&mut rt,&cmd);assert_eq!(rejected["status"],"NotAdmissible","{rejected}");snapshot.assert_unchanged(&rt,receipt);
+        if point=="cancel-before-provider" {assert_eq!(rejected["affectedSummary"]["work"]["fontParseCalls"],0);assert_eq!(rejected["affectedSummary"]["work"]["shapingCalls"],0);}
+        let accepted=apply(&mut rt,&cmd);assert_eq!(accepted["status"],"Accepted","{accepted}");
+        let s=rt.session(accepted["nextReceipt"].as_str().unwrap());
+        for(i,name)in super::command_work::FIELD_NAMES.iter().enumerate(){let a=accepted["affectedSummary"]["work"][name].as_u64().unwrap() as u128;let r=rejected["affectedSummary"]["work"][name].as_u64().unwrap() as u128;assert_eq!(s.accepted_work.0[i],a);assert_eq!(s.lifecycle.borrow().attempts.0[i],a+r);}
+    }
+}

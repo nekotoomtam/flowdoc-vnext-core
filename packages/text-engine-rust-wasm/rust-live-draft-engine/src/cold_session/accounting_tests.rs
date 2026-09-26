@@ -104,8 +104,8 @@ fn cumulative_red_publication_retirement_is_included_before_allocation_free_fina
         result["affectedSummary"]["work"]["responseEncodedBytes"],
         probe.serde_output_lengths.iter().sum::<usize>()
     );
-    assert_eq!(probe.slot_writes, 182);
-    assert_eq!(probe.slot_bytes, 4732);
+    assert_eq!(probe.slot_writes, 184);
+    assert_eq!(probe.slot_bytes, 4784);
     assert_eq!(
         result["affectedSummary"]["work"]["responseScalarSlotWrites"],
         probe.slot_writes
@@ -168,6 +168,7 @@ fn cumulative_red_every_meter_field_has_an_explicit_additive_classification() {
         "publicationPreparationPasses",
         "ownershipSpanVisits",
         "anchorComparisonBytes",
+        "policyRuleVisits",
         "contextRunVisits",
         "contextKeyComparisonBytes",
         "sourceCopyBytes",
@@ -348,12 +349,13 @@ fn cumulative_red_accepted_work_survives_receipt_replacement() {
     .unwrap();
     assert_eq!(second["status"], "Accepted");
     assert_eq!(second["nextRevision"], 2);
-    // Hand-counted source facts: 23 for AB -> ABC, 30 for ABC -> ABCD.
-    assert_eq!(first["affectedSummary"]["work"]["sourceFactsUtf16"], 23);
-    assert_eq!(second["affectedSummary"]["work"]["sourceFactsUtf16"], 30);
+    // Hand-counted source facts: 24 for AB -> ABC, 31 for ABC -> ABCD;
+    // each includes one new tail-dispatch property classification.
+    assert_eq!(first["affectedSummary"]["work"]["sourceFactsUtf16"], 24);
+    assert_eq!(second["affectedSummary"]["work"]["sourceFactsUtf16"], 31);
     assert_eq!(
         cumulative(&second["affectedSummary"]["acceptedCumulativeWork"]["sourceFactsUtf16"]),
-        53,
+        55,
         "accepted work must accumulate across the authoritative receipt chain"
     );
 }
@@ -398,7 +400,7 @@ fn cumulative_red_rejection_reports_attempt_without_advancing_accepted_work() {
     );
     assert_eq!(
         cumulative(&rejected["affectedSummary"]["acceptedCumulativeWork"]["sourceFactsUtf16"]),
-        23
+        24
     );
 }
 
@@ -486,14 +488,14 @@ fn cumulative_late_headroom_and_known_overflow_reject_without_publication_then_r
             rejected["affectedSummary"]["work"]["responseEncodedBytes"],
             probe.serde_output_lengths.iter().sum::<usize>()
         );
-        assert_eq!((probe.slot_writes, probe.slot_bytes), (182, 4732));
+        assert_eq!((probe.slot_writes, probe.slot_bytes), (184, 4784));
         assert_eq!(
             rejected["affectedSummary"]["work"]["responseScalarSlotWrites"],
-            182
+            184
         );
         assert_eq!(
             rejected["affectedSummary"]["work"]["responseScalarSlotBytes"],
-            4732
+            4784
         );
         assert_eq!(rejected["affectedSummary"]["work"]["faultsCleared"], 0);
         assert!(!PUBLICATION_PROBE.with(std::cell::Cell::get).observed);
@@ -515,7 +517,7 @@ fn cumulative_late_headroom_and_known_overflow_reject_without_publication_then_r
         assert_eq!(accepted["affectedSummary"]["work"]["faultsCleared"], 1);
         assert_eq!(
             cumulative(&accepted["affectedSummary"]["acceptedCumulativeWork"]["sourceFactsUtf16"]),
-            23
+            24
         );
         assert_eq!(
             accepted["affectedSummary"]["acceptedCumulativeWork"],
@@ -536,9 +538,9 @@ fn cumulative_scalar_writes_are_exact_for_known_and_unknown_rejections() {
         "endOffset":2,"replacementText":"C","anchorSpanId":"span-1","composition":"committed"})
     .to_string();
     for (input, calls, bytes) in [
-        (known.as_str(), 182, 4732),
-        ("{}", 91, 1820),
-        ("{", 91, 1820),
+        (known.as_str(), 184, 4784),
+        ("{}", 92, 1840),
+        ("{", 92, 1840),
     ] {
         let wire = rt.apply(input);
         let result: Value = serde_json::from_str(&wire).unwrap();
@@ -783,7 +785,7 @@ fn cumulative_injected_failure_preserves_nonzero_prior_ledger_and_all_payloads()
     assert_eq!(retry["nextRevision"], 2);
     assert_eq!(
         cumulative(&retry["affectedSummary"]["acceptedCumulativeWork"]["sourceFactsUtf16"]),
-        53
+        55
     );
     assert_eq!(
         retry["affectedSummary"]["acceptedCumulativeWork"],
@@ -800,7 +802,7 @@ fn admitted_paths_charge_actual_source_and_provider_operations() {
     // Independently hand-counted: replacement length scan, two byte searches,
     // two provider mapping scans/window, actual property visits, source copies/index.
     for (text, start, end, replacement, scan, properties, copies, index, provider) in [
-        ("AB", 2, 2, "C", 15, 1, 11, 3, 15),
+        ("AB", 2, 2, "C", 15, 2, 11, 3, 15),
         ("ABCDE", 4, 5, "", 28, 9, 17, 4, 27),
         ("ABCDE", 2, 2, "X", 29, 6, 23, 6, 33),
         ("ABCDE", 1, 3, "XY", 28, 10, 20, 5, 30),
@@ -899,7 +901,7 @@ fn bounded_replacement_iterator_counts_whole_non_bmp_scalars() {
             "budget-exhaustion",
             0,
         ),
-        ("😀".to_string(), 6, 1, "uncertified-seam", 2),
+        ("😀".to_string(), 6, 1, "uncertified-seam", 4),
     ] {
         let mut rt = Runtime::default();
         let c = create(&mut rt, &fixture("AB"));
@@ -955,7 +957,7 @@ fn all_baseline_paths_keep_inspection_and_copy_work_independent_of_unrelated_con
             want_copy,
             want_provider,
         ) in [
-            ("AB", false, 2, 2, "C", 23, 1, 11, 15),
+            ("AB", false, 2, 2, "C", 24, 2, 11, 15),
             ("ABCDE", false, 4, 5, "", 45, 9, 17, 27),
             ("ABCDE", true, 2, 2, "X", 45, 6, 23, 33),
             ("ABCDE", true, 1, 3, "XY", 47, 10, 20, 30),

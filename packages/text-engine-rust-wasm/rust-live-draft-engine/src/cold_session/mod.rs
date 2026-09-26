@@ -1,3 +1,4 @@
+mod tail_seam;
 mod structural_work;
 mod lifecycle;
 mod structural;

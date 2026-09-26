@@ -1063,3 +1063,74 @@ fn stage5_empty_enter_requires_two_real_capabilities() {
     assert_eq!(output["status"], "Accepted");
     assert_eq!(rt.live_count(), 2);
 }
+
+#[test]
+fn cross_script_tail_append_matches_independent_cold_provider() {
+    let seed: String = "ภาษาไทย กิ้ ".repeat(30).chars().take(255).collect();
+    for (text, insertion) in [(format!("{seed}A"), "ก"), ("กAB".into(), "ขค"), ("Aกข".into(), "BC"), ("AB".into(), "ก"), ("กข".into(), "A"), ("A".repeat(32), "กกกกกกกก"), ("ก".repeat(32), "ABCDEFGH")] {
+        let mut rt = Runtime::default();
+        let created = create(&mut rt, &fixture(&text));
+        let n = text.encode_utf16().count();
+        let reply: Value = serde_json::from_str(&rt.apply(&json!({"receipt":created["receipt"],"expectedRevision":0,
+            "startOffset":n,"endOffset":n,"replacementText":insertion,"anchorSpanId":"span-1","composition":"committed"}).to_string())).unwrap();
+        assert_eq!(reply["status"], "Accepted", "{text:?} + {insertion:?}: {reply}");
+        assert_eq!(reply["nextRevision"], 1);
+        let check: Value = serde_json::from_str(&super::qa_compare::verify(&rt, reply["nextReceipt"].as_str().unwrap(), &fixture(&format!("{text}{insertion}")).to_string())).unwrap();
+        assert_eq!(check["status"], "Equal", "{check}");
+        for (field, cap) in [("sourceFactsUtf16",512),("propertyFactsUtf16",512),("shapingSegmentationInputUtf16",1024)] {
+            assert!(reply["affectedSummary"]["work"][field].as_u64().unwrap() <= cap);
+        }
+    }
+}
+
+#[test]
+fn tail_transition_rejections_preserve_receipt_source_and_accepted_ledger() {
+    for (text, insertion) in [("A", "่"), ("Aก่", "B"), (" A", "ก"), ("กA", "กA"), ("กA", "ก่")] {
+        let mut rt=Runtime::default();let c=create(&mut rt,&fixture(text));let receipt=c["receipt"].as_str().unwrap();
+        let before=retained_observable(rt.session(receipt));
+        let n=text.encode_utf16().count();
+        let reply:Value=serde_json::from_str(&rt.apply(&json!({"receipt":receipt,"expectedRevision":0,"startOffset":n,"endOffset":n,"replacementText":insertion,"composition":"committed","anchorSpanId":"span-1"}).to_string())).unwrap();
+        assert_eq!(reply["status"],"NotAdmissible","{reply}");assert_eq!(reply["unchangedReceipt"],receipt);assert_eq!(reply["unchangedRevision"],0);
+        assert_eq!(before,retained_observable(rt.session(receipt)));
+        assert!(rt.session(receipt).accepted_work.0.iter().all(|v|*v==0));
+        assert_eq!(rt.session(receipt).lifecycle.borrow().rejected_attempts,1);
+        for (field, cap) in [("sourceFactsUtf16",512),("propertyFactsUtf16",512),("shapingSegmentationInputUtf16",1024)] {assert!(reply["affectedSummary"]["work"][field].as_u64().unwrap()<=cap);}
+    }
+}
+
+#[test]
+fn repeated_opposite_script_tail_transitions_share_prefix_and_bound_tree_growth() {
+    use std::sync::Arc;
+    let mut text="กA".to_owned();let mut rt=Runtime::default();let c=create(&mut rt,&fixture(&text));let mut receipt=c["receipt"].as_str().unwrap().to_owned();
+    let prefix=rt.session(&receipt).shards.payload(0);
+    let mut totals=[0u128;super::command_work::FIELD_COUNT];
+    for revision in 0..24 {
+        let insertion=if revision%2==0{"ก"}else{"A"};let n=text.encode_utf16().count();
+        let reply:Value=serde_json::from_str(&rt.apply(&json!({"receipt":receipt,"expectedRevision":revision,"startOffset":n,"endOffset":n,"replacementText":insertion,"composition":"committed","anchorSpanId":"span-1"}).to_string())).unwrap();
+        assert_eq!(reply["status"],"Accepted","{reply}");receipt=reply["nextReceipt"].as_str().unwrap().into();text.push_str(insertion);
+        let s=rt.session(&receipt);assert!(Arc::ptr_eq(&prefix,&s.shards.payload(0)));
+        for tree in [s.runs.recursive_stats(),s.shards.recursive_stats(),s.source.recursive_stats()] {assert!(tree.height<=2*(tree.node_count+1).ilog2() as usize+1);}
+        for(i,name)in super::command_work::FIELD_NAMES.iter().enumerate(){totals[i]+=reply["affectedSummary"]["work"][name].as_u64().unwrap() as u128;assert_eq!(s.accepted_work.0[i],totals[i]);assert_eq!(s.lifecycle.borrow().attempts.0[i],totals[i]);}
+        let check:Value=serde_json::from_str(&super::qa_compare::verify(&rt,&receipt,&fixture(&text).to_string())).unwrap();assert_eq!(check["status"],"Equal","{check}");
+    }
+}
+
+#[test]
+fn tail_transition_after_structural_slice_preserves_defaults_origins_and_index_bases() {
+    use super::tree::TreeWork;
+    let mut rt=Runtime::default();let mut input=fixture("กAB");
+    let defaults=json!({"version":"v1","language":"und","styleKey":"body"});
+    input["paragraphContext"]["defaults"]=defaults.clone();input["paragraphContext"]["defaults"]["digest"]=json!(digest(&defaults));
+    let parent=create(&mut rt,&input);
+    let split:Value=serde_json::from_str(&super::structural::apply(&mut rt,&json!({"operation":"enter","receipt":parent["receipt"],"expectedRevision":0,"caretOffset":1,"composition":"committed"}).to_string())).unwrap();
+    assert_eq!(split["status"],"Accepted","{split}");let right=split["receipts"][1].as_str().unwrap();
+    let span=rt.session(right).spans.at(0,&mut TreeWork::default()).unwrap().materialize(&mut TreeWork::default());
+    let origin=serde_json::to_value(&span.origin).unwrap();
+    let reply:Value=serde_json::from_str(&rt.apply(&json!({"receipt":right,"expectedRevision":0,"startOffset":2,"endOffset":2,"replacementText":"ก","composition":"committed","anchorSpanId":span.span_id}).to_string())).unwrap();
+    assert_eq!(reply["status"],"Accepted","{reply}");
+    let mut expected=fixture("ABก");expected["paragraphContext"]=input["paragraphContext"].clone();
+    let check:Value=serde_json::from_str(&super::qa_compare::verify(&rt,reply["nextReceipt"].as_str().unwrap(),&json!({"input":expected,"authoredOrigins":[origin]}).to_string())).unwrap();
+    assert_eq!(check["status"],"Equal","{check}");
+    let join:Value=serde_json::from_str(&super::structural::apply(&mut rt,&json!({"operation":"join","receipt":split["receipts"][0],"expectedRevision":0,"rightReceipt":reply["nextReceipt"],"rightRevision":1,"composition":"committed"}).to_string())).unwrap();
+    assert_eq!(join["reason"],"not-unchanged-siblings");
+}

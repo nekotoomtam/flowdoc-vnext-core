@@ -333,6 +333,19 @@ fn plan(
             }
         }
     }
+    if insert && c.start_offset == n && c.replacement_text.len() <= 24 && super::tail_seam::opposite(&c.replacement_text, &run.key.script, m) {
+        rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::CancelBeforeProvider,&mut m.fault_work)?;
+        let repaired = super::tail_seam::prepare(s, &run, &ownership, &c.replacement_text, m, tw)?;
+        let (runs, shards) = super::tail_seam::certify(s, &run, repaired, m, tw)?;
+        rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::ProviderFailure,&mut m.fault_work)?;
+        rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::CancelAfterProvider,&mut m.fault_work)?;
+        let units=c.replacement_text.encode_utf16().count();
+        m.source_scan_utf16+=units as u64;
+        let d=Delta{units:units as isize,bytes:c.replacement_text.len() as isize};
+        let source=s.source.append(&c.replacement_text,units,tw);
+        let spans=ownership.publish(&s.spans,c.start_offset,c.end_offset,d,tw);
+        return finish_candidate(rt,c,m,tw,source,spans,runs,shards,units,&c.replacement_text);
+    }
     let shard_at = s.shards.containing(locate, tw).ok_or("missing-anchor")?;
     let shard = shard_at.materialize(tw);
     if c.end_offset > shard.end_offset {
@@ -346,7 +359,7 @@ fn plan(
         while !replacement.as_str().is_empty() {
             // Reserve the maximum scalar width BEFORE decoding the next scalar.
             // This may leave one unit unused; no speculative read is omitted.
-            if m.source_scan_utf16 + tw.source_offset_lookups + 2 > 512 {
+            if m.source_scan_utf16 + m.property_scan_utf16 + tw.source_offset_lookups + 2 > 512 {
                 return Err("budget-exhaustion");
             }
             let ch = replacement.next().unwrap();
@@ -366,7 +379,7 @@ fn plan(
             0
         };
         let lookup_units = if tail_repair_units > 0 { 6 } else { 4 };
-        if 5 * old_units + 4 * new_units + replacement_units + tail_repair_units + lookup_units
+        if 5 * old_units + 4 * new_units + replacement_units + tail_repair_units + lookup_units + m.property_scan_utf16 as usize
             > 512
         {
             return Err("budget-exhaustion");
@@ -617,6 +630,12 @@ fn plan(
     } else {
         s.shards.replace_and_shift(shard_at.index, after, d, tw)
     };
+    finish_candidate(rt,c,m,tw,source,spans,runs,shards,range_sizes.0,&new)
+}
+fn finish_candidate(rt: &mut Runtime, c: &Command, m: &mut Meter, tw: &mut TreeWork,
+    source: Arc<Source>, spans: Tree<Span>, runs: Tree<Run>, shards: Tree<Shard>,
+    replacement_units: usize, new: &str) -> Result<Candidate, &'static str> {
+    let s=rt.sessions.get(&c.receipt).ok_or("unknown-receipt")?;
     let revision = s.revision.checked_add(1).ok_or("revision-limit")?;
     let binding_bytes = measured_canonical(
         &(
@@ -628,7 +647,7 @@ fn plan(
         ),
         m,
     );
-    m.hash_input_utf16 = range_sizes.0 as u64;
+    m.hash_input_utf16 = replacement_units as u64;
     let binding = measured_hash(&binding_bytes, m);
     let mut entropy = [0u8; 32];
     rt.faults.checkpoint(
@@ -715,12 +734,12 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
     meter.payload_copy_calls += tw.payload_copy_calls;
     meter.ownership_span_visits = tw.ownership_span_visits;
     meter.anchor_comparison_bytes = tw.anchor_comparison_bytes;
-    meter.payload_elements_copied = tw.payload_elements_copied;
+    meter.payload_elements_copied += tw.payload_elements_copied;
     meter.payload_string_bytes_copied += tw.payload_string_bytes_copied;
-    meter.payload_vector_bytes_copied = tw.payload_vector_bytes_copied;
+    meter.payload_vector_bytes_copied += tw.payload_vector_bytes_copied;
     meter.position_rewrites = tw.position_rewrites;
-    meter.provider_run_id_encoding_passes = tw.provider_run_id_encoding_passes;
-    meter.provider_run_id_encoded_bytes = tw.provider_run_id_encoded_bytes;
+    meter.provider_run_id_encoding_passes += tw.provider_run_id_encoding_passes;
+    meter.provider_run_id_encoded_bytes += tw.provider_run_id_encoded_bytes;
     meter.source_copy_bytes += tw.source_copy_bytes;
     meter.source_copied_utf16 += tw.source_copied_utf16;
     meter.source_copy_calls += tw.source_copy_calls;
@@ -736,7 +755,7 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
         .ok()
         .and_then(|c| rt.sessions.get(&c.receipt))
         .map(|s| s.accepted_work);
-    meter.structural.lineage_scalar_writes=if lifecycle.is_some() && !lifecycle_overflow {100+if result.is_ok(){8}else{0}}else{0};
+    meter.structural.lineage_scalar_writes=if lifecycle.is_some() && !lifecycle_overflow {101+if result.is_ok(){8}else{0}}else{0};
     let mut response = match &result {
         Ok(p) => json!({"status":"Accepted","nextReceipt":p.receipt,"nextRevision":p.revision,
             "affectedSummary":{"sourceBindingDigest":p.binding,"revisionDigest":p.digest,"work":{},
@@ -778,7 +797,7 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
             meter.fault_work.faults_cleared += u64::from(retire_control);
         }
     }
-    meter.structural.lineage_scalar_writes=if lifecycle.is_some() && !lifecycle_overflow {100+if result.is_ok(){8}else{0}}else{0};
+    meter.structural.lineage_scalar_writes=if lifecycle.is_some() && !lifecycle_overflow {101+if result.is_ok(){8}else{0}}else{0};
     response["affectedSummary"]["structuralWork"]=json!(meter.structural);
     meter.response_value_passes += 1;
     response["affectedSummary"]["work"] = serde_json::to_value(&meter).unwrap();
@@ -790,7 +809,7 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
             result = Err(reason);
             meter.fault_work.faults_cleared -= u64::from(retire_control);
             retire_control = false;
-            meter.structural.lineage_scalar_writes=100;
+            meter.structural.lineage_scalar_writes=101;
             let mut rejected = rejection(rt, command.as_ref().ok(), reason);
             rejected["affectedSummary"]["structuralWork"]=json!(meter.structural);
             meter.response_value_passes += 1;

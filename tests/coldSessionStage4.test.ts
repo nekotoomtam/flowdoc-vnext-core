@@ -5,6 +5,7 @@ import { createColdSessionQaAdapter, type ColdQaWasm } from "../packages/text-en
 
 type Stage4Wasm = {
   stage3_create(input: string): string
+  stage5_verify(receipt: string, input: string): string
   stage4_apply(input: string): string
   stage4_arm_fault(input: string): string
   stage3_dispose(receipt: string): string
@@ -38,7 +39,7 @@ describe("private Stage 4 ordinary atomic commands", () => {
       expect(value).toBe("0".repeat(32))
       totals.set(name, 0n)
     }
-    expect(totals.size).toBe(91)
+    expect(totals.size).toBe(92)
     for (let revision = 0; revision < 2; revision++) {
       const wire = wasm.stage4_apply(JSON.stringify({ receipt, expectedRevision: revision,
         startOffset: 2 + revision, endOffset: 2 + revision, replacementText: "C",
@@ -48,7 +49,7 @@ describe("private Stage 4 ordinary atomic commands", () => {
       expect(result.affectedSummary.attemptWork).toBeUndefined()
       expect(result.affectedSummary.work.abiOutputBytes).toBe(Buffer.byteLength(wire))
       expect(result.affectedSummary.work).toMatchObject({ responseEncodingPasses: 2,
-        responseScalarSlotWrites: 182, responseScalarSlotBytes: 4732 })
+        responseScalarSlotWrites: 184, responseScalarSlotBytes: 4784 })
       for (const [name, prior] of totals) {
         const actual = prior + BigInt(result.affectedSummary.work[name])
         totals.set(name, actual)
@@ -63,7 +64,7 @@ describe("private Stage 4 ordinary atomic commands", () => {
     expect(rejected).toMatchObject({ status: "NotAdmissible", reason: "budget-exhaustion", unchangedRevision: 2 })
     expect(rejected.affectedSummary.work.sourceFactsUtf16).toBe(511)
     expect(rejected.affectedSummary.work).toMatchObject({ responseEncodingPasses: 2,
-      responseScalarSlotWrites: 182, responseScalarSlotBytes: 4732 })
+      responseScalarSlotWrites: 184, responseScalarSlotBytes: 4784 })
     for (const [name, total] of totals) {
       expect(BigInt(`0x${rejected.affectedSummary.acceptedCumulativeWork[name]}`)).toBe(total)
     }
@@ -75,7 +76,7 @@ describe("private Stage 4 ordinary atomic commands", () => {
       const rejected = JSON.parse(wire)
       expect(rejected).toMatchObject({ status: "NotAdmissible", affectedSummary: {
         acceptedCumulativeWork: null, work: { responseEncodingPasses: 2,
-          responseScalarSlotWrites: 91, responseScalarSlotBytes: 1820,
+          responseScalarSlotWrites: 92, responseScalarSlotBytes: 1840,
           abiOutputBytes: Buffer.byteLength(wire) } } })
     }
   })
@@ -113,7 +114,7 @@ describe("private Stage 4 ordinary atomic commands", () => {
     wasm.stage3_dispose(retry.nextReceipt)
   })
   it.each([
-    ["AB", 2, 2, "C", 23, 1, 11, 15],
+    ["AB", 2, 2, "C", 24, 2, 11, 15],
     ["ABCDE", 4, 5, "", 45, 9, 17, 27],
     ["ABCDE", 2, 2, "X", 45, 6, 23, 33],
     ["ABCDE", 1, 3, "XY", 47, 10, 20, 30],
@@ -566,4 +567,39 @@ describe("private Stage 4 ordinary atomic commands", () => {
     expect(work.allocationCalls).toBeGreaterThan(0)
     expect(work).toMatchObject({wholeParagraphScans:0,fullSerializations:0,unboundedSuffixWork:0,absoluteOffsetReindexing:0})
   })
+})
+
+it.each([["กA", "ก"], ["Aกข", "BC"], ["AB", "ขค"], ["กข", "A"]])("certifies actual WASM opposite-script tail %s + %s", (text, inserted) => {
+  const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture(text))))
+  const result = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt: created.receipt, expectedRevision: 0,
+    startOffset: text.length, endOffset: text.length, replacementText: inserted, composition: "committed", anchorSpanId: "span-1" })))
+  expect(result.status, JSON.stringify(result)).toBe("Accepted")
+  expect(result.nextRevision).toBe(1)
+  expect(result.nextReceipt).not.toBe(created.receipt)
+  expect(JSON.parse(wasm.stage5_verify(result.nextReceipt, JSON.stringify(fixture(text + inserted)))).status).toBe("Equal")
+  const work = result.affectedSummary.work
+  expect(work.policyRuleVisits).toBeGreaterThan(0)
+  expect(work.sourceFactsUtf16).toBeLessThanOrEqual(512)
+  expect(work.propertyFactsUtf16).toBeLessThanOrEqual(512)
+  expect(work.shapingSegmentationInputUtf16).toBeLessThanOrEqual(1024)
+  for (const [field, value] of Object.entries(result.affectedSummary.acceptedCumulativeWork)) expect(BigInt(`0x${value}`)).toBe(BigInt(work[field]))
+  expect(JSON.parse(wasm.stage3_dispose(result.nextReceipt)).status).toBe("Disposed")
+})
+
+it.each([[" A", "ก"], ["Aก่", "B"], ["กA", "ก่"], ["กA", "กA"], ["A".repeat(33), "ก"]])("keeps uncertified actual WASM context %s + %s unchanged", (text, inserted) => {
+  const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture(text))))
+  const result = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt: created.receipt, expectedRevision: 0,
+    startOffset: text.length, endOffset: text.length, replacementText: inserted, composition: "committed", anchorSpanId: "span-1" })))
+  expect(result).toMatchObject({ status: "NotAdmissible", unchangedReceipt: created.receipt, unchangedRevision: 0 })
+  expect(JSON.parse(wasm.stage5_verify(created.receipt, JSON.stringify(fixture(text)))).status).toBe("Equal")
+  expect(JSON.parse(wasm.stage3_dispose(created.receipt)).status).toBe("Disposed")
+})
+
+it("distinguishes a committed empty request from active composition", () => {
+  const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("กA"))))
+  const command = { receipt: created.receipt, expectedRevision: 0, startOffset: 2, endOffset: 2, replacementText: "", anchorSpanId: "span-1" }
+  expect(JSON.parse(wasm.stage4_apply(JSON.stringify({ ...command, composition: "committed" })))).toMatchObject({ reason: "unsupported-command-shape", unchangedRevision: 0 })
+  expect(JSON.parse(wasm.stage4_apply(JSON.stringify({ ...command, composition: "active" })))).toMatchObject({ reason: "composition-active", unchangedRevision: 0 })
+  expect(JSON.parse(wasm.stage5_verify(created.receipt, JSON.stringify(fixture("กA")))).status).toBe("Equal")
+  wasm.stage3_dispose(created.receipt)
 })

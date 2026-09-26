@@ -59,6 +59,11 @@ fn piece(start: usize, byte_start: usize, text: String, work: &mut TreeWork) -> 
     }
 }
 impl Source {
+    pub fn append(&self, text: &str, units: usize, w: &mut TreeWork) -> Arc<Self> {
+        w.source_copy_calls+=1;w.source_copy_bytes+=text.len() as u64;w.source_copied_utf16+=units as u64;
+        let next=piece(self.units,self.bytes,text.to_owned(),w);
+        Arc::new(Self{pieces:self.pieces.append(next,w),units:self.units+units,bytes:self.bytes+text.len()})
+    }
     pub fn cold(text: String, shards: &[Shard], work: &mut Work) -> Arc<Self> {
         let units = text.encode_utf16().count();
         let bytes = text.len();

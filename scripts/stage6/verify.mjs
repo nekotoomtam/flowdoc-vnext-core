@@ -43,13 +43,24 @@ export function verifyPreflight(result) {
   strictEqual(command.receipt, result.calls[0].parsed.receipt)
   strictEqual(result.calls[1].parsed.status, row.status)
   strictEqual(result.calls[1].parsed.reason ?? null, row.reason)
-  strictEqual(result.calls[1].parsed.unchangedReceipt, row.originalReceipt)
-  strictEqual(result.calls[1].parsed.unchangedRevision, row.actualRevision)
+  const accepted = row.status === 'Accepted'
+  strictEqual(row.originalReceipt, result.calls[0].parsed.receipt)
+  strictEqual(accepted ? result.calls[1].parsed.nextReceipt : result.calls[1].parsed.unchangedReceipt, row.resultingReceipt)
+  strictEqual(accepted ? result.calls[1].parsed.nextRevision : result.calls[1].parsed.unchangedRevision, row.actualRevision)
+  strictEqual(row.actualRevision, accepted ? 1 : 0)
+  if (accepted) {
+    if (row.resultingReceipt === row.originalReceipt) throw new Error('Accepted edit reused receipt')
+    strictEqual(row.reason, null)
+  } else strictEqual(row.resultingReceipt, row.originalReceipt)
   strictEqual(result.calls[2].method, 'stage5_verify')
   strictEqual(result.calls[2].receipt, row.resultingReceipt)
-  strictEqual(JSON.parse(result.calls[2].request).authoredSpans[0].text, row.source)
+  strictEqual(JSON.parse(result.calls[2].request).authoredSpans[0].text, accepted ? row.expectedText : row.source)
   strictEqual(result.calls[2].parsed.status, 'Equal')
+  deepStrictEqual(row.independentOracle, result.calls[2].parsed)
+  deepStrictEqual(row.work, result.calls[1].parsed.affectedSummary.work)
+  deepStrictEqual(row.acceptedCumulativeWork, result.calls[1].parsed.affectedSummary.acceptedCumulativeWork)
   strictEqual(result.calls[3].method, 'stage3_dispose')
+  strictEqual(result.calls[3].request, row.resultingReceipt)
   strictEqual(result.calls[3].parsed.status, 'Disposed')
   strictEqual(result.calls.length, 4)
   for (const call of result.calls) {
@@ -61,21 +72,29 @@ export function verifyPreflight(result) {
   }
   deepStrictEqual(result.accounting.provider, row.work)
   strictEqual(result.accounting.host.length, result.calls.length)
-  strictEqual(Object.keys(row.work).length, 95)
-  strictEqual(Object.keys(row.acceptedCumulativeWork).length, 91)
+  const additiveFields = Object.hasOwn(row.work, "policyRuleVisits") ? 92 : 91
+  strictEqual(Object.keys(row.work).length, additiveFields + 4)
+  strictEqual(Object.keys(row.acceptedCumulativeWork).length, additiveFields)
   deepStrictEqual(Object.keys(row.work).filter(field => !(field in row.acceptedCumulativeWork)).sort(),
     ['boundedOwnership', 'lineCertified', 'seamCertified', 'unsafeEdgesCertified'])
   for (const [field, value] of Object.entries(row.acceptedCumulativeWork)) {
     if (!/^[0-9a-f]{32}$/.test(value)) throw new Error(`Invalid cumulative slot: ${field}`)
-    strictEqual(BigInt(`0x${value}`), 0n)
+    strictEqual(BigInt(`0x${value}`), accepted ? BigInt(row.work[field]) : 0n)
   }
   for (const name of names) strictEqual(result.executed[name] + result.unexecuted[name], expectedCounts[name])
   strictEqual(result.preflightProbes, 1)
   deepStrictEqual(result.executed, { preparation: 0, preparedFirst: 0, sustained: 0, burst: 0, adversarial: 0, cold: 0 })
-  strictEqual(result.gate, 'BLOCKER')
-  strictEqual(row.status, 'NotAdmissible')
-  strictEqual(row.exact, false)
-  strictEqual(row.unchangedVerified, true)
+  strictEqual(result.gate, accepted ? 'NOT_RUN' : 'BLOCKER')
+  if (!accepted) strictEqual(row.status, 'NotAdmissible')
+  strictEqual(row.exact, accepted)
+  strictEqual(row.unchangedVerified, !accepted)
+  if (accepted) {
+    strictEqual(additiveFields, 92)
+    for (const field of ['sourceFactsUtf16', 'propertyFactsUtf16']) if (row.work[field] > 512) throw new Error(`Exceeded ${field}`)
+    if (row.work.shapingSegmentationInputUtf16 > 1024) throw new Error('Exceeded provider cap')
+    for (const field of ['wholeParagraphScans', 'fullSerializations', 'unboundedSuffixWork', 'absoluteOffsetReindexing']) strictEqual(row.work[field], 0)
+    for (const field of ['seamCertified', 'lineCertified', 'unsafeEdgesCertified']) strictEqual(row.work[field], true)
+  }
   strictEqual(result.unexecuted.burst, 180)
   return { valid: true, gate: result.gate, reason: row.reason, unexecuted: result.unexecuted }
 }

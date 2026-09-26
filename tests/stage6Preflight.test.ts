@@ -40,13 +40,19 @@ describe('retained Stage 6 corpus preflight', () => {
 
   it.skipIf(!process.env.STAGE6_PREFLIGHT_ARTIFACT)('verifies immutable raw artifact and rejects denominator or response tampering', () => {
     const artifact = JSON.parse(readFileSync(process.env.STAGE6_PREFLIGHT_ARTIFACT!, 'utf8'))
-    expect(verifyPreflight(artifact).gate).toBe('BLOCKER')
+    expect(verifyPreflight(artifact).gate).toBe(artifact.firstRequiredResult.status === 'Accepted' ? 'NOT_RUN' : 'BLOCKER')
     verifySourceHashes(artifact, (path: string) => readFileSync(path), (path: string) => execFileSync('git', ['show', `${artifact.historical}:${path}`]))
     const reduced = structuredClone(artifact)
     reduced.unexecuted.burst = 179
     expect(() => verifyPreflight(reduced)).toThrow()
     const forged = structuredClone(artifact)
-    forged.calls[1].parsed.status = 'Accepted'
+    forged.calls[1].parsed.status = 'Forged'
     expect(() => verifyPreflight(forged)).toThrow()
+    const changedWork = structuredClone(artifact)
+    changedWork.firstRequiredResult.work.sourceFactsUtf16++
+    expect(() => verifyPreflight(changedWork)).toThrow()
+    const falseOracle = structuredClone(artifact)
+    falseOracle.firstRequiredResult.independentOracle.status = 'Different'
+    expect(() => verifyPreflight(falseOracle)).toThrow()
   })
 })
