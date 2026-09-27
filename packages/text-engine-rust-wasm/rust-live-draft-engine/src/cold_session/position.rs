@@ -6,19 +6,30 @@ use super::{
 pub(super) struct Delta {
     pub units: isize,
     pub bytes: isize,
+    pub runs: isize,
 }
 impl Delta {
     pub fn plus(self, other: Self) -> Self {
         Self {
             units: self.units + other.units,
             bytes: self.bytes + other.bytes,
+            runs: self.runs + other.runs,
         }
     }
     pub fn inverse(self) -> Self {
         Self {
             units: -self.units,
             bytes: -self.bytes,
+            runs: -self.runs,
         }
+    }
+    pub fn is_zero(self) -> bool {
+        self.units == 0 && self.bytes == 0 && self.runs == 0
+    }
+    pub fn rank(self, value: usize) -> usize {
+        value
+            .checked_add_signed(self.runs)
+            .expect("validated run rank")
     }
     pub fn unit(self, value: usize) -> usize {
         value
@@ -52,7 +63,10 @@ impl Positioned for Span {
         self.span_id.len()
             + self.language.as_ref().map_or(0, String::len)
             + self.style_key.as_ref().map_or(0, String::len)
-            + self.origin.as_ref().map_or(0,|o|o.span_id.len()+o.source_binding.len())
+            + self
+                .origin
+                .as_ref()
+                .map_or(0, |o| o.span_id.len() + o.source_binding.len())
     }
     fn position_rewrites(&self) -> usize {
         2
@@ -130,7 +144,7 @@ impl Positioned for Shard {
             + self.concat_unsafe.len() * std::mem::size_of::<bool>()
     }
     fn position_rewrites(&self) -> usize {
-        2 + self.glyphs.len() + self.line_breaks.len() + self.grapheme_boundaries.len()
+        3 + self.glyphs.len() + self.line_breaks.len() + self.grapheme_boundaries.len()
     }
     fn copy_elements(&self) -> usize {
         1 + self.glyphs.len()
@@ -148,6 +162,7 @@ impl Positioned for Shard {
         let mut v = self.clone();
         v.start_offset = d.unit(v.start_offset);
         v.end_offset = d.unit(v.end_offset);
+        v.run_index = d.rank(v.run_index);
         for g in &mut v.glyphs {
             g.cluster = d.unit(g.cluster);
         }

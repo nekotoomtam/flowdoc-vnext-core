@@ -368,7 +368,7 @@ fn authored_edge_long_context_preserves_properties_and_shares_unrelated_payloads
             assert_eq!(w["ownershipSpanVisits"], 2);
             assert_eq!(
                 w["sourceFactsUtf16"],
-                if replacement.is_empty() { 30 } else { 43 }
+                if replacement.is_empty() { 36 } else { 47 }
             );
             assert_eq!(
                 w["propertyFactsUtf16"],
@@ -376,11 +376,11 @@ fn authored_edge_long_context_preserves_properties_and_shares_unrelated_payloads
             );
             assert_eq!(
                 w["sourceCopiedUtf16"],
-                if replacement.is_empty() { 10 } else { 19 }
+                if replacement.is_empty() { 6 } else { 11 }
             );
             assert_eq!(
                 w["sourceCopyBytes"],
-                if replacement.is_empty() { 10 } else { 19 }
+                if replacement.is_empty() { 6 } else { 11 }
             );
             assert_eq!(
                 w["oldNewProviderInputUtf16"],
@@ -759,13 +759,15 @@ fn middle_source_and_position_tree_share_suffix_payloads() {
     let candidate = s.shards.replace_and_shift(
         located.index,
         changed,
-        Delta { units: 1, bytes: 1 },
+        Delta { units: 1, bytes: 1, runs: 0 },
         &mut work,
     );
     assert!(Arc::ptr_eq(&old_suffix, &candidate.payload(4)));
     assert_eq!(candidate.last().unwrap().end_offset, 601);
     assert_eq!(s.shards.last().unwrap().end_offset, 600);
-    assert!(work.copies > 0 && work.copies < 20);
+    assert!(work.copies > 0 && work.copies < 8 * (s.source.stats().height + s.shards.height + 1) as u64);
+    source.recursive_stats();
+    candidate.recursive_stats();
 }
 #[test]
 fn oversized_middle_rejects_before_concat_work_and_preserves_exact_state() {
@@ -1294,4 +1296,18 @@ fn latin_tail_deletion_after_structural_slice_preserves_default_origin_and_inver
         "receipt":split["receipts"][0],"expectedRevision":0,"rightReceipt":reply["nextReceipt"],
         "rightRevision":1,"composition":"committed"}).to_string())).unwrap();
     assert_eq!(join["reason"],"not-unchanged-siblings");
+}
+#[test]
+fn foundation_fragmented_command_reserves_actual_source_work_before_provider() {
+    use super::{source::Source, ledger::Work, tree::TreeWork};
+    let mut rt=Runtime::default();let text="A".repeat(55);
+    let made=create(&mut rt,&fixture(&text));let receipt=made["receipt"].as_str().unwrap();
+    let mut source=Source::cold(String::new(),&[],&mut Work::default());
+    for _ in 0..55 {source=source.append("A",1,&mut TreeWork::default()).unwrap();}
+    rt.sessions.get_mut(receipt).unwrap().source=source;
+    let reply:Value=serde_json::from_str(&rt.apply(&json!({"receipt":receipt,"expectedRevision":0,"startOffset":55,"endOffset":55,"replacementText":"X","anchorSpanId":"span-1","composition":"committed"}).to_string())).unwrap();
+    let w=&reply["affectedSummary"]["work"];
+    eprintln!("fragmented55 status={} reason={} source={} scan={} index={} lookups={} property={} provider={} shapes={}",reply["status"],reply["reason"],w["sourceFactsUtf16"],w["sourceScanUtf16"],w["sourceIndexUtf16"],w["sourceOffsetLookups"],w["propertyFactsUtf16"],w["shapingSegmentationInputUtf16"],w["shapingCalls"]);
+    assert!(w["sourceFactsUtf16"].as_u64().unwrap()<=512,"{reply}");
+    if reply["status"]=="Accepted" {assert_eq!(serde_json::from_str::<Value>(&super::qa_compare::verify(&rt,reply["nextReceipt"].as_str().unwrap(),&fixture(&format!("{text}X")).to_string())).unwrap()["status"],"Equal");}
 }

@@ -292,6 +292,7 @@ fn certify_join(
             .containing(at, w)
             .ok_or("missing-anchor")?
             .materialize(w);
+        w.source_allowance(m.source_scan_utf16+m.property_scan_utf16);
         let text = child.source.window(run.start, run.end, w)?;
         m.property_scan_utf16 += (run.end - run.start) as u64;
         let measured = commands::facts(&text, run.start, &run, &child.provider, m, false)?;
@@ -309,6 +310,7 @@ fn certify_join(
             .containing(run.start, w)
             .ok_or("missing-anchor")?
             .materialize(w);
+        w.source_allowance(m.source_scan_utf16+m.property_scan_utf16);
         let text = parent.source.window(run.start, run.end, w)?;
         m.property_scan_utf16 += (run.end - run.start) as u64;
         let measured = commands::facts(&text, run.start, &run, &parent.provider, m, false)?;
@@ -340,8 +342,7 @@ fn repair(
     }
     let delta = Delta {
         units: -(c as isize),
-        bytes: -(byte as isize),
-    };
+        bytes: -(byte as isize), runs: 0 };
     let right_at = s.runs.containing(c, w).ok_or("missing-anchor")?;
     let right_run = right_at.materialize(w);
     let left_at = s.runs.containing(c - 1, w).ok_or("missing-anchor")?;
@@ -379,6 +380,7 @@ fn repair(
         .into_iter()
         .flatten()
         {
+            w.source_allowance(m.source_scan_utf16+m.property_scan_utf16);
             let neighbor = s.source.window(at, at + 1, w)?;
             m.property_scan_utf16 += 1;
             m.property_scalar_visits += 1;
@@ -413,6 +415,7 @@ fn repair(
         if shard.start_offset != run.start || shard.end_offset != run.end {
             return Err("uncertified-seam");
         }
+        w.source_allowance(m.source_scan_utf16+m.property_scan_utf16);
         let text = s.source.window(run.start, run.end, w)?;
         if outside {
             m.property_scan_utf16 += (run.end - run.start) as u64;
@@ -573,11 +576,11 @@ fn enter_parts(
     // Source splitting is limited to one retained piece; its index lookup also
     // checks surrogate safety before any provider or mutation work.
     m.structural.source_partitions += 1;
+    w.source_allowance(m.source_scan_utf16+m.property_scan_utf16);
     let (a, b, byte) = s.source.split(c, w)?;
     let delta = Delta {
         units: -(c as isize),
-        bytes: -(byte as isize),
-    };
+        bytes: -(byte as isize), runs: 0 };
     let (spans_a, spans_b, span_base) = span_parts(s, c, event, delta, w)?;
     let mut left = clone_session(s, m);
     let mut right = clone_session(s, m);

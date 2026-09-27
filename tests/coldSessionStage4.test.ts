@@ -121,7 +121,7 @@ describe("private Stage 4 ordinary atomic commands", () => {
     const rejected = JSON.parse(wire)
     expect(rejected).toMatchObject({ status: "NotAdmissible", reason, unchangedReceipt: created.receipt, unchangedRevision: 0 })
     const w = rejected.affectedSummary.work
-    expect(w).toMatchObject({ sourceFactsUtf16: sourceFacts, propertyFactsUtf16: 1, sourceCopiedUtf16: 3, sourceCopyBytes: 5, sourceCopyCalls: 5, sourceIndexUtf16: 0,
+    expect(w).toMatchObject({ sourceFactsUtf16: sourceFacts, propertyFactsUtf16: 1, sourceCopiedUtf16: 3, sourceCopyBytes: 5, sourceCopyCalls: 3, sourceIndexUtf16: 0,
       oldNewShapingCalls: 2, oldNewProviderInputUtf16: 3, tailRepairShapingCalls: shapes - 2, tailRepairProviderInputUtf16: tailInput,
       shapingCalls: shapes, segmentationCalls: shapes * 2, fontParseCalls: shapes, shapingSegmentationInputUtf16: 3 + tailInput,
       faultsConsumed: 1, faultsCleared: 0, receiptRandomBytes: 0, publicationPreparationPasses: 0,
@@ -136,15 +136,15 @@ describe("private Stage 4 ordinary atomic commands", () => {
     wasm.stage3_dispose(retry.nextReceipt)
   })
   it.each([
-    ["AB", 2, 2, "C", 24, 2, 11, 15],
-    ["ABCDE", 4, 5, "", 45, 9, 17, 27],
-    ["ABCDE", 2, 2, "X", 45, 6, 23, 33],
-    ["ABCDE", 1, 3, "XY", 47, 10, 20, 30],
-    ["ABCDE", 1, 3, "", 37, 8, 14, 24],
+    ["AB", 2, 2, "C", 20, 2, 7, 15],
+    ["ABCDE", 4, 5, "", 44, 9, 9, 27],
+    ["ABCDE", 2, 2, "X", 48, 6, 13, 33],
+    ["ABCDE", 1, 3, "XY", 52, 10, 14, 30],
+    ["ABCDE", 1, 3, "", 42, 8, 8, 24],
   ] as const)("reports actual per-path inspection and separate copying for %s %i..%i", (text, startOffset, endOffset, replacementText, sourceFacts, propertyFacts, copied, provider) => {
     const c = JSON.parse(wasm.stage3_create(JSON.stringify(fixture(text))))
     const r = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt: c.receipt, expectedRevision: 0, startOffset, endOffset, replacementText, anchorSpanId: "span-1", composition: "committed" })))
-    expect(r).toMatchObject({ status: "Accepted", affectedSummary: { work: { sourceFactsUtf16: sourceFacts, propertyFactsUtf16: propertyFacts, sourceCopiedUtf16: copied, sourceCopyBytes: copied, sourceCopyCalls: 4,
+    expect(r).toMatchObject({ status: "Accepted", affectedSummary: { work: { sourceFactsUtf16: sourceFacts, propertyFactsUtf16: propertyFacts, sourceCopiedUtf16: copied, sourceCopyBytes: copied, sourceCopyCalls: replacementText.length ? 4 : 2,
       oldNewProviderInputUtf16: provider, tailRepairProviderInputUtf16: 0, fontParseCalls: 2, featureParseCalls: 4, segmentationSetupCalls: 4, lineFilterVisits: 4, hashCalls: 3, providerRunIdEncodingPasses: 3 } } })
     wasm.stage3_dispose(r.nextReceipt)
   })
@@ -369,14 +369,14 @@ describe("private Stage 4 ordinary atomic commands", () => {
     const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("ก".repeat(300) + "ABCDE" + "ข".repeat(suffixLength)))))
     const result = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt: created.receipt, expectedRevision: 0, startOffset: 301, endOffset: 303, replacementText: "XY", composition: "committed", anchorSpanId: "span-1" })))
     expect(result.status).toBe("Accepted")
-    expect(result.affectedSummary.work).toMatchObject({ sourceFactsUtf16: 47, propertyFactsUtf16: 10, shapingSegmentationInputUtf16: 30, sourceCopyBytes: 20, sourceCopiedUtf16: 20, sourceIndexUtf16: 5, wholeParagraphScans: 0, unboundedSuffixWork: 0, absoluteOffsetReindexing: 0 })
+    expect(result.affectedSummary.work).toMatchObject({ sourceFactsUtf16: 52, propertyFactsUtf16: 10, shapingSegmentationInputUtf16: 30, sourceCopyBytes: 14, sourceCopiedUtf16: 14, sourceIndexUtf16: 2, wholeParagraphScans: 0, unboundedSuffixWork: 0, absoluteOffsetReindexing: 0 })
   })
   it("charges auxiliary source, index, canonical encoding and payload-copy work", () => {
-    // Stage5 lineage retains one copied event identity in addition to nine tree/payload copies.
+    // Two retained source views share their text/index backing; only XY is indexed.
     const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("ABCDE"))))
     const result = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt: created.receipt, expectedRevision: 0, startOffset: 1, endOffset: 3, replacementText: "XY", composition: "committed", anchorSpanId: "span-1" })))
     expect(result.status).toBe("Accepted")
-    expect(result.affectedSummary.work).toMatchObject({ sourceCopyBytes: 20, sourceCopiedUtf16: 20, sourceIndexUtf16: 5, sourceOffsetLookups: 4, propertyScalarVisits: 10, payloadCopyCalls: 10, canonicalValuePasses: 3, canonicalJsonPasses: 3, sourceScanUtf16: 28, sourceFactsUtf16: 47, propertyFactsUtf16: 10 })
+    expect(result.affectedSummary.work).toMatchObject({ sourceCopyBytes: 14, sourceCopiedUtf16: 14, sourceIndexUtf16: 2, sourceOffsetLookups: 12, propertyScalarVisits: 10, payloadCopyCalls: 13, canonicalValuePasses: 3, canonicalJsonPasses: 3, sourceScanUtf16: 28, sourceFactsUtf16: 52, propertyFactsUtf16: 10 })
     expect(result.affectedSummary.work.sourceScanUtf16).toBeGreaterThan(0)
     expect(result.affectedSummary.work.payloadElementsCopied).toBeGreaterThan(9)
   })
@@ -625,4 +625,25 @@ it("distinguishes a committed empty request from active composition", () => {
   expect(JSON.parse(wasm.stage4_apply(JSON.stringify({ ...command, composition: "active" })))).toMatchObject({ reason: "composition-active", unchangedRevision: 0 })
   expect(JSON.parse(wasm.stage5_verify(created.receipt, JSON.stringify(fixture("กA")))).status).toBe("Equal")
   wasm.stage3_dispose(created.receipt)
+})
+
+
+it("keeps independent cold equality through cross-piece source replacements in actual WASM", () => {
+  const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("ABCDE"))))
+  let receipt = created.receipt
+  const edits = [
+    [2, 2, "X", "ABXCDE"],
+    [1, 4, "YZ", "AYZDE"],
+    [1, 3, "", "ADE"],
+  ] as const
+  for (const [revision, [startOffset, endOffset, replacementText, expected]] of edits.entries()) {
+    const r = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt, expectedRevision: revision,
+      startOffset, endOffset, replacementText, anchorSpanId: "span-1", composition: "committed" })))
+    expect(r.status).toBe("Accepted")
+    expect(JSON.parse(wasm.stage5_verify(r.nextReceipt, JSON.stringify(fixture(expected)))).status).toBe("Equal")
+    expect(r.affectedSummary.work.sourceIndexUtf16).toBe(replacementText.length)
+    expect(r.affectedSummary.work.sourceFactsUtf16).toBeLessThanOrEqual(512)
+    receipt = r.nextReceipt
+  }
+  expect(JSON.parse(wasm.stage3_dispose(receipt)).status).toBe("Disposed")
 })

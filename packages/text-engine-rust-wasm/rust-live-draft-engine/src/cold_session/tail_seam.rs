@@ -106,6 +106,7 @@ pub(super) fn prepare(
     if shard.start_offset != old_run.start || shard.end_offset != n {
         return Err("uncertified-seam");
     }
+    w.source_allowance(m.source_scan_utf16+m.property_scan_utf16);
     let old = s.source.window(old_run.start, n, w)?;
     if !old
         .chars()
@@ -114,6 +115,7 @@ pub(super) fn prepare(
         return Err("uncertified-seam");
     }
     if old_run.start > 0 {
+        w.source_allowance(m.source_scan_utf16+m.property_scan_utf16);
         let neighbor = s.source.window(old_run.start - 1, old_run.start, w)?;
         m.source_scan_utf16 += 1;
         if neighbor.chars().next().and_then(|c| class(c, m)) != Some(script) {
@@ -371,6 +373,7 @@ pub(super) fn thai_edit(
         shard.run_index != s.run_index_base + s.runs.len - 1 {
         return Err("uncertified-seam");
     }
+    w.source_allowance(m.source_scan_utf16+m.property_scan_utf16);
     let old = s.source.window(run.start, run.end, w)?;
     let mut a = None;
     let mut b = None;
@@ -398,6 +401,7 @@ pub(super) fn thai_edit(
         }
     }
     let witness = if run.start == 0 { String::new() } else {
+        w.source_allowance(m.source_scan_utf16+m.property_scan_utf16);
         let value = s.source.window(run.start-1, run.start, w)?;
         m.source_scan_utf16 += 1;
         if !value.chars().next().is_some_and(|c| {m.property_scalar_visits+=1;m.property_scan_utf16+=c.len_utf16() as u64;c.is_ascii_alphabetic()}) {
@@ -442,7 +446,7 @@ pub(super) fn thai_edit(
     after.grapheme_boundaries=new_g;
     after.line_breaks=new_l;
     after.run_index=shard.run_index;
-    let delta=Delta{units:new_units as isize-old_units as isize,bytes:new.len() as isize-old.len() as isize};
+    let delta=Delta{units:new_units as isize-old_units as isize,bytes:new.len() as isize-old.len() as isize,runs:0};
     Ok((s.runs.replace_and_shift(s.runs.len-1,next_run,delta,w),
         s.shards.replace_and_shift(at.index,after,delta,w),replacement_units))
 }
@@ -467,11 +471,13 @@ pub(super) fn latin_tail_deletion(
     m.boundary_comparisons+=1;
     if previous.end_offset!=run.start || previous.grapheme_boundaries.last()!=Some(&run.start) ||
         previous.run_index==shard.run_index {return Err("uncertified-seam");}
+    w.source_allowance(m.source_scan_utf16+m.property_scan_utf16);
     let witness=s.source.window(run.start-1,run.start,w)?;
     m.source_scan_utf16+=1;
     if !witness.chars().next().is_some_and(|c| {m.property_scalar_visits+=1;m.property_scan_utf16+=c.len_utf16() as u64;('\u{0e01}'..='\u{0e2e}').contains(&c)}) {
         return Err("uncertified-seam");
     }
+    w.source_allowance(m.source_scan_utf16+m.property_scan_utf16);
     let old=s.source.window(run.start,run.end,w)?;
     if !old.chars().all(|c| {m.property_scalar_visits+=1;m.property_scan_utf16+=c.len_utf16() as u64;c.is_ascii_alphabetic()}) {
         return Err("uncertified-seam");

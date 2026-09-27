@@ -341,8 +341,9 @@ fn plan(
         rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::CancelAfterProvider,&mut m.fault_work)?;
         let units=c.replacement_text.encode_utf16().count();
         m.source_scan_utf16+=units as u64;
-        let d=Delta{units:units as isize,bytes:c.replacement_text.len() as isize};
-        let source=s.source.append(&c.replacement_text,units,tw);
+        let d=Delta{units:units as isize,bytes:c.replacement_text.len() as isize,runs:0};
+        tw.source_allowance(m.source_scan_utf16+m.property_scan_utf16);
+        let source=s.source.append(&c.replacement_text,units,tw)?;
         let spans=ownership.publish(&s.spans,c.start_offset,c.end_offset,d,tw);
         return finish_candidate(rt,c,m,tw,source,spans,runs,shards,units,&c.replacement_text);
     }
@@ -354,7 +355,8 @@ fn plan(
         rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::ProviderFailure,&mut m.fault_work)?;
         rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::CancelAfterProvider,&mut m.fault_work)?;
         let d=Delta{units:units as isize-(c.end_offset-c.start_offset) as isize,
-            bytes:c.replacement_text.len() as isize-(c.end_offset-c.start_offset) as isize*3};
+            bytes:c.replacement_text.len() as isize-(c.end_offset-c.start_offset) as isize*3,runs:0};
+        tw.source_allowance(m.source_scan_utf16+m.property_scan_utf16);
         let source=s.source.replace(c.start_offset,c.end_offset,&c.replacement_text,units,tw)?;
         let spans=ownership.publish(&s.spans,c.start_offset,c.end_offset,d,tw);
         if m.source_scan_utf16+tw.source_index_utf16+tw.source_offset_lookups+m.property_scan_utf16>512 ||
@@ -370,8 +372,9 @@ fn plan(
         let (runs,shards)=super::tail_seam::latin_tail_deletion(s,&run,m,tw)?;
         rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::ProviderFailure,&mut m.fault_work)?;
         rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::CancelAfterProvider,&mut m.fault_work)?;
+        tw.source_allowance(m.source_scan_utf16+m.property_scan_utf16);
         let source=s.source.replace(c.start_offset,c.end_offset,"",0,tw)?;
-        let d=Delta{units:-((n-run.start) as isize),bytes:-((run.end_byte-run.start_byte) as isize)};
+        let d=Delta{units:-((n-run.start) as isize),bytes:-((run.end_byte-run.start_byte) as isize),runs:0};
         let spans=ownership.publish(&s.spans,c.start_offset,c.end_offset,d,tw);
         if m.source_scan_utf16+tw.source_index_utf16+tw.source_offset_lookups+m.property_scan_utf16>512 ||
             m.property_scan_utf16>512 || m.shaping_segmentation_input_utf16>1024 {
@@ -384,6 +387,7 @@ fn plan(
     if c.end_offset > shard.end_offset {
         return Err("budget-exhaustion");
     }
+    tw.source_allowance(m.source_scan_utf16+m.property_scan_utf16);
     let old = s.source.window(shard.start_offset, shard.end_offset, tw)?;
     let old_units = shard.end_offset - shard.start_offset;
     let range_sizes = {
@@ -526,8 +530,7 @@ fn plan(
     }
     let d = Delta {
         units: new_units as isize - old_units as isize,
-        bytes: new.len() as isize - old.len() as isize,
-    };
+        bytes: new.len() as isize - old.len() as isize, runs: 0 };
     {
         // Joining requires both old and new left edges to be concat-safe. Right
         // edge proof requires an interior provider cluster, not inferred safety.
@@ -595,6 +598,7 @@ fn plan(
     );
     tw.provider_run_id_encoding_passes += 1;
     tw.provider_run_id_encoded_bytes += next_run.key.provider_run_id.len() as u64;
+    tw.source_allowance(m.source_scan_utf16+m.property_scan_utf16);
     let source = s.source.replace(
         c.start_offset,
         c.end_offset,
@@ -620,6 +624,7 @@ fn plan(
             {
                 return Err("uncertified-seam");
             }
+            tw.source_allowance(m.source_scan_utf16+m.property_scan_utf16);
             let previous_text = s
                 .source
                 .window(previous.start_offset, previous.end_offset, tw)?;

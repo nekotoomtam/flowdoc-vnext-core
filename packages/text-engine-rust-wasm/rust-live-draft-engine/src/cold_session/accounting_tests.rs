@@ -349,13 +349,13 @@ fn cumulative_red_accepted_work_survives_receipt_replacement() {
     .unwrap();
     assert_eq!(second["status"], "Accepted");
     assert_eq!(second["nextRevision"], 2);
-    // Hand-counted source facts: 24 for AB -> ABC, 31 for ABC -> ABCD;
+    // Shared-source views: 20 for AB -> ABC, 30 for the cross-piece ABC -> ABCD;
     // each includes one new tail-dispatch property classification.
-    assert_eq!(first["affectedSummary"]["work"]["sourceFactsUtf16"], 24);
-    assert_eq!(second["affectedSummary"]["work"]["sourceFactsUtf16"], 31);
+    assert_eq!(first["affectedSummary"]["work"]["sourceFactsUtf16"], 20);
+    assert_eq!(second["affectedSummary"]["work"]["sourceFactsUtf16"], 30);
     assert_eq!(
         cumulative(&second["affectedSummary"]["acceptedCumulativeWork"]["sourceFactsUtf16"]),
-        55,
+        50,
         "accepted work must accumulate across the authoritative receipt chain"
     );
 }
@@ -400,7 +400,7 @@ fn cumulative_red_rejection_reports_attempt_without_advancing_accepted_work() {
     );
     assert_eq!(
         cumulative(&rejected["affectedSummary"]["acceptedCumulativeWork"]["sourceFactsUtf16"]),
-        24
+        20
     );
 }
 
@@ -517,7 +517,7 @@ fn cumulative_late_headroom_and_known_overflow_reject_without_publication_then_r
         assert_eq!(accepted["affectedSummary"]["work"]["faultsCleared"], 1);
         assert_eq!(
             cumulative(&accepted["affectedSummary"]["acceptedCumulativeWork"]["sourceFactsUtf16"]),
-            24
+            20
         );
         assert_eq!(
             accepted["affectedSummary"]["acceptedCumulativeWork"],
@@ -785,7 +785,7 @@ fn cumulative_injected_failure_preserves_nonzero_prior_ledger_and_all_payloads()
     assert_eq!(retry["nextRevision"], 2);
     assert_eq!(
         cumulative(&retry["affectedSummary"]["acceptedCumulativeWork"]["sourceFactsUtf16"]),
-        55
+        50
     );
     assert_eq!(
         retry["affectedSummary"]["acceptedCumulativeWork"],
@@ -801,12 +801,12 @@ fn cumulative_injected_failure_preserves_nonzero_prior_ledger_and_all_payloads()
 fn admitted_paths_charge_actual_source_and_provider_operations() {
     // Independently hand-counted: replacement length scan, two byte searches,
     // two provider mapping scans/window, actual property visits, source copies/index.
-    for (text, start, end, replacement, scan, properties, copies, index, provider) in [
-        ("AB", 2, 2, "C", 15, 2, 11, 3, 15),
-        ("ABCDE", 4, 5, "", 28, 9, 17, 4, 27),
-        ("ABCDE", 2, 2, "X", 29, 6, 23, 6, 33),
-        ("ABCDE", 1, 3, "XY", 28, 10, 20, 5, 30),
-        ("ABCDE", 1, 3, "", 22, 8, 14, 3, 24),
+    for (text, start, end, replacement, scan, properties, copies, index, lookups, provider) in [
+        ("AB", 2, 2, "C", 15, 2, 7, 1, 2, 15),
+        ("ABCDE", 4, 5, "", 28, 9, 9, 0, 7, 27),
+        ("ABCDE", 2, 2, "X", 29, 6, 13, 1, 12, 33),
+        ("ABCDE", 1, 3, "XY", 28, 10, 14, 2, 12, 30),
+        ("ABCDE", 1, 3, "", 22, 8, 8, 0, 12, 24),
     ] {
         let mut rt = Runtime::default();
         let created = create(&mut rt, &fixture(text));
@@ -816,7 +816,7 @@ fn admitted_paths_charge_actual_source_and_provider_operations() {
         let w = &result["affectedSummary"]["work"];
         assert_eq!(
             w["sourceFactsUtf16"],
-            scan + properties + index + 4,
+            scan + properties + index + lookups,
             "{text}: {w}"
         );
         assert_eq!(w["sourceScanUtf16"], scan);
@@ -961,11 +961,11 @@ fn all_baseline_paths_keep_inspection_and_copy_work_independent_of_unrelated_con
             want_copy,
             want_provider,
         ) in [
-            ("AB", false, 2, 2, "C", 24, 2, 11, 15),
-            ("ABCDE", false, 4, 5, "", 45, 9, 17, 27),
-            ("ABCDE", true, 2, 2, "X", 45, 6, 23, 33),
-            ("ABCDE", true, 1, 3, "XY", 47, 10, 20, 30),
-            ("ABCDE", true, 1, 3, "", 37, 8, 14, 24),
+            ("AB", false, 2, 2, "C", 20, 2, 7, 15),
+            ("ABCDE", false, 4, 5, "", 44, 9, 9, 27),
+            ("ABCDE", true, 2, 2, "X", 48, 6, 13, 33),
+            ("ABCDE", true, 1, 3, "XY", 52, 10, 14, 30),
+            ("ABCDE", true, 1, 3, "", 42, 8, 8, 24),
             ("ABก", false, 2, 3, "", 15, 1, 3, 9),
         ] {
             let prefix = "ข".repeat(count);
@@ -1050,7 +1050,7 @@ fn tail_pruning_charges_promoted_lazy_shift_and_preserves_payload_identity() {
     let shifted = tree.replace_and_shift(
         0,
         first,
-        Delta { units: 1, bytes: 1 },
+        Delta { units: 1, bytes: 1, runs: 0 },
         &mut TreeWork::default(),
     );
     let retained = shifted.payload(3);
@@ -1059,7 +1059,7 @@ fn tail_pruning_charges_promoted_lazy_shift_and_preserves_payload_identity() {
     assert_eq!(pruned.last().unwrap().end_offset, 5);
     assert!(std::sync::Arc::ptr_eq(&retained, &pruned.payload(3)));
     assert_eq!(work.shifted_subtrees, 1);
-    assert_eq!(work.shared_subtrees, 2);
-    assert_eq!(work.copies, 2);
+    assert_eq!(work.shared_subtrees, 6);
+    assert_eq!(work.copies, 3);
     assert_eq!(work.visits, 2);
 }

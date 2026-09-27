@@ -140,7 +140,7 @@ fn sustained_matrix_twins_160_revisions_each_and_repeated_tail_pruning() {
                 let prefix_run = session.runs.payload(0);
                 let membership = session.runs.payload(1).span_indexes.clone();
                 let prefix_shards: Vec<_> = (0..session.shards.len - 1).map(|i| session.shards.payload(i)).collect();
-                let prefix_pieces: Vec<_> = (0..session.source.stats().node_count - 1).map(|i| session.source.payload(i)).collect();
+                let prefix_pieces: Vec<_> = (0..prefix_shards.len()).map(|i| session.source.payload(i)).collect();
                 let cmd = json!({"receipt":receipts[t], "expectedRevision":revision-1,
                     "startOffset":context+start,"endOffset":context+end,"replacementText":replacement,
                     "anchorSpanId":anchor,"composition":"committed"}).to_string();

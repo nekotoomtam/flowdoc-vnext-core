@@ -125,12 +125,10 @@ impl Selection {
         if let Some(mut second) = self.second {
             let first_delta = Delta {
                 units: start as isize - first.end_offset as isize,
-                bytes: 0,
-            };
+                bytes: 0, runs: 0 };
             let second_delta = Delta {
                 units: second.start_offset as isize - end as isize,
-                bytes: 0,
-            };
+                bytes: 0, runs: 0 };
             first.end_offset = start;
             second.start_offset = start;
             second.end_offset = delta.unit(second.end_offset);
