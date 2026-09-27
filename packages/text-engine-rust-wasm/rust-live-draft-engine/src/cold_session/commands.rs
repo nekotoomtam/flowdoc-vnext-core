@@ -263,7 +263,44 @@ struct Candidate {
     digest: String,
     structures: StructuralHistory,
 }
-fn plan(
+// Accepted certificates retain their original route and accounting. An
+// unsuccessful legacy attempt remains charged when trying the bounded
+// multi-run certificate; no failed scan or provider call is reset.
+fn plan(rt: &mut Runtime, c: &Command, m: &mut Meter, tw: &mut TreeWork) -> Result<Candidate, &'static str> {
+    let rejected = match existing_plan(rt,c,m,tw) {
+        Ok(candidate) => return Ok(candidate),
+        Err(reason) => reason,
+    };
+    if !matches!(rejected,"uncertified-seam"|"uncertified-boundary"|"unsupported-command-shape"|"budget-exhaustion") {
+        return Err(rejected);
+    }
+    let s=rt.sessions.get(&c.receipt).ok_or("unknown-receipt")?;
+    let n=s.source.utf16();
+    if n<=128 || c.start_offset>c.end_offset || c.end_offset>n || c.replacement_text.len()>24 ||
+        c.start_offset==c.end_offset && c.replacement_text.is_empty() {return Err(rejected)}
+    let ownership=ownership::select(&s.spans,c.start_offset,c.end_offset,n,c.replacement_text.is_empty(),&c.anchor_span_id,tw)?;
+    if ownership.edge {return Err(rejected)}
+    if rejected=="uncertified-boundary" {
+        for p in [c.start_offset,c.end_offset] {
+            let at=s.shards.containing(p.min(n-1),tw).ok_or("missing-anchor")?;
+            if !super::local_window::has(&at.value.grapheme_boundaries,at.delta.inverse().unit(p),m) {return Err(rejected)}
+        }
+    }
+    let attempted=super::analysis_transition::edit(s,&ownership,c.start_offset,c.end_offset,&c.replacement_text,m,tw,
+        |meter|rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::CancelBeforeProvider,&mut meter.fault_work));
+    let (runs,shards,units,d)=match attempted {
+        Ok(candidate)=>candidate,
+        Err("budget-exhaustion"|"uncertified-seam"|"uncertified-boundary")=>return Err(rejected),
+        Err(reason)=>return Err(reason),
+    };
+    rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::ProviderFailure,&mut m.fault_work)?;
+    rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::CancelAfterProvider,&mut m.fault_work)?;
+    tw.source_allowance(m.source_scan_utf16+m.property_scan_utf16);
+    let source=s.source.replace(c.start_offset,c.end_offset,&c.replacement_text,units,tw)?;
+    let spans=ownership.publish(&s.spans,c.start_offset,c.end_offset,d,tw);
+    finish_candidate(rt,c,m,tw,source,spans,runs,shards,units,&c.replacement_text)
+}
+fn existing_plan(
     rt: &mut Runtime,
     c: &Command,
     m: &mut Meter,
@@ -383,6 +420,14 @@ fn plan(
         return finish_candidate(rt,c,m,tw,source,spans,runs,shards,0,"");
     }
     if !edge && (range_edit || middle) && run.end-run.start>128 && c.start_offset>run.start && c.end_offset<=run.end {
+        // The same-analysis certificate cannot admit an opposite script.
+        // Meter this bounded eligibility check before its old-window scan.
+        super::local_window::reserve(m,tw,c.replacement_text.len(),0)?;
+        for ch in c.replacement_text.chars() {
+            m.property_scalar_visits+=1;m.property_scan_utf16+=ch.len_utf16() as u64;
+            let script=ch.script();
+            if matches!(script,Script::Latin|Script::Thai) && script.full_name()!=run.key.script {return Err("uncertified-seam")}
+        }
         rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::CancelBeforeProvider,&mut m.fault_work)?;
         let (runs,shards,units,d)=super::local_window::edit(s,&run,run_at.index,c.start_offset,c.end_offset,&c.replacement_text,m,tw)?;
         rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::ProviderFailure,&mut m.fault_work)?;

@@ -8,7 +8,7 @@ use super::{
 };
 use unicode_script::{Script, UnicodeScript};
 
-fn reserve(m: &Meter, w: &TreeWork, source: usize, provider: usize) -> Result<(), &'static str> {
+pub(super) fn reserve(m: &Meter, w: &TreeWork, source: usize, provider: usize) -> Result<(), &'static str> {
     if m.source_scan_utf16
         + m.property_scan_utf16
         + w.source_index_utf16
@@ -22,27 +22,27 @@ fn reserve(m: &Meter, w: &TreeWork, source: usize, provider: usize) -> Result<()
         Ok(())
     }
 }
-fn scalar(s: &Session, p: usize, m: &mut Meter, w: &mut TreeWork) -> Result<char, &'static str> {
+pub(super) fn scalar(s: &Session, p: usize, m: &mut Meter, w: &mut TreeWork) -> Result<char, &'static str> {
     reserve(m, w, 4, 0)?;
     w.source_allowance(m.source_scan_utf16 + m.property_scan_utf16 + 2);
     let text = s.source.window(p, p + 1, w)?;
     m.source_scan_utf16 += 1;
     text.chars().next().ok_or("scalar-unsafe")
 }
-fn has(xs: &[usize], p: usize, m: &mut Meter) -> bool {
+pub(super) fn has(xs: &[usize], p: usize, m: &mut Meter) -> bool {
     xs.iter().any(|x| {
         m.boundary_comparisons += 1;
         *x == p
     })
 }
-fn equal<T: PartialEq>(a: &[T], b: &[T], m: &mut Meter) -> bool {
+pub(super) fn equal<T: PartialEq>(a: &[T], b: &[T], m: &mut Meter) -> bool {
     a.len() == b.len()
         && a.iter().zip(b).all(|(a, b)| {
             m.fact_comparisons += 1;
             a == b
         })
 }
-fn safe(shard: &Shard, p: usize, m: &mut Meter) -> bool {
+pub(super) fn safe(shard: &Shard, p: usize, m: &mut Meter) -> bool {
     let mut found = false;
     for (g, flag) in shard.glyphs.iter().zip(&shard.concat_unsafe) {
         m.seam_search_glyphs += 1;
@@ -56,7 +56,7 @@ fn safe(shard: &Shard, p: usize, m: &mut Meter) -> bool {
     }
     found && has(&shard.grapheme_boundaries, p, m)
 }
-fn retained_safe(s: &Session, p: usize, m: &mut Meter, w: &mut TreeWork) -> bool {
+pub(super) fn retained_safe(s: &Session, p: usize, m: &mut Meter, w: &mut TreeWork) -> bool {
     let Some(at) = s.shards.containing(p, w) else {
         return false;
     };
@@ -89,14 +89,14 @@ fn search_exhausted(
         "uncertified-seam"
     }
 }
-fn shifted(shard: Shard, d: Delta, w: &mut TreeWork) -> Shard {
+pub(super) fn shifted(shard: Shard, d: Delta, w: &mut TreeWork) -> Shard {
     w.payload_copy_calls += 1;
     w.payload_elements_copied += shard.copy_elements() as u64;
     w.payload_vector_bytes_copied += shard.copy_vector_bytes() as u64;
     w.position_rewrites += shard.position_rewrites() as u64;
     shard.shifted(d, w)
 }
-fn part(shard: &Shard, start: usize, end: usize, eof: bool, m: &mut Meter) -> Shard {
+pub(super) fn part(shard: &Shard, start: usize, end: usize, eof: bool, m: &mut Meter) -> Shard {
     let mut out = Shard {
         run_index: shard.run_index,
         start_offset: start,

@@ -9,6 +9,7 @@ type Stage4Wasm = {
   stage3_create(input: string): string
   stage5_verify(receipt: string, input: string): string
   stage4_apply(input: string): string
+  stage5_apply(input: string): string
   stage4_arm_fault(input: string): string
   stage3_dispose(receipt: string): string
   stage3_live_count(): number
@@ -733,3 +734,53 @@ it("keeps independent cold equality through cross-piece source replacements in a
   }
   expect(JSON.parse(wasm.stage3_dispose(receipt)).status).toBe("Disposed")
 })
+
+it("preserves live committed analysis transitions, counters and structural inverse across three languages", () => {
+  for (const seed of ["office AV ", "ภาษาไทย กิ้ ", "ภาษาไทย office AV กิ้ "]) {
+    let text = seed.repeat(40) + "A"
+    const make = (value: string) => {
+      const f = fixture(value)
+      const defaults = { version: "defaults-1", language: "und", styleKey: "body" }
+      Object.assign(f.paragraphContext, { defaults: { ...defaults, digest: hash(canonical(defaults)) } })
+      if (f.authoredSpans[0]) delete (f.authoredSpans[0] as { language?: string }).language
+      return f
+    }
+    const input = make(text)
+    const initial = JSON.parse(wasm.stage3_create(JSON.stringify(input)))
+    let receipt = initial.receipt
+    const sums = new Map<string, bigint>()
+    for (let revision = 0; revision < 16; revision++) {
+      const n = text.length, middle = text.lastIndexOf(" ", Math.floor(n / 2))
+      const [startOffset, endOffset, replacementText] = [
+        [n, n, "ก"], [n - 1, n, ""], [middle, middle, "ก"], [middle - 1, middle, ""],
+        [n - 1, n, "ก"], [n - 1, n, "กำ"], [n - 2, n, "ก"], [n - 1, n, "A"],
+      ][revision % 8] as [number, number, string]
+      const command = { receipt, expectedRevision: revision, startOffset, endOffset, replacementText, composition: "committed", anchorSpanId: "span-1" }
+      const stale = JSON.parse(wasm.stage4_apply(JSON.stringify({ ...command, expectedRevision: revision + 1 })))
+      expect(stale).toMatchObject({ status: "NotAdmissible", reason: "stale-revision", unchangedReceipt: receipt, unchangedRevision: revision })
+      const result = JSON.parse(wasm.stage4_apply(JSON.stringify(command)))
+      expect(result.status, `${seed}/${revision}: ${result.reason}`).toBe("Accepted")
+      text = text.slice(0, startOffset) + replacementText + text.slice(endOffset)
+      receipt = result.nextReceipt
+      expect(JSON.parse(wasm.stage5_verify(receipt, JSON.stringify(make(text)))).status).toBe("Equal")
+      const work = result.affectedSummary.work
+      expect(work.sourceFactsUtf16).toBeLessThanOrEqual(512)
+      expect(work.propertyFactsUtf16).toBeLessThanOrEqual(512)
+      expect(work.shapingSegmentationInputUtf16).toBeLessThanOrEqual(1024)
+      for (const [k, v] of Object.entries(result.affectedSummary.acceptedCumulativeWork)) {
+        sums.set(k, (sums.get(k) ?? 0n) + BigInt(work[k]))
+        expect(BigInt(`0x${v}`)).toBe(sums.get(k))
+      }
+      expect(sums.size).toBe(92)
+    }
+    const split = JSON.parse(wasm.stage5_apply(JSON.stringify({ operation: "enter", receipt, expectedRevision: 16, caretOffset: 0, composition: "committed" })))
+    expect(split.status, JSON.stringify(split)).toBe("Accepted")
+    const empty = make(""); empty.authoredSpans = []
+    expect(JSON.parse(wasm.stage5_verify(split.receipts[0], JSON.stringify(empty))).status).toBe("Equal")
+    expect(JSON.parse(wasm.stage5_verify(split.receipts[1], JSON.stringify(make(text)))).status).toBe("Equal")
+    const joined = JSON.parse(wasm.stage5_apply(JSON.stringify({ operation: "join", receipt: split.receipts[0], expectedRevision: 0, rightReceipt: split.receipts[1], rightRevision: 0, composition: "committed" })))
+    expect(joined.status).toBe("Accepted")
+    expect(JSON.parse(wasm.stage5_verify(joined.receipts[0], JSON.stringify(make(text)))).status).toBe("Equal")
+    expect(JSON.parse(wasm.stage3_dispose(joined.receipts[0])).status).toBe("Disposed")
+  }
+}, 120_000)

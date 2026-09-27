@@ -85,3 +85,5 @@ mod qa_compare;
 pub fn stage5_verify(receipt: &str, expected_input: &str) -> String {
     SESSIONS.with(|s|qa_compare::verify(&s.borrow(),receipt,expected_input))
 }
+
+mod analysis_transition;

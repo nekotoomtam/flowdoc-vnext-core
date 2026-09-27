@@ -17,7 +17,7 @@ const catalog=commonCatalog('applicability').map(row=>{const generated=firstEdit
 const calls=[]
 const call=(method,input)=>{const request=method==='stage3_dispose'?input:JSON.stringify(input);const response=wasm[method](request);const parsed=JSON.parse(response);calls.push({method,request,response,parsed});return parsed}
 const probes=[]
-for(const row of catalog.filter(row=>row.size===256)){
+for(const row of catalog){
  const generated=firstEdit(row.language,row.size,row.operation),input=fixture(generated.text)
  const created=call('stage3_create',input)
  if(created.status!=='Created')throw Error(`Cannot construct ${row.caseId}`)
@@ -27,20 +27,22 @@ for(const row of catalog.filter(row=>row.size===256)){
  const request=JSON.stringify(expected),response=wasm.stage5_verify(receipt,request),parsed=JSON.parse(response)
  calls.push({method:'stage5_verify',receipt,request,response,parsed})
  if(parsed.status!=='Equal')throw Error(`Independent oracle mismatch ${row.caseId}`)
- probes.push({...row,status:applied.status,reason:applied.reason??null,revision:applied.nextRevision??applied.unchangedRevision,independentOracle:parsed.status,work:applied.affectedSummary.work})
+ probes.push({...row,status:applied.status,reason:applied.reason??null,revision:applied.nextRevision??applied.unchangedRevision,independentOracle:parsed.status,oracleTarget:accepted?'edited-source':'unchanged-source',work:applied.affectedSummary.work})
  call('stage3_dispose',receipt)
 }
-const result={schemaVersion:'core-stage6-applicability/1',commit,finalAdmissionRun:false,finalObligationsExecuted:0,catalog,probes,calls,
+const ordinary=probes.filter(row=>row.shape!=='true-no-op'),noops=probes.filter(row=>row.shape==='true-no-op')
+const summary={ordinary:{total:ordinary.length,accepted:ordinary.filter(r=>r.status==='Accepted').length,rejected:ordinary.filter(r=>r.status!=='Accepted').length,editedSourceEqual:ordinary.filter(r=>r.status==='Accepted'&&r.independentOracle==='Equal').length},noops:{total:noops.length,outcomes:noops.map(({caseId,status,reason})=>({caseId,status,reason}))},maxWork:Object.fromEntries(['sourceFactsUtf16','propertyFactsUtf16','shapingSegmentationInputUtf16'].map(k=>[k,Math.max(...probes.map(r=>r.work[k]))]))}
+const result={summary,schemaVersion:'core-stage6-applicability/1',commit,finalAdmissionRun:false,finalObligationsExecuted:0,catalog,probes,calls,
  conclusions:{
   compositionUpdate:'Exact generator is a committed nonempty replacement. Name does not establish active-composition support.',
-  compositionCommit:'Exact generator is a true no-op [n,n) + empty. Current private API returns unsupported-command-shape revision0; no-op receipt/revision semantics need a separate compatibility decision.',
+  compositionCommit:'Exact generator is a true no-op [n,n) + empty. Current private API returns unsupported-command-shape revision0; no-op receipt/revision semantics are specified by the accepted contract, not implemented.',
   activeComposition:'Current private Stage4 and Stage5 explicitly reject composition-active. No generator relabeling or active-to-committed promotion.',
   cancellation:'QA injected cancellation preserves state and retry; this does not establish a host cancellation contract.',
   missingAnchor:'Typed missing-anchor is tested unchanged rejection, not implemented recovery.',
   eviction:'No private eviction/cache recovery API. Disposal invalidates a receipt; it is not a defined eviction substitute.',
   continuousStream:'Ordinary edit after structural split and inverse invalidation tested; full continuous ordinary/structural admission remains unmeasured.',
-  scope:'Tail transition requires complete old run <=32 UTF16 and inserted opposite alphabet <=8, actual opposite outer neighbor or paragraph start, pure ASCII letters / Thai consonants U+0E01..U+0E2E. Interior transitions, marks/neutral attachment, same-script style context and larger windows remain rejected.',
- },recommendation:'Keep fixed corpus. Separate decision for true no-op receipt/revision and lifecycle mapping; further bounded certificate work for unsupported required ordinary rows before unchanged full measurement.'}
+  scope:'This diagnostic reports all fixed initial requests at the bound commit. Accepted ordinary rows require edited-source independent cold equality. Rejected requests verify unchanged source and do not count as ordinary applicability. General unbounded contexts and unsupported property/font routes remain typed rejections.',
+ },recommendation:summary.ordinary.accepted===75?'Initial ordinary applicability complete at this commit. Committed-stream proof is separate. No-op/lifecycle and unchanged full measurement remain downstream.':'Ordinary applicability incomplete: resolve listed rejected ordinary rows before no-op/lifecycle or full measurement.'}
 result.rawCallsSha256=createHash('sha256').update(JSON.stringify(calls)).digest('hex')
 if(git('rev-parse','HEAD')!==commit||git('status','--short'))throw Error('Source drift')
 mkdirSync(dirname(output),{recursive:true});writeFileSync(output,JSON.stringify(result,null,2),{flag:'wx'})

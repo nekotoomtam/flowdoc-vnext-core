@@ -184,6 +184,9 @@ impl Source {
         let byte = p.byte_start + offset - p.offsets[p.offset_start];
         Ok((found.index, Some(p), byte))
     }
+    pub fn byte_offset(&self, at: usize, w: &mut TreeWork) -> Result<usize, &'static str> {
+        self.boundary(at, w).map(|(_, _, byte)| byte)
+    }
     pub fn window(
         &self,
         start: usize,

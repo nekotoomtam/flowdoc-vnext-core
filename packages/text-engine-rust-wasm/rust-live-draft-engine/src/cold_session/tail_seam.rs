@@ -221,7 +221,7 @@ pub(super) fn prepare(
         index: at.index,
     })
 }
-fn segment(text: &str, base: usize, m: &mut Meter) -> (Vec<usize>, Vec<usize>) {
+pub(super) fn segment(text: &str, base: usize, m: &mut Meter) -> (Vec<usize>, Vec<usize>) {
     let mut offsets = vec![usize::MAX; text.len() + 1];
     m.provider_offset_slots_initialized += offsets.len() as u64;
     let mut n = 0;
