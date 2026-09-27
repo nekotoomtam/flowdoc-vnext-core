@@ -1,5 +1,7 @@
 import { beforeAll, describe, expect, it } from "vitest"
 import { buildColdQaWasm } from "./coldQaWasmBuild.js"
+// @ts-expect-error The unchanged Stage 6 corpus module has no TypeScript declaration.
+import { firstEdit } from "../scripts/stage6/corpus.mjs"
 import { fixture, canonical, hash } from "./coldStage3Fixtures.js"
 import { createColdSessionQaAdapter, type ColdQaWasm } from "../packages/text-engine-rust-wasm/src/coldSessionStage3.js"
 
@@ -31,6 +33,90 @@ beforeAll(async () => {
 }, 360_000)
 
 describe("private Stage 4 ordinary atomic commands", () => {
+  it("certifies all twenty fixed same-analysis subshard targets with the independent actual-WASM oracle", () => {
+    for (const size of [256, 1024, 2048, 4096, 8192]) {
+      for (const operation of ["mid-insert", "replacement", "composition-update", "backspace"]) {
+        const { text, edit } = firstEdit(operation === "backspace" ? "latin" : "thai", size, operation)
+        const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture(text))))
+        expect(created.status).toBe("Created")
+        const result = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt: created.receipt,
+          expectedRevision: 0, startOffset: edit.start, endOffset: edit.end,
+          replacementText: edit.insertedText, composition: "committed", anchorSpanId: "span-1" })))
+        expect(result.status, `${size}/${operation}: ${result.reason}`).toBe("Accepted")
+        const expected = text.slice(0, edit.start) + edit.insertedText + text.slice(edit.end)
+        expect(JSON.parse(wasm.stage5_verify(result.nextReceipt, JSON.stringify(fixture(expected)))).status).toBe("Equal")
+        expect(result.affectedSummary.work.sourceFactsUtf16).toBeLessThanOrEqual(512)
+        expect(result.affectedSummary.work.propertyFactsUtf16).toBeLessThanOrEqual(512)
+        expect(result.affectedSummary.work.shapingSegmentationInputUtf16).toBeLessThanOrEqual(1024)
+        expect(JSON.parse(wasm.stage3_dispose(result.nextReceipt)).status).toBe("Disposed")
+      }
+    }
+  }, 120_000)
+  it("preserves cross-piece same-analysis edits, committed Thai toggles and every additive meter", () => {
+    for (const mode of ["middle", "composition"]) {
+      let text = "ภาษาไทย กิ้ ".repeat(25) + "ก"
+      const initial = JSON.parse(wasm.stage3_create(JSON.stringify(fixture(text))))
+      let receipt = initial.receipt
+      const sums = new Map<string, bigint>(Object.keys(initial.acceptedCumulativeWork).map(k => [k, 0n]))
+      expect(sums.size).toBe(92)
+      const middle = text.lastIndexOf(" ", Math.floor(text.length / 2))
+      for (let revision = 0; revision < 12; revision++) {
+        const startOffset = mode === "middle" ? middle : text.length - (text.endsWith("กำ") ? 2 : 1)
+        const endOffset = mode === "middle" ? middle + revision % 2 : text.length
+        const replacementText = mode === "middle" ? (revision % 2 ? "" : "ก") : (text.endsWith("กำ") ? "ก" : "กำ")
+        const result = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt, expectedRevision: revision,
+          startOffset, endOffset, replacementText, composition: "committed", anchorSpanId: "span-1" })))
+        expect(result.status, `${mode}/${revision}: ${result.reason}`).toBe("Accepted")
+        text = text.slice(0, startOffset) + replacementText + text.slice(endOffset)
+        receipt = result.nextReceipt
+        expect(JSON.parse(wasm.stage5_verify(receipt, JSON.stringify(fixture(text)))).status).toBe("Equal")
+        for (const [name, prior] of sums) {
+          const sum = prior + BigInt(result.affectedSummary.work[name])
+          sums.set(name, sum)
+          expect(BigInt(`0x${result.affectedSummary.acceptedCumulativeWork[name]}`)).toBe(sum)
+        }
+        expect(result.affectedSummary.work.sourceFactsUtf16).toBeLessThanOrEqual(512)
+        expect(result.affectedSummary.work.propertyFactsUtf16).toBeLessThanOrEqual(512)
+        expect(result.affectedSummary.work.shapingSegmentationInputUtf16).toBeLessThanOrEqual(1024)
+      }
+      wasm.stage3_dispose(receipt)
+    }
+  }, 120_000)
+  it("rejects unsafe marks, absent concat guards and unbounded SA dependencies, then retries provider faults", () => {
+    const negatives: Array<[string, number, number, string]> = [
+      ["ก".repeat(300), 150, 150, "ข"],
+      [`${"ก".repeat(150)} ${"ข".repeat(150)}`, 150, 151, ""],
+      ["กิ้ ".repeat(80), 160, 160, "ก"],
+      ["ภาษาไทย กิ้ ".repeat(30), 129, 130, "ก"],
+    ]
+    for (const [text, startOffset, endOffset, replacementText] of negatives) {
+      const c = JSON.parse(wasm.stage3_create(JSON.stringify(fixture(text))))
+      const r = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt: c.receipt, expectedRevision: 0,
+        startOffset, endOffset, replacementText, composition: "committed", anchorSpanId: "span-1" })))
+      expect(r.status).toBe("NotAdmissible")
+      expect(r.unchangedReceipt).toBe(c.receipt)
+      expect(r.unchangedRevision).toBe(0)
+      expect(JSON.parse(wasm.stage5_verify(c.receipt, JSON.stringify(fixture(text)))).status).toBe("Equal")
+      expect(r.affectedSummary.work.sourceFactsUtf16).toBeLessThanOrEqual(512)
+      wasm.stage3_dispose(c.receipt)
+    }
+    for (const point of ["cancel-before-provider", "provider-failure", "cancel-after-provider", "receipt-entropy-failure", "publication-refusal"]) {
+      const text = "ภาษาไทย กิ้ ".repeat(30)
+      const c = JSON.parse(wasm.stage3_create(JSON.stringify(fixture(text))))
+      const command = JSON.stringify({ receipt: c.receipt, expectedRevision: 0, startOffset: 127,
+        endOffset: 127, replacementText: "ก", composition: "committed", anchorSpanId: "span-1" })
+      expect(JSON.parse(wasm.stage4_arm_fault(JSON.stringify({ receipt: c.receipt, expectedRevision: 0, point }))).status).toBe("Armed")
+      const rejected = JSON.parse(wasm.stage4_apply(command))
+      expect(rejected.status).toBe("NotAdmissible")
+      expect(JSON.parse(wasm.stage5_verify(c.receipt, JSON.stringify(fixture(text)))).status).toBe("Equal")
+      const accepted = JSON.parse(wasm.stage4_apply(command))
+      expect(accepted.status).toBe("Accepted")
+      expect(JSON.parse(wasm.stage5_verify(accepted.nextReceipt, JSON.stringify(fixture(text.slice(0, 127) + "ก" + text.slice(127))))).status).toBe("Equal")
+      expect(rejected.affectedSummary.work.sourceFactsUtf16).toBeLessThanOrEqual(512)
+      expect(accepted.affectedSummary.work.sourceFactsUtf16).toBeLessThanOrEqual(512)
+      wasm.stage3_dispose(accepted.nextReceipt)
+    }
+  }, 120_000)
   it("certifies short Thai tail edits and a Latin terminator after a partitioned Thai prefix in actual WASM", () => {
     const cases: Array<[string, number, number, string, string]> = [
       ["Aกขค", 2, 2, "ง", "Aกงขค"],

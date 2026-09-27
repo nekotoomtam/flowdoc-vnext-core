@@ -1,4 +1,7 @@
 mod tail_seam;
+mod local_window;
+#[cfg(test)]
+mod local_window_tests;
 mod structural_work;
 mod lifecycle;
 mod structural;

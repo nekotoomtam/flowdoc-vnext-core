@@ -382,6 +382,16 @@ fn plan(
         }
         return finish_candidate(rt,c,m,tw,source,spans,runs,shards,0,"");
     }
+    if !edge && (range_edit || middle) && run.end-run.start>128 && c.start_offset>run.start && c.end_offset<=run.end {
+        rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::CancelBeforeProvider,&mut m.fault_work)?;
+        let (runs,shards,units,d)=super::local_window::edit(s,&run,run_at.index,c.start_offset,c.end_offset,&c.replacement_text,m,tw)?;
+        rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::ProviderFailure,&mut m.fault_work)?;
+        rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::CancelAfterProvider,&mut m.fault_work)?;
+        tw.source_allowance(m.source_scan_utf16+m.property_scan_utf16);
+        let source=s.source.replace(c.start_offset,c.end_offset,&c.replacement_text,units,tw)?;
+        let spans=ownership.publish(&s.spans,c.start_offset,c.end_offset,d,tw);
+        return finish_candidate(rt,c,m,tw,source,spans,runs,shards,units,&c.replacement_text);
+    }
     let shard_at = s.shards.containing(locate, tw).ok_or("missing-anchor")?;
     let shard = shard_at.materialize(tw);
     if c.end_offset > shard.end_offset {
