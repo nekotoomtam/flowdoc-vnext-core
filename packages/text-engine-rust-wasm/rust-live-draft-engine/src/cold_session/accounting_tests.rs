@@ -922,10 +922,10 @@ fn bounded_replacement_iterator_counts_whole_non_bmp_scalars() {
 }
 
 #[test]
-fn previous_partial_run_tail_repair_requires_retained_line_context() {
-    for text in [
-        format!("{}A", "ภาษาไทย".repeat(30)),
-        format!("{}A", "ก".repeat(300)),
+fn previous_partial_run_tail_repair_requires_authentic_consonant_witness() {
+    for (text, expected_status) in [
+        (format!("{}A", "ภาษาไทย".repeat(30)), "Accepted"),
+        (format!("{}A", "ก".repeat(300)), "Accepted"),
     ] {
         let mut rt = Runtime::default();
         let c = create(&mut rt, &fixture(&text));
@@ -934,12 +934,16 @@ fn previous_partial_run_tail_repair_requires_retained_line_context() {
         let n = text.encode_utf16().count();
         let r: Value = serde_json::from_str(&rt.apply(&json!({"receipt":receipt,"expectedRevision":0,
             "startOffset":n-1,"endOffset":n,"replacementText":"","composition":"committed","anchorSpanId":"span-1"}).to_string())).unwrap();
-        assert_eq!(
-            r["status"], "NotAdmissible",
-            "partial previous run cannot certify ICU context: {r}"
-        );
-        assert_eq!(r["reason"], "uncertified-seam");
-        assert_eq!(retained_observable(rt.session(receipt)), before);
+        assert_eq!(r["status"], expected_status, "{r}");
+        if expected_status == "NotAdmissible" {
+            assert_eq!(r["reason"], "uncertified-seam");
+            assert_eq!(retained_observable(rt.session(receipt)), before);
+        } else {
+            let mut oracle=Runtime::default();
+            let cold=create(&mut oracle,&fixture(&text[..text.len()-1]));
+            assert_eq!(retained_observable(rt.session(r["nextReceipt"].as_str().unwrap())),
+                retained_observable(oracle.session(cold["receipt"].as_str().unwrap())));
+        }
     }
 }
 

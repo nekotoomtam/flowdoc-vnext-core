@@ -346,6 +346,39 @@ fn plan(
         let spans=ownership.publish(&s.spans,c.start_offset,c.end_offset,d,tw);
         return finish_candidate(rt,c,m,tw,source,spans,runs,shards,units,&c.replacement_text);
     }
+    if !edge && run.key.script == "Thai" && run.end == n && run.end-run.start <= 24 &&
+        c.start_offset >= run.start && c.end_offset <= n && c.replacement_text.len() <= 24 &&
+        !(c.start_offset == run.start && c.end_offset == run.end && c.replacement_text.is_empty()) {
+        rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::CancelBeforeProvider,&mut m.fault_work)?;
+        let (runs,shards,units)=super::tail_seam::thai_edit(s,&run,c.start_offset,c.end_offset,&c.replacement_text,m,tw)?;
+        rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::ProviderFailure,&mut m.fault_work)?;
+        rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::CancelAfterProvider,&mut m.fault_work)?;
+        let d=Delta{units:units as isize-(c.end_offset-c.start_offset) as isize,
+            bytes:c.replacement_text.len() as isize-(c.end_offset-c.start_offset) as isize*3};
+        let source=s.source.replace(c.start_offset,c.end_offset,&c.replacement_text,units,tw)?;
+        let spans=ownership.publish(&s.spans,c.start_offset,c.end_offset,d,tw);
+        if m.source_scan_utf16+tw.source_index_utf16+tw.source_offset_lookups+m.property_scan_utf16>512 ||
+            m.property_scan_utf16>512 || m.shaping_segmentation_input_utf16>1024 {
+            return Err("budget-exhaustion");
+        }
+        return finish_candidate(rt,c,m,tw,source,spans,runs,shards,units,&c.replacement_text);
+    }
+    if run.key.script == "Latin" && run.end == n && c.start_offset == run.start &&
+        c.end_offset == n && c.replacement_text.is_empty() && run.start>0 &&
+        run.end-run.start<=24 {
+        rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::CancelBeforeProvider,&mut m.fault_work)?;
+        let (runs,shards)=super::tail_seam::latin_tail_deletion(s,&run,m,tw)?;
+        rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::ProviderFailure,&mut m.fault_work)?;
+        rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::CancelAfterProvider,&mut m.fault_work)?;
+        let source=s.source.replace(c.start_offset,c.end_offset,"",0,tw)?;
+        let d=Delta{units:-((n-run.start) as isize),bytes:-((run.end_byte-run.start_byte) as isize)};
+        let spans=ownership.publish(&s.spans,c.start_offset,c.end_offset,d,tw);
+        if m.source_scan_utf16+tw.source_index_utf16+tw.source_offset_lookups+m.property_scan_utf16>512 ||
+            m.property_scan_utf16>512 || m.shaping_segmentation_input_utf16>1024 {
+            return Err("budget-exhaustion");
+        }
+        return finish_candidate(rt,c,m,tw,source,spans,runs,shards,0,"");
+    }
     let shard_at = s.shards.containing(locate, tw).ok_or("missing-anchor")?;
     let shard = shard_at.materialize(tw);
     if c.end_offset > shard.end_offset {

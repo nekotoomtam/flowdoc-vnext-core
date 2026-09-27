@@ -31,6 +31,28 @@ beforeAll(async () => {
 }, 360_000)
 
 describe("private Stage 4 ordinary atomic commands", () => {
+  it("certifies short Thai tail edits and a Latin terminator after a partitioned Thai prefix in actual WASM", () => {
+    const cases: Array<[string, number, number, string, string]> = [
+      ["Aกขค", 2, 2, "ง", "Aกงขค"],
+      ["Aกขค", 2, 3, "", "Aกค"],
+      ["กขค", 1, 2, "ง", "กงค"],
+      [`${"ก".repeat(300)}AB`, 300, 302, "", "ก".repeat(300)],
+    ]
+    for (const [text, startOffset, endOffset, replacementText, expected] of cases) {
+      const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture(text))))
+      expect(created.status).toBe("Created")
+      const result = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt: created.receipt,
+        expectedRevision: 0, startOffset, endOffset, replacementText,
+        composition: "committed", anchorSpanId: "span-1" })))
+      expect(result.status).toBe("Accepted")
+      expect(JSON.parse(wasm.stage5_verify(result.nextReceipt, JSON.stringify(fixture(expected)))).status).toBe("Equal")
+      for (const [field, cap] of [["sourceFactsUtf16", 512], ["propertyFactsUtf16", 512],
+        ["shapingSegmentationInputUtf16", 1024]] as const) {
+        expect(result.affectedSummary.work[field]).toBeLessThanOrEqual(cap)
+      }
+      expect(JSON.parse(wasm.stage3_dispose(result.nextReceipt)).status).toBe("Disposed")
+    }
+  })
   it("retains exact fixed-width cumulative work across receipts and a rejected attempt", () => {
     const created = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("AB"))))
     let receipt = created.receipt
@@ -134,12 +156,13 @@ describe("private Stage 4 ordinary atomic commands", () => {
       shapingCalls: 0, shapingSegmentationInputUtf16: 0, canonicalValuePasses: 0, canonicalJsonPasses: 0, hashCalls: 0, hashInputBytes: 0 } } })
     wasm.stage3_dispose(c.receipt)
   })
-  it("rejects previous partial-run repair without an adjacent dictionary certificate", () => {
+  it("deletes a Latin terminator with a real Thai consonant witness and unchanged dictionary input", () => {
     const text = "ภาษาไทย".repeat(30) + "A"
     const c = JSON.parse(wasm.stage3_create(JSON.stringify(fixture(text))))
     const r = JSON.parse(wasm.stage4_apply(JSON.stringify({ receipt: c.receipt, expectedRevision: 0, startOffset: text.length - 1, endOffset: text.length, replacementText: "", anchorSpanId: "span-1", composition: "committed" })))
-    expect(r).toMatchObject({ status: "NotAdmissible", reason: "uncertified-seam", unchangedReceipt: c.receipt, unchangedRevision: 0, affectedSummary: { work: { tailRepairShapingCalls: 0 } } })
-    wasm.stage3_dispose(c.receipt)
+    expect(r).toMatchObject({ status: "Accepted", nextRevision: 1, affectedSummary: { work: { tailRepairShapingCalls: 0 } } })
+    expect(JSON.parse(wasm.stage5_verify(r.nextReceipt, JSON.stringify(fixture(text.slice(0, -1))))).status).toBe("Equal")
+    wasm.stage3_dispose(r.nextReceipt)
   })
   it("retires only the old capability's unreached tail control on successful publication", () => {
     const c = JSON.parse(wasm.stage3_create(JSON.stringify(fixture("ABCDE"))))

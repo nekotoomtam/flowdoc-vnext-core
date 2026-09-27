@@ -277,6 +277,38 @@ fn tail_repair_faults_preserve_all_payloads_and_retry_exactly_once() {
 }
 
 #[test]
+fn ordinary_tail_certificate_faults_keep_atomic_payloads_and_all_family_slots() {
+    for (text,start,end,replacement) in [("Aกข",2,3,"ง"),("กAB",1,3,"")] {
+        for point in ["cancel-before-provider","provider-failure","cancel-after-provider"] {
+            let mut rt=Runtime::default();
+            let created=create(&mut rt,&fixture(text));
+            let receipt=created["receipt"].as_str().unwrap();
+            let snapshot=Snapshot::take(&rt,receipt);
+            assert_eq!(arm(&mut rt,receipt,0,point)["status"],"Armed");
+            let cmd=json!({"receipt":receipt,"expectedRevision":0,"startOffset":start,
+                "endOffset":end,"replacementText":replacement,"composition":"committed",
+                "anchorSpanId":"span-1"});
+            let rejected=apply(&mut rt,&cmd);
+            assert_eq!(rejected["status"],"NotAdmissible","{point}: {rejected}");
+            assert_eq!(rejected["unchangedReceipt"],receipt);
+            assert_eq!(rejected["unchangedRevision"],0);
+            snapshot.assert_unchanged(&rt,receipt);
+            let accepted=apply(&mut rt,&cmd);
+            assert_eq!(accepted["status"],"Accepted","{point}: {accepted}");
+            let session=rt.session(accepted["nextReceipt"].as_str().unwrap());
+            for (i,name) in super::command_work::FIELD_NAMES.iter().enumerate() {
+                let failure=rejected["affectedSummary"]["work"][name].as_u64().unwrap() as u128;
+                let success=accepted["affectedSummary"]["work"][name].as_u64().unwrap() as u128;
+                assert_eq!(session.accepted_work.0[i],success,"accepted {name}");
+                assert_eq!(session.lifecycle.borrow().attempts.0[i],failure+success,"attempt {name}");
+            }
+            assert_eq!(session.lifecycle.borrow().accepted_events,1);
+            assert_eq!(session.lifecycle.borrow().rejected_attempts,1);
+        }
+    }
+}
+
+#[test]
 fn publication_retires_an_unreached_tail_control_without_orphaning_the_slot() {
     let mut rt = Runtime::default();
     let c = create(&mut rt, &fixture("ABCDE"));
