@@ -1,0 +1,3623 @@
+{
+  "baseCommit": "60258d9e8196bf6439ccb5c888e321fa5aad2def",
+  "source": "Untouched Creator product entrypoint on Core main",
+  "rows": [
+    {
+      "text": "AVATAR To office ffi",
+      "pages": [
+        {
+          "index": 0,
+          "widthPt": 595.2755905511812,
+          "heightPt": 841.8897637795276,
+          "paintCommands": [
+            {
+              "kind": "positioned-glyphs",
+              "pageIndex": 0,
+              "lineIndex": 0,
+              "text": "AVATAR To office ffi",
+              "sourceRange": {
+                "startUtf16": 0,
+                "endUtf16": 20
+              },
+              "xPt": 36,
+              "baselinePt": 50.016,
+              "advancePt": 100.95599999999997,
+              "fontId": "sarabun-regular",
+              "fontSizePt": 12,
+              "color": "000000",
+              "glyphs": [
+                {
+                  "glyphId": 4,
+                  "xPt": 36,
+                  "yPt": 50.016,
+                  "advancePt": 6.5520000000000005,
+                  "clusterUtf16": 0
+                },
+                {
+                  "glyphId": 189,
+                  "xPt": 42.552,
+                  "yPt": 50.016,
+                  "advancePt": 6.6240000000000006,
+                  "clusterUtf16": 1
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 49.176,
+                  "yPt": 50.016,
+                  "advancePt": 6.432,
+                  "clusterUtf16": 2
+                },
+                {
+                  "glyphId": 158,
+                  "xPt": 55.608000000000004,
+                  "yPt": 50.016,
+                  "advancePt": 5.976,
+                  "clusterUtf16": 3
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 61.584,
+                  "yPt": 50.016,
+                  "advancePt": 7.152,
+                  "clusterUtf16": 4
+                },
+                {
+                  "glyphId": 141,
+                  "xPt": 68.736,
+                  "yPt": 50.016,
+                  "advancePt": 6.972,
+                  "clusterUtf16": 5
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 75.708,
+                  "yPt": 50.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 6
+                },
+                {
+                  "glyphId": 158,
+                  "xPt": 78.624,
+                  "yPt": 50.016,
+                  "advancePt": 5.736,
+                  "clusterUtf16": 7
+                },
+                {
+                  "glyphId": 324,
+                  "xPt": 84.36,
+                  "yPt": 50.016,
+                  "advancePt": 6.684,
+                  "clusterUtf16": 8
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 91.044,
+                  "yPt": 50.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 9
+                },
+                {
+                  "glyphId": 324,
+                  "xPt": 93.96,
+                  "yPt": 50.016,
+                  "advancePt": 6.684,
+                  "clusterUtf16": 10
+                },
+                {
+                  "glyphId": 270,
+                  "xPt": 100.64399999999999,
+                  "yPt": 50.016,
+                  "advancePt": 3.972,
+                  "clusterUtf16": 11
+                },
+                {
+                  "glyphId": 423,
+                  "xPt": 104.61599999999999,
+                  "yPt": 50.016,
+                  "advancePt": 6.78,
+                  "clusterUtf16": 12
+                },
+                {
+                  "glyphId": 239,
+                  "xPt": 111.39599999999999,
+                  "yPt": 50.016,
+                  "advancePt": 5.676,
+                  "clusterUtf16": 14
+                },
+                {
+                  "glyphId": 251,
+                  "xPt": 117.07199999999999,
+                  "yPt": 50.016,
+                  "advancePt": 6.216,
+                  "clusterUtf16": 15
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 123.28799999999998,
+                  "yPt": 50.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 16
+                },
+                {
+                  "glyphId": 270,
+                  "xPt": 126.20399999999998,
+                  "yPt": 50.016,
+                  "advancePt": 3.972,
+                  "clusterUtf16": 17
+                },
+                {
+                  "glyphId": 423,
+                  "xPt": 130.176,
+                  "yPt": 50.016,
+                  "advancePt": 6.78,
+                  "clusterUtf16": 18
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "text": "ภาษาไทย กิ้ คุณตูม ทดสอบ",
+      "pages": [
+        {
+          "index": 0,
+          "widthPt": 595.2755905511812,
+          "heightPt": 841.8897637795276,
+          "paintCommands": [
+            {
+              "kind": "positioned-glyphs",
+              "pageIndex": 0,
+              "lineIndex": 0,
+              "text": "ภาษาไทย กิ้ คุณตูม ทดสอบ",
+              "sourceRange": {
+                "startUtf16": 0,
+                "endUtf16": 24
+              },
+              "xPt": 36,
+              "baselinePt": 50.016,
+              "advancePt": 130.83599999999998,
+              "fontId": "sarabun-regular",
+              "fontSizePt": 12,
+              "color": "000000",
+              "glyphs": [
+                {
+                  "glyphId": 469,
+                  "xPt": 36,
+                  "yPt": 50.016,
+                  "advancePt": 7.392,
+                  "clusterUtf16": 0
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 43.392,
+                  "yPt": 50.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 1
+                },
+                {
+                  "glyphId": 480,
+                  "xPt": 49.212,
+                  "yPt": 50.016,
+                  "advancePt": 8.124,
+                  "clusterUtf16": 2
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 57.336000000000006,
+                  "yPt": 50.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 3
+                },
+                {
+                  "glyphId": 494,
+                  "xPt": 63.156000000000006,
+                  "yPt": 50.016,
+                  "advancePt": 4.68,
+                  "clusterUtf16": 4
+                },
+                {
+                  "glyphId": 460,
+                  "xPt": 67.83600000000001,
+                  "yPt": 50.016,
+                  "advancePt": 7.884,
+                  "clusterUtf16": 5
+                },
+                {
+                  "glyphId": 471,
+                  "xPt": 75.72000000000001,
+                  "yPt": 50.016,
+                  "advancePt": 6.864,
+                  "clusterUtf16": 6
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 82.58400000000002,
+                  "yPt": 50.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 7
+                },
+                {
+                  "glyphId": 432,
+                  "xPt": 85.50000000000001,
+                  "yPt": 50.016,
+                  "advancePt": 6.912,
+                  "clusterUtf16": 8
+                },
+                {
+                  "glyphId": 752,
+                  "xPt": 92.29200000000002,
+                  "yPt": 50.016,
+                  "advancePt": 0,
+                  "clusterUtf16": 8
+                },
+                {
+                  "glyphId": 739,
+                  "xPt": 92.29200000000002,
+                  "yPt": 50.568,
+                  "advancePt": 0,
+                  "clusterUtf16": 8
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 92.41200000000002,
+                  "yPt": 50.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 11
+                },
+                {
+                  "glyphId": 435,
+                  "xPt": 95.32800000000002,
+                  "yPt": 50.016,
+                  "advancePt": 7.236,
+                  "clusterUtf16": 12
+                },
+                {
+                  "glyphId": 767,
+                  "xPt": 102.56400000000002,
+                  "yPt": 50.016,
+                  "advancePt": 0,
+                  "clusterUtf16": 12
+                },
+                {
+                  "glyphId": 456,
+                  "xPt": 102.56400000000002,
+                  "yPt": 50.016,
+                  "advancePt": 9.972,
+                  "clusterUtf16": 14
+                },
+                {
+                  "glyphId": 458,
+                  "xPt": 112.53600000000002,
+                  "yPt": 50.016,
+                  "advancePt": 7.284,
+                  "clusterUtf16": 15
+                },
+                {
+                  "glyphId": 769,
+                  "xPt": 119.82000000000002,
+                  "yPt": 50.016,
+                  "advancePt": 0,
+                  "clusterUtf16": 15
+                },
+                {
+                  "glyphId": 470,
+                  "xPt": 119.82000000000002,
+                  "yPt": 50.016,
+                  "advancePt": 7.368,
+                  "clusterUtf16": 17
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 127.18800000000002,
+                  "yPt": 50.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 18
+                },
+                {
+                  "glyphId": 460,
+                  "xPt": 130.104,
+                  "yPt": 50.016,
+                  "advancePt": 7.884,
+                  "clusterUtf16": 19
+                },
+                {
+                  "glyphId": 457,
+                  "xPt": 137.988,
+                  "yPt": 50.016,
+                  "advancePt": 7.104,
+                  "clusterUtf16": 20
+                },
+                {
+                  "glyphId": 481,
+                  "xPt": 145.092,
+                  "yPt": 50.016,
+                  "advancePt": 6.96,
+                  "clusterUtf16": 21
+                },
+                {
+                  "glyphId": 485,
+                  "xPt": 152.05200000000002,
+                  "yPt": 50.016,
+                  "advancePt": 7.0440000000000005,
+                  "clusterUtf16": 22
+                },
+                {
+                  "glyphId": 463,
+                  "xPt": 159.09600000000003,
+                  "yPt": 50.016,
+                  "advancePt": 7.74,
+                  "clusterUtf16": 23
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "text": "ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ",
+      "pages": [
+        {
+          "index": 0,
+          "widthPt": 595.2755905511812,
+          "heightPt": 841.8897637795276,
+          "paintCommands": [
+            {
+              "kind": "positioned-glyphs",
+              "pageIndex": 0,
+              "lineIndex": 0,
+              "text": "ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้",
+              "sourceRange": {
+                "startUtf16": 0,
+                "endUtf16": 99
+              },
+              "xPt": 36,
+              "baselinePt": 50.016,
+              "advancePt": 522.7800000000001,
+              "fontId": "sarabun-regular",
+              "fontSizePt": 12,
+              "color": "000000",
+              "glyphs": [
+                {
+                  "glyphId": 469,
+                  "xPt": 36,
+                  "yPt": 50.016,
+                  "advancePt": 7.392,
+                  "clusterUtf16": 0
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 43.392,
+                  "yPt": 50.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 1
+                },
+                {
+                  "glyphId": 480,
+                  "xPt": 49.212,
+                  "yPt": 50.016,
+                  "advancePt": 8.124,
+                  "clusterUtf16": 2
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 57.336000000000006,
+                  "yPt": 50.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 3
+                },
+                {
+                  "glyphId": 494,
+                  "xPt": 63.156000000000006,
+                  "yPt": 50.016,
+                  "advancePt": 4.68,
+                  "clusterUtf16": 4
+                },
+                {
+                  "glyphId": 460,
+                  "xPt": 67.83600000000001,
+                  "yPt": 50.016,
+                  "advancePt": 7.884,
+                  "clusterUtf16": 5
+                },
+                {
+                  "glyphId": 471,
+                  "xPt": 75.72000000000001,
+                  "yPt": 50.016,
+                  "advancePt": 6.864,
+                  "clusterUtf16": 6
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 82.58400000000002,
+                  "yPt": 50.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 7
+                },
+                {
+                  "glyphId": 92,
+                  "xPt": 85.50000000000001,
+                  "yPt": 50.016,
+                  "advancePt": 6.336,
+                  "clusterUtf16": 8
+                },
+                {
+                  "glyphId": 211,
+                  "xPt": 91.83600000000001,
+                  "yPt": 50.016,
+                  "advancePt": 6.168,
+                  "clusterUtf16": 9
+                },
+                {
+                  "glyphId": 369,
+                  "xPt": 98.00400000000002,
+                  "yPt": 50.016,
+                  "advancePt": 4.524,
+                  "clusterUtf16": 10
+                },
+                {
+                  "glyphId": 283,
+                  "xPt": 102.52800000000002,
+                  "yPt": 50.016,
+                  "advancePt": 2.94,
+                  "clusterUtf16": 11
+                },
+                {
+                  "glyphId": 314,
+                  "xPt": 105.46800000000002,
+                  "yPt": 50.016,
+                  "advancePt": 6.588,
+                  "clusterUtf16": 12
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 112.05600000000001,
+                  "yPt": 50.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 13
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 114.97200000000001,
+                  "yPt": 50.016,
+                  "advancePt": 6.5520000000000005,
+                  "clusterUtf16": 14
+                },
+                {
+                  "glyphId": 189,
+                  "xPt": 121.52400000000002,
+                  "yPt": 50.016,
+                  "advancePt": 6.6240000000000006,
+                  "clusterUtf16": 15
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 128.14800000000002,
+                  "yPt": 50.016,
+                  "advancePt": 6.432,
+                  "clusterUtf16": 16
+                },
+                {
+                  "glyphId": 158,
+                  "xPt": 134.58,
+                  "yPt": 50.016,
+                  "advancePt": 5.976,
+                  "clusterUtf16": 17
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 140.556,
+                  "yPt": 50.016,
+                  "advancePt": 7.152,
+                  "clusterUtf16": 18
+                },
+                {
+                  "glyphId": 141,
+                  "xPt": 147.708,
+                  "yPt": 50.016,
+                  "advancePt": 6.972,
+                  "clusterUtf16": 19
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 154.68,
+                  "yPt": 50.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 20
+                },
+                {
+                  "glyphId": 432,
+                  "xPt": 157.596,
+                  "yPt": 50.016,
+                  "advancePt": 6.912,
+                  "clusterUtf16": 21
+                },
+                {
+                  "glyphId": 752,
+                  "xPt": 164.388,
+                  "yPt": 50.016,
+                  "advancePt": 0,
+                  "clusterUtf16": 21
+                },
+                {
+                  "glyphId": 739,
+                  "xPt": 164.388,
+                  "yPt": 50.568,
+                  "advancePt": 0,
+                  "clusterUtf16": 21
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 164.508,
+                  "yPt": 50.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 24
+                },
+                {
+                  "glyphId": 469,
+                  "xPt": 167.424,
+                  "yPt": 50.016,
+                  "advancePt": 7.392,
+                  "clusterUtf16": 25
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 174.816,
+                  "yPt": 50.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 26
+                },
+                {
+                  "glyphId": 480,
+                  "xPt": 180.636,
+                  "yPt": 50.016,
+                  "advancePt": 8.124,
+                  "clusterUtf16": 27
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 188.76,
+                  "yPt": 50.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 28
+                },
+                {
+                  "glyphId": 494,
+                  "xPt": 194.57999999999998,
+                  "yPt": 50.016,
+                  "advancePt": 4.68,
+                  "clusterUtf16": 29
+                },
+                {
+                  "glyphId": 460,
+                  "xPt": 199.26,
+                  "yPt": 50.016,
+                  "advancePt": 7.884,
+                  "clusterUtf16": 30
+                },
+                {
+                  "glyphId": 471,
+                  "xPt": 207.144,
+                  "yPt": 50.016,
+                  "advancePt": 6.864,
+                  "clusterUtf16": 31
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 214.008,
+                  "yPt": 50.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 32
+                },
+                {
+                  "glyphId": 92,
+                  "xPt": 216.924,
+                  "yPt": 50.016,
+                  "advancePt": 6.336,
+                  "clusterUtf16": 33
+                },
+                {
+                  "glyphId": 211,
+                  "xPt": 223.26000000000002,
+                  "yPt": 50.016,
+                  "advancePt": 6.168,
+                  "clusterUtf16": 34
+                },
+                {
+                  "glyphId": 369,
+                  "xPt": 229.42800000000003,
+                  "yPt": 50.016,
+                  "advancePt": 4.524,
+                  "clusterUtf16": 35
+                },
+                {
+                  "glyphId": 283,
+                  "xPt": 233.95200000000003,
+                  "yPt": 50.016,
+                  "advancePt": 2.94,
+                  "clusterUtf16": 36
+                },
+                {
+                  "glyphId": 314,
+                  "xPt": 236.89200000000002,
+                  "yPt": 50.016,
+                  "advancePt": 6.588,
+                  "clusterUtf16": 37
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 243.48000000000002,
+                  "yPt": 50.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 38
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 246.39600000000002,
+                  "yPt": 50.016,
+                  "advancePt": 6.5520000000000005,
+                  "clusterUtf16": 39
+                },
+                {
+                  "glyphId": 189,
+                  "xPt": 252.948,
+                  "yPt": 50.016,
+                  "advancePt": 6.6240000000000006,
+                  "clusterUtf16": 40
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 259.572,
+                  "yPt": 50.016,
+                  "advancePt": 6.432,
+                  "clusterUtf16": 41
+                },
+                {
+                  "glyphId": 158,
+                  "xPt": 266.004,
+                  "yPt": 50.016,
+                  "advancePt": 5.976,
+                  "clusterUtf16": 42
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 271.98,
+                  "yPt": 50.016,
+                  "advancePt": 7.152,
+                  "clusterUtf16": 43
+                },
+                {
+                  "glyphId": 141,
+                  "xPt": 279.132,
+                  "yPt": 50.016,
+                  "advancePt": 6.972,
+                  "clusterUtf16": 44
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 286.104,
+                  "yPt": 50.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 45
+                },
+                {
+                  "glyphId": 432,
+                  "xPt": 289.02,
+                  "yPt": 50.016,
+                  "advancePt": 6.912,
+                  "clusterUtf16": 46
+                },
+                {
+                  "glyphId": 752,
+                  "xPt": 295.81199999999995,
+                  "yPt": 50.016,
+                  "advancePt": 0,
+                  "clusterUtf16": 46
+                },
+                {
+                  "glyphId": 739,
+                  "xPt": 295.81199999999995,
+                  "yPt": 50.568,
+                  "advancePt": 0,
+                  "clusterUtf16": 46
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 295.93199999999996,
+                  "yPt": 50.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 49
+                },
+                {
+                  "glyphId": 469,
+                  "xPt": 298.84799999999996,
+                  "yPt": 50.016,
+                  "advancePt": 7.392,
+                  "clusterUtf16": 50
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 306.23999999999995,
+                  "yPt": 50.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 51
+                },
+                {
+                  "glyphId": 480,
+                  "xPt": 312.05999999999995,
+                  "yPt": 50.016,
+                  "advancePt": 8.124,
+                  "clusterUtf16": 52
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 320.18399999999997,
+                  "yPt": 50.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 53
+                },
+                {
+                  "glyphId": 494,
+                  "xPt": 326.00399999999996,
+                  "yPt": 50.016,
+                  "advancePt": 4.68,
+                  "clusterUtf16": 54
+                },
+                {
+                  "glyphId": 460,
+                  "xPt": 330.68399999999997,
+                  "yPt": 50.016,
+                  "advancePt": 7.884,
+                  "clusterUtf16": 55
+                },
+                {
+                  "glyphId": 471,
+                  "xPt": 338.568,
+                  "yPt": 50.016,
+                  "advancePt": 6.864,
+                  "clusterUtf16": 56
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 345.43199999999996,
+                  "yPt": 50.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 57
+                },
+                {
+                  "glyphId": 92,
+                  "xPt": 348.34799999999996,
+                  "yPt": 50.016,
+                  "advancePt": 6.336,
+                  "clusterUtf16": 58
+                },
+                {
+                  "glyphId": 211,
+                  "xPt": 354.68399999999997,
+                  "yPt": 50.016,
+                  "advancePt": 6.168,
+                  "clusterUtf16": 59
+                },
+                {
+                  "glyphId": 369,
+                  "xPt": 360.852,
+                  "yPt": 50.016,
+                  "advancePt": 4.524,
+                  "clusterUtf16": 60
+                },
+                {
+                  "glyphId": 283,
+                  "xPt": 365.376,
+                  "yPt": 50.016,
+                  "advancePt": 2.94,
+                  "clusterUtf16": 61
+                },
+                {
+                  "glyphId": 314,
+                  "xPt": 368.316,
+                  "yPt": 50.016,
+                  "advancePt": 6.588,
+                  "clusterUtf16": 62
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 374.904,
+                  "yPt": 50.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 63
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 377.82,
+                  "yPt": 50.016,
+                  "advancePt": 6.5520000000000005,
+                  "clusterUtf16": 64
+                },
+                {
+                  "glyphId": 189,
+                  "xPt": 384.372,
+                  "yPt": 50.016,
+                  "advancePt": 6.6240000000000006,
+                  "clusterUtf16": 65
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 390.99600000000004,
+                  "yPt": 50.016,
+                  "advancePt": 6.432,
+                  "clusterUtf16": 66
+                },
+                {
+                  "glyphId": 158,
+                  "xPt": 397.42800000000005,
+                  "yPt": 50.016,
+                  "advancePt": 5.976,
+                  "clusterUtf16": 67
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 403.40400000000005,
+                  "yPt": 50.016,
+                  "advancePt": 7.152,
+                  "clusterUtf16": 68
+                },
+                {
+                  "glyphId": 141,
+                  "xPt": 410.55600000000004,
+                  "yPt": 50.016,
+                  "advancePt": 6.972,
+                  "clusterUtf16": 69
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 417.528,
+                  "yPt": 50.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 70
+                },
+                {
+                  "glyphId": 432,
+                  "xPt": 420.444,
+                  "yPt": 50.016,
+                  "advancePt": 6.912,
+                  "clusterUtf16": 71
+                },
+                {
+                  "glyphId": 752,
+                  "xPt": 427.236,
+                  "yPt": 50.016,
+                  "advancePt": 0,
+                  "clusterUtf16": 71
+                },
+                {
+                  "glyphId": 739,
+                  "xPt": 427.236,
+                  "yPt": 50.568,
+                  "advancePt": 0,
+                  "clusterUtf16": 71
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 427.356,
+                  "yPt": 50.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 74
+                },
+                {
+                  "glyphId": 469,
+                  "xPt": 430.272,
+                  "yPt": 50.016,
+                  "advancePt": 7.392,
+                  "clusterUtf16": 75
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 437.664,
+                  "yPt": 50.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 76
+                },
+                {
+                  "glyphId": 480,
+                  "xPt": 443.484,
+                  "yPt": 50.016,
+                  "advancePt": 8.124,
+                  "clusterUtf16": 77
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 451.608,
+                  "yPt": 50.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 78
+                },
+                {
+                  "glyphId": 494,
+                  "xPt": 457.428,
+                  "yPt": 50.016,
+                  "advancePt": 4.68,
+                  "clusterUtf16": 79
+                },
+                {
+                  "glyphId": 460,
+                  "xPt": 462.108,
+                  "yPt": 50.016,
+                  "advancePt": 7.884,
+                  "clusterUtf16": 80
+                },
+                {
+                  "glyphId": 471,
+                  "xPt": 469.992,
+                  "yPt": 50.016,
+                  "advancePt": 6.864,
+                  "clusterUtf16": 81
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 476.856,
+                  "yPt": 50.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 82
+                },
+                {
+                  "glyphId": 92,
+                  "xPt": 479.772,
+                  "yPt": 50.016,
+                  "advancePt": 6.336,
+                  "clusterUtf16": 83
+                },
+                {
+                  "glyphId": 211,
+                  "xPt": 486.108,
+                  "yPt": 50.016,
+                  "advancePt": 6.168,
+                  "clusterUtf16": 84
+                },
+                {
+                  "glyphId": 369,
+                  "xPt": 492.276,
+                  "yPt": 50.016,
+                  "advancePt": 4.524,
+                  "clusterUtf16": 85
+                },
+                {
+                  "glyphId": 283,
+                  "xPt": 496.8,
+                  "yPt": 50.016,
+                  "advancePt": 2.94,
+                  "clusterUtf16": 86
+                },
+                {
+                  "glyphId": 314,
+                  "xPt": 499.74,
+                  "yPt": 50.016,
+                  "advancePt": 6.588,
+                  "clusterUtf16": 87
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 506.32800000000003,
+                  "yPt": 50.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 88
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 509.244,
+                  "yPt": 50.016,
+                  "advancePt": 6.5520000000000005,
+                  "clusterUtf16": 89
+                },
+                {
+                  "glyphId": 189,
+                  "xPt": 515.796,
+                  "yPt": 50.016,
+                  "advancePt": 6.6240000000000006,
+                  "clusterUtf16": 90
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 522.4200000000001,
+                  "yPt": 50.016,
+                  "advancePt": 6.432,
+                  "clusterUtf16": 91
+                },
+                {
+                  "glyphId": 158,
+                  "xPt": 528.8520000000001,
+                  "yPt": 50.016,
+                  "advancePt": 5.976,
+                  "clusterUtf16": 92
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 534.8280000000001,
+                  "yPt": 50.016,
+                  "advancePt": 7.152,
+                  "clusterUtf16": 93
+                },
+                {
+                  "glyphId": 141,
+                  "xPt": 541.9800000000001,
+                  "yPt": 50.016,
+                  "advancePt": 6.972,
+                  "clusterUtf16": 94
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 548.9520000000001,
+                  "yPt": 50.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 95
+                },
+                {
+                  "glyphId": 432,
+                  "xPt": 551.8680000000002,
+                  "yPt": 50.016,
+                  "advancePt": 6.912,
+                  "clusterUtf16": 96
+                },
+                {
+                  "glyphId": 752,
+                  "xPt": 558.6600000000002,
+                  "yPt": 50.016,
+                  "advancePt": 0,
+                  "clusterUtf16": 96
+                },
+                {
+                  "glyphId": 739,
+                  "xPt": 558.6600000000002,
+                  "yPt": 50.568,
+                  "advancePt": 0,
+                  "clusterUtf16": 96
+                }
+              ]
+            },
+            {
+              "kind": "positioned-glyphs",
+              "pageIndex": 0,
+              "lineIndex": 1,
+              "text": " ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR ",
+              "sourceRange": {
+                "startUtf16": 99,
+                "endUtf16": 196
+              },
+              "xPt": 36,
+              "baselinePt": 68.016,
+              "advancePt": 518.7840000000001,
+              "fontId": "sarabun-regular",
+              "fontSizePt": 12,
+              "color": "000000",
+              "glyphs": [
+                {
+                  "glyphId": 3,
+                  "xPt": 36,
+                  "yPt": 68.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 99
+                },
+                {
+                  "glyphId": 469,
+                  "xPt": 38.916,
+                  "yPt": 68.016,
+                  "advancePt": 7.392,
+                  "clusterUtf16": 100
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 46.308,
+                  "yPt": 68.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 101
+                },
+                {
+                  "glyphId": 480,
+                  "xPt": 52.128,
+                  "yPt": 68.016,
+                  "advancePt": 8.124,
+                  "clusterUtf16": 102
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 60.252,
+                  "yPt": 68.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 103
+                },
+                {
+                  "glyphId": 494,
+                  "xPt": 66.072,
+                  "yPt": 68.016,
+                  "advancePt": 4.68,
+                  "clusterUtf16": 104
+                },
+                {
+                  "glyphId": 460,
+                  "xPt": 70.75200000000001,
+                  "yPt": 68.016,
+                  "advancePt": 7.884,
+                  "clusterUtf16": 105
+                },
+                {
+                  "glyphId": 471,
+                  "xPt": 78.63600000000001,
+                  "yPt": 68.016,
+                  "advancePt": 6.864,
+                  "clusterUtf16": 106
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 85.50000000000001,
+                  "yPt": 68.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 107
+                },
+                {
+                  "glyphId": 92,
+                  "xPt": 88.41600000000001,
+                  "yPt": 68.016,
+                  "advancePt": 6.336,
+                  "clusterUtf16": 108
+                },
+                {
+                  "glyphId": 211,
+                  "xPt": 94.75200000000001,
+                  "yPt": 68.016,
+                  "advancePt": 6.168,
+                  "clusterUtf16": 109
+                },
+                {
+                  "glyphId": 369,
+                  "xPt": 100.92000000000002,
+                  "yPt": 68.016,
+                  "advancePt": 4.524,
+                  "clusterUtf16": 110
+                },
+                {
+                  "glyphId": 283,
+                  "xPt": 105.44400000000002,
+                  "yPt": 68.016,
+                  "advancePt": 2.94,
+                  "clusterUtf16": 111
+                },
+                {
+                  "glyphId": 314,
+                  "xPt": 108.38400000000001,
+                  "yPt": 68.016,
+                  "advancePt": 6.588,
+                  "clusterUtf16": 112
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 114.97200000000001,
+                  "yPt": 68.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 113
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 117.888,
+                  "yPt": 68.016,
+                  "advancePt": 6.5520000000000005,
+                  "clusterUtf16": 114
+                },
+                {
+                  "glyphId": 189,
+                  "xPt": 124.44000000000001,
+                  "yPt": 68.016,
+                  "advancePt": 6.6240000000000006,
+                  "clusterUtf16": 115
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 131.06400000000002,
+                  "yPt": 68.016,
+                  "advancePt": 6.432,
+                  "clusterUtf16": 116
+                },
+                {
+                  "glyphId": 158,
+                  "xPt": 137.496,
+                  "yPt": 68.016,
+                  "advancePt": 5.976,
+                  "clusterUtf16": 117
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 143.472,
+                  "yPt": 68.016,
+                  "advancePt": 7.152,
+                  "clusterUtf16": 118
+                },
+                {
+                  "glyphId": 141,
+                  "xPt": 150.624,
+                  "yPt": 68.016,
+                  "advancePt": 6.972,
+                  "clusterUtf16": 119
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 157.596,
+                  "yPt": 68.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 120
+                },
+                {
+                  "glyphId": 432,
+                  "xPt": 160.512,
+                  "yPt": 68.016,
+                  "advancePt": 6.912,
+                  "clusterUtf16": 121
+                },
+                {
+                  "glyphId": 752,
+                  "xPt": 167.304,
+                  "yPt": 68.016,
+                  "advancePt": 0,
+                  "clusterUtf16": 121
+                },
+                {
+                  "glyphId": 739,
+                  "xPt": 167.304,
+                  "yPt": 68.56800000000001,
+                  "advancePt": 0,
+                  "clusterUtf16": 121
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 167.424,
+                  "yPt": 68.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 124
+                },
+                {
+                  "glyphId": 469,
+                  "xPt": 170.34,
+                  "yPt": 68.016,
+                  "advancePt": 7.392,
+                  "clusterUtf16": 125
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 177.732,
+                  "yPt": 68.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 126
+                },
+                {
+                  "glyphId": 480,
+                  "xPt": 183.552,
+                  "yPt": 68.016,
+                  "advancePt": 8.124,
+                  "clusterUtf16": 127
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 191.676,
+                  "yPt": 68.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 128
+                },
+                {
+                  "glyphId": 494,
+                  "xPt": 197.49599999999998,
+                  "yPt": 68.016,
+                  "advancePt": 4.68,
+                  "clusterUtf16": 129
+                },
+                {
+                  "glyphId": 460,
+                  "xPt": 202.176,
+                  "yPt": 68.016,
+                  "advancePt": 7.884,
+                  "clusterUtf16": 130
+                },
+                {
+                  "glyphId": 471,
+                  "xPt": 210.06,
+                  "yPt": 68.016,
+                  "advancePt": 6.864,
+                  "clusterUtf16": 131
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 216.924,
+                  "yPt": 68.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 132
+                },
+                {
+                  "glyphId": 92,
+                  "xPt": 219.84,
+                  "yPt": 68.016,
+                  "advancePt": 6.336,
+                  "clusterUtf16": 133
+                },
+                {
+                  "glyphId": 211,
+                  "xPt": 226.17600000000002,
+                  "yPt": 68.016,
+                  "advancePt": 6.168,
+                  "clusterUtf16": 134
+                },
+                {
+                  "glyphId": 369,
+                  "xPt": 232.34400000000002,
+                  "yPt": 68.016,
+                  "advancePt": 4.524,
+                  "clusterUtf16": 135
+                },
+                {
+                  "glyphId": 283,
+                  "xPt": 236.86800000000002,
+                  "yPt": 68.016,
+                  "advancePt": 2.94,
+                  "clusterUtf16": 136
+                },
+                {
+                  "glyphId": 314,
+                  "xPt": 239.80800000000002,
+                  "yPt": 68.016,
+                  "advancePt": 6.588,
+                  "clusterUtf16": 137
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 246.39600000000002,
+                  "yPt": 68.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 138
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 249.312,
+                  "yPt": 68.016,
+                  "advancePt": 6.5520000000000005,
+                  "clusterUtf16": 139
+                },
+                {
+                  "glyphId": 189,
+                  "xPt": 255.864,
+                  "yPt": 68.016,
+                  "advancePt": 6.6240000000000006,
+                  "clusterUtf16": 140
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 262.488,
+                  "yPt": 68.016,
+                  "advancePt": 6.432,
+                  "clusterUtf16": 141
+                },
+                {
+                  "glyphId": 158,
+                  "xPt": 268.92,
+                  "yPt": 68.016,
+                  "advancePt": 5.976,
+                  "clusterUtf16": 142
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 274.896,
+                  "yPt": 68.016,
+                  "advancePt": 7.152,
+                  "clusterUtf16": 143
+                },
+                {
+                  "glyphId": 141,
+                  "xPt": 282.048,
+                  "yPt": 68.016,
+                  "advancePt": 6.972,
+                  "clusterUtf16": 144
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 289.02,
+                  "yPt": 68.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 145
+                },
+                {
+                  "glyphId": 432,
+                  "xPt": 291.936,
+                  "yPt": 68.016,
+                  "advancePt": 6.912,
+                  "clusterUtf16": 146
+                },
+                {
+                  "glyphId": 752,
+                  "xPt": 298.72799999999995,
+                  "yPt": 68.016,
+                  "advancePt": 0,
+                  "clusterUtf16": 146
+                },
+                {
+                  "glyphId": 739,
+                  "xPt": 298.72799999999995,
+                  "yPt": 68.56800000000001,
+                  "advancePt": 0,
+                  "clusterUtf16": 146
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 298.84799999999996,
+                  "yPt": 68.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 149
+                },
+                {
+                  "glyphId": 469,
+                  "xPt": 301.76399999999995,
+                  "yPt": 68.016,
+                  "advancePt": 7.392,
+                  "clusterUtf16": 150
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 309.15599999999995,
+                  "yPt": 68.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 151
+                },
+                {
+                  "glyphId": 480,
+                  "xPt": 314.97599999999994,
+                  "yPt": 68.016,
+                  "advancePt": 8.124,
+                  "clusterUtf16": 152
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 323.09999999999997,
+                  "yPt": 68.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 153
+                },
+                {
+                  "glyphId": 494,
+                  "xPt": 328.91999999999996,
+                  "yPt": 68.016,
+                  "advancePt": 4.68,
+                  "clusterUtf16": 154
+                },
+                {
+                  "glyphId": 460,
+                  "xPt": 333.59999999999997,
+                  "yPt": 68.016,
+                  "advancePt": 7.884,
+                  "clusterUtf16": 155
+                },
+                {
+                  "glyphId": 471,
+                  "xPt": 341.484,
+                  "yPt": 68.016,
+                  "advancePt": 6.864,
+                  "clusterUtf16": 156
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 348.34799999999996,
+                  "yPt": 68.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 157
+                },
+                {
+                  "glyphId": 92,
+                  "xPt": 351.26399999999995,
+                  "yPt": 68.016,
+                  "advancePt": 6.336,
+                  "clusterUtf16": 158
+                },
+                {
+                  "glyphId": 211,
+                  "xPt": 357.59999999999997,
+                  "yPt": 68.016,
+                  "advancePt": 6.168,
+                  "clusterUtf16": 159
+                },
+                {
+                  "glyphId": 369,
+                  "xPt": 363.768,
+                  "yPt": 68.016,
+                  "advancePt": 4.524,
+                  "clusterUtf16": 160
+                },
+                {
+                  "glyphId": 283,
+                  "xPt": 368.292,
+                  "yPt": 68.016,
+                  "advancePt": 2.94,
+                  "clusterUtf16": 161
+                },
+                {
+                  "glyphId": 314,
+                  "xPt": 371.23199999999997,
+                  "yPt": 68.016,
+                  "advancePt": 6.588,
+                  "clusterUtf16": 162
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 377.82,
+                  "yPt": 68.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 163
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 380.736,
+                  "yPt": 68.016,
+                  "advancePt": 6.5520000000000005,
+                  "clusterUtf16": 164
+                },
+                {
+                  "glyphId": 189,
+                  "xPt": 387.288,
+                  "yPt": 68.016,
+                  "advancePt": 6.6240000000000006,
+                  "clusterUtf16": 165
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 393.91200000000003,
+                  "yPt": 68.016,
+                  "advancePt": 6.432,
+                  "clusterUtf16": 166
+                },
+                {
+                  "glyphId": 158,
+                  "xPt": 400.34400000000005,
+                  "yPt": 68.016,
+                  "advancePt": 5.976,
+                  "clusterUtf16": 167
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 406.32000000000005,
+                  "yPt": 68.016,
+                  "advancePt": 7.152,
+                  "clusterUtf16": 168
+                },
+                {
+                  "glyphId": 141,
+                  "xPt": 413.47200000000004,
+                  "yPt": 68.016,
+                  "advancePt": 6.972,
+                  "clusterUtf16": 169
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 420.444,
+                  "yPt": 68.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 170
+                },
+                {
+                  "glyphId": 432,
+                  "xPt": 423.36,
+                  "yPt": 68.016,
+                  "advancePt": 6.912,
+                  "clusterUtf16": 171
+                },
+                {
+                  "glyphId": 752,
+                  "xPt": 430.152,
+                  "yPt": 68.016,
+                  "advancePt": 0,
+                  "clusterUtf16": 171
+                },
+                {
+                  "glyphId": 739,
+                  "xPt": 430.152,
+                  "yPt": 68.56800000000001,
+                  "advancePt": 0,
+                  "clusterUtf16": 171
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 430.272,
+                  "yPt": 68.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 174
+                },
+                {
+                  "glyphId": 469,
+                  "xPt": 433.188,
+                  "yPt": 68.016,
+                  "advancePt": 7.392,
+                  "clusterUtf16": 175
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 440.58,
+                  "yPt": 68.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 176
+                },
+                {
+                  "glyphId": 480,
+                  "xPt": 446.4,
+                  "yPt": 68.016,
+                  "advancePt": 8.124,
+                  "clusterUtf16": 177
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 454.524,
+                  "yPt": 68.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 178
+                },
+                {
+                  "glyphId": 494,
+                  "xPt": 460.344,
+                  "yPt": 68.016,
+                  "advancePt": 4.68,
+                  "clusterUtf16": 179
+                },
+                {
+                  "glyphId": 460,
+                  "xPt": 465.024,
+                  "yPt": 68.016,
+                  "advancePt": 7.884,
+                  "clusterUtf16": 180
+                },
+                {
+                  "glyphId": 471,
+                  "xPt": 472.908,
+                  "yPt": 68.016,
+                  "advancePt": 6.864,
+                  "clusterUtf16": 181
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 479.772,
+                  "yPt": 68.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 182
+                },
+                {
+                  "glyphId": 92,
+                  "xPt": 482.688,
+                  "yPt": 68.016,
+                  "advancePt": 6.336,
+                  "clusterUtf16": 183
+                },
+                {
+                  "glyphId": 211,
+                  "xPt": 489.024,
+                  "yPt": 68.016,
+                  "advancePt": 6.168,
+                  "clusterUtf16": 184
+                },
+                {
+                  "glyphId": 369,
+                  "xPt": 495.192,
+                  "yPt": 68.016,
+                  "advancePt": 4.524,
+                  "clusterUtf16": 185
+                },
+                {
+                  "glyphId": 283,
+                  "xPt": 499.716,
+                  "yPt": 68.016,
+                  "advancePt": 2.94,
+                  "clusterUtf16": 186
+                },
+                {
+                  "glyphId": 314,
+                  "xPt": 502.656,
+                  "yPt": 68.016,
+                  "advancePt": 6.588,
+                  "clusterUtf16": 187
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 509.244,
+                  "yPt": 68.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 188
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 512.1600000000001,
+                  "yPt": 68.016,
+                  "advancePt": 6.5520000000000005,
+                  "clusterUtf16": 189
+                },
+                {
+                  "glyphId": 189,
+                  "xPt": 518.7120000000001,
+                  "yPt": 68.016,
+                  "advancePt": 6.6240000000000006,
+                  "clusterUtf16": 190
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 525.3360000000001,
+                  "yPt": 68.016,
+                  "advancePt": 6.432,
+                  "clusterUtf16": 191
+                },
+                {
+                  "glyphId": 158,
+                  "xPt": 531.7680000000001,
+                  "yPt": 68.016,
+                  "advancePt": 5.976,
+                  "clusterUtf16": 192
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 537.7440000000001,
+                  "yPt": 68.016,
+                  "advancePt": 7.152,
+                  "clusterUtf16": 193
+                },
+                {
+                  "glyphId": 141,
+                  "xPt": 544.8960000000002,
+                  "yPt": 68.016,
+                  "advancePt": 6.972,
+                  "clusterUtf16": 194
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 551.8680000000002,
+                  "yPt": 68.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 195
+                }
+              ]
+            },
+            {
+              "kind": "positioned-glyphs",
+              "pageIndex": 0,
+              "lineIndex": 2,
+              "text": "กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR",
+              "sourceRange": {
+                "startUtf16": 196,
+                "endUtf16": 295
+              },
+              "xPt": 36,
+              "baselinePt": 86.016,
+              "advancePt": 522.7800000000001,
+              "fontId": "sarabun-regular",
+              "fontSizePt": 12,
+              "color": "000000",
+              "glyphs": [
+                {
+                  "glyphId": 432,
+                  "xPt": 36,
+                  "yPt": 86.016,
+                  "advancePt": 6.912,
+                  "clusterUtf16": 196
+                },
+                {
+                  "glyphId": 752,
+                  "xPt": 42.792,
+                  "yPt": 86.016,
+                  "advancePt": 0,
+                  "clusterUtf16": 196
+                },
+                {
+                  "glyphId": 739,
+                  "xPt": 42.792,
+                  "yPt": 86.56800000000001,
+                  "advancePt": 0,
+                  "clusterUtf16": 196
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 42.912,
+                  "yPt": 86.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 199
+                },
+                {
+                  "glyphId": 469,
+                  "xPt": 45.827999999999996,
+                  "yPt": 86.016,
+                  "advancePt": 7.392,
+                  "clusterUtf16": 200
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 53.22,
+                  "yPt": 86.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 201
+                },
+                {
+                  "glyphId": 480,
+                  "xPt": 59.04,
+                  "yPt": 86.016,
+                  "advancePt": 8.124,
+                  "clusterUtf16": 202
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 67.164,
+                  "yPt": 86.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 203
+                },
+                {
+                  "glyphId": 494,
+                  "xPt": 72.98400000000001,
+                  "yPt": 86.016,
+                  "advancePt": 4.68,
+                  "clusterUtf16": 204
+                },
+                {
+                  "glyphId": 460,
+                  "xPt": 77.66400000000002,
+                  "yPt": 86.016,
+                  "advancePt": 7.884,
+                  "clusterUtf16": 205
+                },
+                {
+                  "glyphId": 471,
+                  "xPt": 85.54800000000002,
+                  "yPt": 86.016,
+                  "advancePt": 6.864,
+                  "clusterUtf16": 206
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 92.41200000000002,
+                  "yPt": 86.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 207
+                },
+                {
+                  "glyphId": 92,
+                  "xPt": 95.32800000000002,
+                  "yPt": 86.016,
+                  "advancePt": 6.336,
+                  "clusterUtf16": 208
+                },
+                {
+                  "glyphId": 211,
+                  "xPt": 101.66400000000002,
+                  "yPt": 86.016,
+                  "advancePt": 6.168,
+                  "clusterUtf16": 209
+                },
+                {
+                  "glyphId": 369,
+                  "xPt": 107.83200000000002,
+                  "yPt": 86.016,
+                  "advancePt": 4.524,
+                  "clusterUtf16": 210
+                },
+                {
+                  "glyphId": 283,
+                  "xPt": 112.35600000000002,
+                  "yPt": 86.016,
+                  "advancePt": 2.94,
+                  "clusterUtf16": 211
+                },
+                {
+                  "glyphId": 314,
+                  "xPt": 115.29600000000002,
+                  "yPt": 86.016,
+                  "advancePt": 6.588,
+                  "clusterUtf16": 212
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 121.88400000000001,
+                  "yPt": 86.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 213
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 124.80000000000001,
+                  "yPt": 86.016,
+                  "advancePt": 6.5520000000000005,
+                  "clusterUtf16": 214
+                },
+                {
+                  "glyphId": 189,
+                  "xPt": 131.352,
+                  "yPt": 86.016,
+                  "advancePt": 6.6240000000000006,
+                  "clusterUtf16": 215
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 137.976,
+                  "yPt": 86.016,
+                  "advancePt": 6.432,
+                  "clusterUtf16": 216
+                },
+                {
+                  "glyphId": 158,
+                  "xPt": 144.408,
+                  "yPt": 86.016,
+                  "advancePt": 5.976,
+                  "clusterUtf16": 217
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 150.384,
+                  "yPt": 86.016,
+                  "advancePt": 7.152,
+                  "clusterUtf16": 218
+                },
+                {
+                  "glyphId": 141,
+                  "xPt": 157.53599999999997,
+                  "yPt": 86.016,
+                  "advancePt": 6.972,
+                  "clusterUtf16": 219
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 164.50799999999998,
+                  "yPt": 86.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 220
+                },
+                {
+                  "glyphId": 432,
+                  "xPt": 167.42399999999998,
+                  "yPt": 86.016,
+                  "advancePt": 6.912,
+                  "clusterUtf16": 221
+                },
+                {
+                  "glyphId": 752,
+                  "xPt": 174.21599999999998,
+                  "yPt": 86.016,
+                  "advancePt": 0,
+                  "clusterUtf16": 221
+                },
+                {
+                  "glyphId": 739,
+                  "xPt": 174.21599999999998,
+                  "yPt": 86.56800000000001,
+                  "advancePt": 0,
+                  "clusterUtf16": 221
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 174.33599999999998,
+                  "yPt": 86.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 224
+                },
+                {
+                  "glyphId": 469,
+                  "xPt": 177.25199999999998,
+                  "yPt": 86.016,
+                  "advancePt": 7.392,
+                  "clusterUtf16": 225
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 184.64399999999998,
+                  "yPt": 86.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 226
+                },
+                {
+                  "glyphId": 480,
+                  "xPt": 190.46399999999997,
+                  "yPt": 86.016,
+                  "advancePt": 8.124,
+                  "clusterUtf16": 227
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 198.58799999999997,
+                  "yPt": 86.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 228
+                },
+                {
+                  "glyphId": 494,
+                  "xPt": 204.40799999999996,
+                  "yPt": 86.016,
+                  "advancePt": 4.68,
+                  "clusterUtf16": 229
+                },
+                {
+                  "glyphId": 460,
+                  "xPt": 209.08799999999997,
+                  "yPt": 86.016,
+                  "advancePt": 7.884,
+                  "clusterUtf16": 230
+                },
+                {
+                  "glyphId": 471,
+                  "xPt": 216.97199999999998,
+                  "yPt": 86.016,
+                  "advancePt": 6.864,
+                  "clusterUtf16": 231
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 223.83599999999998,
+                  "yPt": 86.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 232
+                },
+                {
+                  "glyphId": 92,
+                  "xPt": 226.75199999999998,
+                  "yPt": 86.016,
+                  "advancePt": 6.336,
+                  "clusterUtf16": 233
+                },
+                {
+                  "glyphId": 211,
+                  "xPt": 233.088,
+                  "yPt": 86.016,
+                  "advancePt": 6.168,
+                  "clusterUtf16": 234
+                },
+                {
+                  "glyphId": 369,
+                  "xPt": 239.256,
+                  "yPt": 86.016,
+                  "advancePt": 4.524,
+                  "clusterUtf16": 235
+                },
+                {
+                  "glyphId": 283,
+                  "xPt": 243.78,
+                  "yPt": 86.016,
+                  "advancePt": 2.94,
+                  "clusterUtf16": 236
+                },
+                {
+                  "glyphId": 314,
+                  "xPt": 246.72,
+                  "yPt": 86.016,
+                  "advancePt": 6.588,
+                  "clusterUtf16": 237
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 253.308,
+                  "yPt": 86.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 238
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 256.224,
+                  "yPt": 86.016,
+                  "advancePt": 6.5520000000000005,
+                  "clusterUtf16": 239
+                },
+                {
+                  "glyphId": 189,
+                  "xPt": 262.776,
+                  "yPt": 86.016,
+                  "advancePt": 6.6240000000000006,
+                  "clusterUtf16": 240
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 269.40000000000003,
+                  "yPt": 86.016,
+                  "advancePt": 6.432,
+                  "clusterUtf16": 241
+                },
+                {
+                  "glyphId": 158,
+                  "xPt": 275.83200000000005,
+                  "yPt": 86.016,
+                  "advancePt": 5.976,
+                  "clusterUtf16": 242
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 281.80800000000005,
+                  "yPt": 86.016,
+                  "advancePt": 7.152,
+                  "clusterUtf16": 243
+                },
+                {
+                  "glyphId": 141,
+                  "xPt": 288.96000000000004,
+                  "yPt": 86.016,
+                  "advancePt": 6.972,
+                  "clusterUtf16": 244
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 295.932,
+                  "yPt": 86.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 245
+                },
+                {
+                  "glyphId": 432,
+                  "xPt": 298.848,
+                  "yPt": 86.016,
+                  "advancePt": 6.912,
+                  "clusterUtf16": 246
+                },
+                {
+                  "glyphId": 752,
+                  "xPt": 305.64,
+                  "yPt": 86.016,
+                  "advancePt": 0,
+                  "clusterUtf16": 246
+                },
+                {
+                  "glyphId": 739,
+                  "xPt": 305.64,
+                  "yPt": 86.56800000000001,
+                  "advancePt": 0,
+                  "clusterUtf16": 246
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 305.76,
+                  "yPt": 86.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 249
+                },
+                {
+                  "glyphId": 469,
+                  "xPt": 308.676,
+                  "yPt": 86.016,
+                  "advancePt": 7.392,
+                  "clusterUtf16": 250
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 316.068,
+                  "yPt": 86.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 251
+                },
+                {
+                  "glyphId": 480,
+                  "xPt": 321.888,
+                  "yPt": 86.016,
+                  "advancePt": 8.124,
+                  "clusterUtf16": 252
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 330.012,
+                  "yPt": 86.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 253
+                },
+                {
+                  "glyphId": 494,
+                  "xPt": 335.832,
+                  "yPt": 86.016,
+                  "advancePt": 4.68,
+                  "clusterUtf16": 254
+                },
+                {
+                  "glyphId": 460,
+                  "xPt": 340.512,
+                  "yPt": 86.016,
+                  "advancePt": 7.884,
+                  "clusterUtf16": 255
+                },
+                {
+                  "glyphId": 471,
+                  "xPt": 348.396,
+                  "yPt": 86.016,
+                  "advancePt": 6.864,
+                  "clusterUtf16": 256
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 355.26,
+                  "yPt": 86.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 257
+                },
+                {
+                  "glyphId": 92,
+                  "xPt": 358.176,
+                  "yPt": 86.016,
+                  "advancePt": 6.336,
+                  "clusterUtf16": 258
+                },
+                {
+                  "glyphId": 211,
+                  "xPt": 364.512,
+                  "yPt": 86.016,
+                  "advancePt": 6.168,
+                  "clusterUtf16": 259
+                },
+                {
+                  "glyphId": 369,
+                  "xPt": 370.68,
+                  "yPt": 86.016,
+                  "advancePt": 4.524,
+                  "clusterUtf16": 260
+                },
+                {
+                  "glyphId": 283,
+                  "xPt": 375.204,
+                  "yPt": 86.016,
+                  "advancePt": 2.94,
+                  "clusterUtf16": 261
+                },
+                {
+                  "glyphId": 314,
+                  "xPt": 378.144,
+                  "yPt": 86.016,
+                  "advancePt": 6.588,
+                  "clusterUtf16": 262
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 384.732,
+                  "yPt": 86.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 263
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 387.648,
+                  "yPt": 86.016,
+                  "advancePt": 6.5520000000000005,
+                  "clusterUtf16": 264
+                },
+                {
+                  "glyphId": 189,
+                  "xPt": 394.20000000000005,
+                  "yPt": 86.016,
+                  "advancePt": 6.6240000000000006,
+                  "clusterUtf16": 265
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 400.82400000000007,
+                  "yPt": 86.016,
+                  "advancePt": 6.432,
+                  "clusterUtf16": 266
+                },
+                {
+                  "glyphId": 158,
+                  "xPt": 407.2560000000001,
+                  "yPt": 86.016,
+                  "advancePt": 5.976,
+                  "clusterUtf16": 267
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 413.2320000000001,
+                  "yPt": 86.016,
+                  "advancePt": 7.152,
+                  "clusterUtf16": 268
+                },
+                {
+                  "glyphId": 141,
+                  "xPt": 420.38400000000007,
+                  "yPt": 86.016,
+                  "advancePt": 6.972,
+                  "clusterUtf16": 269
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 427.35600000000005,
+                  "yPt": 86.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 270
+                },
+                {
+                  "glyphId": 432,
+                  "xPt": 430.27200000000005,
+                  "yPt": 86.016,
+                  "advancePt": 6.912,
+                  "clusterUtf16": 271
+                },
+                {
+                  "glyphId": 752,
+                  "xPt": 437.064,
+                  "yPt": 86.016,
+                  "advancePt": 0,
+                  "clusterUtf16": 271
+                },
+                {
+                  "glyphId": 739,
+                  "xPt": 437.064,
+                  "yPt": 86.56800000000001,
+                  "advancePt": 0,
+                  "clusterUtf16": 271
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 437.184,
+                  "yPt": 86.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 274
+                },
+                {
+                  "glyphId": 469,
+                  "xPt": 440.1,
+                  "yPt": 86.016,
+                  "advancePt": 7.392,
+                  "clusterUtf16": 275
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 447.492,
+                  "yPt": 86.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 276
+                },
+                {
+                  "glyphId": 480,
+                  "xPt": 453.312,
+                  "yPt": 86.016,
+                  "advancePt": 8.124,
+                  "clusterUtf16": 277
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 461.43600000000004,
+                  "yPt": 86.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 278
+                },
+                {
+                  "glyphId": 494,
+                  "xPt": 467.25600000000003,
+                  "yPt": 86.016,
+                  "advancePt": 4.68,
+                  "clusterUtf16": 279
+                },
+                {
+                  "glyphId": 460,
+                  "xPt": 471.93600000000004,
+                  "yPt": 86.016,
+                  "advancePt": 7.884,
+                  "clusterUtf16": 280
+                },
+                {
+                  "glyphId": 471,
+                  "xPt": 479.82000000000005,
+                  "yPt": 86.016,
+                  "advancePt": 6.864,
+                  "clusterUtf16": 281
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 486.684,
+                  "yPt": 86.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 282
+                },
+                {
+                  "glyphId": 92,
+                  "xPt": 489.6,
+                  "yPt": 86.016,
+                  "advancePt": 6.336,
+                  "clusterUtf16": 283
+                },
+                {
+                  "glyphId": 211,
+                  "xPt": 495.93600000000004,
+                  "yPt": 86.016,
+                  "advancePt": 6.168,
+                  "clusterUtf16": 284
+                },
+                {
+                  "glyphId": 369,
+                  "xPt": 502.10400000000004,
+                  "yPt": 86.016,
+                  "advancePt": 4.524,
+                  "clusterUtf16": 285
+                },
+                {
+                  "glyphId": 283,
+                  "xPt": 506.62800000000004,
+                  "yPt": 86.016,
+                  "advancePt": 2.94,
+                  "clusterUtf16": 286
+                },
+                {
+                  "glyphId": 314,
+                  "xPt": 509.56800000000004,
+                  "yPt": 86.016,
+                  "advancePt": 6.588,
+                  "clusterUtf16": 287
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 516.1560000000001,
+                  "yPt": 86.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 288
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 519.0720000000001,
+                  "yPt": 86.016,
+                  "advancePt": 6.5520000000000005,
+                  "clusterUtf16": 289
+                },
+                {
+                  "glyphId": 189,
+                  "xPt": 525.6240000000001,
+                  "yPt": 86.016,
+                  "advancePt": 6.6240000000000006,
+                  "clusterUtf16": 290
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 532.2480000000002,
+                  "yPt": 86.016,
+                  "advancePt": 6.432,
+                  "clusterUtf16": 291
+                },
+                {
+                  "glyphId": 158,
+                  "xPt": 538.6800000000002,
+                  "yPt": 86.016,
+                  "advancePt": 5.976,
+                  "clusterUtf16": 292
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 544.6560000000002,
+                  "yPt": 86.016,
+                  "advancePt": 7.152,
+                  "clusterUtf16": 293
+                },
+                {
+                  "glyphId": 141,
+                  "xPt": 551.8080000000002,
+                  "yPt": 86.016,
+                  "advancePt": 6.972,
+                  "clusterUtf16": 294
+                }
+              ]
+            },
+            {
+              "kind": "positioned-glyphs",
+              "pageIndex": 0,
+              "lineIndex": 3,
+              "text": " กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATA",
+              "sourceRange": {
+                "startUtf16": 295,
+                "endUtf16": 394
+              },
+              "xPt": 36,
+              "baselinePt": 104.016,
+              "advancePt": 518.724,
+              "fontId": "sarabun-regular",
+              "fontSizePt": 12,
+              "color": "000000",
+              "glyphs": [
+                {
+                  "glyphId": 3,
+                  "xPt": 36,
+                  "yPt": 104.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 295
+                },
+                {
+                  "glyphId": 432,
+                  "xPt": 38.916,
+                  "yPt": 104.016,
+                  "advancePt": 6.912,
+                  "clusterUtf16": 296
+                },
+                {
+                  "glyphId": 752,
+                  "xPt": 45.708,
+                  "yPt": 104.016,
+                  "advancePt": 0,
+                  "clusterUtf16": 296
+                },
+                {
+                  "glyphId": 739,
+                  "xPt": 45.708,
+                  "yPt": 104.56800000000001,
+                  "advancePt": 0,
+                  "clusterUtf16": 296
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 45.827999999999996,
+                  "yPt": 104.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 299
+                },
+                {
+                  "glyphId": 469,
+                  "xPt": 48.74399999999999,
+                  "yPt": 104.016,
+                  "advancePt": 7.392,
+                  "clusterUtf16": 300
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 56.135999999999996,
+                  "yPt": 104.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 301
+                },
+                {
+                  "glyphId": 480,
+                  "xPt": 61.955999999999996,
+                  "yPt": 104.016,
+                  "advancePt": 8.124,
+                  "clusterUtf16": 302
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 70.08,
+                  "yPt": 104.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 303
+                },
+                {
+                  "glyphId": 494,
+                  "xPt": 75.9,
+                  "yPt": 104.016,
+                  "advancePt": 4.68,
+                  "clusterUtf16": 304
+                },
+                {
+                  "glyphId": 460,
+                  "xPt": 80.58000000000001,
+                  "yPt": 104.016,
+                  "advancePt": 7.884,
+                  "clusterUtf16": 305
+                },
+                {
+                  "glyphId": 471,
+                  "xPt": 88.46400000000001,
+                  "yPt": 104.016,
+                  "advancePt": 6.864,
+                  "clusterUtf16": 306
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 95.32800000000002,
+                  "yPt": 104.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 307
+                },
+                {
+                  "glyphId": 92,
+                  "xPt": 98.24400000000001,
+                  "yPt": 104.016,
+                  "advancePt": 6.336,
+                  "clusterUtf16": 308
+                },
+                {
+                  "glyphId": 211,
+                  "xPt": 104.58000000000001,
+                  "yPt": 104.016,
+                  "advancePt": 6.168,
+                  "clusterUtf16": 309
+                },
+                {
+                  "glyphId": 369,
+                  "xPt": 110.74800000000002,
+                  "yPt": 104.016,
+                  "advancePt": 4.524,
+                  "clusterUtf16": 310
+                },
+                {
+                  "glyphId": 283,
+                  "xPt": 115.27200000000002,
+                  "yPt": 104.016,
+                  "advancePt": 2.94,
+                  "clusterUtf16": 311
+                },
+                {
+                  "glyphId": 314,
+                  "xPt": 118.21200000000002,
+                  "yPt": 104.016,
+                  "advancePt": 6.588,
+                  "clusterUtf16": 312
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 124.80000000000001,
+                  "yPt": 104.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 313
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 127.71600000000001,
+                  "yPt": 104.016,
+                  "advancePt": 6.5520000000000005,
+                  "clusterUtf16": 314
+                },
+                {
+                  "glyphId": 189,
+                  "xPt": 134.268,
+                  "yPt": 104.016,
+                  "advancePt": 6.6240000000000006,
+                  "clusterUtf16": 315
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 140.892,
+                  "yPt": 104.016,
+                  "advancePt": 6.432,
+                  "clusterUtf16": 316
+                },
+                {
+                  "glyphId": 158,
+                  "xPt": 147.32399999999998,
+                  "yPt": 104.016,
+                  "advancePt": 5.976,
+                  "clusterUtf16": 317
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 153.29999999999998,
+                  "yPt": 104.016,
+                  "advancePt": 7.152,
+                  "clusterUtf16": 318
+                },
+                {
+                  "glyphId": 141,
+                  "xPt": 160.45199999999997,
+                  "yPt": 104.016,
+                  "advancePt": 6.972,
+                  "clusterUtf16": 319
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 167.42399999999998,
+                  "yPt": 104.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 320
+                },
+                {
+                  "glyphId": 432,
+                  "xPt": 170.33999999999997,
+                  "yPt": 104.016,
+                  "advancePt": 6.912,
+                  "clusterUtf16": 321
+                },
+                {
+                  "glyphId": 752,
+                  "xPt": 177.13199999999998,
+                  "yPt": 104.016,
+                  "advancePt": 0,
+                  "clusterUtf16": 321
+                },
+                {
+                  "glyphId": 739,
+                  "xPt": 177.13199999999998,
+                  "yPt": 104.56800000000001,
+                  "advancePt": 0,
+                  "clusterUtf16": 321
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 177.25199999999998,
+                  "yPt": 104.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 324
+                },
+                {
+                  "glyphId": 469,
+                  "xPt": 180.16799999999998,
+                  "yPt": 104.016,
+                  "advancePt": 7.392,
+                  "clusterUtf16": 325
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 187.55999999999997,
+                  "yPt": 104.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 326
+                },
+                {
+                  "glyphId": 480,
+                  "xPt": 193.37999999999997,
+                  "yPt": 104.016,
+                  "advancePt": 8.124,
+                  "clusterUtf16": 327
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 201.50399999999996,
+                  "yPt": 104.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 328
+                },
+                {
+                  "glyphId": 494,
+                  "xPt": 207.32399999999996,
+                  "yPt": 104.016,
+                  "advancePt": 4.68,
+                  "clusterUtf16": 329
+                },
+                {
+                  "glyphId": 460,
+                  "xPt": 212.00399999999996,
+                  "yPt": 104.016,
+                  "advancePt": 7.884,
+                  "clusterUtf16": 330
+                },
+                {
+                  "glyphId": 471,
+                  "xPt": 219.88799999999998,
+                  "yPt": 104.016,
+                  "advancePt": 6.864,
+                  "clusterUtf16": 331
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 226.75199999999998,
+                  "yPt": 104.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 332
+                },
+                {
+                  "glyphId": 92,
+                  "xPt": 229.66799999999998,
+                  "yPt": 104.016,
+                  "advancePt": 6.336,
+                  "clusterUtf16": 333
+                },
+                {
+                  "glyphId": 211,
+                  "xPt": 236.004,
+                  "yPt": 104.016,
+                  "advancePt": 6.168,
+                  "clusterUtf16": 334
+                },
+                {
+                  "glyphId": 369,
+                  "xPt": 242.172,
+                  "yPt": 104.016,
+                  "advancePt": 4.524,
+                  "clusterUtf16": 335
+                },
+                {
+                  "glyphId": 283,
+                  "xPt": 246.696,
+                  "yPt": 104.016,
+                  "advancePt": 2.94,
+                  "clusterUtf16": 336
+                },
+                {
+                  "glyphId": 314,
+                  "xPt": 249.636,
+                  "yPt": 104.016,
+                  "advancePt": 6.588,
+                  "clusterUtf16": 337
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 256.224,
+                  "yPt": 104.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 338
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 259.14,
+                  "yPt": 104.016,
+                  "advancePt": 6.5520000000000005,
+                  "clusterUtf16": 339
+                },
+                {
+                  "glyphId": 189,
+                  "xPt": 265.692,
+                  "yPt": 104.016,
+                  "advancePt": 6.6240000000000006,
+                  "clusterUtf16": 340
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 272.31600000000003,
+                  "yPt": 104.016,
+                  "advancePt": 6.432,
+                  "clusterUtf16": 341
+                },
+                {
+                  "glyphId": 158,
+                  "xPt": 278.74800000000005,
+                  "yPt": 104.016,
+                  "advancePt": 5.976,
+                  "clusterUtf16": 342
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 284.72400000000005,
+                  "yPt": 104.016,
+                  "advancePt": 7.152,
+                  "clusterUtf16": 343
+                },
+                {
+                  "glyphId": 141,
+                  "xPt": 291.87600000000003,
+                  "yPt": 104.016,
+                  "advancePt": 6.972,
+                  "clusterUtf16": 344
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 298.848,
+                  "yPt": 104.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 345
+                },
+                {
+                  "glyphId": 432,
+                  "xPt": 301.764,
+                  "yPt": 104.016,
+                  "advancePt": 6.912,
+                  "clusterUtf16": 346
+                },
+                {
+                  "glyphId": 752,
+                  "xPt": 308.556,
+                  "yPt": 104.016,
+                  "advancePt": 0,
+                  "clusterUtf16": 346
+                },
+                {
+                  "glyphId": 739,
+                  "xPt": 308.556,
+                  "yPt": 104.56800000000001,
+                  "advancePt": 0,
+                  "clusterUtf16": 346
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 308.676,
+                  "yPt": 104.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 349
+                },
+                {
+                  "glyphId": 469,
+                  "xPt": 311.592,
+                  "yPt": 104.016,
+                  "advancePt": 7.392,
+                  "clusterUtf16": 350
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 318.984,
+                  "yPt": 104.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 351
+                },
+                {
+                  "glyphId": 480,
+                  "xPt": 324.804,
+                  "yPt": 104.016,
+                  "advancePt": 8.124,
+                  "clusterUtf16": 352
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 332.928,
+                  "yPt": 104.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 353
+                },
+                {
+                  "glyphId": 494,
+                  "xPt": 338.748,
+                  "yPt": 104.016,
+                  "advancePt": 4.68,
+                  "clusterUtf16": 354
+                },
+                {
+                  "glyphId": 460,
+                  "xPt": 343.428,
+                  "yPt": 104.016,
+                  "advancePt": 7.884,
+                  "clusterUtf16": 355
+                },
+                {
+                  "glyphId": 471,
+                  "xPt": 351.312,
+                  "yPt": 104.016,
+                  "advancePt": 6.864,
+                  "clusterUtf16": 356
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 358.176,
+                  "yPt": 104.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 357
+                },
+                {
+                  "glyphId": 92,
+                  "xPt": 361.092,
+                  "yPt": 104.016,
+                  "advancePt": 6.336,
+                  "clusterUtf16": 358
+                },
+                {
+                  "glyphId": 211,
+                  "xPt": 367.428,
+                  "yPt": 104.016,
+                  "advancePt": 6.168,
+                  "clusterUtf16": 359
+                },
+                {
+                  "glyphId": 369,
+                  "xPt": 373.596,
+                  "yPt": 104.016,
+                  "advancePt": 4.524,
+                  "clusterUtf16": 360
+                },
+                {
+                  "glyphId": 283,
+                  "xPt": 378.12,
+                  "yPt": 104.016,
+                  "advancePt": 2.94,
+                  "clusterUtf16": 361
+                },
+                {
+                  "glyphId": 314,
+                  "xPt": 381.06,
+                  "yPt": 104.016,
+                  "advancePt": 6.588,
+                  "clusterUtf16": 362
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 387.648,
+                  "yPt": 104.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 363
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 390.564,
+                  "yPt": 104.016,
+                  "advancePt": 6.5520000000000005,
+                  "clusterUtf16": 364
+                },
+                {
+                  "glyphId": 189,
+                  "xPt": 397.11600000000004,
+                  "yPt": 104.016,
+                  "advancePt": 6.6240000000000006,
+                  "clusterUtf16": 365
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 403.74000000000007,
+                  "yPt": 104.016,
+                  "advancePt": 6.432,
+                  "clusterUtf16": 366
+                },
+                {
+                  "glyphId": 158,
+                  "xPt": 410.1720000000001,
+                  "yPt": 104.016,
+                  "advancePt": 5.976,
+                  "clusterUtf16": 367
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 416.1480000000001,
+                  "yPt": 104.016,
+                  "advancePt": 7.152,
+                  "clusterUtf16": 368
+                },
+                {
+                  "glyphId": 141,
+                  "xPt": 423.30000000000007,
+                  "yPt": 104.016,
+                  "advancePt": 6.972,
+                  "clusterUtf16": 369
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 430.27200000000005,
+                  "yPt": 104.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 370
+                },
+                {
+                  "glyphId": 432,
+                  "xPt": 433.18800000000005,
+                  "yPt": 104.016,
+                  "advancePt": 6.912,
+                  "clusterUtf16": 371
+                },
+                {
+                  "glyphId": 752,
+                  "xPt": 439.98,
+                  "yPt": 104.016,
+                  "advancePt": 0,
+                  "clusterUtf16": 371
+                },
+                {
+                  "glyphId": 739,
+                  "xPt": 439.98,
+                  "yPt": 104.56800000000001,
+                  "advancePt": 0,
+                  "clusterUtf16": 371
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 440.1,
+                  "yPt": 104.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 374
+                },
+                {
+                  "glyphId": 469,
+                  "xPt": 443.016,
+                  "yPt": 104.016,
+                  "advancePt": 7.392,
+                  "clusterUtf16": 375
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 450.408,
+                  "yPt": 104.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 376
+                },
+                {
+                  "glyphId": 480,
+                  "xPt": 456.228,
+                  "yPt": 104.016,
+                  "advancePt": 8.124,
+                  "clusterUtf16": 377
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 464.35200000000003,
+                  "yPt": 104.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 378
+                },
+                {
+                  "glyphId": 494,
+                  "xPt": 470.172,
+                  "yPt": 104.016,
+                  "advancePt": 4.68,
+                  "clusterUtf16": 379
+                },
+                {
+                  "glyphId": 460,
+                  "xPt": 474.85200000000003,
+                  "yPt": 104.016,
+                  "advancePt": 7.884,
+                  "clusterUtf16": 380
+                },
+                {
+                  "glyphId": 471,
+                  "xPt": 482.73600000000005,
+                  "yPt": 104.016,
+                  "advancePt": 6.864,
+                  "clusterUtf16": 381
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 489.6,
+                  "yPt": 104.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 382
+                },
+                {
+                  "glyphId": 92,
+                  "xPt": 492.516,
+                  "yPt": 104.016,
+                  "advancePt": 6.336,
+                  "clusterUtf16": 383
+                },
+                {
+                  "glyphId": 211,
+                  "xPt": 498.85200000000003,
+                  "yPt": 104.016,
+                  "advancePt": 6.168,
+                  "clusterUtf16": 384
+                },
+                {
+                  "glyphId": 369,
+                  "xPt": 505.02000000000004,
+                  "yPt": 104.016,
+                  "advancePt": 4.524,
+                  "clusterUtf16": 385
+                },
+                {
+                  "glyphId": 283,
+                  "xPt": 509.54400000000004,
+                  "yPt": 104.016,
+                  "advancePt": 2.94,
+                  "clusterUtf16": 386
+                },
+                {
+                  "glyphId": 314,
+                  "xPt": 512.484,
+                  "yPt": 104.016,
+                  "advancePt": 6.588,
+                  "clusterUtf16": 387
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 519.072,
+                  "yPt": 104.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 388
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 521.988,
+                  "yPt": 104.016,
+                  "advancePt": 6.5520000000000005,
+                  "clusterUtf16": 389
+                },
+                {
+                  "glyphId": 189,
+                  "xPt": 528.5400000000001,
+                  "yPt": 104.016,
+                  "advancePt": 6.6240000000000006,
+                  "clusterUtf16": 390
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 535.1640000000001,
+                  "yPt": 104.016,
+                  "advancePt": 6.432,
+                  "clusterUtf16": 391
+                },
+                {
+                  "glyphId": 158,
+                  "xPt": 541.5960000000001,
+                  "yPt": 104.016,
+                  "advancePt": 5.976,
+                  "clusterUtf16": 392
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 547.5720000000001,
+                  "yPt": 104.016,
+                  "advancePt": 7.152,
+                  "clusterUtf16": 393
+                }
+              ]
+            },
+            {
+              "kind": "positioned-glyphs",
+              "pageIndex": 0,
+              "lineIndex": 4,
+              "text": "R กิ้ ภาษาไทย Latin AVATAR กิ้ ภาษาไทย Latin AVATAR กิ้ ",
+              "sourceRange": {
+                "startUtf16": 394,
+                "endUtf16": 450
+              },
+              "xPt": 36,
+              "baselinePt": 122.016,
+              "advancePt": 282.5639999999999,
+              "fontId": "sarabun-regular",
+              "fontSizePt": 12,
+              "color": "000000",
+              "glyphs": [
+                {
+                  "glyphId": 141,
+                  "xPt": 36,
+                  "yPt": 122.016,
+                  "advancePt": 6.972,
+                  "clusterUtf16": 394
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 42.972,
+                  "yPt": 122.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 395
+                },
+                {
+                  "glyphId": 432,
+                  "xPt": 45.888,
+                  "yPt": 122.016,
+                  "advancePt": 6.912,
+                  "clusterUtf16": 396
+                },
+                {
+                  "glyphId": 752,
+                  "xPt": 52.68,
+                  "yPt": 122.016,
+                  "advancePt": 0,
+                  "clusterUtf16": 396
+                },
+                {
+                  "glyphId": 739,
+                  "xPt": 52.68,
+                  "yPt": 122.56800000000001,
+                  "advancePt": 0,
+                  "clusterUtf16": 396
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 52.8,
+                  "yPt": 122.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 399
+                },
+                {
+                  "glyphId": 469,
+                  "xPt": 55.715999999999994,
+                  "yPt": 122.016,
+                  "advancePt": 7.392,
+                  "clusterUtf16": 400
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 63.108,
+                  "yPt": 122.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 401
+                },
+                {
+                  "glyphId": 480,
+                  "xPt": 68.928,
+                  "yPt": 122.016,
+                  "advancePt": 8.124,
+                  "clusterUtf16": 402
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 77.05199999999999,
+                  "yPt": 122.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 403
+                },
+                {
+                  "glyphId": 494,
+                  "xPt": 82.87199999999999,
+                  "yPt": 122.016,
+                  "advancePt": 4.68,
+                  "clusterUtf16": 404
+                },
+                {
+                  "glyphId": 460,
+                  "xPt": 87.55199999999999,
+                  "yPt": 122.016,
+                  "advancePt": 7.884,
+                  "clusterUtf16": 405
+                },
+                {
+                  "glyphId": 471,
+                  "xPt": 95.43599999999999,
+                  "yPt": 122.016,
+                  "advancePt": 6.864,
+                  "clusterUtf16": 406
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 102.3,
+                  "yPt": 122.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 407
+                },
+                {
+                  "glyphId": 92,
+                  "xPt": 105.216,
+                  "yPt": 122.016,
+                  "advancePt": 6.336,
+                  "clusterUtf16": 408
+                },
+                {
+                  "glyphId": 211,
+                  "xPt": 111.55199999999999,
+                  "yPt": 122.016,
+                  "advancePt": 6.168,
+                  "clusterUtf16": 409
+                },
+                {
+                  "glyphId": 369,
+                  "xPt": 117.72,
+                  "yPt": 122.016,
+                  "advancePt": 4.524,
+                  "clusterUtf16": 410
+                },
+                {
+                  "glyphId": 283,
+                  "xPt": 122.244,
+                  "yPt": 122.016,
+                  "advancePt": 2.94,
+                  "clusterUtf16": 411
+                },
+                {
+                  "glyphId": 314,
+                  "xPt": 125.184,
+                  "yPt": 122.016,
+                  "advancePt": 6.588,
+                  "clusterUtf16": 412
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 131.772,
+                  "yPt": 122.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 413
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 134.688,
+                  "yPt": 122.016,
+                  "advancePt": 6.5520000000000005,
+                  "clusterUtf16": 414
+                },
+                {
+                  "glyphId": 189,
+                  "xPt": 141.23999999999998,
+                  "yPt": 122.016,
+                  "advancePt": 6.6240000000000006,
+                  "clusterUtf16": 415
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 147.86399999999998,
+                  "yPt": 122.016,
+                  "advancePt": 6.432,
+                  "clusterUtf16": 416
+                },
+                {
+                  "glyphId": 158,
+                  "xPt": 154.29599999999996,
+                  "yPt": 122.016,
+                  "advancePt": 5.976,
+                  "clusterUtf16": 417
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 160.27199999999996,
+                  "yPt": 122.016,
+                  "advancePt": 7.152,
+                  "clusterUtf16": 418
+                },
+                {
+                  "glyphId": 141,
+                  "xPt": 167.42399999999995,
+                  "yPt": 122.016,
+                  "advancePt": 6.972,
+                  "clusterUtf16": 419
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 174.39599999999996,
+                  "yPt": 122.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 420
+                },
+                {
+                  "glyphId": 432,
+                  "xPt": 177.31199999999995,
+                  "yPt": 122.016,
+                  "advancePt": 6.912,
+                  "clusterUtf16": 421
+                },
+                {
+                  "glyphId": 752,
+                  "xPt": 184.10399999999996,
+                  "yPt": 122.016,
+                  "advancePt": 0,
+                  "clusterUtf16": 421
+                },
+                {
+                  "glyphId": 739,
+                  "xPt": 184.10399999999996,
+                  "yPt": 122.56800000000001,
+                  "advancePt": 0,
+                  "clusterUtf16": 421
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 184.22399999999996,
+                  "yPt": 122.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 424
+                },
+                {
+                  "glyphId": 469,
+                  "xPt": 187.13999999999996,
+                  "yPt": 122.016,
+                  "advancePt": 7.392,
+                  "clusterUtf16": 425
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 194.53199999999995,
+                  "yPt": 122.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 426
+                },
+                {
+                  "glyphId": 480,
+                  "xPt": 200.35199999999995,
+                  "yPt": 122.016,
+                  "advancePt": 8.124,
+                  "clusterUtf16": 427
+                },
+                {
+                  "glyphId": 488,
+                  "xPt": 208.47599999999994,
+                  "yPt": 122.016,
+                  "advancePt": 5.82,
+                  "clusterUtf16": 428
+                },
+                {
+                  "glyphId": 494,
+                  "xPt": 214.29599999999994,
+                  "yPt": 122.016,
+                  "advancePt": 4.68,
+                  "clusterUtf16": 429
+                },
+                {
+                  "glyphId": 460,
+                  "xPt": 218.97599999999994,
+                  "yPt": 122.016,
+                  "advancePt": 7.884,
+                  "clusterUtf16": 430
+                },
+                {
+                  "glyphId": 471,
+                  "xPt": 226.85999999999996,
+                  "yPt": 122.016,
+                  "advancePt": 6.864,
+                  "clusterUtf16": 431
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 233.72399999999996,
+                  "yPt": 122.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 432
+                },
+                {
+                  "glyphId": 92,
+                  "xPt": 236.63999999999996,
+                  "yPt": 122.016,
+                  "advancePt": 6.336,
+                  "clusterUtf16": 433
+                },
+                {
+                  "glyphId": 211,
+                  "xPt": 242.97599999999997,
+                  "yPt": 122.016,
+                  "advancePt": 6.168,
+                  "clusterUtf16": 434
+                },
+                {
+                  "glyphId": 369,
+                  "xPt": 249.14399999999998,
+                  "yPt": 122.016,
+                  "advancePt": 4.524,
+                  "clusterUtf16": 435
+                },
+                {
+                  "glyphId": 283,
+                  "xPt": 253.66799999999998,
+                  "yPt": 122.016,
+                  "advancePt": 2.94,
+                  "clusterUtf16": 436
+                },
+                {
+                  "glyphId": 314,
+                  "xPt": 256.608,
+                  "yPt": 122.016,
+                  "advancePt": 6.588,
+                  "clusterUtf16": 437
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 263.196,
+                  "yPt": 122.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 438
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 266.112,
+                  "yPt": 122.016,
+                  "advancePt": 6.5520000000000005,
+                  "clusterUtf16": 439
+                },
+                {
+                  "glyphId": 189,
+                  "xPt": 272.66400000000004,
+                  "yPt": 122.016,
+                  "advancePt": 6.6240000000000006,
+                  "clusterUtf16": 440
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 279.28800000000007,
+                  "yPt": 122.016,
+                  "advancePt": 6.432,
+                  "clusterUtf16": 441
+                },
+                {
+                  "glyphId": 158,
+                  "xPt": 285.7200000000001,
+                  "yPt": 122.016,
+                  "advancePt": 5.976,
+                  "clusterUtf16": 442
+                },
+                {
+                  "glyphId": 4,
+                  "xPt": 291.6960000000001,
+                  "yPt": 122.016,
+                  "advancePt": 7.152,
+                  "clusterUtf16": 443
+                },
+                {
+                  "glyphId": 141,
+                  "xPt": 298.84800000000007,
+                  "yPt": 122.016,
+                  "advancePt": 6.972,
+                  "clusterUtf16": 444
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 305.82000000000005,
+                  "yPt": 122.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 445
+                },
+                {
+                  "glyphId": 432,
+                  "xPt": 308.73600000000005,
+                  "yPt": 122.016,
+                  "advancePt": 6.912,
+                  "clusterUtf16": 446
+                },
+                {
+                  "glyphId": 752,
+                  "xPt": 315.528,
+                  "yPt": 122.016,
+                  "advancePt": 0,
+                  "clusterUtf16": 446
+                },
+                {
+                  "glyphId": 739,
+                  "xPt": 315.528,
+                  "yPt": 122.56800000000001,
+                  "advancePt": 0,
+                  "clusterUtf16": 446
+                },
+                {
+                  "glyphId": 3,
+                  "xPt": 315.648,
+                  "yPt": 122.016,
+                  "advancePt": 2.916,
+                  "clusterUtf16": 449
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "text": "",
+      "pages": [
+        {
+          "index": 0,
+          "widthPt": 595.2755905511812,
+          "heightPt": 841.8897637795276,
+          "paintCommands": []
+        }
+      ]
+    }
+  ]
+}

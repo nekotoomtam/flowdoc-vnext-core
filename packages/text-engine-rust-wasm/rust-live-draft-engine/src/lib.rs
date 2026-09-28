@@ -1,6 +1,6 @@
 use icu_segmenter::LineSegmenter;
 // Private Stage 3 QA ABI; absent from all default/product builds.
-#[cfg(feature = "cold-session-qa")]
+#[cfg(any(feature = "cold-session-qa", feature = "product-session"))]
 mod cold_session;
 use wasm_bindgen::prelude::{wasm_bindgen, JsValue};
 

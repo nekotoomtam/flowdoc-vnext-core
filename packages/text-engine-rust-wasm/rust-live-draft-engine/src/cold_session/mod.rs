@@ -29,48 +29,59 @@ thread_local! { static SESSIONS: RefCell<Runtime> = RefCell::new(Runtime::defaul
 
 // These symbols exist only in the opt-in QA WASM build. There is no inspection
 // or snapshot export. The default/package entrypoints remain unchanged.
+#[cfg(any(feature = "cold-session-qa", test))]
 #[wasm_bindgen]
 pub fn stage3_create(input: &str) -> String {
     SESSIONS.with(|s| s.borrow_mut().create(input))
 }
+#[cfg(any(feature = "cold-session-qa", test))]
 #[wasm_bindgen]
 pub fn stage3_dispose(receipt: &str) -> String {
     SESSIONS.with(|s| structural::dispose(&mut s.borrow_mut(),receipt))
 }
+#[cfg(any(feature = "cold-session-qa", test))]
 #[wasm_bindgen]
 pub fn stage4_apply(input: &str) -> String {
     SESSIONS.with(|s| s.borrow_mut().apply(input))
 }
+#[cfg(any(feature = "cold-session-qa", test))]
 #[wasm_bindgen]
 pub fn stage7_apply(input: &str, control: &str) -> String {
     SESSIONS.with(|s| commands::apply_controlled(&mut s.borrow_mut(), input, control))
 }
+#[cfg(any(feature = "cold-session-qa", test))]
 #[wasm_bindgen]
 pub fn stage4_arm_fault(input: &str) -> String {
     SESSIONS.with(|s| faults::arm(&mut s.borrow_mut(), input))
 }
+#[cfg(any(feature = "cold-session-qa", test))]
 #[wasm_bindgen]
 pub fn stage3_live_count() -> u32 {
     SESSIONS.with(|s| s.borrow().live_count() as u32)
 }
+#[cfg(any(feature = "cold-session-qa", test))]
 #[wasm_bindgen]
 pub fn stage6_maintain(input: &str) -> String {
     SESSIONS.with(|s| maintenance::apply(&mut s.borrow_mut(), input))
 }
+#[cfg(any(feature = "cold-session-qa", test))]
 #[wasm_bindgen]
 pub fn stage7_maintain(input: &str, control: &str) -> String {
     SESSIONS.with(|s| maintenance::apply_controlled(&mut s.borrow_mut(), input, control))
 }
 // Primitive-only meter controls: no strings or output allocations of their own.
 // These expose counters, never session state or provider facts.
+#[cfg(any(feature = "cold-session-qa", test))]
 #[wasm_bindgen]
 pub fn stage3_begin_transfer() {
     ledger::begin_transfer();
 }
+#[cfg(any(feature = "cold-session-qa", test))]
 #[wasm_bindgen]
 pub fn stage3_end_transfer() {
     ledger::end_transfer();
 }
+#[cfg(any(feature = "cold-session-qa", test))]
 #[wasm_bindgen]
 pub fn stage3_allocation_count(field: u32) -> u64 {
     ledger::allocation_count(field)
@@ -87,10 +98,12 @@ mod footprint_tests;
 #[cfg(test)]
 mod tests;
 
+#[cfg(any(feature = "cold-session-qa", test))]
 #[wasm_bindgen]
 pub fn stage5_apply(input: &str) -> String {
     SESSIONS.with(|s| structural::apply(&mut s.borrow_mut(),input))
 }
+#[cfg(any(feature = "cold-session-qa", test))]
 #[wasm_bindgen]
 pub fn stage7_structural(input: &str, control: &str) -> String {
     SESSIONS.with(|s| structural::apply_controlled(&mut s.borrow_mut(),input,control))
@@ -99,10 +112,15 @@ pub fn stage7_structural(input: &str, control: &str) -> String {
 #[cfg(test)]
 mod structural_tests;
 
+#[cfg(any(feature = "cold-session-qa", test))]
 mod qa_compare;
+#[cfg(any(feature = "cold-session-qa", test))]
 #[wasm_bindgen]
 pub fn stage5_verify(receipt: &str, expected_input: &str) -> String {
     SESSIONS.with(|s|qa_compare::verify(&s.borrow(),receipt,expected_input))
 }
 
 mod analysis_transition;
+
+#[cfg(feature = "product-session")]
+mod product;

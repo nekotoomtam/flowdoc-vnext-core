@@ -364,6 +364,22 @@ impl Source {
             bytes: delta.byte(self.bytes),
         }))
     }
+    // Product frame/fallback projection is explicitly a complete materialization.
+    // Keep it separate from bounded command windows and charge every copied piece.
+    pub fn materialize_product(&self, w: &mut TreeWork) -> String {
+        let mut text = String::with_capacity(self.bytes);
+        for index in 0..self.pieces.len {
+            let p = self.pieces.at(index, w).unwrap().materialize(w);
+            let a = p.offsets[p.offset_start];
+            let b = p.offsets[p.offset_start + p.end - p.start];
+            text.push_str(&p.text[a..b]);
+            w.source_copy_calls += 1;
+            w.source_copy_bytes += (b - a) as u64;
+            w.source_copied_utf16 += (p.end - p.start) as u64;
+            w.source_offset_lookups += 2;
+        }
+        text
+    }
     // Used only by the private independent cold QA comparator, never commands.
     pub fn qa_text(&self) -> String {
         let mut text = String::new();

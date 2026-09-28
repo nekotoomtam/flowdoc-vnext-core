@@ -1,0 +1,15 @@
+{
+  "name": "flowdoc-live-draft-text-engine",
+  "type": "module",
+  "version": "0.0.0",
+  "files": [
+    "flowdoc_product_session_bg.wasm",
+    "flowdoc_product_session.js",
+    "flowdoc_product_session.d.ts"
+  ],
+  "main": "flowdoc_product_session.js",
+  "types": "flowdoc_product_session.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

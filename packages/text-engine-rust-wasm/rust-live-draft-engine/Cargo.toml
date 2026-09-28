@@ -30,3 +30,4 @@ unicode-script = { version = "=0.5.8", optional = true }
 [features]
 default = []
 cold-session-qa = ["dep:serde", "dep:serde_json", "dep:sha2", "dep:getrandom", "dep:unicode-script"]
+product-session = ["dep:serde", "dep:serde_json", "dep:sha2", "dep:getrandom", "dep:unicode-script"]

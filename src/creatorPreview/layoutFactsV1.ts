@@ -34,7 +34,7 @@ function shapeClusters(text: string, provider: VNextCreatorPreviewRawMeasurement
   requireFact(clusters[0].start === offset, "unsupported-shaping", "Shaping did not cover the entire text")
   return clusters
 }
-function prepareSoftWrappedLinesV1(parts: { text: string; inlineIndex: number }[], provider: VNextCreatorPreviewRawMeasurementProviderV1, paragraphOffset: number): CreatorPreviewClusterV1[][] {
+export function prepareSoftWrappedLinesV1(parts: { text: string; inlineIndex: number }[], provider: VNextCreatorPreviewRawMeasurementProviderV1, paragraphOffset: number): CreatorPreviewClusterV1[][] {
   const text = parts.map(part => part.text).join("")
   const boundaries: number[] = []
   let boundary = paragraphOffset

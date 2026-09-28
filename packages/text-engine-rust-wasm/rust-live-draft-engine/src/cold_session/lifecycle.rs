@@ -6,7 +6,7 @@ use super::{
     ledger::Work,
 };
 use std::{cell::RefCell, rc::Rc};
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub(super) struct Lifecycle {
     pub cold_id: String,
     pub cold: Work,

@@ -7,6 +7,7 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
+    "./product-session": "./src/productSessionV1.ts",
     "./creator-glyph-outlines": "./assets/creator-sarabun-outlines.v1.json",
     "./creator-glyph-outlines-manifest": "./assets/creator-sarabun-outlines.manifest.v1.json",
     "./creator-text-preview": "./src/creatorTextPreviewRuntimeV1.ts",
@@ -22,6 +23,7 @@
     "./worker-mr1-range": "./src/workerMr1Range.ts"
   },
   "scripts": {
+    "wasm:build:product-session": "wasm-pack build rust-live-draft-engine --target web --out-dir ../pkg-product-session --out-name flowdoc_product_session -- --features product-session",
     "rustybuzz:smoke": "cargo run --manifest-path rust-shaper/Cargo.toml -- ../../assets/fonts/Sarabun/Sarabun-Regular.ttf \"สวัสดีครับตูม\" sarabun-regular",
     "rustybuzz:build": "cargo build --manifest-path rust-shaper/Cargo.toml",
     "pdf-font-bakeoff": "node scripts/build-pdf-font-bakeoff.mjs",
