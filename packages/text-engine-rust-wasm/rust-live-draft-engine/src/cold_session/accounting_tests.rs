@@ -104,8 +104,8 @@ fn cumulative_red_publication_retirement_is_included_before_allocation_free_fina
         result["affectedSummary"]["work"]["responseEncodedBytes"],
         probe.serde_output_lengths.iter().sum::<usize>()
     );
-    assert_eq!(probe.slot_writes, 184);
-    assert_eq!(probe.slot_bytes, 4784);
+    assert_eq!(probe.slot_writes, 190);
+    assert_eq!(probe.slot_bytes, 4940);
     assert_eq!(
         result["affectedSummary"]["work"]["responseScalarSlotWrites"],
         probe.slot_writes
@@ -234,6 +234,9 @@ fn cumulative_red_every_meter_field_has_an_explicit_additive_classification() {
         "abiInputBytes",
         "responseValuePasses",
         "commandParseCalls",
+        "commandAuthLookups",
+        "commandAuthReceiptBytes",
+        "commandRevisionChecks",
         "seamSearchGlyphs",
         "seamSearchWindows",
         "faultSlotProbes",
@@ -488,14 +491,14 @@ fn cumulative_late_headroom_and_known_overflow_reject_without_publication_then_r
             rejected["affectedSummary"]["work"]["responseEncodedBytes"],
             probe.serde_output_lengths.iter().sum::<usize>()
         );
-        assert_eq!((probe.slot_writes, probe.slot_bytes), (184, 4784));
+        assert_eq!((probe.slot_writes, probe.slot_bytes), (190, 4940));
         assert_eq!(
             rejected["affectedSummary"]["work"]["responseScalarSlotWrites"],
-            184
+            190
         );
         assert_eq!(
             rejected["affectedSummary"]["work"]["responseScalarSlotBytes"],
-            4784
+            4940
         );
         assert_eq!(rejected["affectedSummary"]["work"]["faultsCleared"], 0);
         assert!(!PUBLICATION_PROBE.with(std::cell::Cell::get).observed);
@@ -538,9 +541,9 @@ fn cumulative_scalar_writes_are_exact_for_known_and_unknown_rejections() {
         "endOffset":2,"replacementText":"C","anchorSpanId":"span-1","composition":"committed"})
     .to_string();
     for (input, calls, bytes) in [
-        (known.as_str(), 184, 4784),
-        ("{}", 92, 1840),
-        ("{", 92, 1840),
+        (known.as_str(), 190, 4940),
+        ("{}", 95, 1900),
+        ("{", 95, 1900),
     ] {
         let wire = rt.apply(input);
         let result: Value = serde_json::from_str(&wire).unwrap();

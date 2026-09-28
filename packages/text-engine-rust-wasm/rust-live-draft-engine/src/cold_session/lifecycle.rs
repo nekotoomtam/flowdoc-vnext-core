@@ -16,6 +16,7 @@ pub(super) struct Lifecycle {
     pub attempts: AcceptedWork,
     pub structural_attempts: super::structural_work::Totals,
     pub accepted_events: u64,
+    pub no_op_events: u64,
     pub rejected_attempts: u64,
     pub disposals: u64,
 }
@@ -36,6 +37,7 @@ impl Lifecycle {
         self.accepted_events
             .checked_add(1)
             .ok_or("lifecycle-overflow")?;
+        self.no_op_events.checked_add(1).ok_or("lifecycle-overflow")?;
         self.rejected_attempts
             .checked_add(1)
             .ok_or("lifecycle-overflow")?;
@@ -45,11 +47,13 @@ impl Lifecycle {
     pub fn preflight(&self, _m: &Meter) -> Result<(), &'static str> {
         self.can_record()
     }
-    pub fn finish(&mut self, m: &Meter, accepted: bool) {
+    pub fn finish(&mut self, m: &Meter, accepted: bool, no_op: bool) {
         self.attempts = self.attempts.total(m);
         self.structural_attempts = self.structural_attempts.total(&m.structural);
         if accepted {
             self.accepted_events += 1;
+        } else if no_op {
+            self.no_op_events += 1;
         } else {
             self.rejected_attempts += 1;
         }

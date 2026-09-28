@@ -5,7 +5,7 @@ use super::{
     ownership,
     policy::{canonical, hash},
     position::Delta,
-    runtime::Runtime,
+    runtime::{Runtime, Session},
     source::Source,
     structure::{StructuralHistory, Structures},
     tree::{Tree, TreeWork},
@@ -262,6 +262,42 @@ struct Candidate {
     revision: u64,
     digest: String,
     structures: StructuralHistory,
+}
+enum Outcome {
+    Mutation(Candidate),
+    NoOp,
+}
+
+fn command_lookup<'a>(rt: &'a Runtime, receipt: &str, m: &mut Meter) -> Option<&'a Session> {
+    m.command_auth_lookups += 1;
+    // HashMap key lookup processes this many receipt bytes. This is not a
+    // claim about collision-dependent equality comparisons.
+    m.command_auth_receipt_bytes += receipt.len() as u64;
+    rt.sessions.get(receipt)
+}
+
+fn exact_no_op(rt: &mut Runtime, c: &Command, m: &mut Meter, tw: &mut TreeWork) -> Result<(), &'static str> {
+    let s = command_lookup(rt, &c.receipt, m).ok_or("unknown-receipt")?;
+    m.command_revision_checks += 1;
+    if c.expected_revision != s.revision { return Err("stale-revision"); }
+    if c.composition != "committed" { return Err("composition-active"); }
+    let n = s.source.utf16();
+    if c.start_offset > c.end_offset || c.end_offset > n { return Err("invalid-range"); }
+    if c.start_offset != n || c.end_offset != n || !c.replacement_text.is_empty() {
+        return Err("unsupported-command-shape");
+    }
+    if !c.anchor_span_id.is_empty() {
+        if n == 0 { return Err("missing-anchor"); }
+        let at = s.spans.at(s.spans.len.checked_sub(1).ok_or("missing-anchor")?, tw)
+            .ok_or("missing-anchor")?;
+        tw.ownership_span_visits += 1;
+        let span = at.materialize(tw);
+        if span.end_offset != n || !ownership::matches(&span.span_id, &c.anchor_span_id, tw) {
+            return Err("ambiguous-anchor");
+        }
+    }
+    rt.faults.checkpoint(&c.receipt, c.expected_revision, Point::NoOpCompletion, &mut m.fault_work)?;
+    Ok(())
 }
 // Accepted certificates retain their original route and accounting. An
 // unsuccessful legacy attempt remains charged when trying the bounded
@@ -796,8 +832,8 @@ fn finish_candidate(rt: &mut Runtime, c: &Command, m: &mut Meter, tw: &mut TreeW
         structures,
     })
 }
-fn rejection(rt: &Runtime, command: Option<&Command>, reason: &str) -> serde_json::Value {
-    let session = command.and_then(|c| rt.sessions.get(&c.receipt));
+fn rejection(rt: &Runtime, command: Option<&Command>, reason: &str, m: &mut Meter) -> serde_json::Value {
+    let session = command.and_then(|c| command_lookup(rt, &c.receipt, m));
     json!({"status":"NotAdmissible","reason":reason,"unchangedReceipt":command.map(|c|&c.receipt),
         "unchangedRevision":session.map(|s|s.revision),"affectedSummary":{"work":{},
         "acceptedCumulativeWork":session.map(|s|s.accepted_work),"structuralSnapshot":session.map(|s|s.structures)}})
@@ -812,14 +848,16 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
     };
     meter.command_parse_calls += 1;
     let command = serde_json::from_str::<Command>(input);
-    let lifecycle = command.as_ref().ok().and_then(|c|rt.sessions.get(&c.receipt)).map(|s|s.lifecycle.clone());
-    let structural_prior=command.as_ref().ok().and_then(|c|rt.sessions.get(&c.receipt)).map_or(Default::default(),|s|s.structural_accepted);
+    let lifecycle = command.as_ref().ok().and_then(|c|command_lookup(rt,&c.receipt,&mut meter)).map(|s|s.lifecycle.clone());
+    let structural_prior=command.as_ref().ok().and_then(|c|command_lookup(rt,&c.receipt,&mut meter)).map_or(Default::default(),|s|s.structural_accepted);
     let lifecycle_overflow=lifecycle.as_ref().is_some_and(|l|l.borrow().can_record().is_err());
     let mut tw = TreeWork::default();
     let mut result = command
         .as_ref()
         .map_err(|_| "invalid-command")
-        .and_then(|c| if lifecycle_overflow {Err("lifecycle-overflow")}else{plan(rt, c, &mut meter, &mut tw)});
+        .and_then(|c| if lifecycle_overflow {Err("lifecycle-overflow")} else if c.replacement_text.is_empty() && c.start_offset == c.end_offset {
+            exact_no_op(rt, c, &mut meter, &mut tw).map(|_| Outcome::NoOp)
+        } else { plan(rt, c, &mut meter, &mut tw).map(Outcome::Mutation) });
     meter.tree_node_visits = tw.visits;
     meter.tree_path_copies = tw.copies;
     meter.shared_subtrees = tw.shared_subtrees;
@@ -846,14 +884,22 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
     let prior = command
         .as_ref()
         .ok()
-        .and_then(|c| rt.sessions.get(&c.receipt))
+        .and_then(|c| command_lookup(rt,&c.receipt,&mut meter))
         .map(|s| s.accepted_work);
-    meter.structural.lineage_scalar_writes=if lifecycle.is_some() && !lifecycle_overflow {101+if result.is_ok(){8}else{0}}else{0};
+    meter.structural.lineage_scalar_writes=if lifecycle.is_some() && !lifecycle_overflow {super::command_work::FAMILY_SCALAR_WRITES+if matches!(result, Ok(Outcome::Mutation(_))){8}else{0}}else{0};
     let mut response = match &result {
-        Ok(p) => json!({"status":"Accepted","nextReceipt":p.receipt,"nextRevision":p.revision,
+        Ok(Outcome::Mutation(p)) => json!({"status":"Accepted","nextReceipt":p.receipt,"nextRevision":p.revision,
             "affectedSummary":{"sourceBindingDigest":p.binding,"revisionDigest":p.digest,"work":{},
             "acceptedCumulativeWork":prior,"structuralSnapshot":p.structures}}),
-        Err(reason) => rejection(rt, command.as_ref().ok(), reason),
+        Ok(Outcome::NoOp) => {
+            let c = command.as_ref().unwrap();
+            let s = command_lookup(rt, &c.receipt, &mut meter).unwrap();
+            json!({"status":"NoOp","outcomeKind":"no-op","unchangedReceipt":c.receipt,
+                "unchangedRevision":s.revision,"affectedSummary":{"sourceBindingDigest":s.source_binding,
+                "work":{},"acceptedCumulativeWork":prior,"structuralSnapshot":s.structures,
+                "noOpEvents":s.lifecycle.borrow().no_op_events + 1}})
+        },
+        Err(reason) => rejection(rt, command.as_ref().ok(), reason, &mut meter),
     };
     response["affectedSummary"]["structuralWork"]=json!(meter.structural);
     if lifecycle_overflow {response["affectedSummary"]["attemptAccounting"]=json!("reported-not-accumulated-overflow");}
@@ -866,7 +912,7 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
     #[cfg(test)]
     super::accounting_tests::record_response_serialization(bytes.len());
     let mut retire_control = false;
-    if result.is_ok() {
+    if matches!(result, Ok(Outcome::Mutation(_))) {
         meter.publication_preparation_passes += 1;
         meter.publication_preparation_bytes += bytes.len() as u64;
         let c = command.as_ref().unwrap();
@@ -877,7 +923,7 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
             &mut meter.fault_work,
         ) {
             result = Err(reason);
-            response = rejection(rt, Some(c), reason);
+            response = rejection(rt, Some(c), reason, &mut meter);
         }
         if result.is_ok() {
             retire_control = rt.faults.prepare_retirement(
@@ -890,7 +936,7 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
             meter.fault_work.faults_cleared += u64::from(retire_control);
         }
     }
-    meter.structural.lineage_scalar_writes=if lifecycle.is_some() && !lifecycle_overflow {101+if result.is_ok(){8}else{0}}else{0};
+    meter.structural.lineage_scalar_writes=if lifecycle.is_some() && !lifecycle_overflow {super::command_work::FAMILY_SCALAR_WRITES+if matches!(result, Ok(Outcome::Mutation(_))){8}else{0}}else{0};
     response["affectedSummary"]["structuralWork"]=json!(meter.structural);
     meter.response_value_passes += 1;
     response["affectedSummary"]["work"] = serde_json::to_value(&meter).unwrap();
@@ -898,12 +944,15 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
     // Real serialization lengths, output length and exact final slot work are
     // now known. Only the four allocator counters require u64 headroom.
     if result.is_ok() {
-        if let Err(reason) = prior.unwrap().preflight(&meter).and_then(|_|structural_prior.preflight()).and_then(|_|lifecycle.as_ref().unwrap().borrow().preflight(&meter)) {
+        let preflight = if matches!(result, Ok(Outcome::Mutation(_))) {
+            prior.unwrap().preflight(&meter).and_then(|_|structural_prior.preflight())
+        } else { Ok(()) }.and_then(|_|lifecycle.as_ref().unwrap().borrow().preflight(&meter));
+        if let Err(reason) = preflight {
             result = Err(reason);
             meter.fault_work.faults_cleared -= u64::from(retire_control);
             retire_control = false;
-            meter.structural.lineage_scalar_writes=101;
-            let mut rejected = rejection(rt, command.as_ref().ok(), reason);
+            meter.structural.lineage_scalar_writes=super::command_work::FAMILY_SCALAR_WRITES;
+            let mut rejected = rejection(rt, command.as_ref().ok(), reason, &mut meter);
             rejected["affectedSummary"]["structuralWork"]=json!(meter.structural);
             meter.response_value_passes += 1;
             rejected["affectedSummary"]["work"] = serde_json::to_value(&meter).unwrap();
@@ -912,8 +961,8 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
             prepared = PreparedReply::new(rejected, prepared.into_buffer(), &mut meter);
         }
     }
-    let next_receipt = result.as_ref().ok().map(|p| p.receipt.clone());
-    let final_structures = result.as_ref().ok().map(|p| p.structures);
+    let next_receipt = result.as_ref().ok().and_then(|p| match p { Outcome::Mutation(p) => Some(p.receipt.clone()), Outcome::NoOp => None });
+    let final_structures = result.as_ref().ok().and_then(|p| match p { Outcome::Mutation(p) => Some(p.structures), Outcome::NoOp => None });
     #[cfg(test)]
     let mut probe = {
         let mut p = super::accounting_tests::PUBLICATION_PROBE.with(std::cell::Cell::get);
@@ -928,7 +977,8 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
     if retire_control {
         rt.faults.commit_retirement();
     }
-    let mut published = if let Ok(p) = result {
+    let no_op = matches!(result, Ok(Outcome::NoOp));
+    let mut published = if let Ok(Outcome::Mutation(p)) = result {
         let c = command.as_ref().unwrap();
         let mut s = rt.sessions.remove(&c.receipt).unwrap();
         s.last_event = p.event;
@@ -972,6 +1022,6 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
         probe.after_assignment = scope.snapshot().array();
         p.set(probe);
     });
-    if !lifecycle_overflow {if let Some(lifecycle) = lifecycle {lifecycle.borrow_mut().finish(&meter,published.is_some());}}
+    if !lifecycle_overflow {if let Some(lifecycle) = lifecycle {lifecycle.borrow_mut().finish(&meter,published.is_some(),no_op);}}
     prepared.into_string()
 }

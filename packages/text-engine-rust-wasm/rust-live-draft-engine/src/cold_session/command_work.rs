@@ -91,6 +91,9 @@ pub(super) struct Meter {
     pub response_encoding_passes: u64,
     pub response_value_passes: u64,
     pub command_parse_calls: u64,
+    pub command_auth_lookups: u64,
+    pub command_auth_receipt_bytes: u64,
+    pub command_revision_checks: u64,
     pub response_encoded_bytes: u64,
     pub response_scalar_slot_writes: u64,
     pub response_scalar_slot_bytes: u64,
@@ -100,7 +103,8 @@ pub(super) struct Meter {
     pub seam_search_glyphs: u64,
     pub seam_search_windows: u64,
 }
-pub(super) const FIELD_COUNT: usize = 92;
+pub(super) const FIELD_COUNT: usize = 95;
+pub(super) const FAMILY_SCALAR_WRITES: u64 = (FIELD_COUNT + super::structural_work::N + 1) as u64;
 pub(super) const FIELD_NAMES: [&str; FIELD_COUNT] = [
     "publicationPreparationPasses",
     "publicationPreparationBytes",
@@ -181,6 +185,9 @@ pub(super) const FIELD_NAMES: [&str; FIELD_COUNT] = [
     "responseEncodingPasses",
     "responseValuePasses",
     "commandParseCalls",
+    "commandAuthLookups",
+    "commandAuthReceiptBytes",
+    "commandRevisionChecks",
     "responseEncodedBytes",
     "responseScalarSlotWrites",
     "responseScalarSlotBytes",
@@ -283,6 +290,9 @@ impl Meter {
             self.response_encoding_passes,
             self.response_value_passes,
             self.command_parse_calls,
+            self.command_auth_lookups,
+            self.command_auth_receipt_bytes,
+            self.command_revision_checks,
             self.response_encoded_bytes,
             self.response_scalar_slot_writes,
             self.response_scalar_slot_bytes,

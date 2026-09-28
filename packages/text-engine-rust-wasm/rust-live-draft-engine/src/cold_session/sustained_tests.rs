@@ -103,14 +103,14 @@ fn stale_rejected(rt: &mut Runtime, old_command: &str, receipt: &str, revision: 
 
 #[test]
 fn sustained_matrix_twins_160_revisions_each_and_repeated_tail_pruning() {
-    assert_eq!(FIELD_COUNT, 92);
+    assert_eq!(FIELD_COUNT, 95);
     let artifact_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("target/stage4-sustained-matrix.jsonl");
     std::fs::create_dir_all(artifact_path.parent().unwrap()).unwrap();
     let mut artifact = std::fs::File::create(&artifact_path).unwrap();
     use std::io::Write;
     writeln!(artifact, "{}", json!({"kind":"manifest", "contexts":[300,3000],"cycles":16,"revisionsPerSession":160,
-        "twins":2,"coldOracleEveryRevision":true,"numericFields":92,"measuredFields":MEASURED,
+        "twins":2,"coldOracleEveryRevision":true,"numericFields":95,"measuredFields":MEASURED,
         "profile":"unchanged Thai prefix plus authored AB|CDE; no suffix-context claim"})).unwrap();
     for context in [300, 3000] {
         let prefix = "ก".repeat(context);
@@ -171,7 +171,7 @@ fn sustained_matrix_twins_160_revisions_each_and_repeated_tail_pruning() {
             for field in FIELD_NAMES.iter().filter(|f| !MEASURED.contains(f)) {
                 assert_eq!(replies[0]["affectedSummary"]["work"][*field], replies[1]["affectedSummary"]["work"][*field], "twin {field}: {label}");
             }
-            if revision % 16 == 0 { eprintln!("sustained checkpoint: context={context}, twins=2, revision={revision}, oracle/92-field-ledger/structure/identity/stale PASS"); }
+            if revision % 16 == 0 { eprintln!("sustained checkpoint: context={context}, twins=2, revision={revision}, oracle/95-field-ledger/structure/identity/stale PASS"); }
         }
         writeln!(artifact, "{}", json!({"kind":"profile-pass","context":context,"acceptedRevisionsPerTwin":160,"staleRejectionsPerTwin":160,"freshColdOracles":160,"finalStructures":histories})).unwrap();
     }

@@ -5,6 +5,23 @@ const corpusDigest = 'ca354f8b3c638eeefa7c4327f6c1253d06155cc2624aa99039767e30de
 const names = ['preparation', 'preparedFirst', 'sustained', 'burst', 'adversarial', 'cold']
 const expectedCounts = { preparation: 825, preparedFirst: 4950, sustained: 4950, burst: 180, adversarial: 6, cold: 360 }
 
+export function verifyCommandOutcome(result, shape, originalReceipt, liveRevision) {
+  if (shape === 'true-no-op') {
+    strictEqual(result.status, 'NoOp')
+    strictEqual(result.outcomeKind, 'no-op')
+    strictEqual(result.unchangedReceipt, originalReceipt)
+    strictEqual(result.unchangedRevision, liveRevision)
+    strictEqual(result.affectedSummary.work.shapingCalls, 0)
+    strictEqual(result.affectedSummary.work.segmentationCalls, 0)
+    strictEqual(result.affectedSummary.work.hashCalls, 0)
+    return { outcomeKind: 'no-op', contentRevision: liveRevision, receipt: originalReceipt }
+  }
+  strictEqual(result.status, 'Accepted')
+  strictEqual(result.nextRevision, liveRevision + 1)
+  if (result.nextReceipt === originalReceipt) throw new Error('Mutation reused receipt')
+  return { outcomeKind: 'accepted', contentRevision: liveRevision + 1, receipt: result.nextReceipt }
+}
+
 export function verifyPreflight(result) {
   strictEqual(result.schemaVersion, 'core-stage6-preflight/1')
   strictEqual(result.finalAdmissionRun, false)
@@ -20,12 +37,16 @@ export function verifyPreflight(result) {
   deepStrictEqual(result.obligations.cold, balancedCatalog('cold'))
   deepStrictEqual(result.obligations.adversarial, corpus.adversarial)
   strictEqual(result.obligations.burst.length, 180)
-  let burstText = base('mixed', 1024), state = {}
+  let burstText = base('mixed', 1024), state = {}, liveRevision = 0, noOpRows = 0
   for (const [index, obligation] of result.obligations.burst.entries()) {
     strictEqual(obligation.revision, index + 1)
     const edit = burstEdit(burstText, index + 1, state)
+    if (edit.start === edit.end && edit.start === burstText.length && edit.insertedText === '') noOpRows++
+    else liveRevision++
     burstText = applyEdit(burstText, edit)
   }
+  strictEqual(noOpRows, 15)
+  strictEqual(liveRevision, 165)
   const fixed = firstEdit('thai', 256, 'append')
   const row = result.firstRequiredResult
   strictEqual(row.caseId, 'prepared-first-thai-256-append')
@@ -72,7 +93,7 @@ export function verifyPreflight(result) {
   }
   deepStrictEqual(result.accounting.provider, row.work)
   strictEqual(result.accounting.host.length, result.calls.length)
-  const additiveFields = Object.hasOwn(row.work, "policyRuleVisits") ? 92 : 91
+  const additiveFields = Object.hasOwn(row.work, "policyRuleVisits") ? 95 : 94
   strictEqual(Object.keys(row.work).length, additiveFields + 4)
   strictEqual(Object.keys(row.acceptedCumulativeWork).length, additiveFields)
   deepStrictEqual(Object.keys(row.work).filter(field => !(field in row.acceptedCumulativeWork)).sort(),
@@ -89,7 +110,7 @@ export function verifyPreflight(result) {
   strictEqual(row.exact, accepted)
   strictEqual(row.unchangedVerified, !accepted)
   if (accepted) {
-    strictEqual(additiveFields, 92)
+    strictEqual(additiveFields, 95)
     for (const field of ['sourceFactsUtf16', 'propertyFactsUtf16']) if (row.work[field] > 512) throw new Error(`Exceeded ${field}`)
     if (row.work.shapingSegmentationInputUtf16 > 1024) throw new Error('Exceeded provider cap')
     for (const field of ['wholeParagraphScans', 'fullSerializations', 'unboundedSuffixWork', 'absoluteOffsetReindexing']) strictEqual(row.work[field], 0)

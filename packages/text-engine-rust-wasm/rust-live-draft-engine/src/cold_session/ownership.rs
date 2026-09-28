@@ -11,7 +11,7 @@ pub(super) struct Selection {
     pub edge: bool,
 }
 
-fn matches(id: &str, anchor: &str, work: &mut TreeWork) -> bool {
+pub(super) fn matches(id: &str, anchor: &str, work: &mut TreeWork) -> bool {
     if id.len() != anchor.len() {
         return false;
     }

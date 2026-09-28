@@ -107,7 +107,7 @@ fn local_window_sequences_negatives_and_fault_retry() {
                     u128::from_str_radix(total.as_str().unwrap(), 16).unwrap()
                 );
             }
-            assert_eq!(sums.len(), 92);
+            assert_eq!(sums.len(), 95);
         }
     }
     let negative = [
@@ -219,7 +219,7 @@ fn analysis_transition_committed_streams() {
             let q:Value=serde_json::from_str(&qa_compare::verify(&rt,&receipt,&fixture(&text).to_string())).unwrap();
             assert_eq!(q["status"],"Equal","seed={seed} rev={revision}: {q}");
             for (k,v) in r["affectedSummary"]["acceptedCumulativeWork"].as_object().unwrap(){let total=totals.entry(k.clone()).or_default();*total+=r["affectedSummary"]["work"][k].as_u64().unwrap() as u128;assert_eq!(*total,u128::from_str_radix(v.as_str().unwrap(),16).unwrap())}
-            assert_eq!(totals.len(),92);
+            assert_eq!(totals.len(),95);
         }
     }
 }

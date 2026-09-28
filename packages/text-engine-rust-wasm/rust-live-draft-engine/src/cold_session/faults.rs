@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 pub(super) enum Point {
     CancelBeforeProvider,
     CancelAfterProvider,
+    NoOpCompletion,
     ProviderFailure,
     PublicationRefusal,
     TailRepairProviderFailure,
@@ -27,6 +28,7 @@ impl Point {
         match self {
             Self::CancelBeforeProvider
             | Self::CancelAfterProvider
+            | Self::NoOpCompletion
             | Self::CancelAfterTailRepair => "cancelled",
             Self::ProviderFailure | Self::TailRepairProviderFailure => "provider-failure",
             Self::PublicationRefusal => "publication-refused",

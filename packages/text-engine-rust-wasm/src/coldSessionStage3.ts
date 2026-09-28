@@ -36,6 +36,7 @@ interface CommandSummary {
 }
 export type ColdCommandResult =
   | { status: "Accepted"; nextReceipt: ColdReceipt; nextRevision: number; affectedSummary: CommandSummary }
+  | { status: "NoOp"; outcomeKind: "no-op"; unchangedReceipt: ColdReceipt; unchangedRevision: number; affectedSummary: CommandSummary }
   | { status: "NotAdmissible"; reason: string; unchangedReceipt: ColdReceipt; unchangedRevision: number; affectedSummary: CommandSummary }
   | { status: "UnknownReceipt" | "Unavailable" }
 

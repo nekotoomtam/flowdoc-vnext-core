@@ -2,6 +2,155 @@ use super::*;
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 
+#[test]
+fn committed_eof_no_op_preserves_identity_facts_and_family_accounting() {
+    for text in ["", "AB", "ภาษาไทย", "Aกข"] {
+        let mut rt = Runtime::default();
+        let mut input = fixture(text);
+        if text.is_empty() { input["authoredSpans"] = json!([]); }
+        let created = create(&mut rt, &input);
+        assert_eq!(created["status"], "Created", "{created}");
+        let receipt = created["receipt"].as_str().unwrap().to_owned();
+        let before = retained_observable(rt.session(&receipt));
+        let prior = rt.session(&receipt).accepted_work;
+        let family = rt.session(&receipt).lifecycle.clone();
+        let n = text.encode_utf16().count();
+        let command = json!({"receipt":receipt,"expectedRevision":0,"startOffset":n,
+            "endOffset":n,"replacementText":"","composition":"committed"});
+        for count in 1..=2 {
+            let reply: Value = serde_json::from_str(&rt.apply(&command.to_string())).unwrap();
+            assert_eq!(reply["status"], "NoOp", "{reply}");
+            assert_eq!(reply["outcomeKind"], "no-op");
+            assert_eq!(reply["unchangedReceipt"], receipt);
+            assert_eq!(reply["unchangedRevision"], 0);
+            assert_eq!(reply["affectedSummary"]["noOpEvents"], count);
+            assert_eq!(retained_observable(rt.session(&receipt)), before);
+            assert_eq!(rt.session(&receipt).accepted_work, prior);
+            assert_eq!(family.borrow().accepted_events, 0);
+            assert_eq!(family.borrow().rejected_attempts, 0);
+            assert_eq!(family.borrow().no_op_events, count);
+            let work = &reply["affectedSummary"]["work"];
+            for field in ["shapingCalls", "segmentationCalls", "hashCalls", "receiptRandomBytes",
+                "wholeParagraphScans", "fullSerializations"] { assert_eq!(work[field], 0, "{field}: {reply}"); }
+            assert!(work["abiInputBytes"].as_u64().unwrap() > 0);
+            assert!(work["responseEncodedBytes"].as_u64().unwrap() > 0);
+            assert_eq!(work["commandAuthLookups"], 5);
+            assert_eq!(work["commandAuthReceiptBytes"], receipt.len() * 5);
+            assert_eq!(work["commandRevisionChecks"], 1);
+        }
+    }
+}
+
+#[test]
+fn committed_eof_no_op_keeps_validation_precedence_and_qa_cancellation_distinct() {
+    let mut rt = Runtime::default();
+    let created = create(&mut rt, &span_fixture(&["AB", "CD"]));
+    let receipt = created["receipt"].as_str().unwrap();
+    let base = json!({"receipt":receipt,"expectedRevision":0,"startOffset":4,"endOffset":4,
+        "replacementText":"","composition":"committed","anchorSpanId":"span-1"});
+    let mut attempt = |patch: &[(&str, Value)]| {
+        let mut command = base.clone();
+        for (key, value) in patch { command[*key] = value.clone(); }
+        serde_json::from_str::<Value>(&rt.apply(&command.to_string())).unwrap()
+    };
+    assert_eq!(attempt(&[("expectedRevision",json!(1)),("composition",json!("active"))])["reason"], "stale-revision");
+    assert_eq!(attempt(&[("composition",json!("active")),("startOffset",json!(9))])["reason"], "composition-active");
+    assert_eq!(attempt(&[("startOffset",json!(9))])["reason"], "invalid-range");
+    assert_eq!(attempt(&[("anchorSpanId",json!("span-0"))])["reason"], "ambiguous-anchor");
+    assert_eq!(attempt(&[("anchorSpanId",json!("forged"))])["reason"], "ambiguous-anchor");
+    assert_eq!(attempt(&[("startOffset",json!(2)),("endOffset",json!(2))])["reason"], "unsupported-command-shape");
+    drop(attempt);
+    let armed: Value = serde_json::from_str(&super::faults::arm(&mut rt,&json!({"receipt":receipt,
+        "expectedRevision":0,"point":"no-op-completion"}).to_string())).unwrap();
+    assert_eq!(armed["status"], "Armed");
+    let cancelled: Value = serde_json::from_str(&rt.apply(&base.to_string())).unwrap();
+    assert_eq!(cancelled["reason"], "cancelled");
+    assert_eq!(rt.session(receipt).lifecycle.borrow().no_op_events, 0);
+    assert_eq!(rt.session(receipt).lifecycle.borrow().rejected_attempts, 7);
+    let retry: Value = serde_json::from_str(&rt.apply(&base.to_string())).unwrap();
+    assert_eq!(retry["status"], "NoOp");
+    assert_eq!(rt.session(receipt).lifecycle.borrow().no_op_events, 1);
+}
+
+#[test]
+fn committed_eof_no_op_preserves_stage5_inverse_and_mixed_revision() {
+    let mut rt = Runtime::default();
+    let created = create(&mut rt, &fixture("AB"));
+    let parent = created["receipt"].as_str().unwrap();
+    let split: Value = serde_json::from_str(&super::structural::apply(&mut rt,&json!({
+        "operation":"enter","receipt":parent,"expectedRevision":0,"caretOffset":1,
+        "composition":"committed"}).to_string())).unwrap();
+    assert_eq!(split["status"], "Accepted", "{split}");
+    let left = split["receipts"][0].as_str().unwrap();
+    let right = split["receipts"][1].as_str().unwrap();
+    let no_op: Value = serde_json::from_str(&rt.apply(&json!({"receipt":left,"expectedRevision":0,
+        "startOffset":1,"endOffset":1,"replacementText":"","composition":"committed"}).to_string())).unwrap();
+    assert_eq!(no_op["status"], "NoOp", "{no_op}");
+    assert_eq!(no_op["unchangedReceipt"], left);
+    assert!(rt.session(left).sibling.is_some());
+    assert!(rt.session(right).sibling.is_some());
+    let joined: Value = serde_json::from_str(&super::structural::apply(&mut rt,&json!({
+        "operation":"join","receipt":left,"rightReceipt":right,"expectedRevision":0,
+        "rightRevision":0,"composition":"committed"}).to_string())).unwrap();
+    assert_eq!(joined["status"], "Accepted", "{joined}");
+    let reunited = joined["receipts"][0].as_str().unwrap();
+    let edited: Value = serde_json::from_str(&rt.apply(&json!({"receipt":reunited,"expectedRevision":0,
+        "startOffset":2,"endOffset":2,"replacementText":"C","composition":"committed",
+        "anchorSpanId":"span-1"}).to_string())).unwrap();
+    assert_eq!(edited["status"], "Accepted", "{edited}");
+    let next = edited["nextReceipt"].as_str().unwrap();
+    let again: Value = serde_json::from_str(&rt.apply(&json!({"receipt":next,"expectedRevision":1,
+        "startOffset":3,"endOffset":3,"replacementText":"","composition":"committed"}).to_string())).unwrap();
+    assert_eq!(again["status"], "NoOp", "{again}");
+    assert_eq!(again["unchangedReceipt"], next);
+    assert_eq!(again["unchangedRevision"], 1);
+    let stale: Value = serde_json::from_str(&rt.apply(&json!({"receipt":reunited,"expectedRevision":0,
+        "startOffset":2,"endOffset":2,"replacementText":"","composition":"committed"}).to_string())).unwrap();
+    assert_eq!(stale["reason"], "unknown-receipt");
+}
+
+#[test]
+fn committed_eof_no_op_family_overflow_reports_unaccumulated_work() {
+    let mut rt = Runtime::default();
+    let created = create(&mut rt, &fixture("AB"));
+    let receipt = created["receipt"].as_str().unwrap();
+    let family = rt.session(receipt).lifecycle.clone();
+    family.borrow_mut().no_op_events = u64::MAX;
+    let response: Value = serde_json::from_str(&rt.apply(&json!({"receipt":receipt,
+        "expectedRevision":0,"startOffset":2,"endOffset":2,"replacementText":"",
+        "composition":"committed"}).to_string())).unwrap();
+    assert_eq!(response["reason"], "lifecycle-overflow");
+    assert_eq!(response["affectedSummary"]["attemptAccounting"], "reported-not-accumulated-overflow");
+    assert!(response["affectedSummary"]["work"]["abiInputBytes"].as_u64().unwrap() > 0);
+    assert_eq!(family.borrow().no_op_events, u64::MAX);
+    assert_eq!(family.borrow().rejected_attempts, 0);
+    assert_eq!(rt.session(receipt).revision, 0);
+}
+
+#[test]
+fn committed_eof_no_op_does_not_consume_provider_entropy_or_publication_qa_faults() {
+    for (point, reason) in [("provider-failure","provider-failure"),
+        ("receipt-entropy-failure","entropy-unavailable"),
+        ("publication-refusal","publication-refused")] {
+        let mut rt = Runtime::default();
+        let created = create(&mut rt, &fixture("AB"));
+        let receipt = created["receipt"].as_str().unwrap();
+        let armed: Value = serde_json::from_str(&super::faults::arm(&mut rt,&json!({
+            "receipt":receipt,"expectedRevision":0,"point":point}).to_string())).unwrap();
+        assert_eq!(armed["status"], "Armed");
+        let no_op: Value = serde_json::from_str(&rt.apply(&json!({"receipt":receipt,
+            "expectedRevision":0,"startOffset":2,"endOffset":2,"replacementText":"",
+            "composition":"committed"}).to_string())).unwrap();
+        assert_eq!(no_op["status"], "NoOp", "{point}: {no_op}");
+        let edit = json!({"receipt":receipt,"expectedRevision":0,"startOffset":2,
+            "endOffset":2,"replacementText":"C","composition":"committed","anchorSpanId":"span-1"});
+        let rejected: Value = serde_json::from_str(&rt.apply(&edit.to_string())).unwrap();
+        assert_eq!(rejected["reason"], reason, "{point}: {rejected}");
+        let accepted: Value = serde_json::from_str(&rt.apply(&edit.to_string())).unwrap();
+        assert_eq!(accepted["status"], "Accepted", "{point}: {accepted}");
+    }
+}
+
 fn digest(value: &Value) -> String {
     format!(
         "sha256:{:x}",
