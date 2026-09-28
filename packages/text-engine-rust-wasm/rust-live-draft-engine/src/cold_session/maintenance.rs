@@ -59,11 +59,13 @@ fn candidate(rt: &Runtime, c: &Request, m: &mut Meter) -> Result<(PlanKey, Run),
     Ok((key, run))
 }
 
-pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
+pub(super) fn apply(rt: &mut Runtime, input: &str) -> String { apply_inner(rt,input,None) }
+pub(super) fn apply_controlled(rt: &mut Runtime, input: &str, control: &str) -> String { apply_inner(rt,input,Some(control)) }
+fn apply_inner(rt: &mut Runtime, input: &str, control: Option<&str>) -> String {
     #[cfg(test)]
     super::accounting_tests::PUBLICATION_PROBE.with(|p| p.set(Default::default()));
     let scope = Scope::begin();
-    let mut m = Meter { abi_input_bytes: input.len() as u64, ..Meter::default() };
+    let mut m = Meter { abi_input_bytes: (input.len() as u64).checked_add(control.map_or(0,|c|c.len() as u64)).unwrap_or(u64::MAX), ..Meter::default() };
     m.command_parse_calls += 1;
     let parsed = serde_json::from_str::<Request>(input);
     let session = parsed.as_ref().ok().and_then(|c| {
@@ -83,7 +85,17 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
     let mut key = None;
     let target = parsed.as_ref().ok().map(|c| c.run_index);
     let result = parsed.as_ref().map_err(|_| "invalid-command")
-        .and_then(|c| if overflow { Err("lifecycle-overflow") } else { candidate(rt, c, &mut m) });
+        .and_then(|c| {
+            if overflow { return Err("lifecycle-overflow"); }
+            let candidate=candidate(rt,c,&mut m)?;
+            if control.is_some() {
+                charge_lookup(&mut m,&c.receipt);
+                let provider=&rt.sessions[&c.receipt].provider;
+                super::host_control::observe(control,&mut m,&c.receipt,c.expected_revision,None,
+                    Some((&c.operation,&c.target,c.run_index,&provider.provider_id,&provider.provider_revision)))?;
+            }
+            Ok(candidate)
+        });
     match result {
         Err(e) => reason = Some(e),
         Ok((k, run)) => {
@@ -281,6 +293,7 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
         super::command_work::FAMILY_SCALAR_WRITES + u64::from(matches!(status,"Evicted"|"Recovered"))
     } else {0};
     m.response_value_passes += 1;
+    if control.is_some() && reason==Some("cancelled") { status="Cancelled"; }
     let response = json!({"status":status,"reason":reason,"unchangedReceipt":parsed.as_ref().ok().map(|c|&c.receipt),
         "unchangedRevision":revision,"targetRunIndex":target,
         "releasedResources":if status=="Evicted" {1} else {0},"releasedBytes":released_bytes,

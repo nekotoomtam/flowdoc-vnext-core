@@ -265,7 +265,7 @@ fn structural_rejected_attempts_and_ordinary_mutation_preserve_shared_accounting
     assert_eq!(changed["status"], "Accepted", "{changed}");
     assert_eq!(
         changed["affectedSummary"]["structuralWork"]["lineageScalarWrites"],
-        112
+        117
     );
     let next = changed["nextReceipt"].as_str().unwrap();
     assert_eq!(
@@ -292,7 +292,7 @@ fn structural_disposal_counts_once_and_preserves_surviving_ancestry() {
     assert_eq!(family.borrow().disposals, 1);
     assert_eq!(
         disposed["affectedSummary"]["structuralWork"]["lineageScalarWrites"],
-        104
+        109
     );
     assert_eq!(join(&mut rt, l, r)["reason"], "unknown-receipt");
     assert_eq!(family.borrow().accepted_events, 1);

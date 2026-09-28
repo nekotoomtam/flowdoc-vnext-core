@@ -309,11 +309,15 @@ fn exact_no_op(rt: &mut Runtime, c: &Command, m: &mut Meter, tw: &mut TreeWork) 
     rt.faults.checkpoint(&c.receipt, c.expected_revision, Point::NoOpCompletion, &mut m.fault_work)?;
     Ok(())
 }
+fn before_provider(faults:&mut super::faults::Controls,c:&Command,m:&mut Meter,control:Option<&str>) -> Result<(), &'static str> {
+    super::host_control::observe(control,m,&c.receipt,c.expected_revision,None,None)?;
+    faults.checkpoint(&c.receipt,c.expected_revision,Point::CancelBeforeProvider,&mut m.fault_work)
+}
 // Accepted certificates retain their original route and accounting. An
 // unsuccessful legacy attempt remains charged when trying the bounded
 // multi-run certificate; no failed scan or provider call is reset.
-fn plan(rt: &mut Runtime, c: &Command, m: &mut Meter, tw: &mut TreeWork) -> Result<Candidate, &'static str> {
-    let rejected = match existing_plan(rt,c,m,tw) {
+fn plan(rt: &mut Runtime, c: &Command, m: &mut Meter, tw: &mut TreeWork,control:Option<&str>) -> Result<Candidate, &'static str> {
+    let rejected = match existing_plan(rt,c,m,tw,control) {
         Ok(candidate) => return Ok(candidate),
         Err(reason) => reason,
     };
@@ -333,7 +337,7 @@ fn plan(rt: &mut Runtime, c: &Command, m: &mut Meter, tw: &mut TreeWork) -> Resu
         }
     }
     let attempted=super::analysis_transition::edit(s,&ownership,c.start_offset,c.end_offset,&c.replacement_text,m,tw,
-        |meter|rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::CancelBeforeProvider,&mut meter.fault_work));
+        |meter|before_provider(&mut rt.faults,c,meter,control));
     let (runs,shards,units,d)=match attempted {
         Ok(candidate)=>candidate,
         Err("budget-exhaustion"|"uncertified-seam"|"uncertified-boundary")=>return Err(rejected),
@@ -351,6 +355,7 @@ fn existing_plan(
     c: &Command,
     m: &mut Meter,
     tw: &mut TreeWork,
+    control: Option<&str>,
 ) -> Result<Candidate, &'static str> {
     m.command_auth_lookups += 1;
     m.command_auth_receipt_bytes += c.receipt.len() as u64;
@@ -420,7 +425,7 @@ fn existing_plan(
         }
     }
     if insert && c.start_offset == n && c.replacement_text.len() <= 24 && super::tail_seam::opposite(&c.replacement_text, &run.key.script, m) {
-        rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::CancelBeforeProvider,&mut m.fault_work)?;
+        before_provider(&mut rt.faults,c,m,control)?;
         let repaired = super::tail_seam::prepare(s, &run, &ownership, &c.replacement_text, m, tw)?;
         let (runs, shards) = super::tail_seam::certify(s, &run, repaired, m, tw)?;
         rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::ProviderFailure,&mut m.fault_work)?;
@@ -436,7 +441,7 @@ fn existing_plan(
     if !edge && run.key.script == "Thai" && run.end == n && run.end-run.start <= 24 &&
         c.start_offset >= run.start && c.end_offset <= n && c.replacement_text.len() <= 24 &&
         !(c.start_offset == run.start && c.end_offset == run.end && c.replacement_text.is_empty()) {
-        rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::CancelBeforeProvider,&mut m.fault_work)?;
+        before_provider(&mut rt.faults,c,m,control)?;
         let (runs,shards,units)=super::tail_seam::thai_edit(s,&run,c.start_offset,c.end_offset,&c.replacement_text,m,tw)?;
         rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::ProviderFailure,&mut m.fault_work)?;
         rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::CancelAfterProvider,&mut m.fault_work)?;
@@ -454,7 +459,7 @@ fn existing_plan(
     if run.key.script == "Latin" && run.end == n && c.start_offset == run.start &&
         c.end_offset == n && c.replacement_text.is_empty() && run.start>0 &&
         run.end-run.start<=24 {
-        rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::CancelBeforeProvider,&mut m.fault_work)?;
+        before_provider(&mut rt.faults,c,m,control)?;
         let (runs,shards)=super::tail_seam::latin_tail_deletion(s,&run,m,tw)?;
         rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::ProviderFailure,&mut m.fault_work)?;
         rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::CancelAfterProvider,&mut m.fault_work)?;
@@ -477,7 +482,7 @@ fn existing_plan(
             let script=ch.script();
             if matches!(script,Script::Latin|Script::Thai) && script.full_name()!=run.key.script {return Err("uncertified-seam")}
         }
-        rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::CancelBeforeProvider,&mut m.fault_work)?;
+        before_provider(&mut rt.faults,c,m,control)?;
         let (runs,shards,units,d)=super::local_window::edit(s,&run,run_at.index,c.start_offset,c.end_offset,&c.replacement_text,m,tw)?;
         rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::ProviderFailure,&mut m.fault_work)?;
         rt.faults.checkpoint(&c.receipt,c.expected_revision,Point::CancelAfterProvider,&mut m.fault_work)?;
@@ -596,12 +601,7 @@ fn existing_plan(
     if 3 * (old_units + new_units) > 1024 {
         return Err("budget-exhaustion");
     }
-    rt.faults.checkpoint(
-        &c.receipt,
-        c.expected_revision,
-        Point::CancelBeforeProvider,
-        &mut m.fault_work,
-    )?;
+    before_provider(&mut rt.faults,c,m,control)?;
     let mut before = facts(&old, shard.start_offset, &run, &s.provider, m, false)?;
     // ICU reports artificial text edges. Keep only retained paragraph/window ownership.
     before.line_breaks.retain(|p| {
@@ -851,12 +851,14 @@ fn rejection(rt: &Runtime, command: Option<&Command>, reason: &str, m: &mut Mete
         "unchangedRevision":session.map(|s|s.revision),"affectedSummary":{"work":{},
         "acceptedCumulativeWork":session.map(|s|s.accepted_work),"structuralSnapshot":session.map(|s|s.structures)}})
 }
-pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
+pub(super) fn apply(rt: &mut Runtime, input: &str) -> String { apply_inner(rt, input, None) }
+pub(super) fn apply_controlled(rt: &mut Runtime, input: &str, control: &str) -> String { apply_inner(rt, input, Some(control)) }
+fn apply_inner(rt: &mut Runtime, input: &str, control: Option<&str>) -> String {
     let scope = Scope::begin();
     #[cfg(test)]
     super::accounting_tests::PUBLICATION_PROBE.with(|p| p.set(Default::default()));
     let mut meter = Meter {
-        abi_input_bytes: input.len() as u64,
+        abi_input_bytes: (input.len() as u64).checked_add(control.map_or(0,|c|c.len() as u64)).unwrap_or(u64::MAX),
         ..Meter::default()
     };
     meter.command_parse_calls += 1;
@@ -869,8 +871,12 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
         .as_ref()
         .map_err(|_| "invalid-command")
         .and_then(|c| if lifecycle_overflow {Err("lifecycle-overflow")} else if c.replacement_text.is_empty() && c.start_offset == c.end_offset {
-            exact_no_op(rt, c, &mut meter, &mut tw).map(|_| Outcome::NoOp)
-        } else { plan(rt, c, &mut meter, &mut tw).map(Outcome::Mutation) });
+            exact_no_op(rt, c, &mut meter, &mut tw)
+                .and_then(|_| super::host_control::observe(control,&mut meter,&c.receipt,c.expected_revision,None,None))
+                .map(|_| Outcome::NoOp)
+        } else {
+            plan(rt, c, &mut meter, &mut tw,control).map(Outcome::Mutation)
+        });
     meter.tree_node_visits = tw.visits;
     meter.tree_path_copies = tw.copies;
     meter.shared_subtrees = tw.shared_subtrees;
@@ -914,6 +920,7 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
         },
         Err(reason) => rejection(rt, command.as_ref().ok(), reason, &mut meter),
     };
+    if control.is_some() && matches!(result,Err("cancelled")) {response["status"]=json!("Cancelled");}
     response["affectedSummary"]["structuralWork"]=json!(meter.structural);
     if lifecycle_overflow {response["affectedSummary"]["attemptAccounting"]=json!("reported-not-accumulated-overflow");}
     meter.response_value_passes += 1;

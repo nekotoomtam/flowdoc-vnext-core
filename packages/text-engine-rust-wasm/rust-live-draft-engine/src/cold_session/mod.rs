@@ -4,6 +4,7 @@ mod local_window;
 mod local_window_tests;
 mod structural_work;
 mod lifecycle;
+mod host_control;
 mod maintenance;
 mod structural;
 mod commands;
@@ -41,6 +42,10 @@ pub fn stage4_apply(input: &str) -> String {
     SESSIONS.with(|s| s.borrow_mut().apply(input))
 }
 #[wasm_bindgen]
+pub fn stage7_apply(input: &str, control: &str) -> String {
+    SESSIONS.with(|s| commands::apply_controlled(&mut s.borrow_mut(), input, control))
+}
+#[wasm_bindgen]
 pub fn stage4_arm_fault(input: &str) -> String {
     SESSIONS.with(|s| faults::arm(&mut s.borrow_mut(), input))
 }
@@ -51,6 +56,10 @@ pub fn stage3_live_count() -> u32 {
 #[wasm_bindgen]
 pub fn stage6_maintain(input: &str) -> String {
     SESSIONS.with(|s| maintenance::apply(&mut s.borrow_mut(), input))
+}
+#[wasm_bindgen]
+pub fn stage7_maintain(input: &str, control: &str) -> String {
+    SESSIONS.with(|s| maintenance::apply_controlled(&mut s.borrow_mut(), input, control))
 }
 // Primitive-only meter controls: no strings or output allocations of their own.
 // These expose counters, never session state or provider facts.
@@ -81,6 +90,10 @@ mod tests;
 #[wasm_bindgen]
 pub fn stage5_apply(input: &str) -> String {
     SESSIONS.with(|s| structural::apply(&mut s.borrow_mut(),input))
+}
+#[wasm_bindgen]
+pub fn stage7_structural(input: &str, control: &str) -> String {
+    SESSIONS.with(|s| structural::apply_controlled(&mut s.borrow_mut(),input,control))
 }
 
 #[cfg(test)]

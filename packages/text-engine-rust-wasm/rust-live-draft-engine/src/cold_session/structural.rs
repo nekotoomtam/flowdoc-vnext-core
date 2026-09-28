@@ -60,6 +60,38 @@ impl Command {
         }
     }
 }
+fn validate_before_host<'a>(rt: &Runtime, c: &'a Command, m: &mut Meter) -> Result<Option<(&'a str,u64)>, &'static str> {
+    let (receipt,revision,composition)=c.anchor();
+    m.command_auth_lookups+=1;
+    m.command_auth_receipt_bytes+=receipt.len() as u64;
+    let s=rt.sessions.get(receipt).ok_or("unknown-receipt")?;
+    m.command_revision_checks+=1;
+    if s.revision!=revision { return Err("stale-revision"); }
+    if composition!="committed" { return Err("composition-active"); }
+    match c {
+        Command::Enter {caret_offset,..} => {
+            if *caret_offset>s.source.utf16() { return Err("invalid-caret"); }
+            if s.derived_missing.is_some() { return Err("recovery-required"); }
+            Ok(None)
+        },
+        Command::Join {right_receipt,right_revision,..} => {
+            m.command_auth_lookups+=1;
+            m.command_auth_receipt_bytes+=right_receipt.len() as u64;
+            let other=rt.sessions.get(right_receipt).ok_or("unknown-receipt")?;
+            m.command_revision_checks+=1;
+            if other.revision!=*right_revision { return Err("stale-revision"); }
+            let (split,side)=s.sibling.as_ref().ok_or("not-unchanged-siblings")?;
+            let (other_split,other_side)=other.sibling.as_ref().ok_or("not-unchanged-siblings")?;
+            m.structural.lineage_identity_checks+=8;
+            m.boundary_comparisons+=8;
+            if !*side || *other_side || !Arc::ptr_eq(split,other_split) || split.left!=receipt || split.right!=*right_receipt
+                || revision!=0 || *right_revision!=0 || s.accepted_work!=other.accepted_work || s.last_event!=split.event
+                || other.last_event!=split.event { return Err("not-unchanged-siblings"); }
+            if s.derived_missing.is_some() || other.derived_missing.is_some() { return Err("recovery-required"); }
+            Ok(Some((right_receipt,*right_revision)))
+        }
+    }
+}
 struct Candidate {
     remove: Vec<String>,
     insert: Vec<(String, Session)>,
@@ -793,13 +825,15 @@ fn response(
         }
     }
 }
-pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
+pub(super) fn apply(rt: &mut Runtime, input: &str) -> String { apply_inner(rt,input,None) }
+pub(super) fn apply_controlled(rt: &mut Runtime, input: &str, control: &str) -> String { apply_inner(rt,input,Some(control)) }
+fn apply_inner(rt: &mut Runtime, input: &str, control: Option<&str>) -> String {
     #[cfg(test)]
     super::accounting_tests::PUBLICATION_PROBE.with(|p| p.set(Default::default()));
     let scope = Scope::begin();
     let mut m = Meter::default();
     let mut w = TreeWork::default();
-    m.abi_input_bytes = input.len() as u64;
+    m.abi_input_bytes = (input.len() as u64).checked_add(control.map_or(0,|c|c.len() as u64)).unwrap_or(u64::MAX);
     m.command_parse_calls = 1;
     let command = serde_json::from_str::<Command>(input);
     let life = command
@@ -832,6 +866,10 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
             if lifecycle_overflow {
                 Err("lifecycle-overflow")
             } else {
+                if control.is_some() {
+                    let right=validate_before_host(rt,c,&mut m)?;
+                    super::host_control::observe(control,&mut m,c.anchor().0,c.anchor().1,right,None)?;
+                }
                 plan(rt, c, &mut m, &mut w)
             }
         });
@@ -860,6 +898,19 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
         }
     }
     let mut output = response(&result, prior, lifetime, structural_prior, &mut m);
+    if control.is_some() && matches!(result,Err("cancelled")) {output["status"]=json!("Cancelled");}
+    if matches!(result,Err("cancelled")) {
+        if let Ok(c)=&command {
+            output["unchangedReceipts"]=match c {
+                Command::Enter {receipt,..}=>json!([receipt]),
+                Command::Join {receipt,right_receipt,..}=>json!([receipt,right_receipt]),
+            };
+            output["unchangedRevisions"]=match c {
+                Command::Enter {expected_revision,..}=>json!([expected_revision]),
+                Command::Join {expected_revision,right_revision,..}=>json!([expected_revision,right_revision]),
+            };
+        }
+    }
     if lifecycle_overflow {
         output["affectedSummary"]["attemptAccounting"] = json!("reported-not-accumulated-overflow");
         output["affectedSummary"]["lifecyclePriorWork"] =

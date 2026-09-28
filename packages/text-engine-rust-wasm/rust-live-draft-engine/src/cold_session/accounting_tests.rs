@@ -104,8 +104,8 @@ fn cumulative_red_publication_retirement_is_included_before_allocation_free_fina
         result["affectedSummary"]["work"]["responseEncodedBytes"],
         probe.serde_output_lengths.iter().sum::<usize>()
     );
-    assert_eq!(probe.slot_writes, 190);
-    assert_eq!(probe.slot_bytes, 4940);
+    assert_eq!(probe.slot_writes, 200);
+    assert_eq!(probe.slot_bytes, 5200);
     assert_eq!(
         result["affectedSummary"]["work"]["responseScalarSlotWrites"],
         probe.slot_writes
@@ -496,14 +496,14 @@ fn cumulative_late_headroom_and_known_overflow_reject_without_publication_then_r
             rejected["affectedSummary"]["work"]["responseEncodedBytes"],
             probe.serde_output_lengths.iter().sum::<usize>()
         );
-        assert_eq!((probe.slot_writes, probe.slot_bytes), (190, 4940));
+        assert_eq!((probe.slot_writes, probe.slot_bytes), (200, 5200));
         assert_eq!(
             rejected["affectedSummary"]["work"]["responseScalarSlotWrites"],
-            190
+            200
         );
         assert_eq!(
             rejected["affectedSummary"]["work"]["responseScalarSlotBytes"],
-            4940
+            5200
         );
         assert_eq!(rejected["affectedSummary"]["work"]["faultsCleared"], 0);
         assert!(!PUBLICATION_PROBE.with(std::cell::Cell::get).observed);
@@ -546,9 +546,9 @@ fn cumulative_scalar_writes_are_exact_for_known_and_unknown_rejections() {
         "endOffset":2,"replacementText":"C","anchorSpanId":"span-1","composition":"committed"})
     .to_string();
     for (input, calls, bytes) in [
-        (known.as_str(), 190, 4940),
-        ("{}", 95, 1900),
-        ("{", 95, 1900),
+        (known.as_str(), 200, 5200),
+        ("{}", 100, 2000),
+        ("{", 100, 2000),
     ] {
         let wire = rt.apply(input);
         let result: Value = serde_json::from_str(&wire).unwrap();
