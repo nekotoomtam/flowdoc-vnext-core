@@ -4,6 +4,7 @@ mod local_window;
 mod local_window_tests;
 mod structural_work;
 mod lifecycle;
+mod maintenance;
 mod structural;
 mod commands;
 mod command_work;
@@ -13,6 +14,7 @@ mod ledger;
 mod model;
 mod ownership;
 mod policy;
+mod provider_plans;
 mod position;
 mod runtime;
 mod source;
@@ -45,6 +47,10 @@ pub fn stage4_arm_fault(input: &str) -> String {
 #[wasm_bindgen]
 pub fn stage3_live_count() -> u32 {
     SESSIONS.with(|s| s.borrow().live_count() as u32)
+}
+#[wasm_bindgen]
+pub fn stage6_maintain(input: &str) -> String {
+    SESSIONS.with(|s| maintenance::apply(&mut s.borrow_mut(), input))
 }
 // Primitive-only meter controls: no strings or output allocations of their own.
 // These expose counters, never session state or provider facts.

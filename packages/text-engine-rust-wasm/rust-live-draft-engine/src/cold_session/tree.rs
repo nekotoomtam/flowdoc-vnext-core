@@ -91,6 +91,21 @@ impl<T: Positioned> Located<T> {
     }
 }
 impl<T: Positioned> Tree<T> {
+    pub fn exclusively_released_payloads(&self, w: &mut TreeWork) -> usize {
+        fn count<T>(node: &Option<Arc<Node<T>>>, w: &mut TreeWork) -> usize {
+            let Some(node) = node else { return 0; };
+            w.visits += 1;
+            if Arc::strong_count(node) != 1 { return 0; }
+            usize::from(Arc::strong_count(&node.value) == 1) + count(&node.left,w) + count(&node.right,w)
+        }
+        count(&self.root,w)
+    }
+    pub fn exclusive_singleton_payload(&self) -> bool {
+        self.len == 1 && self.root.as_ref().is_some_and(|root| {
+            Arc::strong_count(root) == 1 && Arc::strong_count(&root.value) == 1 &&
+                root.left.is_none() && root.right.is_none()
+        })
+    }
     // Persistent AVL tail insertion. Push lazy coordinates into descriptor
     // offsets/child roots only; retained payloads are never materialized.
     pub fn append(&self, value: T, w: &mut TreeWork) -> Self {
@@ -395,6 +410,17 @@ impl<T: Positioned> Tree<T> {
             }
         }
         visit(&self.root, Delta::default(), &mut f)
+    }
+    pub fn visit_borrowed(&self, w: &mut TreeWork, mut f: impl FnMut(&T)) {
+        fn visit<T>(node: &Option<Arc<Node<T>>>, w: &mut TreeWork, f: &mut impl FnMut(&T)) {
+            if let Some(n) = node {
+                w.visits += 1;
+                visit(&n.left,w,f);
+                f(&n.value);
+                visit(&n.right,w,f);
+            }
+        }
+        visit(&self.root,w,&mut f);
     }
     #[cfg(test)]
     pub fn payload(&self, index: usize) -> Arc<T> {

@@ -40,8 +40,8 @@ const result={summary,schemaVersion:'core-stage6-applicability/1',commit,finalAd
   compositionCommit:'Exact generator is a committed true no-op [n,n) + empty. NoOp preserves receipt and live content revision; the generator ordinal remains unchanged.',
   activeComposition:'Current private Stage4 and Stage5 explicitly reject composition-active. No generator relabeling or active-to-committed promotion.',
   cancellation:'QA injected cancellation preserves state and retry; this does not establish a host cancellation contract.',
-  missingAnchor:'Typed missing-anchor is tested unchanged rejection, not implemented recovery.',
-  eviction:'No private eviction/cache recovery API. Disposal invalidates a receipt; it is not a defined eviction substitute.',
+  missingAnchor:'This initial-request diagnostic does not exercise the separate private short-isolated derived-shard eviction/recovery test.',
+  eviction:'This initial-request diagnostic does not exercise private explicit shard or Rustybuzz plan eviction/recovery; focused lifecycle tests cover their bounded behavior and the exact named adversarial row retains a separate uncertified-seam result.',
   continuousStream:'Ordinary edit after structural split and inverse invalidation tested; full continuous ordinary/structural admission remains unmeasured.',
   scope:'This diagnostic reports all fixed initial requests at the bound commit. Accepted ordinary rows require edited-source independent cold equality. Rejected requests verify unchanged source and do not count as ordinary applicability. General unbounded contexts and unsupported property/font routes remain typed rejections.',
 },recommendation:summary.ordinary.accepted===75&&summary.noops.handled===15?'Static initial applicability: all 75 ordinary Accepted and all 15 committed true no-ops NoOp. Full 180-row burst, lifecycle and performance remain downstream.':'Static applicability incomplete: resolve listed ordinary or no-op rows before full measurement.'}

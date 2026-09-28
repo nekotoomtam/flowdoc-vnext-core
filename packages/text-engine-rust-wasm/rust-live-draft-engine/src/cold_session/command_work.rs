@@ -68,6 +68,11 @@ pub(super) struct Meter {
     pub provider_flag_entries: u64,
     pub provider_flag_bytes: u64,
     pub font_parse_input_bytes: u64,
+    pub plan_lookups: u64,
+    pub plan_constructions: u64,
+    pub plan_reuses: u64,
+    pub plan_evictions: u64,
+    pub plan_recoveries: u64,
     pub glyph_visits: u64,
     pub whole_paragraph_scans: u64,
     pub full_serializations: u64,
@@ -103,7 +108,7 @@ pub(super) struct Meter {
     pub seam_search_glyphs: u64,
     pub seam_search_windows: u64,
 }
-pub(super) const FIELD_COUNT: usize = 95;
+pub(super) const FIELD_COUNT: usize = 100;
 pub(super) const FAMILY_SCALAR_WRITES: u64 = (FIELD_COUNT + super::structural_work::N + 1) as u64;
 pub(super) const FIELD_NAMES: [&str; FIELD_COUNT] = [
     "publicationPreparationPasses",
@@ -162,6 +167,11 @@ pub(super) const FIELD_NAMES: [&str; FIELD_COUNT] = [
     "providerFlagEntries",
     "providerFlagBytes",
     "fontParseInputBytes",
+    "planLookups",
+    "planConstructions",
+    "planReuses",
+    "planEvictions",
+    "planRecoveries",
     "glyphVisits",
     "wholeParagraphScans",
     "fullSerializations",
@@ -267,6 +277,11 @@ impl Meter {
             self.provider_flag_entries,
             self.provider_flag_bytes,
             self.font_parse_input_bytes,
+            self.plan_lookups,
+            self.plan_constructions,
+            self.plan_reuses,
+            self.plan_evictions,
+            self.plan_recoveries,
             self.glyph_visits,
             self.whole_paragraph_scans,
             self.full_serializations,

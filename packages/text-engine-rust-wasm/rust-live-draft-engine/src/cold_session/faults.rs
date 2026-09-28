@@ -22,6 +22,10 @@ pub(super) enum Point {
     Stage5AfterReceipts,
     Stage5AfterOutput,
     Stage5AfterLedger,
+    EvictionRefusal,
+    RecoveryBeforeProvider,
+    RecoveryAfterProvider,
+    RecoveryPublicationRefusal,
 }
 impl Point {
     fn reason(self) -> &'static str {
@@ -31,7 +35,8 @@ impl Point {
             | Self::NoOpCompletion
             | Self::CancelAfterTailRepair => "cancelled",
             Self::ProviderFailure | Self::TailRepairProviderFailure => "provider-failure",
-            Self::PublicationRefusal => "publication-refused",
+            Self::PublicationRefusal | Self::EvictionRefusal | Self::RecoveryPublicationRefusal => "publication-refused",
+            Self::RecoveryBeforeProvider | Self::RecoveryAfterProvider => "cancelled",
             Self::ReceiptEntropyFailure => "entropy-unavailable",
             Self::Stage5AfterLeft | Self::Stage5AfterRight | Self::Stage5AfterReceipts | Self::Stage5AfterOutput | Self::Stage5AfterLedger => "cancelled",
         }

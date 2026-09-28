@@ -25,6 +25,9 @@ pub(super) struct Session {
     pub spans: Tree<Span>,
     pub runs: Tree<Run>,
     pub shards: Tree<Shard>,
+    // Only a complete short isolated shard may be absent in this first
+    // recovery profile. Source, authored owner and run remain authoritative.
+    pub derived_missing: Option<usize>,
     pub provider: Arc<Provider>,
     pub sibling: Option<(Arc<super::structural::Split>, bool)>,
     pub run_index_base: usize,
@@ -223,6 +226,7 @@ impl Runtime {
                 spans,
                 runs,
                 shards,
+                derived_missing: None,
                 provider: Arc::new(input.provider_context),
                 sibling: None, run_index_base: 0, span_index_base: 0,
                 paragraph: input.paragraph_context,
@@ -248,10 +252,17 @@ impl Runtime {
                     .iter()
                     .map(|f| f.bytes.len())
                     .sum::<usize>();
+                let provider_released = Arc::strong_count(&session.provider) == 1;
+                let mut cleanup_work=super::tree::TreeWork::default();
                 let result = json!({"status":"Disposed", "disposalSummary":{
-                    "releasedSourceBytes":session.source.bytes(), "releasedSpans":session.spans.len,
-                    "releasedRuns":session.runs.len, "releasedShards":session.shards.len,
-                    "releasedFontBytes":resources, "liveSessions":self.live_count(), "faultWork":fault_work}});
+                    "releasedSourceBytes":if Arc::strong_count(&session.source)==1 {session.source.exclusively_released_text_bytes(&mut cleanup_work)} else {0},
+                    "releasedSourceBytesBasis":"conservative-owned-tree-lower-bound",
+                    "releasedSpans":session.spans.exclusively_released_payloads(&mut cleanup_work),
+                    "releasedRuns":session.runs.exclusively_released_payloads(&mut cleanup_work),
+                    "releasedShards":session.shards.exclusively_released_payloads(&mut cleanup_work),
+                    "releasedFontBytes":if provider_released {resources} else {0},
+                    "releasedPlanResources":if provider_released {session.provider.plans.borrow().resident_count()} else {0},
+                    "liveSessions":self.live_count(), "faultWork":fault_work}});
                 drop(session);
                 result
             }

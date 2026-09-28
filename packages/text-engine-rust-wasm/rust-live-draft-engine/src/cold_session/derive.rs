@@ -286,7 +286,17 @@ pub(super) fn build(
             .collect::<Result<Vec<_>, _>>()?;
         work.shaping_calls += 1;
         work.shaping_input_utf16 += (run.end - run.start) as u64;
-        let shaped = rustybuzz::shape(&face, &features, buffer);
+        let before = provider.plans.borrow().counts();
+        let shaped = provider.plans.borrow_mut().shape(
+            super::provider_plans::PlanKey::for_run(provider, run), &face, &features, buffer, true,
+        );
+        let after = provider.plans.borrow().counts();
+        work.plan_lookups += after.lookups - before.lookups;
+        work.plan_constructions += after.constructions - before.constructions;
+        work.plan_reuses += after.reuses - before.reuses;
+        work.plan_evictions += after.evictions - before.evictions;
+        work.plan_recoveries += after.recoveries - before.recoveries;
+        let shaped = shaped?;
         let (concat_flags, flag_bytes) = super::commands::concat_flags(&shaped, &face);
         work.provider_flag_bytes += flag_bytes as u64;
         let mut glyphs = Vec::new();

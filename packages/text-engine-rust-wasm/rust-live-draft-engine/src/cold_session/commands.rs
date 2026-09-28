@@ -168,7 +168,17 @@ pub(super) fn facts(
         m.old_new_shaping_calls += 1;
         m.old_new_provider_input_utf16 += n as u64;
     }
-    let shaped = rustybuzz::shape(&face, &features, buffer);
+    let before = provider.plans.borrow().counts();
+    let shaped = provider.plans.borrow_mut().shape(
+        super::provider_plans::PlanKey::for_run(provider, run), &face, &features, buffer, true,
+    );
+    let after = provider.plans.borrow().counts();
+    m.plan_lookups += after.lookups - before.lookups;
+    m.plan_constructions += after.constructions - before.constructions;
+    m.plan_reuses += after.reuses - before.reuses;
+    m.plan_evictions += after.evictions - before.evictions;
+    m.plan_recoveries += after.recoveries - before.recoveries;
+    let shaped = shaped?;
     let serialized = shaped.serialize(
         &face,
         rustybuzz::SerializeFlags::NO_GLYPH_NAMES
@@ -342,6 +352,8 @@ fn existing_plan(
     m: &mut Meter,
     tw: &mut TreeWork,
 ) -> Result<Candidate, &'static str> {
+    m.command_auth_lookups += 1;
+    m.command_auth_receipt_bytes += c.receipt.len() as u64;
     let s = rt.sessions.get(&c.receipt).ok_or("unknown-receipt")?;
     if c.expected_revision != s.revision {
         return Err("stale-revision");
@@ -353,6 +365,7 @@ fn existing_plan(
     if c.start_offset > c.end_offset || c.end_offset > n {
         return Err("invalid-range");
     }
+    if s.derived_missing.is_some() { return Err("recovery-required"); }
     let insert = c.start_offset == c.end_offset && !c.replacement_text.is_empty();
     let range_edit = c.start_offset < c.end_offset;
     if !insert && !range_edit {
@@ -987,6 +1000,7 @@ pub(super) fn apply(rt: &mut Runtime, input: &str) -> String {
         s.spans = p.spans;
         s.runs = p.runs;
         s.shards = p.shards;
+        s.derived_missing = None;
         s.source_binding = p.binding;
         s.revision = p.revision;
         s.structures.current = p.structures.current;

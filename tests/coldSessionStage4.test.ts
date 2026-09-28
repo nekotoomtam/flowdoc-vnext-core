@@ -59,7 +59,7 @@ describe("private Stage 4 ordinary atomic commands", () => {
       const initial = JSON.parse(wasm.stage3_create(JSON.stringify(fixture(text))))
       let receipt = initial.receipt
       const sums = new Map<string, bigint>(Object.keys(initial.acceptedCumulativeWork).map(k => [k, 0n]))
-      expect(sums.size).toBe(95)
+      expect(sums.size).toBe(100)
       const middle = text.lastIndexOf(" ", Math.floor(text.length / 2))
       for (let revision = 0; revision < 12; revision++) {
         const startOffset = mode === "middle" ? middle : text.length - (text.endsWith("กำ") ? 2 : 1)
@@ -148,7 +148,7 @@ describe("private Stage 4 ordinary atomic commands", () => {
       expect(value).toBe("0".repeat(32))
       totals.set(name, 0n)
     }
-    expect(totals.size).toBe(95)
+    expect(totals.size).toBe(100)
     for (let revision = 0; revision < 2; revision++) {
       const wire = wasm.stage4_apply(JSON.stringify({ receipt, expectedRevision: revision,
         startOffset: 2 + revision, endOffset: 2 + revision, replacementText: "C",
@@ -158,7 +158,7 @@ describe("private Stage 4 ordinary atomic commands", () => {
       expect(result.affectedSummary.attemptWork).toBeUndefined()
       expect(result.affectedSummary.work.abiOutputBytes).toBe(Buffer.byteLength(wire))
       expect(result.affectedSummary.work).toMatchObject({ responseEncodingPasses: 2,
-        responseScalarSlotWrites: 190, responseScalarSlotBytes: 4940 })
+        responseScalarSlotWrites: 200, responseScalarSlotBytes: 5200 })
       for (const [name, prior] of totals) {
         const actual = prior + BigInt(result.affectedSummary.work[name])
         totals.set(name, actual)
@@ -173,7 +173,7 @@ describe("private Stage 4 ordinary atomic commands", () => {
     expect(rejected).toMatchObject({ status: "NotAdmissible", reason: "budget-exhaustion", unchangedRevision: 2 })
     expect(rejected.affectedSummary.work.sourceFactsUtf16).toBe(511)
     expect(rejected.affectedSummary.work).toMatchObject({ responseEncodingPasses: 2,
-      responseScalarSlotWrites: 190, responseScalarSlotBytes: 4940 })
+      responseScalarSlotWrites: 200, responseScalarSlotBytes: 5200 })
     for (const [name, total] of totals) {
       expect(BigInt(`0x${rejected.affectedSummary.acceptedCumulativeWork[name]}`)).toBe(total)
     }
@@ -185,7 +185,7 @@ describe("private Stage 4 ordinary atomic commands", () => {
       const rejected = JSON.parse(wire)
       expect(rejected).toMatchObject({ status: "NotAdmissible", affectedSummary: {
         acceptedCumulativeWork: null, work: { responseEncodingPasses: 2,
-          responseScalarSlotWrites: 95, responseScalarSlotBytes: 1900,
+          responseScalarSlotWrites: 100, responseScalarSlotBytes: 2000,
           abiOutputBytes: Buffer.byteLength(wire) } } })
     }
   })
@@ -771,7 +771,7 @@ it("preserves live committed analysis transitions, counters and structural inver
         sums.set(k, (sums.get(k) ?? 0n) + BigInt(work[k]))
         expect(BigInt(`0x${v}`)).toBe(sums.get(k))
       }
-      expect(sums.size).toBe(95)
+      expect(sums.size).toBe(100)
     }
     const split = JSON.parse(wasm.stage5_apply(JSON.stringify({ operation: "enter", receipt, expectedRevision: 16, caretOffset: 0, composition: "committed" })))
     expect(split.status, JSON.stringify(split)).toBe("Accepted")

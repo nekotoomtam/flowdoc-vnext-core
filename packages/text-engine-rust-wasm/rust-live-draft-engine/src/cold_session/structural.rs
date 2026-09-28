@@ -642,6 +642,8 @@ fn plan(
     }
     match c {
         Command::Enter { caret_offset, .. } => {
+            if *caret_offset > s.source.utf16() { return Err("invalid-caret"); }
+            if s.derived_missing.is_some() { return Err("recovery-required"); }
             let event = identity(m)?;
             let l = identity(m)?;
             let r = identity(m)?;
@@ -698,6 +700,9 @@ fn plan(
                 || other.last_event != split.event
             {
                 return Err("not-unchanged-siblings");
+            }
+            if s.derived_missing.is_some() || other.derived_missing.is_some() {
+                return Err("recovery-required");
             }
             let event = identity(m)?;
             let next = identity(m)?;
@@ -967,6 +972,8 @@ pub(super) fn dispose(rt: &mut Runtime, receipt: &str) -> String {
     let family_events = {
         let family = life.as_ref().unwrap().borrow();
         json!({"acceptedEvents":family.accepted_events,"noOpEvents":family.no_op_events,
+            "maintenanceEvents":family.maintenance_events,"evictionEvents":family.eviction_events,
+            "recoveryEvents":family.recovery_events,"unchangedMaintenanceEvents":family.unchanged_maintenance_events,
             "rejectedAttempts":family.rejected_attempts,"disposals":family.disposals + 1})
     };
     let peer = session.sibling.as_ref().map(|(pair, left)| {
@@ -984,8 +991,20 @@ pub(super) fn dispose(rt: &mut Runtime, receipt: &str) -> String {
                 .is_some_and(|(pair, _)| Arc::strong_count(pair) == 1),
         );
     m.structural.lineage_scalar_writes = if last_family { 1 } else { super::command_work::FAMILY_SCALAR_WRITES };
-    let mut output = json!({"status":"Disposed","disposalSummary":{"releasedSourceBytes":session.source.bytes(),"releasedSpans":session.spans.len,
-        "releasedRuns":session.runs.len,"releasedShards":session.shards.len,"releasedFontBytes":session.provider.fonts.iter().map(|f|f.bytes.len()).sum::<usize>(),"liveSessions":rt.live_count()-1},
+    let provider_released=Arc::strong_count(&session.provider)==1;
+    let mut cleanup_work=TreeWork::default();
+    let released_source=if Arc::strong_count(&session.source)==1 {session.source.exclusively_released_text_bytes(&mut cleanup_work)} else {0};
+    let released_spans=session.spans.exclusively_released_payloads(&mut cleanup_work);
+    let released_runs=session.runs.exclusively_released_payloads(&mut cleanup_work);
+    let released_shards=session.shards.exclusively_released_payloads(&mut cleanup_work);
+    m.tree_node_visits += cleanup_work.visits;
+    let mut output = json!({"status":"Disposed","disposalSummary":{"releasedSourceBytes":released_source,
+        "releasedSourceBytesBasis":"conservative-owned-tree-lower-bound",
+        "releasedSpans":released_spans,
+        "releasedRuns":released_runs,
+        "releasedShards":released_shards,
+        "releasedFontBytes":if provider_released {session.provider.fonts.iter().map(|f|f.bytes.len()).sum::<usize>()} else {0},
+        "releasedPlanResources":if provider_released {session.provider.plans.borrow().resident_count()} else {0},"liveSessions":rt.live_count()-1},
         "affectedSummary":{"work":m,"acceptedCumulativeWork":prior,"lifecycleCumulativeWork":lifetime,"familyEvents":family_events,"structuralWork":m.structural,"acceptedStructuralWork":structural_prior}});
     let revision = session.revision;
     m.response_value_passes += 1;

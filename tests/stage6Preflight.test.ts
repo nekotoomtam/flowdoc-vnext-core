@@ -19,6 +19,7 @@ describe('retained Stage 6 corpus preflight', () => {
     expect(manifest.sustained).toHaveLength(90)
     expect(manifest.burst).toHaveLength(180)
     expect(manifest.adversarial).toEqual(corpus.adversarial)
+    expect(manifest.mapping['shape-plan-cache-eviction']).toContain('uncertified-seam')
   })
 
   it('preserves exact generated requests, including dependent burst revisions', () => {

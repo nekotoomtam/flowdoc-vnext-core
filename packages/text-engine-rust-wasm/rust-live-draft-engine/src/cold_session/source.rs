@@ -152,6 +152,18 @@ impl Source {
     pub fn bytes(&self) -> usize {
         self.bytes
     }
+    pub fn exclusively_released_text_bytes(&self, work: &mut TreeWork) -> usize {
+        if self.pieces.exclusively_released_payloads(work) != self.pieces.len { return 0; }
+        // Several retained pieces may share one text buffer. Count each
+        // distinct buffer only when all its Arc owners are in this tree.
+        let mut buffers=std::collections::HashMap::<*const str,(usize,usize,usize)>::new();
+        self.pieces.visit_borrowed(work,|piece| {
+            let text=&piece.text;
+            let entry=buffers.entry(Arc::as_ptr(text)).or_insert((0,Arc::strong_count(text),text.len()));
+            entry.0 += 1;
+        });
+        buffers.values().filter(|(internal,owners,_)|internal==owners).map(|(_,_,bytes)|*bytes).sum()
+    }
     pub fn stats(&self) -> super::structure::TreeStats {
         self.pieces.stats()
     }

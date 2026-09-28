@@ -8,7 +8,7 @@ pub(super) struct Input {
     pub paragraph_context: Paragraph,
     pub authored_spans: Vec<SpanInput>,
 }
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub(super) struct Provider {
     pub provider_id: String,
@@ -16,6 +16,8 @@ pub(super) struct Provider {
     pub policy_digest: String,
     pub policy: Policy,
     pub fonts: Vec<Font>,
+    #[serde(skip)]
+    pub plans: std::cell::RefCell<super::provider_plans::PlanCache>,
 }
 #[derive(Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]

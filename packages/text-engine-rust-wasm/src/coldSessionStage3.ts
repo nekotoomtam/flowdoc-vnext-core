@@ -11,6 +11,7 @@ export interface ColdQaWasm {
   stage3_allocation_count(field: number): bigint
   stage4_apply?(input: string): string
   stage5_apply?(input: string): string
+  stage6_maintain?(input: string): string
 }
 declare const receiptBrand: unique symbol
 export type ColdReceipt = Readonly<{ [receiptBrand]: true }>
@@ -43,6 +44,12 @@ export type ColdCommandResult =
 export type ColdStructuralResult =
  | {status:"Accepted";receipts:readonly ColdReceipt[];revision:0;affectedSummary:CommandSummary}
  | {status:"NotAdmissible";reason:string;affectedSummary:CommandSummary}
+ | {status:"UnknownReceipt" | "Unavailable"}
+
+export type ColdMaintenanceResult =
+ | {status:"Evicted" | "Recovered" | "Unchanged"; unchangedReceipt:ColdReceipt; unchangedRevision:number;
+    targetRunIndex:number; releasedResources:number; releasedBytes:number; affectedSummary:CommandSummary}
+ | {status:"NotAdmissible"; reason:string; unchangedReceipt:ColdReceipt; unchangedRevision:number; affectedSummary:CommandSummary}
  | {status:"UnknownReceipt" | "Unavailable"}
 
 export function createColdSessionQaAdapter(wasm: ColdQaWasm) {
@@ -92,6 +99,15 @@ export function createColdSessionQaAdapter(wasm: ColdQaWasm) {
     },
     join(left:ColdReceipt,right:ColdReceipt,leftRevision=0,rightRevision=0,composition:"committed"|"active"="committed"):ColdStructuralResult {
       return structural([left,right],{operation:"join",expectedRevision:leftRevision,rightRevision,composition})
+    },
+    maintain(receipt:ColdReceipt, expectedRevision:number, operation:"evict"|"recover", runIndex:number, target:"plan"|"shard"="plan"):ColdMaintenanceResult {
+      const capability=capabilities.get(receipt)
+      if(!capability)return {status:"UnknownReceipt"}
+      if(!wasm.stage6_maintain)return {status:"Unavailable"}
+      const {wire,...allocations}=measuredTransfer(JSON.stringify({receipt:capability,expectedRevision,operation,runIndex,target}),input=>wasm.stage6_maintain!(input))
+      const result=JSON.parse(wire)
+      result.affectedSummary.allocationLifecycle={...allocations,allocationScope:"complete-rust-abi-lifecycle",hostJsonEncodePasses:1,hostJsonDecodePasses:1,abiEntrypointCalls:7}
+      return {...result,unchangedReceipt:receipt}
     },
     apply(receipt: ColdReceipt, command: ColdCommand): ColdCommandResult {
       const capability = capabilities.get(receipt)

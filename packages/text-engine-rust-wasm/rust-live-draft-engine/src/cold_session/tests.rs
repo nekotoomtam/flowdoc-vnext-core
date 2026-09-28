@@ -3,6 +3,275 @@ use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 
 #[test]
+fn source_disposal_counts_unique_and_internally_shared_text_buffers() {
+    let source=super::source::Source::cold(String::new(),&[],&mut super::ledger::Work::default())
+        .append("ABCD",4,&mut super::tree::TreeWork::default()).unwrap();
+    assert_eq!(source.exclusively_released_text_bytes(&mut super::tree::TreeWork::default()),4);
+    let edited=source.replace(1,3,"",0,&mut super::tree::TreeWork::default()).unwrap();
+    drop(source);
+    assert_eq!(edited.qa_text(),"AD");
+    assert_eq!(edited.exclusively_released_text_bytes(&mut super::tree::TreeWork::default()),4);
+    let mut rt=Runtime::default();
+    let made=create(&mut rt,&fixture("AB"));
+    let disposed:Value=serde_json::from_str(&super::structural::dispose(&mut rt,made["receipt"].as_str().unwrap())).unwrap();
+    assert_eq!(disposed["disposalSummary"]["releasedSourceBytes"],2);
+    assert_eq!(disposed["disposalSummary"]["releasedSourceBytesBasis"],"conservative-owned-tree-lower-bound");
+}
+
+#[test]
+fn shape_plan_eviction_requires_explicit_bounded_recovery() {
+    let mut rt = Runtime::default();
+    let created = create(&mut rt, &fixture("AB"));
+    assert_eq!(created["status"], "Created", "{created}");
+    let receipt = created["receipt"].as_str().unwrap().to_owned();
+    assert_eq!(rt.session(&receipt).provider.plans.borrow().constructions, 1);
+    assert_eq!(created["coldSummary"]["work"]["planConstructions"],1);
+    let request = |operation| json!({"receipt":receipt,"expectedRevision":0,"operation":operation,"runIndex":0}).to_string();
+    let evicted: Value = serde_json::from_str(&super::maintenance::apply(&mut rt, &request("evict"))).unwrap();
+    assert_eq!(evicted["status"], "Evicted", "{evicted}");
+    assert_eq!(evicted["releasedResources"], 1);
+    assert_eq!(evicted["affectedSummary"]["work"]["planEvictions"],1);
+    assert_eq!(evicted["affectedSummary"]["work"]["commandAuthLookups"],3);
+    assert_eq!(evicted["affectedSummary"]["work"]["commandAuthReceiptBytes"],receipt.len()*3);
+    assert_eq!(rt.session(&receipt).lifecycle.borrow().structural_attempts.0[7],
+        u128::from(super::command_work::FAMILY_SCALAR_WRITES+1));
+    assert!(evicted["releasedBytes"].as_u64().unwrap() > 0);
+    assert_eq!(rt.session(&receipt).provider.plans.borrow().evictions, 1);
+    let edit = json!({"receipt":receipt,"expectedRevision":0,"startOffset":2,"endOffset":2,
+        "replacementText":"C","composition":"committed","anchorSpanId":"span-1"});
+    let missing: Value = serde_json::from_str(&rt.apply(&edit.to_string())).unwrap();
+    assert_eq!(missing["reason"], "recovery-required", "{missing}");
+    assert_eq!(rt.session(&receipt).revision, 0);
+    let recovered: Value = serde_json::from_str(&super::maintenance::apply(&mut rt, &request("recover"))).unwrap();
+    assert_eq!(recovered["status"], "Recovered", "{recovered}");
+    assert_eq!(recovered["affectedSummary"]["work"]["planConstructions"],1);
+    assert_eq!(recovered["affectedSummary"]["work"]["planRecoveries"],1);
+    assert_eq!(recovered["affectedSummary"]["work"]["commandAuthLookups"],4);
+    assert_eq!(recovered["affectedSummary"]["work"]["commandAuthReceiptBytes"],receipt.len()*4);
+    assert_eq!(rt.session(&receipt).revision, 0);
+    let accepted: Value = serde_json::from_str(&rt.apply(&edit.to_string())).unwrap();
+    assert_eq!(accepted["status"], "Accepted", "{accepted}");
+    assert!(rt.session(accepted["nextReceipt"].as_str().unwrap()).provider.plans.borrow().reuses > 0);
+    let next = accepted["nextReceipt"].as_str().unwrap();
+    let equal: Value = serde_json::from_str(&super::qa_compare::verify(&rt,next,&fixture("ABC").to_string())).unwrap();
+    assert_eq!(equal["status"], "Equal", "{equal}");
+}
+
+#[test]
+fn isolated_derived_shard_releases_tree_and_recovers_from_retained_authority() {
+    let mut rt=Runtime::default();
+    let created=create(&mut rt,&fixture("AB"));
+    let receipt=created["receipt"].as_str().unwrap().to_owned();
+    let request=|operation|json!({"receipt":receipt,"expectedRevision":0,"operation":operation,"runIndex":0,"target":"shard"}).to_string();
+    let evicted:Value=serde_json::from_str(&super::maintenance::apply(&mut rt,&request("evict"))).unwrap();
+    assert_eq!(evicted["status"],"Evicted","{evicted}");
+    assert!(evicted["releasedBytes"].as_u64().unwrap()>0);
+    assert_eq!(rt.session(&receipt).shards.len,0);
+    assert_eq!(rt.session(&receipt).derived_missing,Some(0));
+    assert_eq!(evicted["affectedSummary"]["work"]["commandAuthLookups"],4);
+    assert_eq!(evicted["affectedSummary"]["work"]["commandAuthReceiptBytes"],receipt.len()*4);
+    let no_op:Value=serde_json::from_str(&rt.apply(&json!({"receipt":receipt,"expectedRevision":0,
+        "startOffset":2,"endOffset":2,"replacementText":"","composition":"committed"}).to_string())).unwrap();
+    assert_eq!(no_op["status"],"NoOp","{no_op}");
+    let edit=json!({"receipt":receipt,"expectedRevision":0,"startOffset":2,"endOffset":2,
+        "replacementText":"C","composition":"committed","anchorSpanId":"span-1"});
+    let missing:Value=serde_json::from_str(&rt.apply(&edit.to_string())).unwrap();
+    assert_eq!(missing["reason"],"recovery-required","{missing}");
+    assert_eq!(missing["affectedSummary"]["work"]["commandAuthLookups"],5);
+    for (patch,reason) in [(json!({"composition":"active"}),"composition-active"),
+        (json!({"startOffset":9,"endOffset":9}),"invalid-range"),
+        (json!({"expectedRevision":1}),"stale-revision")] {
+        let mut invalid=edit.clone();
+        for (k,v) in patch.as_object().unwrap() { invalid[k]=v.clone(); }
+        let reply:Value=serde_json::from_str(&rt.apply(&invalid.to_string())).unwrap();
+        assert_eq!(reply["reason"],reason,"{reply}");
+    }
+    for (revision,caret,composition,reason) in [(1,1,"committed","stale-revision"),
+        (0,1,"active","composition-active"),(0,9,"committed","invalid-caret"),
+        (0,1,"committed","recovery-required")] {
+        let reply:Value=serde_json::from_str(&super::structural::apply(&mut rt,&json!({
+            "operation":"enter","receipt":receipt,"expectedRevision":revision,
+            "caretOffset":caret,"composition":composition}).to_string())).unwrap();
+        assert_eq!(reply["reason"],reason,"{reply}");
+    }
+    let recovered:Value=serde_json::from_str(&super::maintenance::apply(&mut rt,&request("recover"))).unwrap();
+    assert_eq!(recovered["status"],"Recovered","{recovered}");
+    assert_eq!(rt.session(&receipt).shards.len,1);
+    assert_eq!(rt.session(&receipt).derived_missing,None);
+    let equal:Value=serde_json::from_str(&super::qa_compare::verify(&rt,&receipt,&fixture("AB").to_string())).unwrap();
+    assert_eq!(equal["status"],"Equal","{equal}");
+    let accepted:Value=serde_json::from_str(&rt.apply(&edit.to_string())).unwrap();
+    assert_eq!(accepted["status"],"Accepted","{accepted}");
+}
+
+#[test]
+fn maintenance_faults_leave_derived_missing_state_retryable() {
+    for target in ["plan", "shard"] {
+        let mut rt=Runtime::default();
+        let created=create(&mut rt,&fixture("AB"));
+        let receipt=created["receipt"].as_str().unwrap().to_owned();
+        let request=|operation|json!({"receipt":receipt,"expectedRevision":0,"operation":operation,"runIndex":0,"target":target}).to_string();
+        let arm=|rt:&mut Runtime,point| {
+            let wire=super::faults::arm(rt,&json!({"receipt":receipt,"expectedRevision":0,"point":point}).to_string());
+            assert_eq!(serde_json::from_str::<Value>(&wire).unwrap()["status"],"Armed");
+        };
+        arm(&mut rt,"eviction-refusal");
+        let refused:Value=serde_json::from_str(&super::maintenance::apply(&mut rt,&request("evict"))).unwrap();
+        assert_eq!(refused["reason"],"publication-refused");
+        assert_eq!(rt.session(&receipt).derived_missing,None);
+        let evicted:Value=serde_json::from_str(&super::maintenance::apply(&mut rt,&request("evict"))).unwrap();
+        assert_eq!(evicted["status"],"Evicted","{evicted}");
+        for point in ["recovery-before-provider","recovery-after-provider","recovery-publication-refusal"] {
+            arm(&mut rt,point);
+            let failed:Value=serde_json::from_str(&super::maintenance::apply(&mut rt,&request("recover"))).unwrap();
+            assert!(matches!(failed["reason"].as_str(),Some("cancelled"|"publication-refused")),"{failed}");
+            if target=="shard" { assert_eq!(rt.session(&receipt).derived_missing,Some(0)); }
+            else { assert_eq!(rt.session(&receipt).provider.plans.borrow().reuses,0); }
+        }
+        let success:Value=serde_json::from_str(&super::maintenance::apply(&mut rt,&request("recover"))).unwrap();
+        assert_eq!(success["status"],"Recovered","{success}");
+    }
+}
+
+#[test]
+fn plan_counter_overflow_does_not_mark_a_resident_plan_missing() {
+    let mut rt=Runtime::default();
+    let created=create(&mut rt,&fixture("AB"));
+    let receipt=created["receipt"].as_str().unwrap().to_owned();
+    let request=|operation|json!({"receipt":receipt,"expectedRevision":0,"operation":operation,"runIndex":0,"target":"plan"}).to_string();
+    rt.session(&receipt).provider.plans.borrow_mut().evictions=u64::MAX;
+    let failed:Value=serde_json::from_str(&super::maintenance::apply(&mut rt,&request("evict"))).unwrap();
+    assert_eq!(failed["reason"],"lifecycle-overflow","{failed}");
+    let cache=rt.session(&receipt).provider.plans.borrow();
+    assert_eq!(cache.evictions,u64::MAX);
+    assert_eq!(cache.constructions,1);
+    drop(cache);
+    rt.session(&receipt).provider.plans.borrow_mut().evictions=0;
+    let evicted:Value=serde_json::from_str(&super::maintenance::apply(&mut rt,&request("evict"))).unwrap();
+    assert_eq!(evicted["status"],"Evicted","{evicted}");
+    rt.session(&receipt).provider.plans.borrow_mut().recoveries=u64::MAX;
+    let rejected:Value=serde_json::from_str(&super::maintenance::apply(&mut rt,&request("recover"))).unwrap();
+    assert_eq!(rejected["reason"],"lifecycle-overflow","{rejected}");
+    rt.session(&receipt).provider.plans.borrow_mut().recoveries=0;
+    let recovered:Value=serde_json::from_str(&super::maintenance::apply(&mut rt,&request("recover"))).unwrap();
+    assert_eq!(recovered["status"],"Recovered","{recovered}");
+}
+
+#[test]
+fn shard_alias_prevents_false_physical_release() {
+    let mut rt=Runtime::default();
+    let created=create(&mut rt,&fixture("AB"));
+    let receipt=created["receipt"].as_str().unwrap().to_owned();
+    let alias=rt.session(&receipt).shards.clone();
+    let request=json!({"receipt":receipt,"expectedRevision":0,"operation":"evict","runIndex":0,"target":"shard"}).to_string();
+    let pinned:Value=serde_json::from_str(&super::maintenance::apply(&mut rt,&request)).unwrap();
+    assert_eq!(pinned["reason"],"resource-in-use","{pinned}");
+    assert_eq!(rt.session(&receipt).shards.len,1);
+    drop(alias);
+    let evicted:Value=serde_json::from_str(&super::maintenance::apply(&mut rt,&request)).unwrap();
+    assert_eq!(evicted["status"],"Evicted","{evicted}");
+    assert!(evicted["releasedBytes"].as_u64().unwrap()>0);
+}
+
+#[test]
+fn shard_recovery_rejects_missing_owner_edge_provider_and_budget_then_retries() {
+    for kind in ["owner","edge","provider","budget","source"] {
+        let mut rt=Runtime::default();
+        let created=create(&mut rt,&fixture("AB"));
+        let receipt=created["receipt"].as_str().unwrap().to_owned();
+        let request=|operation|json!({"receipt":receipt,"expectedRevision":0,"operation":operation,"runIndex":0,"target":"shard"}).to_string();
+        assert_eq!(serde_json::from_str::<Value>(&super::maintenance::apply(&mut rt,&request("evict"))).unwrap()["status"],"Evicted");
+        let prior_spans=rt.session(&receipt).spans.clone();
+        let prior_runs=rt.session(&receipt).runs.clone();
+        let prior_binding=rt.session(&receipt).source_binding.clone();
+        let prior_revision=rt.session(&receipt).provider.provider_revision.clone();
+        let s=rt.sessions.get_mut(&receipt).unwrap();
+        match kind {
+            "owner" => s.spans=super::tree::Tree::build(vec![],&mut super::ledger::Work::default()),
+            "provider" => std::sync::Arc::get_mut(&mut s.provider).unwrap().provider_revision="tampered".into(),
+            "source" => s.source_binding.clear(),
+            "edge" | "budget" => {
+                let mut w=super::tree::TreeWork::default();
+                let mut run=s.runs.at(0,&mut w).unwrap().materialize(&mut w);
+                if kind=="edge" {run.start=1;} else {run.end=129;}
+                s.runs=super::tree::Tree::build(vec![run],&mut super::ledger::Work::default());
+            }
+            _ => unreachable!(),
+        }
+        let failed:Value=serde_json::from_str(&super::maintenance::apply(&mut rt,&request("recover"))).unwrap();
+        let expected=match kind {"owner"=>"missing-owner","edge"=>"missing-edge-witness",
+            "provider"=>"provider-binding-mismatch","budget"=>"budget-exhaustion",_=>"source-binding-mismatch"};
+        assert_eq!(failed["reason"],expected,"{kind}: {failed}");
+        assert_eq!(rt.session(&receipt).derived_missing,Some(0));
+        let s=rt.sessions.get_mut(&receipt).unwrap();
+        s.spans=prior_spans;s.runs=prior_runs;s.source_binding=prior_binding;
+        if kind=="provider" { std::sync::Arc::get_mut(&mut s.provider).unwrap().provider_revision=prior_revision; }
+        let recovered:Value=serde_json::from_str(&super::maintenance::apply(&mut rt,&request("recover"))).unwrap();
+        assert_eq!(recovered["status"],"Recovered","{kind}: {recovered}");
+    }
+}
+
+#[test]
+fn named_shape_plan_cache_eviction_keeps_exact_committed_edit() {
+    let text=format!("{}A","ภาษาไทย office AV กิ้ ".chars().cycle().take(2047).collect::<String>());
+    let mut rt=Runtime::default();
+    let created=create(&mut rt,&fixture(&text));
+    assert_eq!(created["status"],"Created","{created}");
+    let receipt=created["receipt"].as_str().unwrap().to_owned();
+    let mut w=super::tree::TreeWork::default();
+    let index=(0..rt.session(&receipt).runs.len).find(|&i|{
+        let run=rt.session(&receipt).runs.at(i,&mut w).unwrap().materialize(&mut w);
+        run.start<=500&&500<run.end
+    }).unwrap();
+    let request=|operation|json!({"receipt":receipt,"expectedRevision":0,"operation":operation,"runIndex":index,"target":"plan"}).to_string();
+    let edit=json!({"receipt":receipt,"expectedRevision":0,"startOffset":500,"endOffset":500,
+        "replacementText":"A","composition":"committed","anchorSpanId":"span-1"});
+    let baseline:Value=serde_json::from_str(&rt.apply(&edit.to_string())).unwrap();
+    assert_eq!(baseline["reason"],"uncertified-seam");
+    assert_eq!(serde_json::from_str::<Value>(&super::qa_compare::verify(&rt,&receipt,&fixture(&text).to_string())).unwrap()["status"],"Equal");
+    assert_eq!(serde_json::from_str::<Value>(&super::maintenance::apply(&mut rt,&request("evict"))).unwrap()["status"],"Evicted");
+    let missing:Value=serde_json::from_str(&rt.apply(&edit.to_string())).unwrap();
+    assert_eq!(missing["reason"],"recovery-required","{missing}");
+    let recovered:Value=serde_json::from_str(&super::maintenance::apply(&mut rt,&request("recover"))).unwrap();
+    assert_eq!(recovered["status"],"Recovered","{recovered}");
+    let after:Value=serde_json::from_str(&rt.apply(&edit.to_string())).unwrap();
+    assert_eq!(after["reason"],"uncertified-seam");
+    assert_eq!(after["unchangedReceipt"],receipt);
+    assert_eq!(after["unchangedRevision"],0);
+    let equal:Value=serde_json::from_str(&super::qa_compare::verify(&rt,&receipt,&fixture(&text).to_string())).unwrap();
+    assert_eq!(equal["status"],"Equal","{equal}");
+}
+
+#[test]
+fn maintenance_attempts_sum_once_through_final_disposal() {
+    let mut rt=Runtime::default();
+    let created=create(&mut rt,&fixture("AB"));
+    let receipt=created["receipt"].as_str().unwrap().to_owned();
+    let request=|operation,target|json!({"receipt":receipt,"expectedRevision":0,"operation":operation,"runIndex":0,"target":target}).to_string();
+    let mut events=Vec::<Value>::new();
+    for (operation,target) in [("evict","shard"),("evict","shard"),("recover","shard"),("evict","plan"),("recover","plan")] {
+        events.push(serde_json::from_str(&super::maintenance::apply(&mut rt,&request(operation,target))).unwrap());
+    }
+    events.push(serde_json::from_str(&rt.apply(&json!({"receipt":receipt,"expectedRevision":0,
+        "startOffset":2,"endOffset":2,"replacementText":"","composition":"committed"}).to_string())).unwrap());
+    let edit:Value=serde_json::from_str(&rt.apply(&json!({"receipt":receipt,"expectedRevision":0,
+        "startOffset":2,"endOffset":2,"replacementText":"C","composition":"committed","anchorSpanId":"span-1"}).to_string())).unwrap();
+    assert_eq!(edit["status"],"Accepted");
+    let next=edit["nextReceipt"].as_str().unwrap().to_owned();
+    events.push(edit);
+    let disposal:Value=serde_json::from_str(&super::structural::dispose(&mut rt,&next)).unwrap();
+    assert_eq!(disposal["status"],"Disposed");
+    assert_eq!(disposal["affectedSummary"]["familyEvents"]["evictionEvents"],2);
+    assert_eq!(disposal["affectedSummary"]["familyEvents"]["recoveryEvents"],2);
+    assert_eq!(disposal["affectedSummary"]["familyEvents"]["unchangedMaintenanceEvents"],1);
+    for field in super::command_work::FIELD_NAMES {
+        let sum=events.iter().chain(std::iter::once(&disposal)).map(|e|u128::from(e["affectedSummary"]["work"][field].as_u64().unwrap())).sum::<u128>();
+        let reported=u128::from_str_radix(disposal["affectedSummary"]["lifecycleCumulativeWork"][field].as_str().unwrap(),16).unwrap();
+        assert_eq!(reported,sum,"{field}");
+    }
+}
+
+#[test]
 fn committed_eof_no_op_preserves_identity_facts_and_family_accounting() {
     for text in ["", "AB", "ภาษาไทย", "Aกข"] {
         let mut rt = Runtime::default();

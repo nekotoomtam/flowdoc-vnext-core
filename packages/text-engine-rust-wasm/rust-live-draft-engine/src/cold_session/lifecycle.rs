@@ -17,6 +17,10 @@ pub(super) struct Lifecycle {
     pub structural_attempts: super::structural_work::Totals,
     pub accepted_events: u64,
     pub no_op_events: u64,
+    pub maintenance_events: u64,
+    pub eviction_events: u64,
+    pub recovery_events: u64,
+    pub unchanged_maintenance_events: u64,
     pub rejected_attempts: u64,
     pub disposals: u64,
 }
@@ -38,6 +42,10 @@ impl Lifecycle {
             .checked_add(1)
             .ok_or("lifecycle-overflow")?;
         self.no_op_events.checked_add(1).ok_or("lifecycle-overflow")?;
+        self.maintenance_events.checked_add(1).ok_or("lifecycle-overflow")?;
+        self.eviction_events.checked_add(1).ok_or("lifecycle-overflow")?;
+        self.recovery_events.checked_add(1).ok_or("lifecycle-overflow")?;
+        self.unchanged_maintenance_events.checked_add(1).ok_or("lifecycle-overflow")?;
         self.rejected_attempts
             .checked_add(1)
             .ok_or("lifecycle-overflow")?;
@@ -57,5 +65,16 @@ impl Lifecycle {
         } else {
             self.rejected_attempts += 1;
         }
+    }
+    pub fn finish_maintenance(&mut self, m: &Meter, status: &str, rejected: bool) {
+        self.attempts = self.attempts.total(m);
+        self.structural_attempts = self.structural_attempts.total(&m.structural);
+        match status {
+            "Evicted" => { self.maintenance_events += 1; self.eviction_events += 1; },
+            "Recovered" => { self.maintenance_events += 1; self.recovery_events += 1; },
+            "Unchanged" => { self.unchanged_maintenance_events += 1; },
+            _ => {},
+        }
+        if rejected { self.rejected_attempts += 1; }
     }
 }
